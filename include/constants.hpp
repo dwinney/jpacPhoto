@@ -86,6 +86,7 @@ namespace jpacPhoto
     const double M2_JPSI     = M_JPSI * M_JPSI;
     const double M2_D        = M_D * M_D;
     const double M2_DSTAR    = M_DSTAR * M_DSTAR; 
+    const double M2_X3872    = M_X3872 * M_X3872;
 
     // Baryon masses
     const double M_PROTON    = 0.938272;
