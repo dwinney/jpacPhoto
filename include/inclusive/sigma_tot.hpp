@@ -14,7 +14,7 @@
 inline double sigmatot_pi(double s)
 {
     double result = 13.63 * pow(s, 0.0808) + 31.79 * pow(s, -0.425);
-    return result * 1.E6; // convert to nb
+    return result; // convert to nb
 };
 
 #endif

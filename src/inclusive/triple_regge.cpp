@@ -21,7 +21,7 @@ double jpacPhoto::triple_regge::invariant_xsection(double s, double t, double M2
     }
 
     // result /= 64. * PI * PI * s * pow(_kinematics->pGamma_CM(s), 2.);
-    return result;
+    return result * 1.E6; // convert to nb from mb
 };
 
 double jpacPhoto::triple_regge::integrated_xsection(double s)
