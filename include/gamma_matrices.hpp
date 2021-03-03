@@ -5,8 +5,8 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef GAMMA
-#define GAMMA
+#ifndef GAMMAS
+#define GAMMAS
 
 #include "constants.hpp"
 
