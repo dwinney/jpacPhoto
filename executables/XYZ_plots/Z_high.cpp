@@ -37,7 +37,7 @@ int main( int argc, char** argv )
   // Preliminaries
   // ---------------------------------------------------------------------------
 
-  double g_NN = sqrt(4. * PI * 13.81); // Nucleon coupling same for all
+  double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
   double LamPi = .9;  // 900 MeV cutoff for formfactor
   double bPi = 1. / (LamPi * LamPi);
 
