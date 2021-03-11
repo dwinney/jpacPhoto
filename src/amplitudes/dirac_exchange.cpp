@@ -106,7 +106,7 @@ std::complex<double> jpacPhoto::dirac_exchange::bottom_vertex(int j, int lam_vec
         for (int k = 0; k < 4; k++)
         {
             std::complex<double> temp;
-            temp  = slashed_eps(j, k, lam_vec, _kinematics->_eps_vec, true, _s, _theta + PI); //theta_vec = theta
+            temp  = slashed_eps(j, k, lam_vec, _kinematics->_eps_vec, true, _s, _theta); //theta_vec = theta
             temp *= _kinematics->_target->component(k, lam_targ, _s, PI); // theta_target = pi
 
             result += temp;
