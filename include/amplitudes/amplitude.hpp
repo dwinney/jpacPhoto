@@ -52,6 +52,13 @@ namespace jpacPhoto
         virtual std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t) = 0;
 
         // ---------------------------------------------------------------------------
+        bool _debug = false;
+        inline void set_debug(bool d)
+        {
+            _debug = d;
+        };
+
+        // ---------------------------------------------------------------------------
         // Observables
         // Evaluatable in terms of s and t or an event object (see reaction_kinematics.hpp)
 
