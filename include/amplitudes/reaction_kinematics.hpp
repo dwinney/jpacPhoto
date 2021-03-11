@@ -159,6 +159,13 @@ namespace jpacPhoto
             _helicities = get_helicities(J);
             _nAmps = _helicities.size();
         };
+        
+        inline void set_JP(std::array<int,2> jp)
+        { 
+            _jp = jp;
+            _helicities = get_helicities(jp[0]);
+            _nAmps = _helicities.size();
+        };
 
         // Helicity configurations
         // Defaults to spin-1

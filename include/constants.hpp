@@ -47,6 +47,12 @@ namespace jpacPhoto
 
 namespace jpacPhoto
 {
+    // Spin-parity combinations
+    constexpr std::array<int,2> scalar{{0, +1}};
+    constexpr std::array<int,2> vector{{1, -1}};
+    constexpr std::array<int,2> pseudo_scalar{{0, -1}};
+    constexpr std::array<int,2> axial_vector{{1, +1}};
+
     // ---------------------------------------------------------------------------
     const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);
