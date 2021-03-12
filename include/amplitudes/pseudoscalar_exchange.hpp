@@ -41,8 +41,10 @@ namespace jpacPhoto
             set_nParams(2);
             check_JP(xkinem->_jp);
 
-            // Only axial vector is available for analytic residue evaluation
-            if (xkinem->_jp[0] != 1 && xkinem->_jp[1] != 1) _useFourVecs = true;
+            if ((xkinem->_jp == AXIAL_VECTOR) || (xkinem->_jp == VECTOR))
+            {
+                _useCovariant = false;
+            }
         };
 
         // constructors for regge exchange
@@ -52,10 +54,9 @@ namespace jpacPhoto
             set_nParams(2);
             check_JP(xkinem->_jp);
 
-            // Only axial vector is available for analytic residue evaluation
-            if (xkinem->_jp[0] != 1 && xkinem->_jp[1] != 1)
+            if ((xkinem->_jp != AXIAL_VECTOR) || (xkinem->_jp != VECTOR))
             {
-                std::cout << "Error! Only reggeized axial vector production implemented so far!" << std::endl;
+                std::cout << "Error! Only reggeized axial-vector and vector production implemented so far!" << std::endl;
                 exit(0);
             }
         };
@@ -69,10 +70,10 @@ namespace jpacPhoto
         };
 
         // Whether or not to include an exponential form factor (default false)
-        void set_formfactor(bool FF, double bb = 0.)
+        void set_formfactor(int FF, double bb = 0.)
         {
-            _useFF = FF;
-            _b = bb;
+            _useFormFactor = FF;
+            _cutoff = bb;
         }
 
         // Assemble the helicity amplitude by contracting the spinor indices
@@ -81,13 +82,14 @@ namespace jpacPhoto
         // only axial-vector, vector, and pseudo-scalar available
         inline std::vector<std::array<int,2>> allowedJP()
         {
-            return { {1, 1}, {1, -1} };
+            return { AXIAL_VECTOR, VECTOR };
         };
 
         private:
 
         // Whether to use fixed-spin propagator (false) or regge (true)
-        bool _reggeized;
+        bool _reggeized = false;
+
 
         // Mass of the exchanged pseudo-scalar (if REGGE = false)
         // ignored otherwise
@@ -101,17 +103,20 @@ namespace jpacPhoto
         double _gGamma = 0.; // Gamma - Axial - Pseudoscalar coupling 
         double _gNN = 0.;    // Pseudoscalar - Nucleon coupling
 
-        bool _useFF = false; // Whether to include the exponential form factor
-        double _b = 0.; // "t-slope" parameter in the FF
+        int _useFormFactor = 0;   // Whether to include the exponential form factor
+        double _cutoff = 0.;      // "t-slope" parameter in the FF
+        double form_factor();
 
         // Whether to switch to using the feynman rules
-        bool _useFourVecs = false; 
+        bool _useCovariant = true; 
 
         // Photon - pseudoscalar - Axial vertex
-        std::complex<double> top_vertex(double lam_gam, double lam_vec);
+        std::complex<double> top_residue(int lam_gam, int lam_vec);
+        std::complex<double> top_vertex( int lam_gam, int lam_vec);
 
-        // Pseudoscalar - Nucleon vertex
-        std::complex<double> bottom_vertex(double lam_targ, double lam_rec);
+        // Pseudoscalar - Nucleon - Nucleon vertex
+        std::complex<double> bottom_residue(int lam_targ, int lam_rec);
+        std::complex<double> bottom_vertex( int lam_targ, int lam_rec);
 
         // Simple pole propagator
         std::complex<double> scalar_propagator();
