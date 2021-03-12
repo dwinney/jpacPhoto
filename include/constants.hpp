@@ -48,10 +48,10 @@ namespace jpacPhoto
 namespace jpacPhoto
 {
     // Spin-parity combinations
-    constexpr std::array<int,2> scalar{{0, +1}};
-    constexpr std::array<int,2> vector{{1, -1}};
-    constexpr std::array<int,2> pseudo_scalar{{0, -1}};
-    constexpr std::array<int,2> axial_vector{{1, +1}};
+    constexpr std::array<int,2> SCALAR{{0, +1}};
+    constexpr std::array<int,2> VECTOR{{1, -1}};
+    constexpr std::array<int,2> PSEUDO_SCALAR{{0, -1}};
+    constexpr std::array<int,2> AXIAL_VECTOR{{1, +1}};
 
     // ---------------------------------------------------------------------------
     const double PI       = M_PI;
