@@ -215,12 +215,11 @@ namespace jpacPhoto
         inline std::complex<double> z_t(double s, double theta)
         {
             double t = t_man(s, theta);
-            std::complex<double> p_t = sqrt(XR * Kallen(t, _mT2, _mR2)) / sqrt(XR * 4. * t);
-            std::complex<double> q_t = sqrt(XR * Kallen(t, _mX2, _mB2)) / sqrt(XR * 4. * t);
+            double u = u_man(s, theta);
 
             std::complex<double> result;
-            result = 2. * s + t - _mT2 - _mR2 - _mX2 - _mB2; // s - u
-            result /= 4. * p_t * q_t;
+            result  = t * (s - u) + (_mB2 - _mX2) * (_mT2 - _mR2);
+            result /=  sqrt(XR * Kallen(t, _mX2, _mB2)) * sqrt(XR * Kallen(t, _mT2, _mR2));
 
             return result;
         };
