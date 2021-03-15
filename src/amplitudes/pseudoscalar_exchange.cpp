@@ -98,7 +98,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue(int lam_gam, 
     else if (_kinematics->_jp == VECTOR)
     {
         result  = - 2.; 
-        result *= _gGamma * lam_gam;
+        result *= _gGamma;
         result *= q_t * sqrt(XR * _t);
 
         // Relative -4 in coupling for photon 
