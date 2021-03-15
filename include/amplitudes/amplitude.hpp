@@ -52,8 +52,8 @@ namespace jpacPhoto
         virtual std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t) = 0;
 
         // ---------------------------------------------------------------------------
-        bool _debug = false;
-        inline void set_debug(bool d)
+        int _debug = 0;
+        inline void set_debug(int d)
         {
             _debug = d;
         };
