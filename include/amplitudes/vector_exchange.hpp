@@ -38,7 +38,7 @@ namespace jpacPhoto
             check_JP(xkinem->_jp);
 
             // Analytical residues only available for axial-vector production
-            if ((xkinem->_jp == AXIAL_VECTOR) || (xkinem->_jp == PSEUDO_SCALAR)) _useCovariant = false;
+            if (xkinem->_jp == SCALAR) _useCovariant = true;
         };
 
         // Constructor for the reggized)
@@ -89,7 +89,7 @@ namespace jpacPhoto
         double _zt;
 
         // Whether using analytic or covariant expression
-        bool _useCovariant = true;
+        bool _useCovariant = false;
 
         // Form factor parameters
         int _useFormFactor = 0;
