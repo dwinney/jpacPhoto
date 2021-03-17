@@ -29,6 +29,8 @@ namespace jpacPhoto
         : amps(amps_)
         {};
         
+        line_width = 4;
+        
         int N = 20;
         bool PRINT_TO_COMMANDLINE = true;
         bool LAB_ENERGY = false;
