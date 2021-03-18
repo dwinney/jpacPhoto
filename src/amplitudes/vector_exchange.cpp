@@ -111,11 +111,10 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
         };
     }
 
-    //
     else if (_kinematics->_jp == PSEUDO_SCALAR)
     {
         result = sqrt(XR * _t);
-        result *= - XI * double(lam_gam);
+        result *= double(lam_gam);
         if (_kinematics->_mB < 1.E-5) result *=  -4.;
     }
     
@@ -332,7 +331,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu, int lam_gam,
             {
                 for (int gamma = 0; gamma < 4; gamma++)
                 {
-                    std::complex<double> temp = 1.;
+                    std::complex<double> temp = XI;
                     if (_debug != 2) temp *= METRIC[mu];
                     temp *= levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < 0.001) continue;
