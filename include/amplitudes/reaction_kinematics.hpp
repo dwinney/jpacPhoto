@@ -224,11 +224,24 @@ namespace jpacPhoto
             return result;
         };
 
+        inline std::complex<double> z_u(double s, double theta)
+        {
+            double t = t_man(s, theta);
+            double u = u_man(s, theta);
+
+            std::complex<double> result;
+            result  = u * (t - s) + (_mB2 - _mR2) * (_mT2 - _mX2);
+            result /=  sqrt(XR * Kallen(u, _mR2, _mB2)) * sqrt(XR * Kallen(u, _mT2, _mX2));
+
+            return result;
+        };
+
+        // momentum transfer 4-vectors
         inline std::complex<double> t_exchange_momentum(int mu, double s, double theta)
         {
             std::complex<double> qGamma_mu, qA_mu;
-            qGamma_mu = _initial_state->q(mu, s, 0.);
-            qA_mu = _final_state->q(mu, s, theta);
+            qGamma_mu   = _initial_state->q(mu, s, 0.);
+            qA_mu       = _final_state->q(mu, s, theta);
 
             return (qGamma_mu - qA_mu);
         };
@@ -236,7 +249,7 @@ namespace jpacPhoto
         inline std::complex<double> u_exchange_momentum(int mu, double s, double theta)
         {
             std::complex<double> qGamma_mu, qRec_mu;
-            qGamma_mu   = _initial_state->q(mu, s, PI);
+            qGamma_mu   = _initial_state->q(mu, s, 0);
             qRec_mu     = _final_state->p(mu, s, theta + PI);
 
             return qRec_mu - qGamma_mu;
