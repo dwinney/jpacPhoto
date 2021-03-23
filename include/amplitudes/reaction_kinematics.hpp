@@ -156,14 +156,14 @@ namespace jpacPhoto
         inline void set_JP(int J, int P)
         { 
             _jp = {J, P};
-            _helicities = get_helicities(J);
+            _helicities = get_helicities(J, _mB);
             _nAmps = _helicities.size();
         };
         
         inline void set_JP(std::array<int,2> jp)
         { 
             _jp = jp;
-            _helicities = get_helicities(jp[0]);
+            _helicities = get_helicities(jp[0], _mB);
             _nAmps = _helicities.size();
         };
 

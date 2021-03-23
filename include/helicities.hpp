@@ -15,6 +15,8 @@
 
 namespace jpacPhoto
 {
+    // ---------------------------------------------------------------------------
+    // Massless helicity combinations
     const std::vector< std::array<int, 4> > SPIN_ZERO_HELICITIES =
     {
     //  {  γ,  p,  S,  p'}
@@ -102,23 +104,99 @@ namespace jpacPhoto
         { -1,  1, -2,  1}
     };
 
-
-    inline std::vector<std::array<int, 4>> get_helicities(int J)
+    // ---------------------------------------------------------------------------
+    // If we allow massive "beam"
+    const std::vector< std::array<int, 4> > MASSIVE_SPIN_ZERO_HELICITIES =
     {
-        switch (J)
-        {   
-            case 0: return SPIN_ZERO_HELICITIES;
-            case 1: return SPIN_ONE_HELICITIES;
-            case 2: return SPIN_TWO_HELICITIES;
-            default:
-            {
-                std::cout << "Error! Amplitudes for spin J = " << J << " not yet implemented. Quitting...\n";
-                exit(0);
-            }
-        };
+    //  {  γ,  p,  S,  p'}
+        {  1, -1,  0, -1},
+        {  1, -1,  0,  1},
+        {  1,  1,  0, -1},
+        {  1,  1,  0,  1},
+        { -1, -1,  0, -1},
+        { -1, -1,  0,  1},
+        { -1,  1,  0, -1},
+        { -1,  1,  0,  1},
+        {  0, -1,  0, -1},
+        {  0, -1,  0,  1},
+        {  0,  1,  0, -1},
+        {  0,  1,  0,  1}
+    };
+
+    const std::vector< std::array<int, 4> > MASSIVE_SPIN_ONE_HELICITIES =
+    {
+    //  {  γ,  p,  V,  p'}
+        {  1, -1,  1, -1},
+        {  1, -1,  1,  1},
+        {  1, -1,  0, -1},
+        {  1, -1,  0,  1},
+        {  1, -1, -1, -1},
+        {  1, -1, -1,  1},
+        {  1,  1,  1, -1},
+        {  1,  1,  1,  1},
+        {  1,  1,  0, -1},
+        {  1,  1,  0,  1},
+        {  1,  1, -1, -1},
+        {  1,  1, -1,  1},
+        { -1, -1,  1, -1},
+        { -1, -1,  1,  1},
+        { -1, -1,  0, -1},
+        { -1, -1,  0,  1},
+        { -1, -1, -1, -1},
+        { -1, -1, -1,  1},
+        { -1,  1,  1, -1},
+        { -1,  1,  1,  1},
+        { -1,  1,  0, -1},
+        { -1,  1,  0,  1}, 
+        { -1,  1, -1, -1},
+        { -1,  1, -1,  1},
+        {  0, -1,  1, -1},
+        {  0, -1,  1,  1},
+        {  0, -1,  0, -1},
+        {  0, -1,  0,  1},
+        {  0, -1, -1, -1},
+        {  0, -1, -1,  1},
+        {  0,  1,  1, -1},
+        {  0,  1,  1,  1},
+        {  0,  1,  0, -1},
+        {  0,  1,  0,  1},
+        {  0,  1, -1, -1},
+        {  0,  1, -1,  1}
+    };
+
+    inline std::vector<std::array<int, 4>> get_helicities(int J, double m = 0.)
+    {
+        if (m > 1.E-3) 
+        {
+            switch (J)
+            {   
+                case 0: return MASSIVE_SPIN_ZERO_HELICITIES;
+                case 1: return MASSIVE_SPIN_ONE_HELICITIES;
+                default:
+                {
+                    std::cout << "Error! Amplitudes for spin J = " << J << " not yet implemented. Quitting...\n";
+                    exit(0);
+                }
+            };
+        }
+        else
+        {
+            switch (J)
+            {   
+                case 0: return SPIN_ZERO_HELICITIES;
+                case 1: return SPIN_ONE_HELICITIES;
+                case 2: return SPIN_TWO_HELICITIES;
+                default:
+                {
+                    std::cout << "Error! Amplitudes for spin J = " << J << " not yet implemented. Quitting...\n";
+                    exit(0);
+                }
+            };
+        }
         
         return {};
     };
+
 };
 
 #endif
