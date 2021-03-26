@@ -74,27 +74,53 @@ int main( int argc, char** argv )
     std::vector<amplitude*> amps;
     amps.push_back(ddstar_box);
 
-    auto plotter = new photoPlotter(amps);
+        // ---------------------------------------------------------------------------
+    // You shouldnt need to change anything below this line
+    // ---------------------------------------------------------------------------
+    
+    int N = 30;
+    double xmin = 8.4;
+    double xmax = 10.5;
 
-    plotter->N = 30;
-    plotter->PRINT_TO_COMMANDLINE = true;
-    plotter->LAB_ENERGY = true;
+    double theta = 45.;
 
-    plotter->xmin = 8.5;
-    plotter->xmax = 10.5;
+    // Plotter objects
+    jpacGraph1D* plotter = new jpacGraph1D();
 
-    plotter->ymin = 0.;
-    plotter->ymax = 10.;
+   // ---------------------------------------------------------------------------
+    // Print the desired observable for each amplitude
+    for (int n = 0; n < amps.size(); n++)
+    {
+        std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
 
-    plotter->SHOW_LEGEND = false;
-    plotter->xlegend = 0.2;
-    plotter->ylegend = 0.6;
+        auto F = [&](double x)
+        {
+            double W = W_cm(x);
+            double s = W*W;
+            double t = kPsi->t_man(s, theta * DEG2RAD);
+            
+            return amps[n]->differential_xsection(s, theta * DEG2RAD);
+        };
 
-    plotter->filename  = "open_charm.pdf";
-    plotter->ylabel    = "#it{#sigma(#gamma p #rightarrow #bar{D} #Lambda_{c}^{+})}  [nb]";
-    plotter->xlabel    = "#it{E_{#gamma}}  [GeV]";
+        std::array<std::vector<double>, 2> x_fx;
+        if (xmin < E_beam(kPsi->Wth()))
+        {
+            x_fx = vec_fill(N, F, E_beam(kPsi->Wth()) + EPS, xmax, true);
+        }
+        else
+        {
+            x_fx = vec_fill(N, F, xmin, xmax, true);
+        }
 
-    plotter->Plot("differential_xsection", 0.);
+        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+    }
+
+    plotter->SetXaxis(ROOT_italics("E_{#gamma}") + "  [GeV]", std::floor(xmin), xmax);
+    
+    plotter->SetLegend(0.2, 0.73);
+
+    // Output to file
+    plotter->Plot("loop.pdf");
 
     return 1;
 };
