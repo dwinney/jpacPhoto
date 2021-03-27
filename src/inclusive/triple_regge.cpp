@@ -20,8 +20,7 @@ double jpacPhoto::triple_regge::invariant_xsection(double s, double t, double M2
         result += _termsJPAC[i]->eval(s, t, M2);
     }
 
-    // result /= 64. * PI * PI * s * pow(_kinematics->pGamma_CM(s), 2.);
-    return result * 1.E6; // convert to nb from mb
+    return result; // in nanobarn!
 };
 
 double jpacPhoto::triple_regge::integrated_xsection(double s)

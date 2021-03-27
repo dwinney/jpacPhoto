@@ -12,6 +12,7 @@
 #include "ffTripleRegge.hpp"
 #include "jpacTripleRegge.hpp"
 #include "regge_trajectory.hpp"
+#include "sigma_tot.hpp"
 
 #include "Math/IntegratorMultiDim.h"
 #include "Math/Functor.h"
@@ -57,7 +58,7 @@ namespace jpacPhoto
 
         //--------------------------------------------------------------------
         // Methods to add terms following Vincent's normalization
-        inline void add_term(regge_trajectory* trajectory, const std::function<double(double)>& coupling, const std::function<double(double)>& sigmatot)
+        inline void add_term(regge_trajectory* trajectory, const std::function<double(double)>& coupling, const sigma_tot * sigmatot)
         {
             auto new_term = new jpacTripleRegge(_kinematics, trajectory, coupling, sigmatot);
             _termsJPAC.push_back(new_term);

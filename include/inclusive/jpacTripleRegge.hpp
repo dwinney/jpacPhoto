@@ -14,6 +14,7 @@
 #include "misc_math.hpp"
 #include "inclusive_kinematics.hpp"
 #include "regge_trajectory.hpp"
+#include "sigma_tot.hpp"
 
 namespace jpacPhoto
 {
@@ -23,7 +24,7 @@ namespace jpacPhoto
 
         // Fully general constructor
         jpacTripleRegge(inclusive_kinematics * xkinem, regge_trajectory * trajectory, 
-                        const std::function<double(double)>& coupling, const std::function<double(double)>& sigmatot)
+                        const std::function<double(double)>& coupling, const sigma_tot * sigmatot)
         : _kinematics(xkinem), _trajectory(trajectory), _coupling(coupling), _sigmatot(sigmatot)
         {};
         
@@ -32,7 +33,7 @@ namespace jpacPhoto
             double nu = M2 - t - _kinematics->get_mT2();
 
             double result;
-            result  = _sigmatot(s);
+            result  = _sigmatot->operator()(s);
             result *= pow((s / M2), real(2. * _trajectory->eval(t)) - 1.); 
             result *= norm(xi(t));
             result *= _coupling(t) * _coupling(t);
@@ -48,7 +49,7 @@ namespace jpacPhoto
         regge_trajectory * _trajectory;
 
         std::function<double(double)> _coupling;
-        std::function<double(double)> _sigmatot;
+        const sigma_tot * _sigmatot;
 
         constexpr static double _scale = 1.0;
 
