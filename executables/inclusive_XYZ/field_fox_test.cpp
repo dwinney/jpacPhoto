@@ -3,7 +3,6 @@
 #include "inclusive/inclusive_kinematics.hpp"
 #include "inclusive/triple_regge.hpp"
 #include "inclusive/sigma_tot.hpp"
-#include "inclusive/field_fox_couplings.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -47,7 +46,7 @@ int main( int argc, char** argv )
         return 12.20 * 1.E-3;
     };
 
-    vincent->add_term(alphaRho, beta, sigmatot_pi);
+    vincent->add_term(alphaRho, beta, &sigma_tot_pipp);
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -71,14 +70,14 @@ int main( int argc, char** argv )
 
     std::string filename = "FF.pdf";
     std::string xlabel   = "#it{-t} [GeV^{2}]";
-    std::string ylabel   = "E #frac{d#sigma}{d^{3}p}      [mb]";
+    std::string ylabel   = "E #frac{d#sigma}{d^{3}p}      [nb]";
     bool PRINT_TO_CMD    = true;
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
 
-    // Plotter object
+    // // Plotter object
     jpacGraph1D* plotter = new jpacGraph1D();
 
     // ---------------------------------------------------------------------------
