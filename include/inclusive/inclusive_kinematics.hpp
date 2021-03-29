@@ -41,52 +41,48 @@ namespace jpacPhoto
 
         double _minM2 = M2_PROTON; // Default to proton is minimum mass unobserved
 
-        inline double M2(double s, double x)
-        {
-            return _minM2 + (s - _minM2) * (1. - x);
-        };
-
         // ---------------------------------------------------------------------------
         // Center-of-mass kinematics
 
-        inline double cosTheta_CM(double xs, double xt, double xM2)
+        inline double M2(double s, double x, double pT2)
         {
-            double u = _mX2 + _mT2 + xM2 - xs - xt;
+            double pPara = x * pX_max(s);
+            double EX    = sqrt(_mX2 + pT2 + pPara*pPara);
+
+            return s + _mX2 - _minM2 - 2.*sqrt(s)*EX;
+        };
+
+        inline double cosTheta(double s, double x, double pT2)
+        {
+            return x * pX_max(s) / pX_CM(s, M2(s, x, pT2));
+        };
+
+        inline double t_man(double s, double x, double pT2)
+        {
+            double m2       = M2(s, x, pT2);
+            double CosTheta = cosTheta(s, x, pT2); 
+
+            double pGamma = sqrt(Kallen(s, 0., M2_PROTON)) / (2. * sqrt(s));
+            double pX     = pX_CM(s, m2);
+
+            double sigma = _mT2 + _mX2 + m2;
 
             double result;
-            result  = xs * (xt - u) - _mT2 * (_mX2 - xM2);
-            result /= sqrt(Kallen(xs, 0., _mT2) * Kallen(xs, _mX2, xM2));
+            result  = 2. * pGamma * pX * CosTheta;
+            result += (sigma - s) / 2. + _mT2*(_mX2 - m2)/(2.*s);
             
             return result;
         };
 
-        inline double t_man(double s, double costheta, double M2)
-        {
-            double result;
-            result  = 2. * pGamma_CM(s) * pX_CM(s, M2) * costheta;
-            result -= (s * (s - _mT2 - _mX2 - M2) - _mT2 * (_mX2 - M2)) / (2. * s);
-            
-            return result;
-        };
 
         inline double pX_CM(double xs, double xM2)
         {
             return sqrt(Kallen(xs, _mX2, xM2)) / (2. * sqrt(xs));
         };
 
-        inline double pGamma_CM(double xs)
+        inline double pX_max(double xs)
         {
-            return sqrt(Kallen(xs, 0., M2_PROTON)) / (2. * sqrt(xs));
-        };
-
-        inline double pPerp_CM(double xs, double xt, double xM2)
-        {
-            return pX_CM(xs, xM2) * cosTheta_CM(xs, xt, xM2);
-        };
-
-        inline double x_CM(double xs, double xt, double xM2)
-        {
-            return pPerp_CM(xs, xt, xM2) / pX_CM(xs, _minM2);
+            return sqrt(Kallen(xs, _mX2, _minM2)) / (2. * sqrt(xs));
         };
     };
 };
