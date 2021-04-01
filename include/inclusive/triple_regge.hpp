@@ -15,6 +15,8 @@
 #include "sigma_tot.hpp"
 
 #include "Math/IntegratorMultiDim.h"
+#include "Math/GSLIntegrator.h"
+#include "Math/IntegrationTypes.h"
 #include "Math/Functor.h"
 
 #include <functional>
@@ -67,7 +69,17 @@ namespace jpacPhoto
         //--------------------------------------------------------------------
         // dsigma / dt dM2
         double invariant_xsection(double s, double t, double M2);
-        double integrated_xsection(double s);
+
+        // (t, M2)
+        double dsigma_dt(double s, double t);     // integrated over M2
+        double dsigma_dM2(double s, double M2);   // integrated over t
+
+        // (x, pT2)
+        double dsigma_dpT2(double s, double pT2); // integrated over x
+        double dsigma_dx(double s, double x);     // integrated over pT2
+
+        // Fully integrated
+        double integrated_xsection(double s);   
 
         inclusive_kinematics * _kinematics;
         std::string _identifier;
@@ -77,7 +89,7 @@ namespace jpacPhoto
         protected:
         
         // Cross-section build out of sum of triple regge interaction terms
-        std::vector<ffTripleRegge*> _termsFF;
+        std::vector<ffTripleRegge*>   _termsFF;
         std::vector<jpacTripleRegge*> _termsJPAC;
     };
 };
