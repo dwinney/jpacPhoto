@@ -20,9 +20,15 @@ namespace jpacPhoto
     class box_discontinuity
     {
         public: 
+        box_discontinuity(double threshold)
+        : _threshold(threshold)
+        {};
+
         box_discontinuity(amplitude * left, amplitude * right)
         : _initialAmp(left), _finalAmp(right)
         {
+            _threshold = left->_kinematics->sth();
+
             // Make sure the left and right amplitudes match!
             // Check the spins of the intermediate state
             _jp_left  = left->_kinematics->_jp;
@@ -51,7 +57,7 @@ namespace jpacPhoto
         };
 
         // Evaluate the discontinuity integrated over intermediate phase space
-        double eval(double s);
+        virtual double eval(double s);
 
         // Pass values that come from the external gamma p -> V p reaction
         inline void set_externals(std::array<int,4> helicities, double theta)
@@ -59,6 +65,8 @@ namespace jpacPhoto
             _external_theta = theta; 
             _external_helicities = helicities;
         };
+
+        double _threshold; 
 
         private:
         double _external_theta;
@@ -71,6 +79,21 @@ namespace jpacPhoto
         std::array<int,2> _jp_left, _jp_right;
         std::vector< std::array<int,4> > _intermediate_helicities;
         bool _matchError = false;
+    };
+
+    class test_disc : public box_discontinuity
+    {
+        public: 
+
+        test_disc(double w)
+        : box_discontinuity(w*w)
+        {};
+
+        inline double eval(double s)
+        {
+            if (s < _threshold) return 0.;
+            return sqrt(s - _threshold);
+        };
     };
 };
 
