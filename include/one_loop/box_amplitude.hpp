@@ -24,6 +24,13 @@ namespace jpacPhoto
         public: 
         // Constructor.
         // Need the parent reaction kinematics and pre-set sub-amplitudes
+        box_amplitude(reaction_kinematics * xkinem, box_discontinuity * disc, std::string id = "Box Amplitude")
+        : amplitude(xkinem, id), _disc(disc)
+        {
+            _needDelete = false;   
+        };
+
+
         box_amplitude(reaction_kinematics * xkinem, amplitude * left, amplitude * right, std::string id = "Box Amplitude")
         : amplitude(xkinem, id)
         {
@@ -34,7 +41,10 @@ namespace jpacPhoto
         // Destructor
         ~box_amplitude()
         {
-            delete _disc;
+            if (_needDelete)
+            {
+                delete _disc;
+            };
         };
 
         // Setter for max cutoff in dispersion relation
@@ -53,7 +63,8 @@ namespace jpacPhoto
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
         private:        
-        
+        bool _needDelete = true;
+
         // Discontinutity given in terms of the two tree amplitudes
         box_discontinuity * _disc;
 

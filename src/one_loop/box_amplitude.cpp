@@ -18,21 +18,21 @@ std::complex<double> jpacPhoto::box_amplitude::helicity_amplitude(std::array<int
     _disc->set_externals(helicities, _theta);
 
     // Compute both parts of the integral
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kDEFAULT);
-    
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
+
+    double sub =  _disc->eval(s);
     auto F = [&](double sp)
     {
-        double result = _disc->eval(sp);
+        double result = (_disc->eval(sp) - sub) / (sp - s);
         return result;
     };
 
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
-    double real = ig.IntegralCauchy(_s_thr + EPS, _s_cut, _s);
-    double imag = - M_PI * _disc->eval(_s);
-
-    std::complex<double> result =  (real + XI * imag) / M_PI;
+    double               intpiece = ig.Integral(_s_thr + EPS, _s_cut);
+    std::complex<double> logpiece = sub * (log(_s_cut - s - IEPS) - log(_s_thr + EPS - s - IEPS));
+    std::complex<double> result =  (intpiece + logpiece) / M_PI;
 
     return result;
 };
