@@ -92,6 +92,28 @@ namespace jpacPhoto
             if (pm == -1) return _minM2;
             else return pow((sqrt(s) - _mX), 2.);
         };
+        // ---------------------------------------------------------------------------
+        // Starting from (r, theta) -> (t, M2)
+
+
+        inline double t_polar(double s, double r, double theta)
+        {
+            double M2       = M2_polar(s, r, cos(theta));
+            double sigma = _mT2 + _mX2 + M2;
+
+            double result;
+            result  = 2. * pGamma(s) * pX(s, M2) * cos(theta);
+            result += (sigma - s) / 2. + _mT2*(_mX2 - M2)/(2.*s);
+            
+            return result;
+        };
+
+        inline double M2_polar(double s, double r, double theta)
+        {
+            double pX = r * pX_max(s);
+            double EX  = sqrt(_mX2 + pX*pX);
+            return s + _mX2 - 2.*sqrt(s)*EX;
+        };
 
         // ---------------------------------------------------------------------------
         // Starting from (x, pT2) -> (t, M2)
