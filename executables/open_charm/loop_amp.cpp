@@ -11,12 +11,12 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
+#include "helicities.hpp"
 #include "amplitudes/reaction_kinematics.hpp"
 #include "amplitudes/vector_exchange.hpp"
+#include "amplitudes/pomeron_exchange.hpp"
 #include "amplitudes/amplitude_sum.hpp"
 #include "one_loop/box_amplitude.hpp"
-
-#include "photoPlotter.hpp"
 
 #include <cstring>
 #include <iostream>
@@ -62,9 +62,19 @@ int main( int argc, char** argv )
     psiDDstarEx->set_formfactor(2, M_DSTAR + lambdaQCD * eta);
 
     // Combine sub-processes in a box_loop
-    auto ddstar_box = new box_amplitude(kPsi, gamDDstarEx, psiDDstarEx);
+    auto disc = new box_discontinuity(gamDDstarEx, psiDDstarEx);
+    auto ddstar_box = new box_amplitude(kPsi, disc, "Charm Loop");
+
     double W_cut = sqrt(qmax*qmax + M2_LAMBDAC) + sqrt(qmax*qmax + M2_D);
     ddstar_box->set_cutoff(W_cut * W_cut);
+
+    // ---------------------------------------------------------------------------
+    // Plotting options
+    // ---------------------------------------------------------------------------
+
+    auto alpha = new linear_trajectory(+1, 0.941, 0.364);
+    auto pomeron = new pomeron_exchange(kPsi, alpha, 0, "Pomeron");
+    pomeron->set_params({0.379, 0.12});
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -73,54 +83,34 @@ int main( int argc, char** argv )
     // which amps to plot
     std::vector<amplitude*> amps;
     amps.push_back(ddstar_box);
+    amps.push_back(pomeron);
 
         // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
     
-    int N = 30;
-    double xmin = 8.4;
-    double xmax = 10.5;
+    int N = 20;
 
-    double theta = 45.;
+    double xmin = 0.;
+    double xmax = 90.;
 
-    // Plotter objects
-    jpacGraph1D* plotter = new jpacGraph1D();
+    double theta = 0.;
 
    // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
-    for (int n = 0; n < amps.size(); n++)
+    std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+
+    auto F = [&](double x)
     {
-        std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+        double W = W_cm(8.7);
+        double s = W*W;
+        double t = kPsi->t_man(s, x * DEG2RAD);
+        
+        return amps[n]->beam_asymmetry_4pi(s, t);
+    };
 
-        auto F = [&](double x)
-        {
-            double W = W_cm(x);
-            double s = W*W;
-            double t = kPsi->t_man(s, theta * DEG2RAD);
-            
-            return amps[n]->differential_xsection(s, theta * DEG2RAD);
-        };
-
-        std::array<std::vector<double>, 2> x_fx;
-        if (xmin < E_beam(kPsi->Wth()))
-        {
-            x_fx = vec_fill(N, F, E_beam(kPsi->Wth()) + EPS, xmax, true);
-        }
-        else
-        {
-            x_fx = vec_fill(N, F, xmin, xmax, true);
-        }
-
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
-    }
-
-    plotter->SetXaxis(ROOT_italics("E_{#gamma}") + "  [GeV]", std::floor(xmin), xmax);
-    
-    plotter->SetLegend(0.2, 0.73);
-
-    // Output to file
-    plotter->Plot("loop.pdf");
+    std::array<std::vector<double>, 2> x_fx;
+    x_fx = vec_fill(N, F, xmin, xmax, true);
 
     return 1;
 };
