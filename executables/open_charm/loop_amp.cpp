@@ -89,7 +89,7 @@ int main( int argc, char** argv )
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
     
-    int N = 20;
+    int N = 10;
 
     double xmin = 0.;
     double xmax = 90.;
