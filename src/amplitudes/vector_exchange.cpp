@@ -18,6 +18,9 @@ std::complex<double> jpacPhoto::vector_exchange::helicity_amplitude(std::array<i
 
     // Update the saved energies and angles
     _s = s; _t = t;
+    
+    if (std::abs(_t) < 1.E-6) _t += EPS;
+
     _theta = _kinematics->theta_s(s, t);
     _zt = real(_kinematics->z_t(s, _theta));
 
