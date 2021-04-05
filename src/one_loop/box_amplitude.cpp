@@ -18,7 +18,7 @@ std::complex<double> jpacPhoto::box_amplitude::helicity_amplitude(std::array<int
     _disc->set_externals(helicities, _theta);
 
     // Compute both parts of the integral
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kNONADAPTIVE);
 
     double sub =  _disc->eval(s);
     auto F = [&](double sp)
