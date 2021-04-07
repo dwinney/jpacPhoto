@@ -13,29 +13,10 @@ using namespace jpacPhoto;
 
 int main( int argc, char** argv )
 {
-   // For all Z's we only have pion exchange
-    double alphaPrime = 0.7, alpha0 = -M2_PION * alphaPrime;
-    auto alphaPi = new linear_trajectory(+1, alpha0, alphaPrime, "#pi trajectory");
 
-    // ---------------------------------------------------------------------------
-    // Zc(3900)+
-    // ---------------------------------------------------------------------------
-
-    auto Zc  = new triple_regge(M_ZC3900, "Z_{c}(3900)");
-    double gZc = 5.17E-2; // Gamma - Pi - Zc coupling
-
-    // We have two contributions from no-flip and flip contributions
-    auto beta_nonflip_Zc = [&](double t)
-    {
-        return (sqrt(alphaPrime) / 2.) * (gZc / M_ZC3900) * (M2_PION - t);
-    };
-    auto beta_flip_Zc    = [&](double t)
-    {
-        return (sqrt(alphaPrime) / 4.) * (gZc / M_ZC3900) * (M2_PION - t) * (sqrt(-t) / M_ZC3900);
-    };
-
-    Zc->add_term(alphaPi, beta_nonflip_Zc, &sigma_tot_pipp);
-    Zc->add_term(alphaPi, beta_flip_Zc,    &sigma_tot_pipp);
+    auto Zc  = new triple_regge(M_ZC3900,  "Z_{c}(3900)^{+}");
+    auto Zb  = new triple_regge(M_ZB10610, "Z_{b}(10610)^{+}");
+    auto Zbp = new triple_regge(M_ZB10650, "Z_{b}(10650)^{+}");
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -44,8 +25,13 @@ int main( int argc, char** argv )
     // which amps to plot
     std::vector<triple_regge*> amps;
     amps.push_back(Zc);
+    amps.push_back(Zb);
+    amps.push_back(Zbp);
 
     int N = 100;
+
+    double W = 20.;
+    double s = W*W;
 
     double  ymin = 0.;
     double  ymax = 300.;
@@ -62,20 +48,16 @@ int main( int argc, char** argv )
     auto plotter = new jpacGraph1D();
 
     // ---------------------------------------------------------------------------
-    // Print the desired observable for each amplitude
-    double ws[3] = {21., 20., 19.};
+    // Print the phase-space for each kinematics
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < amps.size(); i++)
     {
-        double W = ws[i];
-        double s = W*W;
-
-        double xmin = -Zc->_kinematics->t_bounds(+1, s);   
-        double xmax = -Zc->_kinematics->t_bounds(-1, s);
+        double xmin = -amps[i]->_kinematics->t_bounds(+1, s);   
+        double xmax = -amps[i]->_kinematics->t_bounds(-1, s);
 
         auto F = [&](double t)
         {
-            return Zc->_kinematics->M2_bounds(-1, s, t);
+            return amps[i]->_kinematics->M2_bounds(-1, s, t);
         };
 
         std::array<std::vector<double>, 2> x_fx; 
@@ -83,7 +65,7 @@ int main( int argc, char** argv )
 
         auto sF = [&](double t)
         {
-            return Zc->_kinematics->M2_bounds(+1, s, -t);
+            return amps[i]->_kinematics->M2_bounds(+1, s, -t);
         };
 
         std::array<std::vector<double>, 2> x_fx2; 
@@ -92,19 +74,19 @@ int main( int argc, char** argv )
         x_fx[0].insert( x_fx[0].end(), x_fx2[0].begin(), x_fx2[0].end());
         x_fx[1].insert( x_fx[1].end(), x_fx2[1].begin(), x_fx2[1].end());
 
-        std::ostringstream streamObj;
-        streamObj << std::setprecision(4) << "W = " << W << " GeV";
-        std::string label = streamObj.str();
-        plotter->AddEntry(x_fx[0], x_fx[1], label);
+        plotter->AddEntry(x_fx[0], x_fx[1], amps[i]->_identifier);
     }
 
-    double xMin = -Zc->_kinematics->t_bounds(+1, ws[2]*ws[2]);   
-    double xMax = -Zc->_kinematics->t_bounds(-1, ws[2]*ws[2]);
+    double xMin = -Zc->_kinematics->t_bounds(+1, s);   
+    double xMax = -Zc->_kinematics->t_bounds(-1, s);
     plotter->SetXaxis(xlabel, xMin, xMax);
     plotter->SetYaxis(ylabel, ymin, ymax);
     
 
-    plotter->SetLegend(0.2, 0.3);
+    std::ostringstream streamObj;
+    streamObj << std::setprecision(4) << "W = " << W << " GeV";
+    std::string header = streamObj.str();
+    plotter->SetLegend(0.6, 0.6, header);
     plotter->SetLegendOffset(0.5, 0.12);
 
     // Output to file
