@@ -26,7 +26,7 @@ namespace jpacPhoto
 
         // Constructor with masses and a filename to look for data
         sigma_tot(double m1, double m2, std::string datfile, std::array<double, 5> pdgparams)
-        : _mBeam(m1), _mTarget(m2), _threshold((m1+m2)*(m1+m2))
+        : _mBeam(m1), _mTarget(m2), _threshold((m1+m2)*(m1+m2)), interp(0, ROOT::Math::Interpolation::kLINEAR)
         {
             _iso   = pdgparams[0];
             _delta = pdgparams[1];
