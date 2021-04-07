@@ -66,6 +66,12 @@ namespace jpacPhoto
             _termsJPAC.push_back(new_term);
         };
 
+        inline void set_formfactor(bool ifuse, double b)
+        {
+            _useFF  = ifuse;
+            _cutoff = b;
+        };
+
         //--------------------------------------------------------------------
         // dsigma / dt dM2
         double invariant_xsection(double s, double t, double M2);
@@ -87,7 +93,14 @@ namespace jpacPhoto
 
         //--------------------------------------------------------------------
         protected:
-        
+
+        bool   _useFF = false;
+        double _cutoff = 0.;
+        inline double form_factor_squared(double s, double t, double M2)
+        {
+            return exp(2. * t  / (_cutoff * _cutoff));
+        };
+
         // Cross-section build out of sum of triple regge interaction terms
         std::vector<ffTripleRegge*>   _termsFF;
         std::vector<jpacTripleRegge*> _termsJPAC;

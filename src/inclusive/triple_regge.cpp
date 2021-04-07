@@ -23,6 +23,8 @@ double jpacPhoto::triple_regge::invariant_xsection(double s, double t, double M2
         result += _termsJPAC[i]->eval(s, t, M2);
     }
 
+    if (_useFF) result *= form_factor_squared(s, t, M2);
+    
     return result; // in nanobarn!
 };
 
@@ -32,9 +34,9 @@ double jpacPhoto::triple_regge::dsigma_dt(double s, double t)
 {
     auto dSigma = [&](double M2)
     {
-        double jacobian = 2. * sqrt(s) * _kinematics->pGamma(s) / PI;
+        double prefactors = 2. * sqrt(s) * _kinematics->pGamma(s) / PI;
         double result = invariant_xsection(s, t, M2);
-        return jacobian * result;
+        return result / prefactors;
     };
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
@@ -51,9 +53,9 @@ double jpacPhoto::triple_regge::dsigma_dM2(double s, double M2)
 {
     auto dSigma = [&](double t)
     {
-        double jacobian = 2. * sqrt(s) * _kinematics->pGamma(s) / PI;
+        double prefactors = 2. * sqrt(s) * _kinematics->pGamma(s) / PI;
         double result = invariant_xsection(s, t, M2);
-        return result;
+        return result / prefactors;
     };
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
@@ -117,30 +119,35 @@ double jpacPhoto::triple_regge::dsigma_dx(double s, double x)
     return ig.Integral(xmin, xmax);
 };
 
-// double jpacPhoto::triple_regge::integrated_xsection(double s)
-// {
-//     auto dSigma = [&](const double * in)
-//     {
-//         double x   = in[0], pT2 = in[1];
 
-//         double M2 = _kinematics->M2(s, x, pT2);
-//         double t  = _kinematics->t_man(s, x, pT2);
+// ---------------------------------------------------------------------------
+// Doubly-integrated using polar variables
 
-//         double jacobian = M_PI / sqrt(x*x + (_kinematics->_mX2 + pT2) / pow(_kinematics->pX_max(s), 2.));
-//         double result = jacobian * invariant_xsection(s, t, M2);
-        
-//         return result;
-//     };
+double jpacPhoto::triple_regge::integrated_xsection(double s)
+{
+    auto dSigma = [&](const double * in)
+    {
+        double r   = in[0], theta = in[1];
 
-//     // Integrate over costheta = [-1, 1] and x = [0., 1]   
-//     double min[2] = { 0.,                  0.   };
-//     double max[2] = { pow(pX_max(s), 2.),  M_PI };
+        double M2 = _kinematics->M2_polar(s, r, theta);
+        double t  = _kinematics->t_polar(s, r, theta);
+
+        double prefactors = sqrt(_kinematics->_mX2 + pow(_kinematics->pX(s, M2), 2.)) / pow(_kinematics->pX_max(s), 3.);
+        double jacobian   = 2. * PI * r * r * sin(theta);
+        double result     = jacobian * invariant_xsection(s, t, M2) / prefactors;
+
+        return result;
+    };
+
+    // Integrate over costheta = [-1, 1] and x = [0., 1]   
+    double min[2] = { 0.,  0.   };
+    double max[2] = { 1.,  M_PI };
     
-//     ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kDEFAULT);
-//     ROOT::Math::Functor wF(dSigma, 2);
-//     ig.SetFunction(wF, 2);
+    ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kVEGAS );
+    ROOT::Math::Functor wF(dSigma, 2);
+    ig.SetFunction(wF, 2);
 
-//     double result = ig.Integral(min, max);
+    double result = ig.Integral(min, max);
 
-//     return result;
-// };
+    return result;
+};
