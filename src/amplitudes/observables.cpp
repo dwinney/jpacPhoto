@@ -78,7 +78,7 @@ double jpacPhoto::amplitude::integrated_xsection(double s)
         return differential_xsection(s, t);
     };
 
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE);
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
