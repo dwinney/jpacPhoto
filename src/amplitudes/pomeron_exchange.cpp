@@ -162,7 +162,7 @@ std::complex<double> jpacPhoto::pomeron_exchange::regge_factor()
             double beta_0 = 2.;           // Pomeron - light quark coupling
             double beta_c = _norm;        // Pomeron - charm quark coupling
             double mu2 = _b0 * _b0;       // cutoff parameter 
-            double etaprime = real(_traj->slope());
+            double etaprime = _traj->slope();
 
             std::complex<double> F_t;
             F_t  = 3. * beta_0;

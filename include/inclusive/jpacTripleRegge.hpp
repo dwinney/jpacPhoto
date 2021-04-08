@@ -30,16 +30,14 @@ namespace jpacPhoto
         
         inline double eval(double s, double t, double M2)
         {
-            double nu = M2 - t - _kinematics->get_mT2();
-
             double result;
             result  = _sigmatot->operator()(s);
-            result *= pow((s / M2), real(2. * _trajectory->eval(t)) - 1.); 
+            result *= pow((s / M2), 2.*_trajectory->eval(t) - 1.); 
             result *= norm(xi(t));
             result *= _coupling(t) * _coupling(t);
             
-            double normalization = real(_trajectory->slope()) / (16. * PI*PI*PI);
-
+            double normalization = _trajectory->slope() / (16. * PI*PI*PI);
+            
             return normalization * result;
         };
 
@@ -55,9 +53,7 @@ namespace jpacPhoto
 
         inline std::complex<double> xi(double t)
         {
-            if (std::abs(t) > 40.) return 0.;
-
-            std::complex<double> signature_factor, gamma_factor;
+            std::complex<double> signature_factor = 1., gamma_factor = 1.;
             signature_factor = 0.5 * (1. + double(_trajectory->_signature) * exp(XI * PI * _trajectory->eval(t)));
             gamma_factor = cgamma(double(_trajectory->_minJ) - _trajectory->eval(t));
 
