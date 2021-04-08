@@ -36,9 +36,9 @@ class regge_trajectory
     {};
 
     // Only need a function to evaluate the trajectory at some s
-    virtual std::complex<double> eval(double s) = 0;
+    virtual double eval(double s) = 0;
 
-    virtual std::complex<double> slope(double s = 0.){return 0.;};
+    virtual double slope(double s = 0.){return 0.;};
 
     inline void set_minimum_spin(int j)
     {
@@ -84,14 +84,52 @@ class linear_trajectory : public regge_trajectory
         _a0 = inter; _aprime = slope;
     };
 
-    std::complex<double> eval(double s)
+    double eval(double s)
     {
         return _a0 + _aprime * s;
     };
 
-    std::complex<double> slope(double s = 0.)
+    double slope(double s = 0.)
     {
         return _aprime;
+    };
+};
+
+
+// Linear trajectory with a hard cutoff 
+class saturated_trajectory : public regge_trajectory
+{
+    private:
+
+    // Intercept and slope
+    double _a0, _aprime, _aMax = -1.;
+
+    public:
+    // Parameterized constructor
+    saturated_trajectory(int sig, double inter, double slope, std::string name = "")
+    : regge_trajectory(sig, name),
+      _a0(inter), _aprime(slope)
+    {};
+
+    // Setting utility
+    void set_params(double inter, double slope)
+    {
+        _a0 = inter; _aprime = slope;
+    };
+
+    double eval(double s)
+    {
+        double result = _a0 + _aprime * s;
+
+        if (result > _aMax) return result;
+        else return _aMax;
+    };
+
+    double slope(double s = 0.)
+    {
+        double alpha = _a0 + _aprime * s;
+        if (alpha > _aMax) return _aprime;
+        else return _aMax;
     };
 };
 
