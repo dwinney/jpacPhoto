@@ -35,9 +35,9 @@ namespace jpacPhoto
         
         inline double eval(double s, double t, double M2)
         {
-            double alpha_i  = real(_trajectories[0]->eval(t));
-            double alpha_j  = real(_trajectories[1]->eval(t));
-            double alpha_k0 = real(_trajectories[2]->eval(0.));
+            double alpha_i  = _trajectories[0]->eval(t);
+            double alpha_j  = _trajectories[1]->eval(t);
+            double alpha_k0 = _trajectories[2]->eval(0.);
 
             double nu = M2 - t - _kinematics->get_mT2();
 
