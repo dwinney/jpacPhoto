@@ -103,20 +103,20 @@ double jpacPhoto::triple_regge::dsigma_dx(double s, double x)
         double M2 = _kinematics->M2_from_xpT2(s, x, pT2);
         double t  = _kinematics->t_from_xpT2(s, x, pT2);
 
-        double jacobian = M_PI / sqrt(x*x + (_kinematics->_mX2 + pT2) / pow(_kinematics->pX_max(s), 2.));
-        double result = jacobian * invariant_xsection(s, t, M2);
-        
-        return result;
+        double jacobian = PI / _kinematics->EX_from_xpT2(s, t, M2);
+        double f        = invariant_xsection(s, t, M2);
+
+        return f * jacobian;
     };
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
     ROOT::Math::Functor1D wF(dSigma);
     ig.SetFunction(wF);
     
-    double xmin = 0.;
-    double xmax = pow(_kinematics->pX_max(s), 2.) * (1. - x*x);
+    double pT2min = 0.;
+    double pT2max = pow(_kinematics->pX_max(s), 2.) * (1. - x*x);
 
-    return ig.Integral(xmin, xmax);
+    return ig.Integral(pT2min, pT2max);
 };
 
 
@@ -143,7 +143,7 @@ double jpacPhoto::triple_regge::integrated_xsection(double s)
     double min[2] = { 0.,  0.   };
     double max[2] = { 1.,  M_PI };
     
-    ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kVEGAS );
+    ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::kADAPTIVE );
     ROOT::Math::Functor wF(dSigma, 2);
     ig.SetFunction(wF, 2);
 
