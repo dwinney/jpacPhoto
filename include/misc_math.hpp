@@ -15,12 +15,6 @@
 
 namespace jpacPhoto
 {
-    template <typename T>
-    inline T Kallen(T x, T y, T z)
-    {
-        return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
-    };
-
     std::complex<double> cgamma(std::complex<double> z, int OPT = 0);
 
     inline unsigned int factorial(unsigned int n) 
