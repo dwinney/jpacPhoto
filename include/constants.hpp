@@ -65,6 +65,7 @@ namespace jpacPhoto
     const double M_RHO       = 0.77526;
     const double M_OMEGA     = 0.78265;
     const double M_PHI       = 1.01956;
+    const double M_B1        = 1.229;
     const double M_JPSI      = 3.0969160;
     const double M_PSI2S     = 3.686;
     const double M_D         = 1.86965;
@@ -87,6 +88,10 @@ namespace jpacPhoto
     const double M2_D        = M_D * M_D;
     const double M2_DSTAR    = M_DSTAR * M_DSTAR; 
     const double M2_X3872    = M_X3872 * M_X3872;
+    const double M2_B1       = M_B1 * M_B1;
+    const double M2_ZC3900   = M_ZC3900 * M_ZC3900;
+    const double M2_ZB10610  = M_ZB10610 * M_ZB10610;
+    const double M2_ZB10650  = M_ZB10650 * M_ZB10650;
 
     // Baryon masses
     const double M_PROTON    = 0.938272;
@@ -112,6 +117,12 @@ namespace jpacPhoto
     inline double W_cm(double egam)
     {
         return sqrt(M_PROTON * (2. * egam + M_PROTON));
+    };
+
+    template <typename T>
+    inline T Kallen(T x, T y, T z)
+    {
+        return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
     };
 
 };
