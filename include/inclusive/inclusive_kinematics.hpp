@@ -117,6 +117,13 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Starting from (x, pT2) -> (t, M2)
+        inline double EX_from_xpT2(double s, double x, double pT2)
+        {
+            double pPara = x * pX_max(s);
+            double EX    = sqrt(_mX2 + pT2 + pPara*pPara);
+
+            return EX;
+        };
 
         inline double M2_from_xpT2(double s, double x, double pT2)
         {
@@ -136,11 +143,10 @@ namespace jpacPhoto
         {
             double M2       = M2_from_xpT2(s, x, pT2);
             double cosTheta = cosTheta_from_xpT2(s, x, pT2); 
-            double sigma = _mT2 + _mX2 + M2;
 
             double result;
-            result  = 2. * pGamma(s) * pX(s, M2) * cosTheta;
-            result += (sigma - s) / 2. + _mT2*(_mX2 - M2)/(2.*s);
+            result  =  2. * pGamma(s) * pX(s, M2) * cosTheta;
+            result += _mX2 - (s - _mT2) * (s - M2 + _mX2) / (2.*s);
             
             return result;
         };
