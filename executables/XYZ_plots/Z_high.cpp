@@ -158,7 +158,10 @@ int main( int argc, char** argv )
   // Output to file
   plotter->Plot(filename);
 
-  delete kZc, kZb, kZbp, plotter;
+  delete kZc;
+  delete kZb;
+  delete kZbp;
+  delete plotter;
 
   return 1.;
 }

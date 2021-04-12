@@ -134,7 +134,9 @@ int main( int argc, char** argv )
 
     delete plotter;
     delete alpha_LE;
-    delete kJpsi, kPsi2s, kY;
+    delete kJpsi;
+    delete kPsi2s;
+    delete kY;
 
     return 1.;
 };

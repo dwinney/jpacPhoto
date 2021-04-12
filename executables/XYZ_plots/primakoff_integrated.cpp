@@ -135,7 +135,9 @@ int main( int argc, char** argv )
 
     // Cleanup
     delete plotter;
-    delete kU, kSn, kZn;
+    delete kU;
+    delete kSn;
+    delete kZn;
 
     return 1.;
 };
