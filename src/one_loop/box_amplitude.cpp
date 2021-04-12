@@ -17,22 +17,37 @@ std::complex<double> jpacPhoto::box_amplitude::helicity_amplitude(std::array<int
     // Pass external values to the discontinuity
     _disc->set_externals(helicities, _theta);
 
-    // Compute both parts of the integral
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kNONADAPTIVE);
-
     double sub =  _disc->eval(s);
     auto F = [&](double sp)
     {
-        double result = (_disc->eval(sp) - sub) / (sp - s);
+        std::complex<double> result = (_disc->eval(sp) - sub) / (sp - s - IEPS);
         return result;
     };
 
-    ROOT::Math::Functor1D wF(F);
-    ig.SetFunction(wF);
-
-    double               intpiece = ig.Integral(_s_thr + EPS, _s_cut);
+    std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, _s_thr + EPS, _s_cut, 0, 1.E-6, NULL);
     std::complex<double> logpiece = sub * (log(_s_cut - s - IEPS) - log(_s_thr + EPS - s - IEPS));
     std::complex<double> result =  (intpiece + logpiece) / M_PI;
 
     return result;
+};
+
+// ---------------------------------------------------------------------------
+// Override the usual integrated_xsection to use a gauss-legendre integrator since t behavior is smooth but extremely slow
+double jpacPhoto::box_amplitude::integrated_xsection(double s)
+{
+    auto F = [&](double t)
+    {
+        double result = differential_xsection(s, t);
+        debug(t, result);
+        return result;
+    };
+
+    ROOT::Math::GaussLegendreIntegrator ig(10);
+    ROOT::Math::Functor1D wF(F);
+    ig.SetFunction(wF);
+
+    double t_min = _kinematics->t_man(s, 0.);
+    double t_max = _kinematics->t_man(s, PI);
+
+    return ig.Integral(t_max, t_min);
 };

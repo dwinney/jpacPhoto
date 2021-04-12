@@ -13,7 +13,10 @@
 #include "amplitudes/reaction_kinematics.hpp"
 #include "one_loop/box_discontinuity.hpp"
 
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+
 #include "Math/GSLIntegrator.h"
+#include "Math/GaussLegendreIntegrator.h"
 #include "Math/IntegrationTypes.h"
 #include "Math/Functor.h"
 
@@ -61,6 +64,9 @@ namespace jpacPhoto
 
         // Evaluate the helicity amplitude by dispersing
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
+
+        // Override the jpacPhoto::amplitude::integrated_xsection
+        double integrated_xsection(double s);
 
         private:        
         bool _needDelete = true;
