@@ -23,7 +23,7 @@ double jpacPhoto::box_discontinuity::eval(double s)
     int lam_tar = _external_helicities[1];
     int lam_vec = _external_helicities[2];
     int lam_rec = _external_helicities[3];
-
+    
     auto dF = [&](const double * x)
     {
         double theta_gam = x[0];
@@ -31,7 +31,7 @@ double jpacPhoto::box_discontinuity::eval(double s)
             
         // calculate the sub-process momentum transfers
         double t_gam        = _initialAmp->_kinematics->t_man(s, theta_gam);
-
+    
         double costheta_vec = cos(_external_theta) * cos(theta_gam) + sin(_external_theta) * sin(theta_gam) * cos(phi_gam);
         double theta_vec    = TMath::ACos(costheta_vec);
         double t_vec        = _finalAmp->_kinematics->t_man(s, theta_vec);
@@ -48,7 +48,9 @@ double jpacPhoto::box_discontinuity::eval(double s)
             right = _finalAmp->helicity_amplitude(  {lam_vec, lam_rec, lam_meson, lam_baryon}, s, t_vec);
             result += left * right;
         };
-        return real(result);
+
+        double jacobian = sin(theta_gam);
+        return jacobian * real(result);
     };
 
     // Integrate over theta_gamma = [0, pi] and phi = [0, 2pi]
