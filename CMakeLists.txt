@@ -36,14 +36,35 @@ else()
     message(SEND_ERROR "-- ROOT not found!")
 endif()
 
+## Connect BOOST if available
+find_package(Boost)
+if (Boost_FOUND)
+    message("-- BOOST found! Building with loop_amplitude.")
+    include_directories(${BOOST_INCLUDE_DIRS})
+    link_directories(${BOOST_LIBRARY_DIRS})
+else()
+    message("-- BOOST not found! loop_amplitude will not be available.")
+endif()
+
+
 # BUILD LIBRARY FROM LOCAL FiLES
 include_directories("include")
 include_directories("src")
-file(GLOB_RECURSE INC "include/*.hpp")
-file(GLOB_RECURSE SRC "src/*.cpp")
+
+if (Boost_FOUND)
+    file(GLOB_RECURSE INC "include/*.hpp" "include/amplitudes/*.hpp")
+    file(GLOB_RECURSE SRC "src/*.cpp")
+else()
+    file(GLOB INC "include/*.hpp" "include/amplitudes/*.hpp")
+    file(GLOB SRC "src/*.cpp" "src/amplitudes/*.cpp")
+endif()
 
 add_library( jpacPhoto SHARED ${INC} ${SRC} )
 target_link_libraries( jpacPhoto ${ROOT_LIBRARIES})
+
+if (Boost_FOUND)
+    target_link_libraries( jpacPhoto ${Boost_LIBRARIES})
+endif()
 
 # Find the jpacStyle library
 find_library(JSTYLELIB NAMES jpacStyle libjpacStyle 
@@ -63,7 +84,12 @@ install(TARGETS jpacPhoto
 # complie all the executables in the bin folder
 if (JSTYLELIB)
     include_directories("executables")
-    file(GLOB_RECURSE EXE_FILES "executables/*.cpp")
+    if (Boost_FOUND)
+        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/XYZ_plots/*.cpp" "executables/open_charm/*.cpp")
+    else()
+        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/XYZ_plots/*.cpp")
+    endif()
+
     foreach( exefile ${EXE_FILES} )
         get_filename_component( exename ${exefile} NAME_WE)
         add_executable( ${exename} ${exefile} )
