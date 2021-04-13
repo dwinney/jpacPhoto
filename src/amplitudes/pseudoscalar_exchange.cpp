@@ -98,7 +98,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue(int lam_gam, 
 
     else if (_kinematics->_jp == PSEUDO_SCALAR)
     {
-        result  = 2. / _kinematics->_mB;
+        result  = 2. * XI / _kinematics->_mB;
     }
 
     std::complex<double> q_t = sqrt(XR * Kallen(_t, _kinematics->_mX2, _kinematics->_mB2)) / sqrt(4. * _t * XR);
@@ -149,7 +149,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex(int lam_tar
 std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(int lam_gam, int lam_vec)
 {
     std::complex<double> result = 0.;
-
+    
     // A - V - P
     if (_kinematics->_jp == AXIAL_VECTOR)
     {
@@ -179,10 +179,10 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(int lam_gam, i
                 temp2 *= _kinematics->_final_state->q(nu, _s, _theta);
 
                 term2 += temp2;
-
-                result = (temp1 - temp2) / _kinematics->_mX;
             }
         }
+
+        result = (term1 - term2) / _kinematics->_mX;
     }
 
     // V - V - P
@@ -221,7 +221,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(int lam_gam, i
             temp   = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
             temp  *= METRIC[mu];
             temp  *= _kinematics->_final_state->q(mu, _s, _theta) - _kinematics->t_exchange_momentum(mu, _s, _theta);
-            result += temp;
+            result += XI * temp;
         }
     }
 
