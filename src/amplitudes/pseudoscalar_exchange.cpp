@@ -87,25 +87,22 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue(int lam_gam, 
 
     std::complex<double> result;
 
-    std::complex<double> q_t = sqrt(XR * Kallen(_t, _kinematics->_mX2, _kinematics->_mB2)) / sqrt(4. * _t * XR);
-
     if (_kinematics->_jp == AXIAL_VECTOR)
     {
-        result  = _gGamma / _kinematics->_mX;
-        result *= q_t * sqrt(4. * _t * XR);
-        result *= lam_gam;
+        result  = lam_gam / _kinematics->_mX;
     }
     else if (_kinematics->_jp == VECTOR)
     {
-        result  = - 2.; 
-        result *= _gGamma;
-        result *= q_t * sqrt(XR * _t);
-
-        // Relative -4 in coupling for photon 
-        if (abs(_kinematics->_mB) < 1.E-5) result *=  - 4.;
+        (_kinematics->_mB < 1.E-5) ? (result = -4.) : (result = 1.);
     }
 
-    return result;
+    else if (_kinematics->_jp == PSEUDO_SCALAR)
+    {
+        result  = 2. / _kinematics->_mB;
+    }
+
+    std::complex<double> q_t = sqrt(XR * Kallen(_t, _kinematics->_mX2, _kinematics->_mB2)) / sqrt(4. * _t * XR);
+    return 2. * _gGamma * q_t * sqrt(XR * _t) * result;
 };
 
 // Nucleon resiude 
@@ -210,6 +207,21 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(int lam_gam, i
                     }
                 }
             }
+        }
+    }
+
+    // V - P - P
+    if (_kinematics->_jp == PSEUDO_SCALAR)
+    {
+        if (_kinematics->_mB < 1.E-3) return 0.;
+
+        for (int mu = 0; mu < 4; mu++)
+        {
+            std::complex<double> temp;
+            temp   = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
+            temp  *= METRIC[mu];
+            temp  *= _kinematics->_final_state->q(mu, _s, _theta) - _kinematics->t_exchange_momentum(mu, _s, _theta);
+            result += temp;
         }
     }
 

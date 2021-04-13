@@ -40,11 +40,6 @@ namespace jpacPhoto
         {
             set_nParams(2);
             check_JP(xkinem->_jp);
-
-            if ((xkinem->_jp == AXIAL_VECTOR) || (xkinem->_jp == VECTOR))
-            {
-                _useCovariant = false;
-            }
         };
 
         // constructors for regge exchange
@@ -82,7 +77,7 @@ namespace jpacPhoto
         // only axial-vector, vector, and pseudo-scalar available
         inline std::vector<std::array<int,2>> allowedJP()
         {
-            return { AXIAL_VECTOR, VECTOR };
+            return { AXIAL_VECTOR, VECTOR, PSEUDO_SCALAR };
         };
 
         private:
@@ -108,7 +103,7 @@ namespace jpacPhoto
         double form_factor();
 
         // Whether to switch to using the feynman rules
-        bool _useCovariant = true; 
+        bool _useCovariant = false; 
 
         // Photon - pseudoscalar - Axial vertex
         std::complex<double> top_residue(int lam_gam, int lam_vec);
