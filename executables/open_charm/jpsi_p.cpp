@@ -26,28 +26,25 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Set up Kinematics for Dbar LambdaC in final state
-    auto kD = new reaction_kinematics(M_D, M_LAMBDAC, M_PROTON);
-    kD->set_JP(VECTOR);
+    auto kD = new reaction_kinematics(M_D, M_LAMBDAC, M_PROTON, M_JPSI);
+    kD->set_JP(PSEUDO_SCALAR);
 
-    auto d_dEx = new pseudoscalar_exchange(kD, M_D, "Analytic");
+    auto d_dEx = new pseudoscalar_exchange(kD, M_D, "D exchange");
     d_dEx->set_params({gPsiDD, gDNLam});
     d_dEx->set_formfactor(2, M_D + eta * lambdaQCD);
 
-    auto d_dExC = new pseudoscalar_exchange(kD, M_D, "Covariant");
-    d_dExC->set_params({gPsiDD, gDNLam});
-    d_dExC->set_formfactor(2, M_D + eta * lambdaQCD);
-    d_dExC->set_debug(1);
+    auto d_dstarEx = new vector_exchange(kD, M_DSTAR, "D* exchange");
+    d_dstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
+    d_dstarEx->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
 
-    // auto d_dstarEx = new vector_exchange(kD, M_DSTAR, "D* exchange");
-    // d_dstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
-    // d_dstarEx->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
+    auto sum = new amplitude_sum(kD, {d_dEx, d_dstarEx}, "Sum");
 
    // ---------------------------------------------------------------------------
     // which amps to plot
     std::vector<amplitude*> amps;
     amps.push_back(d_dEx);
-    amps.push_back(d_dExC);
-    // amps.push_back(d_dstarEx);
+    amps.push_back(d_dstarEx);
+    amps.push_back(sum);
 
     auto plotter = new photoPlotter(amps);
 
