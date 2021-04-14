@@ -98,19 +98,23 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
     std::complex<double> result;
     std::complex<double> q_t = sqrt(XR * Kallen(_t, _kinematics->_mX2, _kinematics->_mB2)) / sqrt(4. * _t * XR);
 
-    if (_kinematics->_jp[0] == 1)
+    if (_kinematics->_jp == AXIAL_VECTOR)
     {
-        if (lam_gam == lam_vec)
+        switch (std::abs(lam_gam - lam_vec))
         {
-            result = double(lam_gam);
-        }
-        else if (std::abs(lam_gam - lam_vec) == 1)
+            case 0: result = double(lam_gam); break;
+            case 1: result = sqrt(XR * _t) / _kinematics->_mX; break;
+            default: return 0.;
+        };
+    }
+
+    else if (_kinematics->_jp == VECTOR)
+    {
+        switch (std::abs(lam_gam - lam_vec))
         {
-            result = sqrt(XR * _t) / _kinematics->_mX;
-        }
-        else 
-        {
-            return 0.;
+            case 0: result = double(lam_gam) + double(1 - std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX; break;
+            case 1: result = double(lam_gam) * sqrt(XR * _t) / _kinematics->_mX; break;
+            default: return 0.;
         };
     }
 
@@ -275,26 +279,25 @@ std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu, int lam_gam,
     {
         for (int nu = 0; nu < 4; nu++)
         {
-            std::complex<double> temp = XI;
-            if (_debug == 2) temp *= METRIC[mu];
-            temp *= _kinematics->_eps_gamma->field_tensor(mu, nu, lam_gam, _s, 0.);
-            temp *= METRIC[nu];
-            temp *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
-            result += temp;
+            // std::complex<double> temp = XI;
+            // if (_debug == 2) temp *= METRIC[mu];
+            // temp *= _kinematics->_eps_gamma->field_tensor(mu, nu, lam_gam, _s, 0.);
+            // temp *= METRIC[nu];
+            // temp *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
+            // result += temp;
 
-            // std::complex<double> term1, term2;
+            std::complex<double> term1, term2;
+            term1  = _kinematics->_initial_state->q(mu, _s, 0.);
+            term1 *= _kinematics->_eps_gamma->component(nu, lam_gam, _s, 0.);
+            term1 *= METRIC[nu];
+            term1 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec,_s, _theta);
 
-            // term1  = _kinematics->_initial_state->q(mu, _s, 0.);
-            // term1 *= _kinematics->_eps_gamma->component(nu, lam_gam, _s, 0.);
-            // term1 *= METRIC[nu];
-            // term1 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec,_s, _theta);
+            term2  = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
+            term2 *= _kinematics->_initial_state->q(nu, _s, 0.);
+            term2 *= METRIC[nu];
+            term2 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec,_s, _theta);
 
-            // term2  = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
-            // term2 *= _kinematics->_initial_state->q(nu, _s, 0.);
-            // term2 *= METRIC[nu];
-            // term2 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec,_s, _theta);
-
-            // result += term1 - term2;
+            result += term1 - term2;
         }
     }
 
