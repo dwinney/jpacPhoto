@@ -23,9 +23,21 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
     else // save a new set
     {
         _cached_helicity_amplitude.clear();
-        for (int i = 0; i < _kinematics->_nAmps; i++)
+
+        int n = _kinematics->_nAmps;
+
+        // Save the first half for lam_gam = +1 
+        for (int i = 0; i < n/2; i++)
         {
-            _cached_helicity_amplitude.push_back(helicity_amplitude(_kinematics->_helicities[i], s, t));
+            std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
+            _cached_helicity_amplitude.push_back(amp_gamp);
+        };
+
+        // Rest given by parity 
+        for (int i = n/2; i <= n; i++)
+        {
+            int phase = _kinematics->_jp[1] * pow(-1, _kinematics->_jp[0]);
+            _cached_helicity_amplitude.push_back(double(phase) *  _cached_helicity_amplitude[i - n/2]);
         };
 
         // update cache info
@@ -147,6 +159,12 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     if (alpha < 0 || alpha > 2 || std::abs(lam) > 1 || std::abs(lamp) > 1)
     {
         std::cout << "\nError! Invalid parameter passed to SDME. Returning 0!\n";
+        return 0.;
+    };
+
+    if (_kinematics->_mB > 1.E-5) 
+    {
+        std::cout << "\nError! SDME only valid for photon in the initial state. Returning 0!\n";
         return 0.;
     };
 
