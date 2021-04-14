@@ -38,7 +38,6 @@ double jpacPhoto::box_amplitude::integrated_xsection(double s)
     auto F = [&](double t)
     {
         double result = differential_xsection(s, t);
-        debug(t, result);
         return result;
     };
 
