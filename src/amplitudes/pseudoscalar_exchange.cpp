@@ -93,7 +93,8 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue(int lam_gam, 
     }
     else if (_kinematics->_jp == VECTOR)
     {
-        (_kinematics->_mB < 1.E-5) ? (result = -4.) : (result = 1.);
+        result = lam_gam;
+        (_kinematics->_mB < 1.E-5) ? (result *= -4.) : (result *= 1.);
     }
 
     else if (_kinematics->_jp == PSEUDO_SCALAR)
@@ -203,6 +204,8 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(int lam_gam, i
                         temp *= _kinematics->_eps_vec->conjugate_component(mu, lam_vec, _s, _theta);
                         temp *= _kinematics->_eps_gamma->field_tensor(alpha, beta, lam_gam, _s, 0.);
                         temp *= _kinematics->_final_state->q(gamma, _s, _theta) - _kinematics->t_exchange_momentum(gamma, _s, _theta);
+
+                        if (_kinematics->_mB > 1.E-5) temp /= 4.;
                         result += temp;
                     }
                 }
