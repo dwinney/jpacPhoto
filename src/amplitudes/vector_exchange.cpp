@@ -95,7 +95,7 @@ double jpacPhoto::vector_exchange::form_factor()
 // Photon coupling
 std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int lam_vec)
 {
-    std::complex<double> result;
+    std::complex<double> result = 0.;
     std::complex<double> q_t = sqrt(XR * Kallen(_t, _kinematics->_mX2, _kinematics->_mB2)) / sqrt(4. * _t * XR);
 
     if (_kinematics->_jp == AXIAL_VECTOR)
@@ -112,8 +112,16 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
     {
         switch (std::abs(lam_gam - lam_vec))
         {
-            case 0: result = double(lam_gam) + double(1 - std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX; break;
-            case 1: result = double(lam_gam) * sqrt(XR * _t) / _kinematics->_mX; break;
+            case 0:
+            {
+                result  = double(lam_gam) + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
+                break;
+            } 
+            case 1: 
+            { 
+                result = double(lam_gam) * sqrt(XR * _t) / _kinematics->_mX;
+                break;
+            }
             default: return 0.;
         };
     }
@@ -122,7 +130,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
     {
         result = sqrt(XR * _t);
         result *= double(lam_gam);
-        if (_kinematics->_mB < 1.E-5) result *=  -4.;
+        if (_kinematics->_photon) result *=  -4.;
     }
     
     return _gGam * q_t * result;
@@ -279,25 +287,12 @@ std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu, int lam_gam,
     {
         for (int nu = 0; nu < 4; nu++)
         {
-            // std::complex<double> temp = XI;
-            // if (_debug == 2) temp *= METRIC[mu];
-            // temp *= _kinematics->_eps_gamma->field_tensor(mu, nu, lam_gam, _s, 0.);
-            // temp *= METRIC[nu];
-            // temp *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
-            // result += temp;
-
-            std::complex<double> term1, term2;
-            term1  = _kinematics->_initial_state->q(mu, _s, 0.);
-            term1 *= _kinematics->_eps_gamma->component(nu, lam_gam, _s, 0.);
-            term1 *= METRIC[nu];
-            term1 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec,_s, _theta);
-
-            term2  = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
-            term2 *= _kinematics->_initial_state->q(nu, _s, 0.);
-            term2 *= METRIC[nu];
-            term2 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec,_s, _theta);
-
-            result += term1 - term2;
+            std::complex<double> temp = XI;
+            if (_debug == 2) temp *= METRIC[mu];
+            temp *= _kinematics->_eps_gamma->field_tensor(mu, nu, lam_gam, _s, 0.);
+            temp *= METRIC[nu];
+            temp *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
+            result += temp;
         }
     }
 
@@ -350,7 +345,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu, int lam_gam,
                     temp *= _kinematics->_final_state->q(alpha, _s, _theta);
                     temp *= _kinematics->_eps_gamma->component(beta, lam_gam, _s, 0.);
                     temp *= _kinematics->t_exchange_momentum(gamma, _s, _theta);
-                    if (_kinematics->_mB2 < 1.E-5) temp *= - 4.;
+                    if (_kinematics->_photon) temp *= - 4.;
 
                     result += temp;
                 }

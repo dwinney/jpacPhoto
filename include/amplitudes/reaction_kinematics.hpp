@@ -90,6 +90,7 @@ namespace jpacPhoto
           _mB(mB), _mB2(mB*mB),
           _mT(mT), _mT2(mT*mT)
         {
+            if (mB > 0.) _photon = false;
             _initial_state   = new two_body_state(mB*mB, mT*mT);
             _eps_gamma       = new polarization_vector(_initial_state);
             _target          = new dirac_spinor(_initial_state);
@@ -112,7 +113,7 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Masses
-        
+        bool _photon = true;
         double _mB = 0., _mB2 = 0.;       // mass and mass squared of the "beam" 
         double _mX = 0., _mX2 = 0.;       // mass and mass squared of the produced particle
 
