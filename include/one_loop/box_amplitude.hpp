@@ -28,18 +28,21 @@ namespace jpacPhoto
         // Constructor.
         // Need the parent reaction kinematics and pre-set sub-amplitudes
         box_amplitude(reaction_kinematics * xkinem, box_discontinuity * disc, std::string id = "Box Amplitude")
+        : amplitude(xkinem, id), _disc(disc)
+        {};
+
+        box_amplitude(reaction_kinematics * xkinem, amplitude * left, amplitude * right, std::string id = "Box Amplitude")
         : amplitude(xkinem, id)
         {
-            _discs.push_back(disc);
+            _disc = new box_discontinuity(left, right);
+            _needDelete = true;
         };
-
-        box_amplitude(reaction_kinematics * xkinem, std::vector<box_discontinuity*> discs, std::string id = "Box Amplitude")
-        : amplitude(xkinem, id), _discs(discs)
-        {};
 
         // Destructor
         ~box_amplitude()
-        {};
+        {
+            if (_needDelete) delete _disc;
+        };
 
         // Setter for max cutoff in dispersion relation
         inline void set_cutoff(double s_cut)
@@ -62,7 +65,8 @@ namespace jpacPhoto
         private:        
 
         // Discontinutity given in terms of the two tree amplitudes
-        std::vector<box_discontinuity*> _discs;
+        box_discontinuity * _disc;
+        bool _needDelete = false;
 
         // Integration momentum cutoff. Defaults to 2 GeV (an arbitrary but sensible value)
         double _s_cut = 2.;
