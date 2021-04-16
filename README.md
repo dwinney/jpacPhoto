@@ -2,7 +2,7 @@
 Framework for amplitude analysis involving single meson production via quasi-elastic scattering of a real photon on a nucleon target. Focus on expandability and easy interfacing with Monte-Carlo tools and event generators.
 
 <p align="center">
-  <img width="300" src="./doc/FeynmanDiagram.png">
+  <img width="400" src="./doc/FeynmanDiagram.png">
 </p>
 
 Such processes are of interest at many experiments at JLab and the future EIC.
@@ -65,7 +65,7 @@ Incoherent (interfering) sums of amplitudes may be constructed through the [`amp
 The optional library `jpacBox` allows exchange amplitudes (in the t and u-channels) to be combined into a [box diagram](./include/box/box_amplitude.hpp) of the form:
 
 <p align="center">
-  <img width="300" src="./doc/BoxDiagram.png">
+  <img width="400" src="./doc/BoxDiagram.png">
 </p>
 
 The calculation is done via a dispersion relation and integrating over the entire intermediate phase-space. The `box_amplitude` class requires the `gauss_kronrod` integration method from Boost C++ which can natively handle complex integrands and thus makes it particularly efficient in computing dispersion relations. 
