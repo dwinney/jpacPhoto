@@ -156,17 +156,22 @@ double jpacPhoto::amplitude::A_LL(double s, double t)
 // Photon spin-density matrix elements
 std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, double s, double t)
 {
-    if (alpha < 0 || alpha > 2 || std::abs(lam) > 1 || std::abs(lamp) > 1)
+    if (alpha < 0 || alpha > 2 || std::abs(lam) > 2 || std::abs(lamp) > 2)
     {
         std::cout << "\nError! Invalid parameter passed to SDME. Returning 0!\n";
         return 0.;
     };
 
-    if (_kinematics->_mB > 1.E-5) 
+    if (!_kinematics->_photon) 
     {
         std::cout << "\nError! SDME only valid for photon in the initial state. Returning 0!\n";
         return 0.;
     };
+
+    // If spin is too small return 0 automatically
+    int j = _kinematics->_jp[0];
+    if (j < 2 && (abs(lam) == 2 || abs(lamp) == 2)) return 0.;
+    if (j < 1 && (abs(lam) >= 1 || abs(lamp) >= 1)) return 0.;
 
     // Phase and whether to conjugate at the end
     bool CONJ = false;
@@ -176,7 +181,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     if (std::abs(lam) < std::abs(lamp))
     {
         int temp = lam;
-        lam = lamp;
+        lam  = lamp;
         lamp = temp;
 
         CONJ = true;
@@ -185,50 +190,55 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     // if first index is negative, flip to positive
     if (lam < 0)
     {
-        lam *= -1;
+        lam  *= -1;
         lamp *= -1;
 
         phase *= pow(-1., double(lam - lamp));
+
+        if (alpha == 2){phase *= -1.;};
     }
 
     // Normalization (sum over all amplitudes squared)
     double norm = probability_distribution(s, t);
 
-    // These are the indexes of the amplitudes in reaction_kinematics that have
-    // lambda_V = +1
-    std::vector<int> pos_iters = {0, 1, 6, 7, 12, 13, 18, 19};
-    std::vector<int> neg_iters = {12, 13, 18, 19, 0, 1, 6, 7};
-
-    // j and k filter the right helicity combinations for 00, 1-1, 10, 11
-    int j, k;
-    (lam == 0) ? (k = 2) : (k = 0);
-
-    switch (lamp)
+    // k filters first index to be  0, 1, 2
+    // l filters second index to be 0, 1, 2
+    // m filters sign of second index
+    int k, l, m;
+    std::array<std::vector<int>, 2> iters = get_iters(j);
+    
+    int lamlamp = 10 * lam + abs(lamp);
+    switch(lamlamp)
     {
-        case -1: { j = 4; break; }
-        case 0:  { j = 2; break; }
-        case 1:  { j = 0; break; }
-        default:
-        {
-            std::cout << "\nSDME: Invalid parameter. J/Psi helicity projection lamp = 0 or 1! Returning zero.";
-            return 0.;;
-        }
-    }
+        case  0: {k =  2; l =  2; break;};
+        case 10: {k =  0; l =  2; break;};
+        case 11: {k =  0; l =  0; break;};
+        case 20: {k = -2; l =  2; break;};
+        case 21: {k = -2; l =  0; break;};
+        case 22: {k = -2; l = -2; break;};
+        default: exit(0);
+    };
+    
+    (lamp < 0) ? (m = 4 * j) : (m = 0);
 
     // Sum over the appropriate amplitude combinations
     std::complex<double> result = 0.;
     for (int i = 0; i < 8; i++)
     {
         int index;
-        (alpha == 0) ? (index = pos_iters[i]) : (index = neg_iters[i]);
+        (alpha == 0) ? (index = iters[0][i]) : (index = iters[1][i]);
+        std::complex<double> amp, amp_star, temp;
+        amp      = _cached_helicity_amplitude[index + k];
+        amp_star = _cached_helicity_amplitude[iters[0][i] + l + m];
 
-        std::complex<double> amp_i, amp_j;
-        amp_i = _cached_helicity_amplitude[index + k];
-        amp_j = _cached_helicity_amplitude[pos_iters[i] + j];
+        temp = real(amp * conj(amp_star));
 
-        (alpha == 2) ? (amp_j *= XI * double(_kinematics->_helicities[pos_iters[i] + j][0])) : (amp_j *= XR);
-
-        result += real(amp_i * conj(amp_j));
+        if (alpha == 2)
+        {
+            temp *= XI * double(_kinematics->_helicities[iters[0][i] + k][0]);
+        }
+        
+        result += temp;
     }
 
     if (CONJ == true)
@@ -248,10 +258,12 @@ double jpacPhoto::amplitude::beam_asymmetry_4pi(double s, double t)
 {
     double rho100 = real(SDME(1, 0, 0, s, t));
     double rho111 = real(SDME(1, 1, 1, s, t));
+    double rho122 = real(SDME(1, 2, 2, s, t));
     double rho000 = real(SDME(0, 0, 0, s, t));
     double rho011 = real(SDME(0, 1, 1, s, t));
+    double rho022 = real(SDME(0, 2, 2, s, t));
 
-    return -(rho100 + 2. * rho111) / (rho000 + 2. * rho011);
+    return -(rho100 + 2. * rho111 + 2. * rho122) / (rho000 + 2. * rho011 + 2. * rho022);
 };
 // ---------------------------------------------------------------------------
 // Beam asymmetry along y axis sigma_y 
@@ -271,6 +283,7 @@ double jpacPhoto::amplitude::parity_asymmetry(double s, double t)
 {
     double rho100  = real(SDME(1, 0,  0, s, t));
     double rho11m1 = real(SDME(1, 1, -1, s, t));
+    double rho12m2 = real(SDME(1, 2, -2, s, t));
 
-    return 2. * rho11m1 - rho100;
+    return 2. * rho11m1 - 2. * rho12m2 - rho100;
 };
