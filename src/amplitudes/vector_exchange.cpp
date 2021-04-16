@@ -114,12 +114,12 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
         {
             case 0:
             {
-                result  = double(lam_gam) + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
+                result  = XI * double(lam_gam) + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
                 break;
             } 
             case 1: 
             { 
-                result = double(lam_gam) * sqrt(XR * _t) / _kinematics->_mX;
+                result = XI * double(lam_gam) * sqrt(XR * _t) / _kinematics->_mX;
                 break;
             }
             default: return 0.;
