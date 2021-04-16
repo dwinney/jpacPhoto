@@ -50,28 +50,13 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the spinor indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
-        // debugging options to make either the photon or vector into scalars
-        inline void set_debug(int i)
-        {
-            switch (i)
-            {
-            case 3: _scTOP = true; _scBOT = true; break;
-            case 2: _scTOP = true; break;
-            case 1: _scBOT = true; break;
-            }
-        }
-
         // only vector and psuedo-scalar kinematics
         inline std::vector<std::array<int,2>> allowedJP()
         {
-            return {{1, -1}, {0, -1}};
+            return {VECTOR, PSEUDO_SCALAR};
         };
 
         protected:
-
-        // possibility to set the top and bottom vertices to be scalar type 
-        // For debugging purposes only
-        bool _scTOP = false, _scBOT = false;
     
         // Exchange nucleon mass
         double _u;
@@ -84,6 +69,10 @@ namespace jpacPhoto
 
         // couplings
         double _gGam = 0., _gVec = 0.;
+
+        // Two different ways to evaluate (should be identical)
+        bool _useCovariant = true;
+        std::complex<double> covariant_amplitude(std::array<int,4> helicities);
 
         // Should be exactly u_man(s, zs);
         double exchange_mass();

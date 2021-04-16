@@ -11,28 +11,12 @@
 // Combine everything and contract indices
 std::complex<double> jpacPhoto::dirac_exchange::helicity_amplitude(std::array<int, 4> helicities, double s, double t)
 {
-    int lam_gam = helicities[0];
-    int lam_targ = helicities[1];
-    int lam_vec = helicities[2];
-    int lam_rec = helicities[3];
-
     // Store the invariant energies to avoid having to pass them around 
     _s = s; _t = t, _theta = _kinematics->theta_s(s, t);
     _u = _kinematics->u_man(s, _theta);
 
     std::complex<double> result = 0.;
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            std::complex<double> temp;
-            temp  = top_vertex(i, lam_gam, lam_rec);
-            temp *= dirac_propagator(i, j);
-            temp *= bottom_vertex(j, lam_vec, lam_targ);
-
-            result += temp;
-        }
-    }
+    result = covariant_amplitude(helicities);
     
     result *= form_factor();
 
@@ -62,23 +46,42 @@ double jpacPhoto::dirac_exchange::form_factor()
     }
 };
 
+//------------------------------------------------------------------------------
+// Contract spinor indices using covariant feynman rules
+std::complex<double> jpacPhoto::dirac_exchange::covariant_amplitude(std::array<int,4> helicities)
+{
+    int lam_gam = helicities[0];
+    int lam_tar = helicities[1];
+    int lam_vec = helicities[2];
+    int lam_rec = helicities[3];
+
+    std::complex<double> result = 0.;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::complex<double> temp;
+            temp  = top_vertex(i, lam_gam, lam_rec);
+            temp *= dirac_propagator(i, j);
+            temp *= bottom_vertex(j, lam_vec, lam_tar);
+
+            result += temp;
+        }
+    }
+    
+    return result;
+};
 
 //------------------------------------------------------------------------------
 // Photon fermion fermion vertex
 // (ubar epsilon-slashed)
 std::complex<double> jpacPhoto::dirac_exchange::top_vertex(int i, int lam_gam, int lam_rec)
 {
-    if (_scTOP == true)
-    {
-        // Scalar for testing purposes
-        return _gGam * _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta + PI);
-    }
-
     std::complex<double> result = 0.;
     for (int k = 0; k < 4; k++)
     {
         std::complex<double> temp;
-        temp  = _kinematics->_recoil->adjoint_component(k, lam_rec, _s, _theta + PI); // theta_recoil = theta + pi
+        temp  = _kinematics->_recoil->adjoint_component(k, lam_rec, _s, _theta); // theta_recoil = theta + pi
         temp *= slashed_eps(k, i, lam_gam, _kinematics->_eps_gamma, false, _s, 0.); // theta_gamma = 0
 
         result += temp;
@@ -90,42 +93,35 @@ std::complex<double> jpacPhoto::dirac_exchange::top_vertex(int i, int lam_gam, i
 //------------------------------------------------------------------------------
 // Vector fermion fermion vertex
 // (epsilon*-slashed u)
-std::complex<double> jpacPhoto::dirac_exchange::bottom_vertex(int j, int lam_vec, int lam_targ)
+std::complex<double> jpacPhoto::dirac_exchange::bottom_vertex(int j, int lam_vec, int lam_tar)
 {
-    if (_scBOT == true)
-    {
-        // Scalar for testing purposes
-        return _gVec * _kinematics->_target->component(j, lam_targ, _s , PI); // theta_target = pi
-    }
-
     std::complex<double> result = 0.;
     
     // F - F - V coupling
-    if (_kinematics->_jp[0] == 1 && _kinematics->_jp[1] == -1)
+    if (_kinematics->_jp == VECTOR)
     {
         for (int k = 0; k < 4; k++)
         {
             std::complex<double> temp;
             temp  = slashed_eps(j, k, lam_vec, _kinematics->_eps_vec, true, _s, _theta + PI); //theta_vec = theta
-            temp *= _kinematics->_target->component(k, lam_targ, _s, PI); // theta_target = pi
+            temp *= _kinematics->_target->component(k, lam_tar, _s, PI); // theta_target = pi
 
             result += temp;
         }
     }
 
     // F - F - P coupling
-    else if (_kinematics->_jp[0] == 0 && _kinematics->_jp[1] == -1)
+    else if (_kinematics->_jp == PSEUDO_SCALAR)
     {
         for (int k = 0; k < 4; k++)
         {
             std::complex<double> temp;
             temp  = XI * GAMMA_5[j][k];
-            temp *= _kinematics->_target->component(k, lam_targ, _s, PI); // theta_target = pi
+            temp *= _kinematics->_target->component(k, lam_tar, _s, PI); // theta_target = pi
 
             result += temp;
         }
     }
-
 
     return _gVec * result;
 };
@@ -200,7 +196,7 @@ std::complex<double> jpacPhoto::dirac_exchange::dirac_propagator(int i, int j)
         result += _mEx;
     }
 
-    result /= exchange_mass() - _mEx2;
+    result /= _u - _mEx2;
 
     return result;
 };

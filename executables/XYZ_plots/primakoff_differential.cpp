@@ -15,7 +15,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "reaction_kinematics.hpp"
+#include "amplitudes/reaction_kinematics.hpp"
 #include "amplitudes/primakoff_effect.hpp"
 #include "amplitudes/amplitude_sum.hpp"
 
@@ -137,6 +137,9 @@ int main( int argc, char** argv )
 
     // Cleanup
     delete plotter;
-    delete kU, kSn, kZn;
+    delete kU;
+    delete kSn;
+    delete kZn;
+    
     return 1.;
 };

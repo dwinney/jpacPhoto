@@ -90,6 +90,7 @@ namespace jpacPhoto
           _mB(mB), _mB2(mB*mB),
           _mT(mT), _mT2(mT*mT)
         {
+            if (mB > 0.) _photon = false;
             _initial_state   = new two_body_state(mB*mB, mT*mT);
             _eps_gamma       = new polarization_vector(_initial_state);
             _target          = new dirac_spinor(_initial_state);
@@ -112,7 +113,7 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Masses
-        
+        bool _photon = true;
         double _mB = 0., _mB2 = 0.;       // mass and mass squared of the "beam" 
         double _mX = 0., _mX2 = 0.;       // mass and mass squared of the produced particle
 
@@ -156,7 +157,14 @@ namespace jpacPhoto
         inline void set_JP(int J, int P)
         { 
             _jp = {J, P};
-            _helicities = get_helicities(J);
+            _helicities = get_helicities(J, _mB);
+            _nAmps = _helicities.size();
+        };
+        
+        inline void set_JP(std::array<int,2> jp)
+        { 
+            _jp = jp;
+            _helicities = get_helicities(jp[0], _mB);
             _nAmps = _helicities.size();
         };
 
@@ -177,8 +185,8 @@ namespace jpacPhoto
             std::complex<double> qdotqp = _initial_state->momentum(s) * _final_state->momentum(s);
             std::complex<double> E1E3   = _initial_state->energy_V(s) * _final_state->energy_V(s);
 
-            double result = t - _mX2 - _mB2 + 2.*abs(E1E3);
-            result /= 2. * abs(qdotqp);
+            double result = t - _mX2 - _mB2 + 2.*real(E1E3);
+            result /= 2. * real(qdotqp);
 
             return result;
         };
@@ -196,7 +204,7 @@ namespace jpacPhoto
             std::complex<double> qdotqp = _initial_state->momentum(s) * _final_state->momentum(s);
             std::complex<double> E1E3   = _initial_state->energy_V(s) * _final_state->energy_V(s);
 
-            return _mX2 + _mB2 - 2. * abs(E1E3) + 2. * abs(qdotqp) * cos(theta);
+            return _mX2 + _mB2 - 2. * real(E1E3) + 2. * real(qdotqp) * cos(theta);
         };
 
         inline double u_man(double s, double theta)
@@ -208,21 +216,33 @@ namespace jpacPhoto
         inline std::complex<double> z_t(double s, double theta)
         {
             double t = t_man(s, theta);
-            std::complex<double> p_t = sqrt(XR * Kallen(t, _mT2, _mR2)) / sqrt(XR * 4. * t);
-            std::complex<double> q_t = sqrt(XR * Kallen(t, _mX2, _mB2)) / sqrt(XR * 4. * t);
+            double u = u_man(s, theta);
 
             std::complex<double> result;
-            result = 2. * s + t - _mT2 - _mR2 - _mX2 - _mB2; // s - u
-            result /= 4. * p_t * q_t;
+            result  = t * (s - u) + (_mB2 - _mX2) * (_mT2 - _mR2);
+            result /=  sqrt(XR * Kallen(t, _mX2, _mB2)) * sqrt(XR * Kallen(t, _mT2, _mR2));
 
             return result;
         };
 
+        inline std::complex<double> z_u(double s, double theta)
+        {
+            double t = t_man(s, theta);
+            double u = u_man(s, theta);
+
+            std::complex<double> result;
+            result  = u * (t - s) + (_mB2 - _mR2) * (_mT2 - _mX2);
+            result /=  sqrt(XR * Kallen(u, _mR2, _mB2)) * sqrt(XR * Kallen(u, _mT2, _mX2));
+
+            return result;
+        };
+
+        // momentum transfer 4-vectors
         inline std::complex<double> t_exchange_momentum(int mu, double s, double theta)
         {
             std::complex<double> qGamma_mu, qA_mu;
-            qGamma_mu = _initial_state->q(mu, s, 0.);
-            qA_mu = _final_state->q(mu, s, theta);
+            qGamma_mu   = _initial_state->q(mu, s, 0.);
+            qA_mu       = _final_state->q(mu, s, theta);
 
             return (qGamma_mu - qA_mu);
         };
@@ -230,7 +250,7 @@ namespace jpacPhoto
         inline std::complex<double> u_exchange_momentum(int mu, double s, double theta)
         {
             std::complex<double> qGamma_mu, qRec_mu;
-            qGamma_mu   = _initial_state->q(mu, s, PI);
+            qGamma_mu   = _initial_state->q(mu, s, 0);
             qRec_mu     = _final_state->p(mu, s, theta + PI);
 
             return qRec_mu - qGamma_mu;

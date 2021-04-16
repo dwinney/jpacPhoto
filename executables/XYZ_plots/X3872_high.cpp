@@ -17,7 +17,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "reaction_kinematics.hpp"
+#include "amplitudes/reaction_kinematics.hpp"
 #include "amplitudes/vector_exchange.hpp"
 #include "amplitudes/amplitude_sum.hpp"
 
@@ -155,7 +155,10 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    delete kX, kChi, plotter, alpha;
+    delete kX;
+    delete kChi;
+    delete plotter;
+    delete alpha;
 
     return 1.;
 }

@@ -1,5 +1,5 @@
 #include "constants.hpp"
-#include "reaction_kinematics.hpp"
+#include "amplitudes/reaction_kinematics.hpp"
 #include "amplitudes/pomeron_exchange.hpp"
 
 #include "photoPlotter.hpp"
@@ -79,6 +79,11 @@ int main( int argc, char** argv )
 
     plotter->Plot("integrated_xsection");
 
-    delete ptr, alpha1, alpha2, background1, background2, plotter;
+    delete ptr;
+    delete alpha1;
+    delete alpha2;
+    delete background1;
+    delete background2;
+    delete plotter;
     return 1;
 };

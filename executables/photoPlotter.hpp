@@ -12,7 +12,7 @@
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
 
-#include "reaction_kinematics.hpp"
+#include "amplitudes/reaction_kinematics.hpp"
 #include "amplitudes/amplitude.hpp"
 
 #include <vector>
@@ -28,6 +28,8 @@ namespace jpacPhoto
         photoPlotter( std::vector<amplitude*> amps_)
         : amps(amps_)
         {};
+        
+        int line_width = 4;
         
         int N = 20;
         bool PRINT_TO_COMMANDLINE = true;

@@ -38,7 +38,7 @@ namespace jpacPhoto
             check_JP(xkinem->_jp);
 
             // Analytical residues only available for axial-vector production
-            if (xkinem->_jp[0] != 1 && xkinem->_jp[1] != 1) _useCovariant = true;
+            if (xkinem->_jp == SCALAR) _useCovariant = true;
         };
 
         // Constructor for the reggized)
@@ -48,7 +48,7 @@ namespace jpacPhoto
             set_nParams(3);
             check_JP(xkinem->_jp);
 
-            if (xkinem->_jp[0] != 1 && xkinem->_jp[1] != 1)
+            if (xkinem->_jp != AXIAL_VECTOR)
             {
                 std::cout << "Error! Reggeized vector_exchange only implemented for axial vector production so far.\n";
                 exit(0);
@@ -77,7 +77,7 @@ namespace jpacPhoto
         // axial vector and scalar kinematics allowed
         inline std::vector<std::array<int,2>> allowedJP()
         {
-            return {{1, 1}, {1, -1}, {0, 1}, {0, -1}};
+            return {AXIAL_VECTOR, VECTOR, SCALAR, PSEUDO_SCALAR};
         };
 
         private:

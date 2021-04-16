@@ -19,7 +19,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "reaction_kinematics.hpp"
+#include "amplitudes/reaction_kinematics.hpp"
 #include "regge_trajectory.hpp"
 #include "amplitudes/pseudoscalar_exchange.hpp"
 
@@ -37,7 +37,7 @@ int main( int argc, char** argv )
   // Preliminaries
   // ---------------------------------------------------------------------------
 
-  double g_NN = sqrt(4. * PI * 13.81); // Nucleon coupling same for all
+  double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
   double LamPi = .9;  // 900 MeV cutoff for formfactor
   double bPi = 1. / (LamPi * LamPi);
 
@@ -158,7 +158,10 @@ int main( int argc, char** argv )
   // Output to file
   plotter->Plot(filename);
 
-  delete kZc, kZb, kZbp, plotter;
+  delete kZc;
+  delete kZb;
+  delete kZbp;
+  delete plotter;
 
   return 1.;
 }

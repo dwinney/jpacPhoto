@@ -19,7 +19,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "reaction_kinematics.hpp"
+#include "amplitudes/reaction_kinematics.hpp"
 #include "regge_trajectory.hpp"
 #include "amplitudes/vector_exchange.hpp"
 #include "amplitudes/amplitude_sum.hpp"

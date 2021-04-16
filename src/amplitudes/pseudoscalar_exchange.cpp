@@ -15,7 +15,7 @@
 std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::array<int, 4> helicities, double s, double t)
 {
     int lam_gam = helicities[0];
-    int lam_targ = helicities[1];
+    int lam_tar = helicities[1];
     int lam_vec = helicities[2];
     int lam_rec = helicities[3];
 
@@ -24,42 +24,107 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
 
     std::complex<double> result;
 
-    if (_useFourVecs == true)
+    if (_useCovariant == true || _debug == true)
     {
         // Because its a scalar exchange we dont have any loose indices to contract
         result  = top_vertex(lam_gam, lam_vec);
+        result *= bottom_vertex(lam_tar, lam_rec);
         result *= scalar_propagator();
-        result *= bottom_vertex(lam_targ, lam_rec);
     }
     else
     {
-        if (lam_vec != lam_gam || lam_targ != lam_rec) 
+        if (lam_vec != lam_gam || lam_tar != lam_rec) 
         {
             return 0.; 
         }
         else
         {
-            result  = sqrt(2.) * _gNN;
-            result *= _gGamma / _kinematics->_mX;
-            result *= sqrt(XR * _t) / 2.;
-            result *= (_kinematics->_mX2 - _t);
+            result  = top_residue(lam_gam, lam_vec);
+            result *= bottom_residue(lam_tar, lam_rec);
             result *= scalar_propagator();
         }
     }
 
-    // Multiply by the optional expontial form factor
-    if (_useFF == true)
+    // add form factor if wanted
+    result *= form_factor();    
+    return result;
+};
+
+//------------------------------------------------------------------------------
+// Whether to add a form factor to the propagator
+double jpacPhoto::pseudoscalar_exchange::form_factor()
+{
+    switch (_useFormFactor)
     {
-        double tprime = _t - _kinematics->t_man(s, 0.);
-        result *= exp(_b * tprime);
+        // exponential form factor
+        case 1: 
+        {
+            return exp((_t - _kinematics->t_man(_s, 0.)) / _cutoff*_cutoff);
+        };
+        // monopole form factor
+        case 2:
+        {
+            return (_cutoff*_cutoff - _mEx2) / (_cutoff*_cutoff - _t); 
+        };
+
+        default:
+        {
+            return 1.;
+        };
     }
+
+    return 1.;
+};
+
+//------------------------------------------------------------------------------
+// ANALYTIC RESIDUES
+
+// Photon resiude 
+std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue(int lam_gam, int lam_vec)
+{
+    // Spin-flip not allowed with spin-0 exchange
+    if (lam_gam != lam_vec) return 0.;
+
+    std::complex<double> result;
+
+    if (_kinematics->_jp == AXIAL_VECTOR)
+    {
+        result  = lam_gam / _kinematics->_mX;
+    }
+    else if (_kinematics->_jp == VECTOR)
+    {
+        result = lam_gam;
+        (_kinematics->_photon) ? (result *= -4.) : (result *= 1.);
+    }
+
+    else if (_kinematics->_jp == PSEUDO_SCALAR)
+    {
+        result  = 2. * XI / _kinematics->_mB;
+    }
+
+    std::complex<double> q_t = sqrt(XR * Kallen(_t, _kinematics->_mX2, _kinematics->_mB2)) / sqrt(4. * _t * XR);
+    return 2. * _gGamma * q_t * sqrt(XR * _t) * result;
+};
+
+// Nucleon resiude 
+std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_residue(int lam_tar, int lam_rec)
+{
+    std::complex<double> result;
+
+    if (lam_tar != lam_rec) return 0.;
+
+    result  = _gNN; 
+    result *= sqrt(XR * _t - pow((_kinematics->_mT - _kinematics->_mR), 2.));
+    result *= lam_tar / 2.;
 
     return result;
 };
 
 //------------------------------------------------------------------------------
+// FEYNMAN EVALUATION
+
 // Nucleon vertex
-std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex(double lam_targ, double lam_rec)
+std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex(int lam_tar, int lam_rec)
 {
     std::complex<double> result = 0.;
     for (int i = 0; i < 4; i++)
@@ -70,27 +135,24 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex(double lam_
             std::complex<double> temp;
             temp  = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta + PI); // theta_recoil = theta + pi
             temp *= GAMMA_5[i][j];
-            temp *= _kinematics->_target->component(j, lam_targ, _s, PI); // theta_target = pi
+            temp *= _kinematics->_target->component(j, lam_tar, _s, PI); // theta_target = pi
 
             result += temp;
         }
     }
 
-    // Sqrt(2) from isospin considering a charged pion field
-    // remove the Sqrt(2) if considering a neutral pion exchange
-    result *= sqrt(2.) * _gNN;
+    result *= _gNN;
 
     return result;
 };
 
-//------------------------------------------------------------------------------
 // Photon vertex
-std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(double lam_gam, double lam_vec)
+std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(int lam_gam, int lam_vec)
 {
     std::complex<double> result = 0.;
-
+    
     // A - V - P
-    if (_kinematics->_jp[0] == 1 && _kinematics->_jp[1] == 1)
+    if (_kinematics->_jp == AXIAL_VECTOR)
     {
          std::complex<double> term1 = 0., term2 = 0.;
         for (int mu = 0; mu < 4; mu++)
@@ -118,14 +180,14 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(double lam_gam
                 temp2 *= _kinematics->_final_state->q(nu, _s, _theta);
 
                 term2 += temp2;
-
-                result = (temp1 - temp2) / _kinematics->_mX;
             }
         }
+
+        result = (term1 - term2) / _kinematics->_mX;
     }
 
     // V - V - P
-    if (_kinematics->_jp[0] == 1 && _kinematics->_jp[1] == -1)
+    if (_kinematics->_jp == VECTOR)
     {
         // Contract with LeviCivita
         for (int mu = 0; mu < 4; mu ++)
@@ -142,10 +204,27 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex(double lam_gam
                         temp *= _kinematics->_eps_vec->conjugate_component(mu, lam_vec, _s, _theta);
                         temp *= _kinematics->_eps_gamma->field_tensor(alpha, beta, lam_gam, _s, 0.);
                         temp *= _kinematics->_final_state->q(gamma, _s, _theta) - _kinematics->t_exchange_momentum(gamma, _s, _theta);
+
+                        if (!_kinematics->_photon) temp /= 4.;
                         result += temp;
                     }
                 }
             }
+        }
+    }
+
+    // V - P - P
+    if (_kinematics->_jp == PSEUDO_SCALAR)
+    {
+        if (_kinematics->_mB < 1.E-3) return 0.;
+
+        for (int mu = 0; mu < 4; mu++)
+        {
+            std::complex<double> temp;
+            temp   = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
+            temp  *= METRIC[mu];
+            temp  *= _kinematics->_final_state->q(mu, _s, _theta) - _kinematics->t_exchange_momentum(mu, _s, _theta);
+            result += XI * temp;
         }
     }
 
