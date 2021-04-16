@@ -50,7 +50,7 @@ Available amplitudes, so far, include:
 * [Baryon resonance](./include/amplitudes/baryon_resonance.hpp) - following [[1]](https://arxiv.org/abs/1907.09393), Breit-Wigner resonance for a baryon of spin up to 5/2 and arbitrary parity. 
  
 ### t-channel:
-* [Pomeron exchange](./include/amplitudes/pomeron_exchange.hpp) - three parameterizations of Pomeron exchange are available: [helicity-conserving](https://arxiv.org/abs/1606.08912), [exponential-pomeron](https://arxiv.org/abs/1508.00339), and [dipole-pomeron](https://arxiv.org/abs/1508.00339).
+* [Pomeron exchange](./include/amplitudes/pomeron_exchange.hpp) - three parameterizations of Pomeron exchange are available: [helicity-conserving](https://arxiv.org/abs/1606.08912), [exponential-pomeron](https://arxiv.org/abs/1907.09393), and [dipole-pomeron](https://arxiv.org/abs/1508.00339).
 * [(fixed-spin and reggeized) Charged pseudo-scalar meson exchange](./include/amplitudes/pseudoscalar_exchange.hpp) - allows production of mesons with pseudo-scalar, vector, and axial-vector quantum numbers
 * [(fixed-spin and reggeized) Vector meson exchange](./include/amplitudes/vector_exchange.hpp) - allows production of mesons with scalar, pseudo-scalar, vector, and axial-vector quantum numbers
 * [Primakoff effect off nuclear target](./include/amplitudes/primakoff_effect.hpp) - special amplitude for investigation of X(3872) production via Primakoff effect
