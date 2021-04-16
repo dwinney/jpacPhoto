@@ -11,7 +11,7 @@
 #include "constants.hpp"
 #include "amplitudes/amplitude.hpp"
 #include "amplitudes/reaction_kinematics.hpp"
-#include "one_loop/box_discontinuity.hpp"
+#include "box/box_discontinuity.hpp"
 
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
