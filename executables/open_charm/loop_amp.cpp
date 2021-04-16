@@ -16,7 +16,7 @@
 #include "amplitudes/pseudoscalar_exchange.hpp"
 #include "amplitudes/pomeron_exchange.hpp"
 #include "amplitudes/amplitude_sum.hpp"
-#include "one_loop/box_amplitude.hpp"
+#include "box/box_amplitude.hpp"
 
 #include "jpacGraph1D.hpp"
 
@@ -64,6 +64,7 @@ int main( int argc, char** argv )
     auto gamD_DstarEx = new vector_exchange(kgamD, M_DSTAR, "D* exchange"); 
     gamD_DstarEx->set_params({gGamDDstar, gDstarNLam, 0.});
     gamD_DstarEx->set_formfactor(2, M_DSTAR + lambdaQCD * eta);
+    gamD_DstarEx->set_debug(2);
 
     // ---------------------------------------------------------------------------
     // Psi amplitudes
@@ -78,6 +79,7 @@ int main( int argc, char** argv )
     auto psiD_DstarEx = new vector_exchange(kpsiD, M_DSTAR, "D* exchange");
     psiD_DstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
     psiD_DstarEx->set_formfactor(2, M_DSTAR + lambdaQCD * eta);
+    psiD_DstarEx->set_debug(2);
 
     auto psiD_Sum = new amplitude_sum(kpsiD, {psiD_DEx, psiD_DstarEx});
 
@@ -136,17 +138,12 @@ int main( int argc, char** argv )
     dstarBox->set_cutoff(s_cut(qmax, M_DSTAR));
 
     // ---------------------------------------------------------------------------
-    // Combine both box loops
-
-    auto combined_box = new box_amplitude(kJPsi, {dDisc, dstarDisc}, "Sum");
-
-    // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
     std::vector<box_amplitude*> amps;
     amps.push_back(dBox);
-    amps.push_back(dstarBox);
-    amps.push_back(combined_box);
+    // amps.push_back(dstarBox);
+    // amps.push_back(combined_box);
 
     int N = 10;
 
@@ -155,7 +152,7 @@ int main( int argc, char** argv )
     jpacGraph1D * plotter = new jpacGraph1D();
 
     double xmin = E_beam(kJPsi->Wth()) + EPS;
-    double xmax = 10.;
+    double xmax = 9.2;
 
     for (int n = 0; n < amps.size(); n++)
     {
@@ -167,6 +164,7 @@ int main( int argc, char** argv )
         };
         
         auto x_fx = vec_fill(N, F, xmin, xmax, true);
+        vec_print(x_fx[0], x_fx[1], amps[n]->_identifier + ".dat");
         plotter->AddEntry(std::get<0>(x_fx), std::get<1>(x_fx), amps[n]->_identifier);
     }
 

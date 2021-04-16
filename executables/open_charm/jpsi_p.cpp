@@ -22,33 +22,31 @@ int main( int argc, char** argv )
     double gDNLam    = -4.3,  gDstarNLam     = -13.2; // Bottom couplings
 
     // ---------------------------------------------------------------------------
-    // D phototproduction
+    // Dstar phototproduction
     // ---------------------------------------------------------------------------
 
     // Set up Kinematics for Dbar LambdaC in final state
-    auto kD = new reaction_kinematics(M_D, M_LAMBDAC, M_PROTON, M_JPSI);
-    kD->set_JP(PSEUDO_SCALAR);
+    auto kDstar = new reaction_kinematics(M_DSTAR, M_LAMBDAC, M_PROTON, M_JPSI);
+    kDstar->set_JP(VECTOR);
 
-    auto d_dEx = new pseudoscalar_exchange(kD, M_D, "D exchange");
-    d_dEx->set_params({gPsiDD, gDNLam});
-    d_dEx->set_formfactor(2, M_D + eta * lambdaQCD);
+    auto dstar_dstarEx = new vector_exchange(kDstar, M_DSTAR, "Analytic");
+    dstar_dstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
+    dstar_dstarEx->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
 
-    auto d_dstarEx = new vector_exchange(kD, M_DSTAR, "D* exchange");
-    d_dstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
-    d_dstarEx->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
-
-    auto sum = new amplitude_sum(kD, {d_dEx, d_dstarEx}, "Sum");
+    auto dstar_dstarExC = new vector_exchange(kDstar, M_DSTAR, "Covariant");
+    dstar_dstarExC->set_params({gPsiDDstar, gDstarNLam, 0.});
+    dstar_dstarExC->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
+    dstar_dstarExC->set_debug(1);
 
    // ---------------------------------------------------------------------------
     // which amps to plot
     std::vector<amplitude*> amps;
-    amps.push_back(d_dEx);
-    amps.push_back(d_dstarEx);
-    amps.push_back(sum);
+    amps.push_back(dstar_dstarEx);
+    amps.push_back(dstar_dstarExC);
 
     auto plotter = new photoPlotter(amps);
 
-    plotter->N = 30;
+    plotter->N = 10;
     plotter->PRINT_TO_COMMANDLINE = true;
     plotter->LAB_ENERGY = true;
 

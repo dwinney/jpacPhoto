@@ -29,7 +29,8 @@ int main( int argc, char** argv )
 {
     // Form factor parameter
     double eta = 1.;
-
+    double etaDstar = 0.6;
+    double lambdaQCD = 0.25;
     // ---------------------------------------------------------------------------
     // D phototproduction
     // ---------------------------------------------------------------------------
@@ -40,13 +41,20 @@ int main( int argc, char** argv )
 
     auto d_dstarEx = new vector_exchange(kD, M_DSTAR, "D^{*} exchange");
     d_dstarEx->set_params({0.134, -13.2, 0.});
-    d_dstarEx->set_formfactor(2, M_DSTAR + eta * 0.250);
+    d_dstarEx->set_formfactor(2, M_DSTAR + etaDstar * lambdaQCD);
+
+    
+    auto d_dstarExC = new vector_exchange(kD, M_DSTAR, "D^{*} exchange");
+    d_dstarExC->set_params({0.134, -13.2, 0.});
+    d_dstarExC->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
+    d_dstarExC->set_debug(2);
 
     auto d_lamcEx = new dirac_exchange(kD, M_LAMBDAC, "#Lambda_{c} exchange");
     d_lamcEx->set_params({sqrt(4.* PI * ALPHA), -4.3});
-    d_lamcEx->set_formfactor(2, M_LAMBDAC + eta * 0.250);
+    d_lamcEx->set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
 
-    auto d_sum = new amplitude_sum(kD, {d_dstarEx, d_lamcEx}, "D production");
+    auto d_sum = new amplitude_sum(kD,  {d_dstarEx, d_lamcEx}, "Sum");
+    auto d_sumC = new amplitude_sum(kD, {d_dstarExC, d_lamcEx}, "Du et al.");
 
     // ---------------------------------------------------------------------------
     // D* phototproduction
@@ -62,13 +70,20 @@ int main( int argc, char** argv )
     
     auto dstar_dstarEx = new vector_exchange(kDstar, M_DSTAR, "D^{*} exchange");
     dstar_dstarEx->set_params({0.641, -13.2, 0.});
-    dstar_dstarEx->set_formfactor(2, M_DSTAR + eta * 0.250);
+    dstar_dstarEx->set_formfactor(2, M_DSTAR + etaDstar * 0.250);
+
+    auto dstar_dstarExC = new vector_exchange(kDstar, M_DSTAR, "D^{*} exchange");
+    dstar_dstarExC->set_params({0.641, -13.2, 0.});
+    dstar_dstarExC->set_formfactor(2, M_DSTAR + eta * 0.250);
+    dstar_dstarExC->set_debug(2);
 
     auto dstar_lamcEx = new dirac_exchange(kDstar, M_LAMBDAC, "#Lambda_{c} exchange");
     dstar_lamcEx->set_params({sqrt(4.* PI * ALPHA), -13.2});
     dstar_lamcEx->set_formfactor(2, M_LAMBDAC + eta * 0.250);
     
-    auto dstar_sum = new amplitude_sum(kDstar, {dstar_dEx, dstar_dstarEx, dstar_lamcEx}, "D^{*} production");
+    auto dstar_sum  = new amplitude_sum(kDstar, {dstar_dEx, dstar_dstarEx,  dstar_lamcEx}, "D^{*} production");
+    auto dstar_sumC = new amplitude_sum(kDstar, {dstar_dEx, dstar_dstarExC, dstar_lamcEx}, "Du et al.");
+
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -78,21 +93,20 @@ int main( int argc, char** argv )
     std::vector<amplitude*> amps;
 
     // Checked
-    amps.push_back(d_dstarEx);
-    // amps.push_back(dstar_dstarEx);
-    // amps.push_back(dstar_dEx);
-
-    // Working on now
+    // amps.push_back(d_dstarEx);
     // amps.push_back(d_lamcEx);
+    amps.push_back(d_sum);
+    amps.push_back(d_sumC);
 
-    // Not yet checked
+    // amps.push_back(dstar_dEx);
+    // amps.push_back(dstar_dstarEx);
     // amps.push_back(dstar_lamcEx);
-    // amps.push_back(d_sum);
-    // amps.push_back(dstar_sum);
+    amps.push_back(dstar_sum);
+    amps.push_back(dstar_sumC);
 
     auto plotter = new photoPlotter(amps);
 
-    plotter->N = 100;
+    plotter->N = 50;
     plotter->PRINT_TO_COMMANDLINE = true;
     plotter->LAB_ENERGY = true;
 
