@@ -26,18 +26,10 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
 
         int n = _kinematics->_nAmps;
 
-        // Save the first half for lam_gam = +1 
-        for (int i = 0; i < n/2; i++)
+        for (int i = 0; i < n; i++)
         {
             std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
             _cached_helicity_amplitude.push_back(amp_gamp);
-        };
-
-        // Rest given by parity 
-        for (int i = n/2; i <= n; i++)
-        {
-            int phase = _kinematics->_jp[1] * pow(-1, _kinematics->_jp[0]);
-            _cached_helicity_amplitude.push_back(double(phase) *  _cached_helicity_amplitude[i - n/2]);
         };
 
         // update cache info
