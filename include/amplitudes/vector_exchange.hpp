@@ -46,13 +46,7 @@ namespace jpacPhoto
         : amplitude(xkinem, id), _alpha(traj), _ifReggeized(true)
         {
             set_nParams(3);
-            check_JP(xkinem->_jp);
-
-            if (xkinem->_jp != AXIAL_VECTOR)
-            {
-                std::cout << "Error! Reggeized vector_exchange only implemented for axial vector production so far.\n";
-                exit(0);
-            }
+            check_JP(xkinem->_jp, true);
         };
 
         // Setting utility
@@ -78,6 +72,12 @@ namespace jpacPhoto
         inline std::vector<std::array<int,2>> allowedJP()
         {
             return {AXIAL_VECTOR, VECTOR, SCALAR, PSEUDO_SCALAR};
+        };
+               
+        // axial vector and scalar kinematics allowed
+        inline std::vector<std::array<int,2>> allowedJP_Regge()
+        {
+            return {AXIAL_VECTOR};
         };
 
         private:

@@ -108,14 +108,20 @@ namespace jpacPhoto
         // ---------------------------------------------------------------------------
         // Each amplitude must supply a function which returns a vector of allowed 2-tuples {J, P}
         virtual std::vector<std::array<int,2>> allowedJP() = 0;
+        virtual std::vector<std::array<int,2>> allowedJP_Regge()
+        { 
+            return {};
+        };
         
         // Allowed JP error message
-        inline void check_JP(std::array<int,2> JP)
+        inline void check_JP(std::array<int,2> JP, bool REGGE = false)
         {
-           std::vector<std::array<int,2>> allowed_JP = allowedJP();
+           std::vector<std::array<int,2>> allowed_JP;
+           (REGGE) ? (allowed_JP = allowedJP_Regge()) : (allowed_JP = allowedJP());
+           
             if (std::find(allowed_JP.begin(), allowed_JP.end(), JP) == allowed_JP.end())
             {
-                std::cout << "Error! Amplitude for spin: " << JP[0] << " and parity " << JP[1] << " for " << _identifier << " unavailable.\n";
+                std::cout << "Error! Amplitude for spin: " << JP[0] << " and parity " << JP[1] << " for " << _identifier << " and REGGE = " << REGGE << " is unavailable.\n";
                 exit(0);
             }      
         };
