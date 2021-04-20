@@ -49,7 +49,7 @@ namespace jpacPhoto
             set_nParams(2);
             check_JP(xkinem->_jp);
 
-            if ((xkinem->_jp != AXIAL_VECTOR) || (xkinem->_jp != VECTOR))
+            if ((xkinem->_jp != AXIAL_VECTOR) && (xkinem->_jp != VECTOR))
             {
                 std::cout << "Error! Only reggeized axial-vector and vector production implemented so far!" << std::endl;
                 exit(0);
