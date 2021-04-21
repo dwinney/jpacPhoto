@@ -53,6 +53,8 @@ namespace jpacPhoto
     constexpr std::array<int,2> PSEUDO_SCALAR{{0, -1}};
     constexpr std::array<int,2> AXIAL_VECTOR{{1, +1}};
 
+    enum HELICITY_CHANNEL{ S, T, U };
+
     // ---------------------------------------------------------------------------
     const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);
