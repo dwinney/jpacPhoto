@@ -78,7 +78,7 @@ namespace jpacPhoto
             return {{1, -1}};
         };
         
-        inline double parity_phase(std::array<int, 4> helicities)
+        inline int parity_phase(std::array<int, 4> helicities)
         {
             return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
         };
