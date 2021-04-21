@@ -25,11 +25,30 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
         _cached_helicity_amplitude.clear();
 
         int n = _kinematics->_nAmps;
-
-        for (int i = 0; i < n; i++)
+        
+        // If this is a single helicity ampltiude we can use the parity relation to only calculate half of the amplitudes
+        if (!_isSum)
         {
-            std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
-            _cached_helicity_amplitude.push_back(amp_gamp);
+            for (int i = 0; i < n/2; i++)
+            {
+                std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
+                _cached_helicity_amplitude.push_back(amp_gamp);
+            };
+
+            for (int i = 0; i < n/2; i++)
+            {
+                std::complex<double> amp_gamp = _cached_helicity_amplitude[n/2 - 1 - i];
+                double eta = parity_phase(_kinematics->_helicities[i]);
+                _cached_helicity_amplitude.push_back( eta * amp_gamp);
+            };
+        }
+        else
+        {
+            for (int i = 0; i < n; i++)
+            {
+                std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
+                _cached_helicity_amplitude.push_back(amp_gamp);
+            };
         };
 
         // update cache info

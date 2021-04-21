@@ -256,7 +256,36 @@ namespace jpacPhoto
             return qRec_mu - qGamma_mu;
         };
 
-        
+        inline double parity_phase(std::array<int, 4> helicities, HELICITY_CHANNEL channel)
+        {
+            int s_a, s_b, s_c, s_d;
+            int eta_a, eta_b, eta_c, eta_d;
+            int lam, lamp;
+
+            switch (channel)
+            {
+                case HELICITY_CHANNEL::S :
+                {
+                    s_a =  2;           eta_a = 1.;                         // photon
+                    s_b =  1;           eta_b = 1.;                         // proton
+                    s_c =  2*_jp[0];    eta_c = _jp[1] * pow(-1, _jp[0]);   // produced meson
+                    s_d =  1;           eta_d = 1.;                         // recoil baryon
+
+                    lam =  double(2 * helicities[0] - helicities[1]);
+                    lamp = double(2 * helicities[2] - helicities[3]);
+
+                    break;
+                }
+                default:
+                {
+                    return 0.;
+                }
+            };
+
+            int eta = eta_a * eta_b * eta_c * eta_d *  pow(-1, (lam - lamp)/2) * pow(-1., (s_c + s_d - s_a - s_b)/2);
+
+            return double(eta);
+        };
     };
 };
 

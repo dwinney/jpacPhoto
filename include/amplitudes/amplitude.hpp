@@ -51,6 +51,9 @@ namespace jpacPhoto
         // Must be given a specific implementation in a user derived class
         virtual std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t) = 0;
 
+        // Sum amplitudes get special treatment (for example in the check_cache() method)
+        bool _isSum = false;
+        
         // ---------------------------------------------------------------------------
         int _debug = 0;
         inline void set_debug(int d)
@@ -92,6 +95,11 @@ namespace jpacPhoto
         std::vector<std::complex<double>> _cached_helicity_amplitude;
 
         void check_cache(double s, double t);
+
+        virtual double parity_phase(std::array<int,4> helicities)
+        {
+            return 0.;
+        };
 
         // ---------------------------------------------------------------------------
         // nParams error message
