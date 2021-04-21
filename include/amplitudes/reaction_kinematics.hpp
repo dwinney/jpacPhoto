@@ -253,7 +253,7 @@ namespace jpacPhoto
             qGamma_mu   = _initial_state->q(mu, s, 0);
             qRec_mu     = _final_state->p(mu, s, theta + PI);
 
-            return qRec_mu - qGamma_mu;
+            return qGamma_mu - qRec_mu;
         };
 
         inline double parity_phase(std::array<int, 4> helicities, HELICITY_CHANNEL channel)

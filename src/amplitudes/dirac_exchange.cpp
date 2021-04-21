@@ -81,7 +81,7 @@ std::complex<double> jpacPhoto::dirac_exchange::top_vertex(int i, int lam_gam, i
     for (int k = 0; k < 4; k++)
     {
         std::complex<double> temp;
-        temp  = _kinematics->_recoil->adjoint_component(k, lam_rec, _s, _theta); // theta_recoil = theta + pi
+        temp  = _kinematics->_recoil->adjoint_component(k, lam_rec, _s, _theta + PI); // theta_recoil = theta + pi
         temp *= slashed_eps(k, i, lam_gam, _kinematics->_eps_gamma, false, _s, 0.); // theta_gamma = 0
 
         result += temp;
@@ -103,7 +103,7 @@ std::complex<double> jpacPhoto::dirac_exchange::bottom_vertex(int j, int lam_vec
         for (int k = 0; k < 4; k++)
         {
             std::complex<double> temp;
-            temp  = slashed_eps(j, k, lam_vec, _kinematics->_eps_vec, true, _s, _theta + PI); //theta_vec = theta
+            temp  = XI * slashed_eps(j, k, lam_vec, _kinematics->_eps_vec, true, _s, _theta); //theta_vec = theta
             temp *= _kinematics->_target->component(k, lam_tar, _s, PI); // theta_target = pi
 
             result += temp;
