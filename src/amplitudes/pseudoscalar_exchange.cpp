@@ -89,11 +89,11 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue(int lam_gam, 
 
     if (_kinematics->_jp == AXIAL_VECTOR)
     {
-        result  = lam_gam / _kinematics->_mX;
+        result  = 1. / _kinematics->_mX;
     }
     else if (_kinematics->_jp == VECTOR)
     {
-        result = lam_gam;
+        result = 1.;
         (_kinematics->_photon) ? (result *= -4.) : (result *= 1.);
     }
 

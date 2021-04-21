@@ -29,6 +29,7 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
         // If this is a single helicity ampltiude we can use the parity relation to only calculate half of the amplitudes
         if (!_isSum)
         {
+
             for (int i = 0; i < n/2; i++)
             {
                 std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
@@ -38,7 +39,7 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
             for (int i = 0; i < n/2; i++)
             {
                 std::complex<double> amp_gamp = _cached_helicity_amplitude[n/2 - 1 - i];
-                double eta = parity_phase(_kinematics->_helicities[i]);
+                double eta = double(parity_phase(_kinematics->_helicities[i]));
                 _cached_helicity_amplitude.push_back( eta * amp_gamp);
             };
         }
@@ -49,6 +50,12 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
                 std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
                 _cached_helicity_amplitude.push_back(amp_gamp);
             };
+        };
+
+        if (_cached_helicity_amplitude.size() != n)
+        {
+            std::cout << "Error! cache size not equal to expected number of helicity ampltiudes! Returning 0!\n";
+            exit(1);
         };
 
         // update cache info
@@ -243,7 +250,6 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
         amp_star = _cached_helicity_amplitude[iters[0][i] + l + m];
 
         temp = real(amp * conj(amp_star));
-
         if (alpha == 2)
         {
             temp *= XI * double(_kinematics->_helicities[iters[0][i] + k][0]);

@@ -68,6 +68,20 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the lorentz indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
+        inline int parity_phase(std::array<int, 4> helicities)
+        {
+            if (_useCovariant || _debug >= 1)
+            {
+                return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
+            }
+            else
+            {
+                return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::T);
+            }
+
+            return 0.;
+        };
+
         // axial vector and scalar kinematics allowed
         inline std::vector<std::array<int,2>> allowedJP()
         {

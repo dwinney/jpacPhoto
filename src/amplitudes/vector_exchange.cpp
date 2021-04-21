@@ -27,7 +27,6 @@ std::complex<double> jpacPhoto::vector_exchange::helicity_amplitude(std::array<i
     // Output
     std::complex<double> result;
 
-    // if psuedo scalar or scalar production do covariant
     if ((_useCovariant == true) || (_debug >= 1))
     {
         result = covariant_amplitude(helicities);
@@ -102,7 +101,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
     {
         switch (std::abs(lam_gam - lam_vec))
         {
-            case 0: result = double(lam_gam); break;
+            case 0: result = 1.; break;
             case 1: result = sqrt(XR * _t) / _kinematics->_mX; break;
             default: return 0.;
         };
@@ -114,12 +113,12 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
         {
             case 0:
             {
-                result  = XI * double(lam_gam) + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
+                result  = XI + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
                 break;
             } 
             case 1: 
             { 
-                result = XI * double(lam_gam) * sqrt(XR * _t) / _kinematics->_mX;
+                result = XI * sqrt(XR * _t) / _kinematics->_mX;
                 break;
             }
             default: return 0.;
@@ -129,7 +128,6 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
     else if (_kinematics->_jp == PSEUDO_SCALAR)
     {
         result = sqrt(XR * _t);
-        result *= double(lam_gam);
         if (_kinematics->_photon) result *=  -4.;
     }
     
@@ -143,7 +141,7 @@ std::complex<double> jpacPhoto::vector_exchange::bottom_residue(int lam_tar, int
     if (lam_tar == lam_rec)
     {
         vector = (_kinematics->_mT + _kinematics->_mR); 
-        tensor =  _t / (_kinematics->_mT + _kinematics->_mR);
+        tensor = _t / (_kinematics->_mT + _kinematics->_mR);
     }
     else
     {
@@ -270,7 +268,6 @@ std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu, int lam_gam,
                     std::complex<double> temp;
                     temp = levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < 0.001) continue;
-                
                     temp *= METRIC[mu];
                     temp *= _kinematics->_initial_state->q(alpha, _s, 0.);
                     temp *= _kinematics->_eps_gamma->component(beta, lam_gam, _s, 0.);

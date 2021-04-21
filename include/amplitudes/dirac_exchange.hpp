@@ -50,6 +50,11 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the spinor indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
+        inline int parity_phase(std::array<int, 4> helicities)
+        {
+            return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
+        };
+
         // only vector and psuedo-scalar kinematics
         inline std::vector<std::array<int,2>> allowedJP()
         {

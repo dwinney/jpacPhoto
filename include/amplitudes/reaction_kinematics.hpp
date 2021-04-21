@@ -262,20 +262,45 @@ namespace jpacPhoto
             int eta_a, eta_b, eta_c, eta_d;
             int lam, lamp;
 
+            // a is always the photon
+            s_a = 2; eta_a = 1; // spin multiplied by two because of spin 1/2 baryons
+
             switch (channel)
             {
                 case HELICITY_CHANNEL::S :
                 {
-                    s_a =  2;           eta_a = 1.;                         // photon
-                    s_b =  1;           eta_b = 1.;                         // proton
-                    s_c =  2*_jp[0];    eta_c = _jp[1] * pow(-1, _jp[0]);   // produced meson
-                    s_d =  1;           eta_d = 1.;                         // recoil baryon
+                    s_b =  1;           eta_b = 1;                         // proton
+                    s_c =  2*_jp[0];    eta_c = _jp[1] * pow(-1, _jp[0]);  // produced meson
+                    s_d =  1;           eta_d = 1;                         // recoil baryon
 
                     lam =  double(2 * helicities[0] - helicities[1]);
                     lamp = double(2 * helicities[2] - helicities[3]);
 
                     break;
                 }
+                case HELICITY_CHANNEL::T :
+                {
+                    s_b =  2*_jp[0];    eta_b = _jp[1] * pow(-1, _jp[0]);   // produced meson
+                    s_c =  1;           eta_c = 1;                          // proton
+                    s_d =  1;           eta_d = 1;                          // recoil baryon
+
+                    lam =  double(2 * (helicities[0] - helicities[2]));
+                    lamp = double(helicities[1] - helicities[3]);
+
+                    break;
+                }
+                case HELICITY_CHANNEL::U :
+                {
+                    s_b =  1;           eta_b = 1;                          // recoil baryon
+                    s_c =  1;           eta_c = 1;                          // proton
+                    s_d =  2*_jp[0];    eta_d = _jp[1] * pow(-1, _jp[0]);   // produced meson
+
+                    lam =  double(2 * helicities[0] - helicities[3]);
+                    lamp = double(2 * helicities[2] - helicities[1]);
+
+                    break;
+                }
+
                 default:
                 {
                     return 0.;

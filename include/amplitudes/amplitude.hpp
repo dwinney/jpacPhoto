@@ -96,9 +96,9 @@ namespace jpacPhoto
 
         void check_cache(double s, double t);
 
-        virtual double parity_phase(std::array<int,4> helicities)
+        virtual int parity_phase(std::array<int,4> helicities)
         {
-            return 0.;
+            return 0;
         };
 
         // ---------------------------------------------------------------------------
