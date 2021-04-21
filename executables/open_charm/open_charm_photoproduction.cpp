@@ -29,8 +29,8 @@ int main( int argc, char** argv )
 {
     // Form factor parameter
     double eta = 1.;
-    double etaDstar = 0.6;
     double lambdaQCD = 0.25;
+
     // ---------------------------------------------------------------------------
     // D phototproduction
     // ---------------------------------------------------------------------------
@@ -41,10 +41,9 @@ int main( int argc, char** argv )
 
     auto d_dstarEx = new vector_exchange(kD, M_DSTAR, "D^{*} exchange");
     d_dstarEx->set_params({0.134, -13.2, 0.});
-    d_dstarEx->set_formfactor(2, M_DSTAR + etaDstar * lambdaQCD);
-
+    d_dstarEx->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     
-    auto d_dstarExC = new vector_exchange(kD, M_DSTAR, "D^{*} exchange");
+    auto d_dstarExC = new vector_exchange(kD, M_DSTAR, "D^{*} exchange2");
     d_dstarExC->set_params({0.134, -13.2, 0.});
     d_dstarExC->set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     d_dstarExC->set_debug(2);
@@ -70,9 +69,9 @@ int main( int argc, char** argv )
     
     auto dstar_dstarEx = new vector_exchange(kDstar, M_DSTAR, "D^{*} exchange");
     dstar_dstarEx->set_params({0.641, -13.2, 0.});
-    dstar_dstarEx->set_formfactor(2, M_DSTAR + etaDstar * 0.250);
+    dstar_dstarEx->set_formfactor(2, M_DSTAR + eta * 0.250);
 
-    auto dstar_dstarExC = new vector_exchange(kDstar, M_DSTAR, "D^{*} exchange");
+    auto dstar_dstarExC = new vector_exchange(kDstar, M_DSTAR, "D^{*} exchange 2");
     dstar_dstarExC->set_params({0.641, -13.2, 0.});
     dstar_dstarExC->set_formfactor(2, M_DSTAR + eta * 0.250);
     dstar_dstarExC->set_debug(2);
@@ -84,7 +83,6 @@ int main( int argc, char** argv )
     auto dstar_sum  = new amplitude_sum(kDstar, {dstar_dEx, dstar_dstarEx,  dstar_lamcEx}, "D^{*} production");
     auto dstar_sumC = new amplitude_sum(kDstar, {dstar_dEx, dstar_dstarExC, dstar_lamcEx}, "Du et al.");
 
-
     // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
@@ -94,13 +92,15 @@ int main( int argc, char** argv )
 
     // Checked
     // amps.push_back(d_dstarEx);
+    // amps.push_back(d_dstarExC);
     // amps.push_back(d_lamcEx);
-    amps.push_back(d_sum);
-    amps.push_back(d_sumC);
+    // amps.push_back(d_sum);
+    // amps.push_back(d_sumC);
 
-    // amps.push_back(dstar_dEx);
-    // amps.push_back(dstar_dstarEx);
-    // amps.push_back(dstar_lamcEx);
+    amps.push_back(dstar_dEx);
+    amps.push_back(dstar_dstarEx);
+    amps.push_back(dstar_dstarExC);
+    amps.push_back(dstar_lamcEx);
     amps.push_back(dstar_sum);
     amps.push_back(dstar_sumC);
 
