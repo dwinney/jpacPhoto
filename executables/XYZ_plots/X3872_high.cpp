@@ -155,10 +155,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    delete kX;
-    delete kChi;
-    delete plotter;
-    delete alpha;
-
-    return 1.;
+    return 0;
 }

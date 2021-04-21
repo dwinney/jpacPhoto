@@ -183,5 +183,5 @@ int main( int argc, char** argv )
     std::string file2 = "egam_" + filename;
     plotter->Plot(file2.c_str());
 
-    return 1.;
+    return 0;
 };

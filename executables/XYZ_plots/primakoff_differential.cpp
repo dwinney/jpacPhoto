@@ -134,12 +134,6 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
-
-    // Cleanup
-    delete plotter;
-    delete kU;
-    delete kSn;
-    delete kZn;
     
-    return 1.;
+    return 0;
 };

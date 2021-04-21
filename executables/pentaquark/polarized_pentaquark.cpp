@@ -160,5 +160,5 @@ int main( int argc, char** argv )
 
     plotter->Plot(filename);
 
-    return 1.;
+    return 0;
 };

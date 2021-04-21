@@ -79,11 +79,5 @@ int main( int argc, char** argv )
 
     plotter->Plot("integrated_xsection");
 
-    delete ptr;
-    delete alpha1;
-    delete alpha2;
-    delete background1;
-    delete background2;
-    delete plotter;
-    return 1;
+    return 0;
 };

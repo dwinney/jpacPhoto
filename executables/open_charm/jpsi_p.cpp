@@ -67,5 +67,5 @@ int main( int argc, char** argv )
 
     plotter->Plot("integrated_xsection");
 
-    return 1;
+    return 0;
 };

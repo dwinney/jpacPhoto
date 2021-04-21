@@ -164,5 +164,5 @@ int main( int argc, char** argv )
 
     plotter->Plot(filename.c_str());
 
-    return 1.;
+    return 0;
 };

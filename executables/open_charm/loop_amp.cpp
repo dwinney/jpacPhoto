@@ -175,5 +175,5 @@ int main( int argc, char** argv )
     plotter->SetXaxis("E_{#gamma}    [GeV]", xmin, xmax);
     plotter->Plot("helamp.pdf");
 
-    return 1;
+    return 0;
 };

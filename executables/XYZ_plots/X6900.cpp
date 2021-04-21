@@ -125,8 +125,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    delete plotter;
-    delete kX;
-
-    return 1.;
+    return 0;
 };
