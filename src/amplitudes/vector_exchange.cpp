@@ -113,12 +113,12 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
         {
             case 0:
             {
-                result  = XI + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
+                result  = -1. + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
                 break;
             } 
             case 1: 
             { 
-                result = XI * sqrt(XR * _t) / _kinematics->_mX;
+                result = - sqrt(XR * _t) / _kinematics->_mX;
                 break;
             }
             default: return 0.;
@@ -284,7 +284,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu, int lam_gam,
     {
         for (int nu = 0; nu < 4; nu++)
         {
-            std::complex<double> temp = XI;
+            std::complex<double> temp = -1.;
             if (_debug == 2) temp *= METRIC[mu];
             temp *= _kinematics->_eps_gamma->field_tensor(mu, nu, lam_gam, _s, 0.);
             temp *= METRIC[nu];
