@@ -225,6 +225,22 @@ namespace jpacPhoto
             }
         };
     };
+
+    inline int find_helicity(std::array<int, 4> helicities, int j, double m = 0.)
+    {
+        std::vector<std::array<int,4>> hels = get_helicities(j, m);
+
+        for (int i = 0; i < hels.size(); i++)
+        {
+            if (helicities == hels[i])
+            {
+                return i;
+            }
+        };
+
+        std::cout << "Error cannot find helicities! \n";  
+        return -1;
+    };
 };
 
 #endif

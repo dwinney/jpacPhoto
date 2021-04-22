@@ -14,7 +14,10 @@ std::complex<double> jpacPhoto::amplitude_sum::helicity_amplitude(std::array<int
     std::complex<double> result = 0.;
     for (int i = 0; i < _amps.size(); i++)
     {
-        result += _amps[i]->helicity_amplitude(helicities, s, t);
+        int index = find_helicity(helicities, _kinematics->_jp[0], _kinematics->_mB);
+
+        _amps[i]->check_cache(s, t);
+        result += _amps[i]->_cached_helicity_amplitude[index];
     }
 
     return result;
