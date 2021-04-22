@@ -64,7 +64,6 @@ int main( int argc, char** argv )
     auto gamD_DstarEx = new vector_exchange(kgamD, M_DSTAR, "D* exchange"); 
     gamD_DstarEx->set_params({gGamDDstar, gDstarNLam, 0.});
     gamD_DstarEx->set_formfactor(2, M_DSTAR + lambdaQCD * eta);
-    gamD_DstarEx->set_debug(2);
 
     // ---------------------------------------------------------------------------
     // Psi amplitudes
@@ -79,7 +78,6 @@ int main( int argc, char** argv )
     auto psiD_DstarEx = new vector_exchange(kpsiD, M_DSTAR, "D* exchange");
     psiD_DstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
     psiD_DstarEx->set_formfactor(2, M_DSTAR + lambdaQCD * eta);
-    psiD_DstarEx->set_debug(2);
 
     auto psiD_Sum = new amplitude_sum(kpsiD, {psiD_DEx, psiD_DstarEx});
 
@@ -90,6 +88,7 @@ int main( int argc, char** argv )
     auto dDisc = new box_discontinuity(gamD_DstarEx, psiD_Sum);
     auto dBox  = new box_amplitude(kJPsi, dDisc, "D Loop");
     dBox->set_cutoff(s_cut(qmax, M_D));
+    dBox->set_debug(1);
 
     // ---------------------------------------------------------------------------
     // Dstar loop
