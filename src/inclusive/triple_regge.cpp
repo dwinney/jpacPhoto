@@ -89,7 +89,7 @@ double jpacPhoto::triple_regge::dsigma_dpT2(double s, double pT2)
     ROOT::Math::Functor1D wF(dSigma);
     ig.SetFunction(wF);
 
-    double xmin = 0.;
+    double xmin = 0.7;
     double xmax = sqrt(1. - pT2 / pow(_kinematics->pX_max(s), 2.));
 
     return ig.Integral(xmin, xmax);

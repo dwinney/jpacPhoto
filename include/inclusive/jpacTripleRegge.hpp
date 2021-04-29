@@ -30,10 +30,50 @@ namespace jpacPhoto
         
         inline double eval(double s, double t, double M2)
         {
+            double tmin = _kinematics->t_bounds(+1, s, M2);
+            double tprime = t - tmin;
+
             std::complex<double> regge_prop;
             regge_prop  = pow((s / M2), _trajectory->eval(t)); 
-            regge_prop *= xi(t);
-            regge_prop *= _coupling(t);
+
+            switch (_debug)
+            {
+                case 0: 
+                {
+                    regge_prop *= xi(t);
+                    regge_prop *= _coupling(t);
+                    regge_prop *= cgamma(double(_trajectory->_minJ) - _trajectory->eval(t));
+                    break;
+                };
+                case 1:
+                {
+                    regge_prop *= xi(tprime);
+                    regge_prop *= _coupling(tprime);
+                    regge_prop *= cgamma(double(_trajectory->_minJ) - _trajectory->eval(tprime));
+                    break;
+                };
+                case 2:
+                {
+                    regge_prop *= xi(tprime);
+                    regge_prop *= _coupling(t);
+                    regge_prop *= cgamma(double(_trajectory->_minJ) - _trajectory->eval(tprime));
+                    break;
+                };
+                case 3:
+                {
+                    regge_prop *= xi(t);
+                    regge_prop *= _coupling(t);
+                    regge_prop *= cgamma(double(_trajectory->_minJ) - _trajectory->eval(tprime));
+                    break;
+                };
+                default: 
+                {
+                    regge_prop *= xi(t);
+                    regge_prop *= _coupling(t);
+                    regge_prop *= cgamma(double(_trajectory->_minJ) - _trajectory->eval(t));
+                    break;
+                };
+            };
             
             double normalization = _trajectory->slope() / (16. * PI*PI*PI);
             double phase_space = sqrt(Kallen(M2, _kinematics->_mT2, t) / Kallen(s, _kinematics->_mT2, 0.));
@@ -42,6 +82,8 @@ namespace jpacPhoto
             return result;
         };
 
+        int _debug = 0.;
+        
         protected: 
         
         inclusive_kinematics * _kinematics;
@@ -54,11 +96,10 @@ namespace jpacPhoto
 
         inline std::complex<double> xi(double t)
         {
-            std::complex<double> signature_factor = 1., gamma_factor = 1.;
+            std::complex<double> signature_factor;
             signature_factor = 0.5 * (1. + double(_trajectory->_signature) * exp(XI * PI * _trajectory->eval(t)));
-            gamma_factor     = cgamma(double(_trajectory->_minJ) - _trajectory->eval(t));
 
-            return signature_factor * gamma_factor;
+            return signature_factor;
         };
     };
 };

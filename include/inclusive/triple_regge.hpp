@@ -51,6 +51,18 @@ namespace jpacPhoto
         };
 
         //--------------------------------------------------------------------
+        // Debugging variable
+        inline void set_debug(int x)
+        {
+            _debug = x;
+            for (int i = 0; i < _termsJPAC.size(); i++)
+            {
+                _termsJPAC[i]->_debug = x;
+            };
+        };     
+        int _debug = 0.;
+
+        //--------------------------------------------------------------------
         // Methods to add field and fox like terms
         inline void add_term(std::array<regge_trajectory*, 3> trajectories, std::function<double(double)> coupling)
         {
@@ -98,7 +110,9 @@ namespace jpacPhoto
         double _cutoff = 0.;
         inline double form_factor_squared(double s, double t, double M2)
         {
-            return exp(2. * t  / (_cutoff * _cutoff));
+            double tmin = _kinematics->t_bounds(+1, s, M2);
+            double tprime = t - tmin;
+            return exp(2. * tprime / (_cutoff * _cutoff));
         };
 
         // Cross-section build out of sum of triple regge interaction terms
