@@ -113,7 +113,14 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
         {
             case 0:
             {
-                result  = -1. + (1-std::abs(lam_gam)) * _kinematics->_mB / _kinematics->_mX;
+                if (lam_gam == 0 && lam_vec == 0)
+                {
+                    result = _kinematics->_mB / _kinematics->_mX;
+                } 
+                else 
+                {
+                    result = -1.;
+                }
                 break;
             } 
             case 1: 
@@ -127,6 +134,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue(int lam_gam, int la
 
     else if (_kinematics->_jp == PSEUDO_SCALAR)
     {
+        if (std::abs(lam_gam - lam_vec) != 1) return 0.;
         result = sqrt(XR * _t);
         if (_kinematics->_photon) result *=  -4.;
     }
