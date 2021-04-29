@@ -10,8 +10,11 @@
 #define _BOX_DISC_
 
 #include "constants.hpp"
+#include "misc_math.hpp"
 #include "amplitudes/amplitude.hpp"
 #include "amplitudes/reaction_kinematics.hpp"
+
+#include <boost/math/quadrature/gauss_kronrod.hpp>
 
 #include "Math/IntegratorMultiDim.h"
 
@@ -68,7 +71,7 @@ namespace jpacPhoto
 
         double _threshold; 
 
-        private:
+        protected:
         double _external_theta;
         std::array<int,4> _external_helicities;
 
@@ -79,20 +82,54 @@ namespace jpacPhoto
         std::array<int,2> _jp_left, _jp_right;
         std::vector< std::array<int,4> > _intermediate_helicities;
         bool _matchError = false;
+
+        // Two-body intermediate phase-space
+        inline double phase_space(double s)
+        {
+            double result =  2. * real(_initialAmp->_kinematics->_final_state->momentum(s)) / sqrt(s);
+            result /= (64. * PI*PI);
+            return result;
+        };
     };
 
-    class test_disc : public box_discontinuity
+    // Simplified discontinuity where we get only the s-wave projections
+    class swave_discontinuity : public box_discontinuity
     {
         public: 
-
-        test_disc(double w)
-        : box_discontinuity(w*w)
+        swave_discontinuity(amplitude * left, amplitude * right)
+        : box_discontinuity(left, right)
         {};
+        
+        double eval(double s);
 
-        inline double eval(double s)
+        inline std::complex<double> left_swave_amplitude(std::array<int,4> helicities, double s)
         {
-            if (s < _threshold) return 0.;
-            return sqrt(s - _threshold);
+            auto dF = [&] (double theta)
+            {
+                double tgam = _initialAmp->_kinematics->t_man(s, theta);
+                std::complex<double> ampGam = _initialAmp->helicity_amplitude(helicities, s, tgam);
+                
+                int lambda      = 2 * helicities[0] - helicities[1];
+                int lambdaprime = 2 * helicities[2] - helicities[3];
+                return sin(theta) * wigner_d_half(1, lambda, lambdaprime, theta) * ampGam / sqrt(2.);
+            };
+
+            return boost::math::quadrature::gauss_kronrod<double, 15>::integrate(dF, 0., PI, 0, 1.E-6, NULL);
+        };
+
+        inline std::complex<double> right_swave_amplitude(std::array<int,4> helicities, double s)
+        {
+            auto dF = [&] (double theta)
+            {
+                double t = _finalAmp->_kinematics->t_man(s, theta);
+                std::complex<double> amp = _finalAmp->helicity_amplitude(helicities, s, t);
+
+                int lambda      = 2 * helicities[0] - helicities[1];
+                int lambdaprime = 2 * helicities[2] - helicities[3];
+                return  sin(theta) * wigner_d_half(1, lambda, lambdaprime, theta) * amp / sqrt(2.);
+            };
+
+            return boost::math::quadrature::gauss_kronrod<double, 15>::integrate(dF, 0., PI, 0, 1.E-6, NULL);
         };
     };
 };
