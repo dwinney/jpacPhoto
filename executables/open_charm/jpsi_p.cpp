@@ -42,30 +42,43 @@ int main( int argc, char** argv )
     // which amps to plot
     std::vector<amplitude*> amps;
     amps.push_back(dstar_dstarEx);
-    amps.push_back(dstar_dstarExC);
+    // amps.push_back(dstar_dstarExC);
 
-    auto plotter = new photoPlotter(amps);
+    double theta = 45.;
+    std::array<int,4> hel = {1, 1, 1, 1};
 
-    plotter->N = 10;
-    plotter->PRINT_TO_COMMANDLINE = true;
-    plotter->LAB_ENERGY = true;
+    // ---------------------------------------------------------------------------
+    // Print the desired observable for each amplitude
+    jpacGraph1D * plotter = new jpacGraph1D();
 
-    plotter->xmin = 4.;
-    plotter->xmax = 10.5;
+    double xmin = kDstar->Wth() + EPS;
+    double xmax = 5.5;
 
-    plotter->ymin = 0.;
-    plotter->ymax = 10000.;
+    int N = 40;
 
-    plotter->SHOW_LEGEND = true;
-    plotter->xlegend = 0.2;
-    plotter->ylegend = 0.75;
-    plotter->SetLegendOffset(0.5, 0.1);
+    for (int n = 0; n < amps.size(); n++)
+    {
+        std::cout << "\nPrinting amplitude: " << amps[n]->_identifier << "\n";
+        auto F = [&] (double W)
+        {
+            double s = pow(W, 2.);
+            double t = amps[n]->_kinematics->t_man(s, theta * DEG2RAD);
 
-    plotter->filename  = "open_charm.pdf";
-    plotter->ylabel    = "#it{#sigma(#psi p #rightarrow D #Lambda_{c}^{+})}   [nb]";
-    plotter->xlabel    = "#it{W_{#gamma}}  [GeV]";
+            std::complex<double> amp = amps[n]->helicity_amplitude(hel, s, t);
 
-    plotter->Plot("integrated_xsection");
+            return std::abs(amp);
+        };
+        
+        auto x_fx = vec_fill(N, F, xmin, xmax, true);
+        plotter->AddEntry(std::get<0>(x_fx), std::get<1>(x_fx), amps[n]->_identifier);
+    }
+
+    plotter->SetLegend(0.2, 0.6);
+    plotter->SetLegendOffset(0.2, 0.1);
+
+    // plotter->SetYaxis("#sigma(#psi p #rightarrow D^{*} #Lambda)    [mb]", 0., 10.);
+    plotter->SetXaxis("W    [GeV]", xmin, xmax);
+    plotter->Plot("helamp.pdf");
 
     return 0;
 };
