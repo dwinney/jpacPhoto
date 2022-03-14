@@ -26,6 +26,9 @@ int main( int argc, char** argv )
     std::string xlabel   = "W  [GeV]";
     std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
 
+    sigma_tot_PDG sigma_tot_pipp(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
+    sigma_tot_PDG sigma_tot_pimp(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------

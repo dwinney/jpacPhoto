@@ -2,7 +2,7 @@
 // We use a generic class callable by double sigma_tot(double) to select different
 // parameterizations or reactions
 //
-// Author:       Daniel Winney (2021)
+// Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
@@ -16,6 +16,8 @@
 #include <array>
 #include <fstream>
 #include <sstream>
+
+#include <Math/Interpolator.h>
 
 namespace jpacPhoto
 {
@@ -42,14 +44,19 @@ namespace jpacPhoto
         public:
 
         // Constructor with masses and a filename to look for data
-        sigma_tot_PDG(double m1, double m2, std::array<double, 5> pdgparams)
-        : _mBeam(m1), _mTarget(m2), _threshold((m1+m2)*(m1+m2))
+        sigma_tot_PDG(double m1, double m2, std::array<double, 5> pdgparams, std::string datfile = "")
+        : _mBeam(m1), _mTarget(m2), _threshold((m1+m2)*(m1+m2)), interp(0, ROOT::Math::Interpolation::kLINEAR)
         {
             _iso   = pdgparams[0];
             _delta = pdgparams[1];
             _R1    = pdgparams[2];
             _R2    = pdgparams[3];
             _P     = pdgparams[4];  
+            
+            if (datfile != "")
+            {
+                import_data(datfile);
+            };
         };
 
         double operator()(double s)
@@ -59,10 +66,14 @@ namespace jpacPhoto
             {
                 return 0.;
             } 
-            else 
+            else if ((s < _cutoff) && (_sigma.size() > 0))
             {
+                result = interp.Eval( pLab(s) );
+            }
+            else
+            {   
                 result = PDG_parameterization(s);
-            } 
+            }
             return result *= 1.E6; // convet mb -> nb
         };
 
@@ -70,6 +81,19 @@ namespace jpacPhoto
 
         double _mBeam, _mTarget;
         double _threshold;
+        double _cutoff = 10.;
+
+        // Lab beam momentum
+        inline double pLab(double s) const
+        { 
+            double Elab = (s - _mBeam*_mBeam - _mTarget*_mTarget) / (2.*_mTarget); 
+            return sqrt(Elab*Elab - _mBeam*_mBeam);
+        };
+
+        // If theres data available interpolate between this first
+        ROOT::Math::Interpolator interp;
+        std::vector<double> _plab, _sigma;
+        void import_data(std::string datfile);
 
         // Else use the fits from the PDG 
         inline double PDG_parameterization(double s)
@@ -89,14 +113,14 @@ namespace jpacPhoto
         double _R1, _R2, _P;
     };
 
-        // Pi+ Proton 
-    sigma_tot_PDG sigma_tot_pipp(M_PION, M_PROTON,  {+1., 1., 9.56, 1.767, 18.75});
+    // // Pi+ Proton 
+    // sigma_tot_PDG sigma_tot_pipp(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
 
-    // Pi- Proton
-   sigma_tot_PDG sigma_tot_pimp(M_PION, M_PROTON,  {-1., 1., 9.56, 1.767, 18.75});
+    // // Pi- Proton
+    // sigma_tot_PDG sigma_tot_pimp(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
 
-    // Gamma Proton
-   sigma_tot_PDG sigma_tot_gamp(0.,     M_PROTON,  { 0., 3.065E-3, 0.0139, 0., 34.41});
+    // // Gamma Proton
+    // sigma_tot_PDG sigma_tot_gamp(0.,     M_PROTON, { 0., 3.065E-3, 0.0139, 0., 34.41}, "rpp2020-gammap_total.dat");
 };
 
 #endif
