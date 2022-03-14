@@ -76,8 +76,8 @@ file(GLOB INC_SI "include/*.hpp" "include/inclusive/*.hpp")
 file(GLOB SRC_SI "src/*.cpp"     "src/inclusive/*.cpp")
 
 add_library( jpacInclusive SHARED ${INC_SI} ${SRC_SI} )
-target_link_libraries( jpacInclusive ${ROOT_LIBRARIES})
 target_link_libraries( jpacInclusive jpacPhoto)
+target_link_libraries( jpacInclusive ${ROOT_LIBRARIES})
 
 ##-----------------------------------------------------------------------
 ## Installation
@@ -113,6 +113,7 @@ if (JSTYLELIB)
         get_filename_component( exename ${exefile} NAME_WE)
         add_executable( ${exename} ${exefile} )
         target_link_libraries( ${exename} jpacPhoto)
+        target_link_libraries( ${exename} jpacInclusive)
         if (Boost_FOUND)
             target_link_libraries( ${exename} jpacBox)
         endif()
