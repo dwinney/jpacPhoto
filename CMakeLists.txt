@@ -70,13 +70,23 @@ else()
 endif()
 
 ##-----------------------------------------------------------------------
+## build the auxiliary library jpacInclusive
+
+file(GLOB INC_SI "include/*.hpp" "include/inclusive/*.hpp")
+file(GLOB SRC_SI "src/*.cpp"     "src/inclusive/*.cpp")
+
+add_library( jpacInclusive SHARED ${INC_SI} ${SRC_SI} )
+target_link_libraries( jpacInclusive ${ROOT_LIBRARIES})
+target_link_libraries( jpacInclusive jpacPhoto)
+
+##-----------------------------------------------------------------------
 ## Installation
 
 if (Boost_FOUND)
-    install(TARGETS jpacBox jpacPhoto
+    install(TARGETS jpacBox jpacPhoto jpacInclusive
             LIBRARY DESTINATION "${LIBRARY_OUTPUT_DIRECTORY}" )
 else()
-    install(TARGETS jpacPhoto
+    install(TARGETS jpacPhoto jpacInclusive
             LIBRARY DESTINATION "${LIBRARY_OUTPUT_DIRECTORY}" )
 endif()
 
@@ -94,9 +104,9 @@ if (JSTYLELIB)
 
     include_directories("executables")
     if (Boost_FOUND)
-        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/XYZ_plots/*.cpp" "executables/open_charm/*.cpp")
+        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/exclusive_XYZ/*.cpp" "executables/inclusive_XYZ/*.cpp" "executables/open_charm/*.cpp")
     else()
-        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/XYZ_plots/*.cpp")
+        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/exclusive_XYZ/*.cpp" "executables/inclusive_XYZ/*.cpp")
     endif()
 
     foreach( exefile ${EXE_FILES} )
