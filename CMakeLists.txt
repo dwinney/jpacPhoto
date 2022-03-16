@@ -76,8 +76,8 @@ file(GLOB INC_SI "include/*.hpp" "include/inclusive/*.hpp")
 file(GLOB SRC_SI "src/*.cpp"     "src/inclusive/*.cpp")
 
 add_library( jpacInclusive SHARED ${INC_SI} ${SRC_SI} )
-target_link_libraries( jpacInclusive jpacPhoto)
 target_link_libraries( jpacInclusive ${ROOT_LIBRARIES})
+target_link_libraries( jpacInclusive jpacPhoto)
 
 ##-----------------------------------------------------------------------
 ## Installation
@@ -102,24 +102,43 @@ if (JSTYLELIB)
     include_directories("$ENV{JPACSTYLE}/include")
     link_libraries(${JSTYLELIB})
 
-    include_directories("executables")
-    if (Boost_FOUND)
-        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/exclusive_XYZ/*.cpp" "executables/inclusive_XYZ/*.cpp" "executables/open_charm/*.cpp")
-    else()
-        file(GLOB EXE_FILES "executables/pentaquark/*.cpp" "executables/exclusive_XYZ/*.cpp" "executables/inclusive_XYZ/*.cpp")
-    endif()
+    ## Sort different executables into three categories:
+    ## Exclusive XYZP plots
+    ## Inclusive XYZP plots
+    ## Box amplitude plots
 
-    foreach( exefile ${EXE_FILES} )
+    include_directories("executables")
+    file(GLOB EXC_EXE_FILES "executables/pentaquark/*.cpp" "executables/exclusive_XYZ/*.cpp")
+    file(GLOB INC_EXE_FILES "executables/inclusive_XYZ/*.cpp")
+    file(GLOB BOX_EXE_FILES "executables/open_charm/*.cpp")
+
+    foreach( exefile ${EXC_EXE_FILES} )
         get_filename_component( exename ${exefile} NAME_WE)
         add_executable( ${exename} ${exefile} )
-        target_link_libraries( ${exename} jpacPhoto)
-        target_link_libraries( ${exename} jpacInclusive)
-        if (Boost_FOUND)
-            target_link_libraries( ${exename} jpacBox)
-        endif()
         target_link_libraries( ${exename} ${ROOT_LIBRARIES})
+        target_link_libraries( ${exename} jpacPhoto)
         target_link_libraries( ${exename} ${JSTYLELIB})
     endforeach( exefile ${EXE_FILES} )
+
+    foreach( exefile ${INC_EXE_FILES} )
+        get_filename_component( exename ${exefile} NAME_WE)
+        add_executable( ${exename} ${exefile} )
+        target_link_libraries( ${exename} ${ROOT_LIBRARIES})
+        target_link_libraries( ${exename} jpacInclusive)
+        target_link_libraries( ${exename} ${JSTYLELIB})
+    endforeach( exefile ${EXE_FILES} )
+
+    if (Boost_FOUND)
+        foreach( exefile ${BOX_EXE_FILES} )
+            get_filename_component( exename ${exefile} NAME_WE)
+            add_executable( ${exename} ${exefile} )
+            target_link_libraries( ${exename} ${ROOT_LIBRARIES})
+            target_link_libraries( ${exename} jpacPhoto)
+            target_link_libraries( ${exename} jpacBox)
+            target_link_libraries( ${exename} ${JSTYLELIB})
+        endforeach( exefile ${EXE_FILES} )
+    endif()
+
 else()
     message("-- jpacStyle not found! Executables will not be installed.")
 endif()
