@@ -114,14 +114,14 @@ namespace jpacPhoto
         // Jacobian in (t, M2)
         inline double jacobianTM2(double t, double M2)
         {
-            double inv = 2. sqrt(_s) * qGamma() / M_PI;
+            double inv = 2. * sqrt(_s) * qGamma() / M_PI;
             return 1./inv;
         };
 
         // t from cos and M2 
         inline double TfromM2COS(double M2, double cos)
         {
-            double t = _mQ2 - (_s - _mT2) * (_s - M2 + _mQ2) / (2. * _s) + 2.* qGamma() * pXfromM2(M2) * cos;
+            double t = _mX2 - (_s - _mT2) * (_s - M2 + _mX2) / (2. * _s) + 2.* qGamma() * pXfromM2(M2) * cos;
             return t;
         };
 
@@ -133,7 +133,7 @@ namespace jpacPhoto
         inline double M2MINfromT(double t) { return _minM2; };
         inline double M2MAXfromT(double t) 
         {
-            return (_mT2 + _mX2 - _s - t) * (_mT2 * _mQ2 - _s * t) / (_mT2 - s) / (_mX2 - t);
+            return (_mT2 + _mX2 - _s - t) * (_mT2 * _mX2 - _s * t) / (_mT2 - _s) / (_mX2 - t);
         };
 
         // ---------------------------------------------------------------------------
@@ -144,12 +144,19 @@ namespace jpacPhoto
         {
             return _s + _mX2 - 2. * sqrt(_s) * EfromXY(x, y);
         }; 
+        inline double M2fromXY2(double x, double y2)
+        {
+            double y = sqrt(y2);
+            return _s + _mX2 - 2. * sqrt(_s) * EfromXY(x, y);
+        }; 
+
 
         // Similarly, momentum transfer from XY
         inline double TfromXY(double x, double y)
         {
             return _mX2 - 2.*qGamma() * (EfromXY(x, y) - pMax() * x);
         };
+        inline double TfromXY2(double x, double y2){ return TfromXY(x, sqrt(y2)); };
 
         // Bounds of integration for T at fixed X
         inline double TMINfromX(double x) { return TfromXY(x, sqrt(1. - x*x)); };
@@ -162,6 +169,15 @@ namespace jpacPhoto
             return 1./inv;
         };
 
+        // FIXME: Bounds of integration for X at fixed T
+        inline double XMINfromT(double t)
+        {
+            return 0.;
+        };
+        inline double XMAXfromT(double t)
+        {
+            return 0.;
+        };
     };  
 };
 
