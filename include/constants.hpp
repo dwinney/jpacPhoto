@@ -73,6 +73,7 @@ namespace jpacPhoto
     const double M_RHO       = 0.77526;
     const double M_OMEGA     = 0.78265;
     const double M_PHI       = 1.01956;
+    const double M_B1        = 1.229;
     const double M_JPSI      = 3.0969160;
     const double M_PSI2S     = 3.686;
     const double M_D         = 1.86965;
@@ -94,6 +95,7 @@ namespace jpacPhoto
     const double M2_JPSI     = M_JPSI * M_JPSI;
     const double M2_D        = M_D * M_D;
     const double M2_DSTAR    = M_DSTAR * M_DSTAR; 
+    const double M2_B1       = M_B1 * M_B1;
 
     // Baryon masses
     const double M_PROTON    = 0.938272;
