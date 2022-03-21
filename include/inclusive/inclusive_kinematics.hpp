@@ -24,9 +24,12 @@ namespace jpacPhoto
         {};
         
         // Construtor with produced meson mass
-        inclusive_kinematics(double mX)
-        : _mX(mX), _mX2(mX * mX)
+        inclusive_kinematics(double mX, std::string id = "")
+        : _mX(mX), _mX2(mX * mX), _id(id)
         {};
+
+        // String label for the produced particle
+        std::string _id;
 
         double _mX, _mX2;                         // Mass of the produce (observed particle)
         double _mT = M_PROTON, _mT2 = M2_PROTON;  // Mass of the target
@@ -96,9 +99,9 @@ namespace jpacPhoto
         };
 
         // Jacobian in (x, y2)
-        inline double jacobianXY2(double x, double y)
+        inline double jacobianXY2(double x, double y2)
         {
-            double inv = EfromXY(x, y) / (M_PI * pow(pMax(), 3));
+            double inv = EfromXY2(x, y2) / (M_PI * pow(pMax(), 3));
             return 1./inv;
         };
 
