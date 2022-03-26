@@ -35,7 +35,7 @@ namespace jpacPhoto
         // Constructor
         // need a pointer to kinematic object, pointer to trajectory.
         pomeron_exchange(reaction_kinematics * xkinem, regge_trajectory * alpha, int model = 0, std::string name = "pomeron_exchange")
-        : amplitude(xkinem, name), _traj(alpha), _model(model)
+        : amplitude(xkinem, "pomeron_exchange", name), _traj(alpha), _model(model)
         {
             set_nParams(2);
             check_JP(xkinem->_jp);

@@ -17,7 +17,7 @@ namespace jpacPhoto
         public:
         // Constructor 
         primakoff_effect(reaction_kinematics * xkinem, std::string amp_id = "primakoff_effect")
-        : amplitude(xkinem, amp_id)
+        : amplitude(xkinem, "primakoff_effect", amp_id)
         {
             set_nParams(4);
             check_JP(xkinem->_jp);

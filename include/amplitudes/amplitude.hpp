@@ -34,8 +34,8 @@ namespace jpacPhoto
     {
         public:
         // Constructor with nParams for backward compatibility (now depricated)
-        amplitude(reaction_kinematics * xkinem, std::string id = "", int n = 0)
-        : _kinematics(xkinem), _identifier(id)
+        amplitude(reaction_kinematics * xkinem, std::string amp_name, std::string id = "", int n = 0)
+        : _kinematics(xkinem), _identifier(id), _classname(amp_name)
         {};
 
         // Kinematics object for thresholds and etc.
@@ -53,6 +53,12 @@ namespace jpacPhoto
 
         // Sum amplitudes get special treatment (for example in the check_cache() method)
         bool _isSum = false;
+
+        // Constant string which is used to differenciate derived classes 
+        inline std::string amplitude_name()
+        {
+            return this->_classname;
+        };
         
         // ---------------------------------------------------------------------------
         int _debug = 0;
@@ -133,6 +139,12 @@ namespace jpacPhoto
                 exit(0);
             }      
         };
+
+        private:
+        // Private string identifier to return which class the called object instance belongs to
+        // used to differenciate different derived classes 
+        // i.e. different physics amplitudes
+        std::string _classname;
     };
 };
 

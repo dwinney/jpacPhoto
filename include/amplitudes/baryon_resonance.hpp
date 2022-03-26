@@ -27,7 +27,7 @@ namespace jpacPhoto
         public:
         // Constructor
         baryon_resonance(reaction_kinematics * xkinem, int j, int p, double mass, double width, std::string name = "baryon_resonance")
-        : amplitude(xkinem, name),
+        : amplitude(xkinem, "baryon_resonance", name),
           _mRes(mass), _gamRes(width), 
           _resJ(j), _resP(p), _naturality(p * pow(-1, (j-1)/2))
         {

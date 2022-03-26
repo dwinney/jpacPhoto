@@ -24,7 +24,7 @@ namespace jpacPhoto
         
         // constructor
         dirac_exchange(reaction_kinematics * xkinem, double mass, std::string name = "dirac_exchange")
-        : amplitude(xkinem, name),
+        : amplitude(xkinem, "dirac_exchange", name),
             _mEx(mass), _mEx2(mass*mass)
         {
             set_nParams(2);

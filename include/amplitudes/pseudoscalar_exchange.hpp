@@ -36,7 +36,7 @@ namespace jpacPhoto
         public:
         // constructor for fixed meson exchange
         pseudoscalar_exchange(reaction_kinematics * xkinem, double mass, std::string name = "pseudoscalar_exchange")
-        : amplitude(xkinem, name), _mEx2(mass*mass), _reggeized(false)
+        : amplitude(xkinem, "pseudoscalar_exchange", name), _mEx2(mass*mass), _reggeized(false)
         {
             set_nParams(2);
             check_JP(xkinem->_jp);
@@ -44,7 +44,7 @@ namespace jpacPhoto
 
         // constructors for regge exchange
         pseudoscalar_exchange(reaction_kinematics * xkinem, linear_trajectory * traj, std::string name = "pseudoscalar_exchange")
-        : amplitude(xkinem, name), _alpha(traj), _reggeized(true)
+        : amplitude(xkinem, "pseudoscalar_exchange", name), _alpha(traj), _reggeized(true)
         {
             set_nParams(2);
             check_JP(xkinem->_jp, true);

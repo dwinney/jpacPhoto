@@ -32,7 +32,7 @@ namespace jpacPhoto
 
         // Constructor for fixed spin
         vector_exchange(reaction_kinematics * xkinem, double mass, std::string id = "vector_exchange")
-        : amplitude(xkinem, id), _mEx2(mass*mass), _ifReggeized(false)
+        : amplitude(xkinem, "vector_exchange", id), _mEx2(mass*mass), _ifReggeized(false)
         {
             set_nParams(3);
             check_JP(xkinem->_jp);
@@ -43,7 +43,7 @@ namespace jpacPhoto
 
         // Constructor for the reggized)
         vector_exchange(reaction_kinematics * xkinem, linear_trajectory * traj, std::string id = "vector_exchange")
-        : amplitude(xkinem, id), _alpha(traj), _ifReggeized(true)
+        : amplitude(xkinem, "vector_exchange", id), _alpha(traj), _ifReggeized(true)
         {
             set_nParams(3);
             check_JP(xkinem->_jp, true);
