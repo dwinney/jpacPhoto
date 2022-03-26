@@ -1,77 +1,101 @@
-// Abstract class for the invariant cross-section from a triple regge interaction.
-// Contains inclusve_kinematics objects as well as dynamical objects with either
-// 'JPAC' or 'Field & Fox' models.
+// Form of the triple Regge interaction using JPAC's parameterization
+// i.e. using the t dependence from properly normalized Regge propagators
+// and M2 dependence from the total hadronic cross-section of the bottom vertex.
 //
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef TRIPLE_REGGE
-#define TRIPLE_REGGE
+#ifndef TRIPLE_JPAC
+#define TRIPLE_JPAC
 
-#include "inclusive_kinematics.hpp"
-
-#include "Math/IntegratorMultiDim.h"
-#include "Math/GSLIntegrator.h"
-#include "Math/IntegrationTypes.h"
-#include "Math/Functor.h"
-
+#include <complex>
+#include <tuple>
 #include <functional>
-#include <vector>
+
+#include "misc_math.hpp"
+#include "regge_trajectory.hpp"
+#include "inclusive/inclusive_production.hpp"
+#include "inclusive/inclusive_kinematics.hpp"
+#include "inclusive/sigma_tot.hpp"
 
 namespace jpacPhoto
 {
-    //--------------------------------------------------------------------
-    // Abstract class for which any parameterization will inherit
-    // This basically contains the kinematics stuff and integration for cross-sections
-
-    class triple_regge
+    class triple_regge : public inclusive_production
     {
         public:
-        // Constructor only needs a kinematics object
-        triple_regge(double mass, std::string id = "")
-        : _identifier(id)
+
+        // Fully parameterized constructor for the usual triple regge form
+        // Requires:
+        // 1. a kinematics object
+        // 2. a regge trajectory (assumed to be the same for the top vertices)
+        // Optional string identifier to associate with the object
+        triple_regge(inclusive_kinematics * xkinem, regge_trajectory * alpha, std::string id = "")
+        : inclusive_production(xkinem, id), _trajectory(alpha)
         {
-            _kinematics = new inclusive_kinematics(mass);
+            _useRegge = true;
         };
 
-          // Destructor to clean up pointers
-        ~triple_regge()
+        triple_regge(inclusive_kinematics * xkinem, double mass, std::string id = "")
+        : inclusive_production(xkinem, id), _exchange_mass2(mass*mass)
         {
-            delete _kinematics;
+            _useRegge = false;
         };
 
-        inclusive_kinematics * _kinematics;
-        std::string _identifier;
+        // Set the top vertex coupling
+        inline void set_coupling(const std::function<double(double)> coupling)
+        {
+            _coupling = coupling;
+            _couplingSet = true;
+        };
 
-        // Different parameterizations may use different variables which make things tricky
-        // when integrating. So I include this flag (set to default as false):
-        // False -> assume independent variables are t and M2 
-        // True  -> assume independent variables are t and x
-        bool _useTX = false;
+        // Set the total cross-section associated with the bottom vertex
+        inline void set_sigma_tot(sigma_tot * sigma)
+        {
+            _sigma_tot = sigma;
+        };
+        
+        // Set the t-slope associated with the exponential form-factor
+        inline void set_form_factor(double b)
+        {
+            _b = b;
+        };
 
-        //--------------------------------------------------------------------
-        // d3sigma/d3p (invariant cross-section)
-        // These need to be specified by a specific parameterization
-        // The third argument (double mm) can be either M2 or x
-        // which is assumed to correspond to the _useTX member above
+        // Set flag to use the simplified high-energy approximation kinematics
+        inline void set_high_energy_approximation(bool ifuse)
+        {
+            // Why have two flags if we only use (t, x) in the high energy approxiation?
+            // I envision setting up the full (t, x) kinematics one day... will this happen? who knows. 
+            _useTX = ifuse;
+        };
 
-        virtual double d3sigma_d3p(double s, double t, double mm) = 0;
+        // Evaluate the invariant amplitude
+        double d3sigma_d3p(double s, double t, double mm);
 
-        // Integrated cross-sections
+        // ---------------------------------------------------------------------------
+        // Individual pieces that go into the amplitude
 
-        // (t, M2)
-        double dsigma_dt(double s, double t);     // integrated over M2
-        double dsigma_dM2(double s, double M2);   // integrated over t
+        protected:
 
-        // (x, y2)
-        double dsigma_dy2(double s, double y2); // integrated over x
-        double dsigma_dx(double s,  double x);     // integrated over pT2
+        // Coupling function associated with the t dependence of the top vertex
+        std::function<double(double)> _coupling;
+        bool _couplingSet = false;
 
-        // Fully integrated
-        double integrated_xsection(double s);   
+        // Whether or not to use regge or fixed-spin propagators        
+        bool _useRegge = true;
+
+        // Total cross-section associated with the bottom vertex
+        sigma_tot * _sigma_tot = NULL;
+
+        // Regge trajectory for the exchange if Reggeized
+        regge_trajectory * _trajectory = NULL;
+        // Else we have a fixed pole-mass
+        double _exchange_mass2 = 0.;
+
+        double _s0 = 1.; // scale factor
+        double _b  = 0.; // t-slope parameter in form-factor
     };
 };
 
-#endif 
+#endif

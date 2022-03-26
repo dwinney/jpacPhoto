@@ -1,6 +1,6 @@
-// Abstract class for the invariant cross-section from a triple regge interaction.
-// Contains inclusve_kinematics objects as well as dynamical objects with either
-// 'JPAC' or 'Field & Fox' models.
+// Form of the triple Regge interaction using JPAC's parameterization
+// i.e. using the t dependence from properly normalized Regge propagators
+// and M2 dependence from the total hadronic cross-section of the bottom vertex.
 //
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
@@ -9,166 +9,57 @@
 
 #include "inclusive/triple_regge.hpp"
 
-// ---------------------------------------------------------------------------
-// Singly-differential cross-sections in terms of (t, M2)
-double jpacPhoto::triple_regge::dsigma_dt(double s, double t)
+// Evaluate the invariant amplitude
+double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
 {
-    // Pass the total energy to the kinematics object
-    _kinematics->_s = s;
-
-    // How we integrate depends on what variables are being used
-    double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
-
-    if (_useTX == false)
+    if (_sigma_tot == NULL)
     {
-        // Assume argument 3 is M2
-        auto dSigma = [&](double M2)
-        {
-            return _kinematics->jacobianTM2(t, M2) * d3sigma_d3p(s, t, M2);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
+        std::cout << "ERROR! No sigma_tot set! Returning 0! \n";
+        return 0.;
+    };
+    if (_useRegge == true && _trajectory == NULL)
+    {
+        std::cout << "ERROR! No regge_trajectory set! Returning 0! \n";
+        return 0.;
+    };
+    if (_couplingSet == false)
+    {
+        std::cout << "ERROR! No coupling set! Returning 0! \n";
+        return 0.;   
+    };
 
-        result = ig.Integral(_kinematics->M2MINfromT(t), _kinematics->M2MAXfromT(t));
+    // Coupling squared
+    double coupling2   = _coupling(t) * _coupling(t);
+
+    // Form factor with tprime corresponding to the exclusive limit
+    double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( _kinematics->_minM2 )));
+
+    // phase_space factor (depends on whether mm is x or M2)
+    double s_piece;
+    (_useTX) ? (s_piece = (1. - mm)) : (s_piece = mm / s);
+
+    double exchange_propagator2;
+    if (_useRegge)
+    {
+        double alpha = std::real(_trajectory->eval(t));
+        double alphaPrime = real(_trajectory->slope());
+
+        // First check t isnt too big to make the gamma function blow up
+        if ( _b + alphaPrime - alphaPrime * log(- alphaPrime * t) < 0.) return 0.;
+
+        std::complex<double> signature_factor = (1. + double(_trajectory->_signature) * exp(- XI * M_PI * alpha)) / 2.; 
+        double t_piece = std::norm(alphaPrime * signature_factor * gamma(- alpha));
+
+        exchange_propagator2 = t_piece * pow(s_piece, -2. * alpha);
     }
     else
     {
-        // TODO: add integration over x at fixed t
-        result = 0.;
+        double pole          = 1. / (_exchange_mass2 - t);  // Simple pole 
+        exchange_propagator2 = pole * pole;                // Squared
     };
 
-    return result;
-};
+    double sigma_tot;
+    (_useTX) ? (sigma_tot = _sigma_tot->eval(s * (1. - mm))) : (sigma_tot = _sigma_tot->eval(mm));
 
-double jpacPhoto::triple_regge::dsigma_dM2(double s, double M2)
-{
-    // Pass the total energy to the kinematics object
-    _kinematics->_s = s;
-
-    // How we integrate depends on what variables are being used
-    double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
-
-    if (_useTX == false)
-    {
-        // Assume argument 3 is M2
-        // integrate over usual t bounds
-        auto dSigma = [&](double t)
-        {
-            return _kinematics->jacobianTM2(t, M2) * d3sigma_d3p(s, t, M2);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
-
-        result = ig.Integral(_kinematics->TMINfromM2(M2), _kinematics->TMAXfromM2(M2));
-    }
-    else
-    {
-        // Argument 3 is x
-        // Convert the M2 taken as argument to an x in the high-energy limit
-        double x = 1. - M2 / s;
-
-        auto dSigma = [&](double t)
-        {
-            return _kinematics->jacobianTX(t, x) * d3sigma_d3p(s, t, x);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
-
-        result = ig.Integral(_kinematics->TMINfromX(x), _kinematics->TMAXfromX(x));
-    };
-
-    return result;
-};
-
-// ---------------------------------------------------------------------------
-// Singly-differential cross-sections with respect to fixed (x, y2)
-double jpacPhoto::triple_regge::dsigma_dy2(double s, double y2)
-{
-    // Pass the total energy to the kinematics object
-    _kinematics->_s = s;
-
-    // How we integrate depends on what variables are being used
-    double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
-
-    if (_useTX == false)
-    {
-        // Assume argument 3 is M2
-        auto dSigma = [&](double x)
-        {
-            // convert x and y2 to fixed M2
-            double M2 = _kinematics->M2fromXY2(x, y2);
-            double t  = _kinematics->TfromXY2(x, y2);
-            return _kinematics->jacobianXY2(t, M2) * d3sigma_d3p(s, t, M2);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
-
-        result = ig.Integral(0., sqrt(1. - y2));
-    }
-    else
-    {
-        // Argument 3 is x and we dont need to convert
-        auto dSigma = [&](double x)
-        {
-            double t  = _kinematics->TfromXY2(x, y2);
-            return _kinematics->jacobianXY2(x, y2) * d3sigma_d3p(s, t, x);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
-
-        result = ig.Integral(0., sqrt(1. - y2));
-    };
-
-    return result;
-};
-
-// Cross-section with fixed x
-double jpacPhoto::triple_regge::dsigma_dx(double s, double x)
-{
-    // Pass the total energy to the kinematics object
-    _kinematics->_s = s;
-
-    // How we integrate depends on what variables are being used
-    double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
-    
-    if (_useTX == false)
-    {
-        // Assume argument 3 is M2
-        auto dSigma = [&](double y2)
-        {
-            // convert x and y2 to fixed M2
-            double M2 = _kinematics->M2fromXY2(x, y2);
-            double t  = _kinematics->TfromXY2(x, y2);
-            return _kinematics->jacobianXY2(t, M2) * d3sigma_d3p(s, t, M2);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
-
-        result = ig.Integral(0., sqrt(1. - x*x));
-    }
-    else
-    {
-        // Argument 3 is x and we dont need to convert
-        auto dSigma = [&](double y2)
-        {
-            double t  = _kinematics->TfromXY2(x, y2);
-            return _kinematics->jacobianXY2(x, y2) * d3sigma_d3p(s, t, x);
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
-
-        result = ig.Integral(0., sqrt(1. - x*x));
-    };
-
-    return result;
-};
-
-// ---------------------------------------------------------------------------
-double jpacPhoto::triple_regge::integrated_xsection(double s)
-{
-    return 0.;
-};
+    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * s_piece / pow(4.* M_PI, 3.);
+};  

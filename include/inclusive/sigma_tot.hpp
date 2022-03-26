@@ -21,7 +21,6 @@
 
 namespace jpacPhoto
 {
-    
     // ---------------------------------------------------------------------------
     // Generic template class
 
@@ -33,7 +32,7 @@ namespace jpacPhoto
         sigma_tot(){};
         
         // Only thing that is needed is a way to evaluate the cross-section
-        virtual double operator()(double s) = 0;
+        virtual double eval(double s) = 0;
     };
 
     // ---------------------------------------------------------------------------
@@ -59,23 +58,7 @@ namespace jpacPhoto
             };
         };
 
-        double operator()(double s)
-        {
-            double result = 0.;
-            if (s < _threshold + 10.*EPS) 
-            {
-                return 0.;
-            } 
-            else if ((s < _cutoff) && (_sigma.size() > 0))
-            {
-                result = interp.Eval( pLab(s) );
-            }
-            else
-            {   
-                result = PDG_parameterization(s);
-            }
-            return result *= 1.E6; // convet mb -> nb
-        };
+        double eval(double s);
 
         private:
 

@@ -26,8 +26,8 @@ int main( int argc, char** argv )
     std::string xlabel   = "W  [GeV]";
     std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
 
-    sigma_tot_PDG sigma_tot_pipp(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
-    sigma_tot_PDG sigma_tot_pimp(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+    std::unique_ptr<sigma_tot_PDG> sigma_tot_pimp( new sigma_tot_PDG(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat"));
+    std::unique_ptr<sigma_tot_PDG> sigma_tot_pipp( new sigma_tot_PDG(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat"));
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
@@ -42,7 +42,7 @@ int main( int argc, char** argv )
     auto F = [&](double W)
     {
         double s = W*W;
-        return sigma_tot_pipp(s) * 1.E-6;
+        return sigma_tot_pipp->eval(s);
     };
 
     std::array<std::vector<double>, 2> x_fx; 
@@ -54,7 +54,7 @@ int main( int argc, char** argv )
     auto G = [&](double W)
     {
         double s = W*W;
-        return sigma_tot_pimp(s) * 1.E-6;
+        return sigma_tot_pimp->eval(s);
     };
 
     x_fx = vec_fill(N, G, xmin, xmax, true);

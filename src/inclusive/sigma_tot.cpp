@@ -10,6 +10,26 @@
 #include "inclusive/sigma_tot.hpp"
 
 // ---------------------------------------------------------------------------
+// Actualy evaluate the cross-section
+
+double jpacPhoto::sigma_tot_PDG::eval(double s)
+{
+    double result = 0.;
+    if (s < _threshold + 10.*EPS) 
+    {
+        return 0.;
+    } 
+    // else if ((s < _cutoff) && (_sigma.size() > 0))
+    // {
+    //     result = interp.Eval( pLab(s) );
+    // }
+    else
+    {   
+        result = PDG_parameterization(s);
+    }
+    return result; // output in mb!
+};
+// ---------------------------------------------------------------------------
 // Open up .dat file, import available data and use set up an interpolation
 void jpacPhoto::sigma_tot_PDG::import_data(std::string datfile)
 {
