@@ -12,21 +12,24 @@
 // Evaluate the invariant amplitude
 double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
 {
-    if (_sigma_tot == NULL)
-    {
-        std::cout << "ERROR! No sigma_tot set! Returning 0! \n";
-        return 0.;
-    };
-    if (_useRegge == true && _trajectory == NULL)
-    {
-        std::cout << "ERROR! No regge_trajectory set! Returning 0! \n";
-        return 0.;
-    };
-    if (_couplingSet == false)
-    {
-        std::cout << "ERROR! No coupling set! Returning 0! \n";
-        return 0.;   
-    };
+    // if (_sigma_tot == NULL)
+    // {
+    //     std::cout << "ERROR! No sigma_tot set! Returning 0! \n";
+    //     return 0.;
+    // };
+    // if (_useRegge == true && _trajectory == NULL)
+    // {
+    //     std::cout << "ERROR! No regge_trajectory set! Returning 0! \n";
+    //     return 0.;
+    // };
+    // if (_couplingSet == false)
+    // {
+    //     std::cout << "ERROR! No coupling set! Returning 0! \n";
+    //     return 0.;   
+    // };
+
+    // Make sure to pass the CM energy to the kinematics
+    _kinematics->_s = s;
 
     // Coupling squared
     double coupling2   = _coupling(t) * _coupling(t);
@@ -41,14 +44,14 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     double exchange_propagator2;
     if (_useRegge)
     {
-        double alpha = std::real(_trajectory->eval(t));
-        double alphaPrime = real(_trajectory->slope());
+        double alpha      = std::real(_trajectory->eval(t));
+        double alphaPrime = std::real(_trajectory->slope());
 
         // First check t isnt too big to make the gamma function blow up
         if ( _b + alphaPrime - alphaPrime * log(- alphaPrime * t) < 0.) return 0.;
 
         std::complex<double> signature_factor = (1. + double(_trajectory->_signature) * exp(- XI * M_PI * alpha)) / 2.; 
-        double t_piece = std::norm(alphaPrime * signature_factor * gamma(- alpha));
+        double t_piece = std::norm(alphaPrime * signature_factor * cgamma(- alpha));
 
         exchange_propagator2 = t_piece * pow(s_piece, -2. * alpha);
     }

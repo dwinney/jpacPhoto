@@ -30,9 +30,17 @@ namespace jpacPhoto
     {
         public:
         // Constructor only needs a kinematics object
-        inclusive_production(inclusive_kinematics * xkinem, std::string id = "")
-        : _kinematics(xkinem), _identifier(id)
-        {};
+        inclusive_production(double produced_mass, std::string amp_id = "")
+        : _identifier(amp_id)
+        {
+            _kinematics = new inclusive_kinematics(produced_mass);
+        };
+
+        // Deconstructor frees up the kinematics pointer
+        ~inclusive_production()
+        {
+            delete _kinematics;
+        };
 
         inclusive_kinematics * _kinematics;
         std::string _identifier;

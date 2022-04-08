@@ -94,11 +94,24 @@ namespace jpacPhoto
             return { AXIAL_VECTOR, VECTOR };
         };
 
+        // Accessor functions for private memebers 
+        inline bool if_reggeized(){ return _reggeized; };
+        inline double get_mEx2(){ return _mEx2; };
+        inline linear_trajectory * get_trajectory(){ return _alpha; };
+        inline double get_cutoff(){ return _cutoff; };
+
+        // return the coupling function for the top vertex
+        // For use with inclusive
+        inline double top_coupling(double t)
+        { 
+            _t = t;
+            return std::real(top_residue(0,0)); 
+        };
+
         private:
 
         // Whether to use fixed-spin propagator (false) or regge (true)
         bool _reggeized = false;
-
 
         // Mass of the exchanged pseudo-scalar (if REGGE = false)
         // ignored otherwise
@@ -106,7 +119,7 @@ namespace jpacPhoto
 
         // Regge trajectory for the pion (if REGGE = true)
         // ignored otherwise
-        linear_trajectory * _alpha;
+        linear_trajectory * _alpha = NULL;
 
         // Coupling constants
         double _gGamma = 0.; // Gamma - Axial - Pseudoscalar coupling 
