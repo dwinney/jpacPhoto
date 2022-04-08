@@ -15,18 +15,18 @@
 double jpacPhoto::sigma_tot_PDG::eval(double s)
 {
     double result = 0.;
-    if (s < _threshold + 10.*EPS) 
-    {
-        return 0.;
-    } 
+    // if (s < _threshold + 10.*EPS) 
+    // {
+    //     return 0.;
+    // } 
     // else if ((s < _cutoff) && (_sigma.size() > 0))
     // {
     //     result = interp.Eval( pLab(s) );
     // }
-    else
-    {   
+    // else
+    // {   
         result = PDG_parameterization(s);
-    }
+    // }
     return result; // output in mb!
 };
 // ---------------------------------------------------------------------------
