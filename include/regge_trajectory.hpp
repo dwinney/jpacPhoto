@@ -40,6 +40,9 @@ class regge_trajectory
     // name, spin, and mass of the lowest lying resonance on the parent trajectory
     std::string _parent;
     int _signature;
+
+    void set_minJ(int j) { _minJ = j; };
+    int _minJ = 0;
 };
 
 
