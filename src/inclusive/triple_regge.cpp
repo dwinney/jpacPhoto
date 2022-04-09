@@ -9,25 +9,36 @@
 
 #include "inclusive/triple_regge.hpp"
 
+// ---------------------------------------------------------------------------
+// Parse the passed amplitude_name string from an exclusive amplitude
+// to make sure the appropriate coupling function is used for the top vertex
+void jpacPhoto::triple_regge::initialize(std::string amp_name)
+{
+    // Pion exchange on top vertices
+    if (amp_name == "pseudoscalar_exchange")
+    {
+        // Axial-vector - photon - psuedoscalar coupling
+        _coupling = [&](double t)
+        {
+            return  (_g / _kinematics->_mX) * (t - _kinematics->_mX2);
+        };
+
+        // Default: pi- exchange with the PDG parameterization (no resonances)
+        _sigma_tot = new sigma_tot_PDG(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+    }
+    else 
+    {
+        _coupling = [&](double x)
+        {
+            return 0.;
+        };
+    };
+};
+
+// ---------------------------------------------------------------------------
 // Evaluate the invariant amplitude
 double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
 {
-    // if (_sigma_tot == NULL)
-    // {
-    //     std::cout << "ERROR! No sigma_tot set! Returning 0! \n";
-    //     return 0.;
-    // };
-    // if (_useRegge == true && _trajectory == NULL)
-    // {
-    //     std::cout << "ERROR! No regge_trajectory set! Returning 0! \n";
-    //     return 0.;
-    // };
-    // if (_couplingSet == false)
-    // {
-    //     std::cout << "ERROR! No coupling set! Returning 0! \n";
-    //     return 0.;   
-    // };
-
     // Make sure to pass the CM energy to the kinematics
     _kinematics->_s = s;
 
@@ -51,14 +62,14 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
         if ( _b + alphaPrime - alphaPrime * log(- alphaPrime * t) < 0.) return 0.;
 
         std::complex<double> signature_factor = (1. + double(_trajectory->_signature) * exp(- XI * M_PI * alpha)) / 2.; 
-        double t_piece = std::norm(alphaPrime * signature_factor * cgamma(- alpha));
+        double t_piece = std::norm(alphaPrime * signature_factor * cgamma(double(_trajectory->_minJ) - alpha));
 
         exchange_propagator2 = t_piece * pow(s_piece, -2. * alpha);
     }
     else
     {
-        double pole          = 1. / (_exchange_mass2 - t);  // Simple pole 
-        exchange_propagator2 = pole * pole;                // Squared
+        double pole          = 1. / (_exchange_mass2 - t);                                     // Simple pole 
+        exchange_propagator2 = pole * pole * pow(s_piece, -2. * double(_trajectory->_minJ));   // Squared
     };
 
     double sigma_tot;

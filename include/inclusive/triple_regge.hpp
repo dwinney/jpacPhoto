@@ -32,56 +32,15 @@ namespace jpacPhoto
          _exclusive(exclusive),
          _useRegge(exclusive->if_reggeized()),
          _exchange_mass2(exclusive->get_mEx2()), _trajectory(exclusive->get_trajectory()),
-         _b(exclusive->get_cutoff())
+         _b(exclusive->get_cutoff()), _g(exclusive->get_coupling())
         {
-            _coupling = [&](double t)
-            {
-                return  (0.24 / M_B1) * (t - M2_B1);
-            };
-
-            _sigma_tot = new sigma_tot_PDG(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+            initialize(exclusive->amplitude_name());
         };
 
         ~triple_regge()
         {
             delete _sigma_tot;
         };
-
-        // Fully parameterized constructor for the usual triple regge form
-        // // Requires:
-        // // 1. a kinematics object
-        // // 2. a regge trajectory (assumed to be the same for the top vertices)
-        // // Optional string identifier to associate with the object
-        // triple_regge(double mass, regge_trajectory * alpha, std::string id = "")
-        // : inclusive_production(mass, id), _trajectory(alpha)
-        // {
-        //     _useRegge = true;
-        // };
-
-        // triple_regge(double mass, double exmass, std::string id = "")
-        // : inclusive_production(mass, id), _exchange_mass2(exmass*exmass)
-        // {
-        //     _useRegge = false;
-        // };
-
-        // // Set the top vertex coupling
-        // inline void set_coupling(const std::function<double(double)> coupling)
-        // {
-        //     _coupling = coupling;
-        //     _couplingSet = true;
-        // };
-
-        // // Set the total cross-section associated with the bottom vertex
-        // inline void set_sigma_tot(sigma_tot * sigma)
-        // {
-        //     _sigma_tot = sigma;
-        // };
-        
-        // // Set the t-slope associated with the exponential form-factor
-        // inline void set_form_factor(double b)
-        // {
-        //     _b = b;
-        // };
 
         // Set flag to use the simplified high-energy approximation kinematics
         inline void set_high_energy_approximation(bool ifuse)
@@ -102,6 +61,11 @@ namespace jpacPhoto
         // Pointer to an already set-up exclusive amplitude object
         amplitude * _exclusive;
 
+        // Initialize the amplitude appropriate to the given exclusive amplitude
+        // This sets the coupling function for the top vertex
+        // and the default choice of sigma_tot for the bottom vertex
+        void initialize(std::string exclusive_amp_name);
+
         // Coupling function associated with the t dependence of the top vertex
         std::function<double(double)> _coupling;
 
@@ -113,11 +77,13 @@ namespace jpacPhoto
 
         // Regge trajectory for the exchange if Reggeized
         regge_trajectory * _trajectory = NULL;
+
         // Else we have a fixed pole-mass
         double _exchange_mass2 = 0.;
 
         double _s0 = 1.; // scale factor
         double _b  = 0.; // t-slope parameter in form-factor
+        double _g  = 0.; // gamma coupling constant
     };
 };
 
