@@ -1,5 +1,5 @@
 // Phenomenological expressions for the total cross-sections.
-// We use a generic class callable by double sigma_tot(double) to select different
+// We use a generic class callable by double total_xsection(double) to select different
 // parameterizations or reactions
 //
 // Author:       Daniel Winney (2022)
@@ -24,12 +24,12 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Generic template class
 
-    class sigma_tot
+    class total_xsection
     {
         public:
 
         // Default constructor 
-        sigma_tot(){};
+        total_xsection(){};
         
         // Only thing that is needed is a way to evaluate the cross-section
         virtual double eval(double s) = 0;
@@ -38,12 +38,12 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Coded up PDG parameterization for the asymptotic cross-sections
 
-    class sigma_tot_PDG : public sigma_tot
+    class total_xsection_PDG : public total_xsection
     {
         public:
 
         // Constructor with masses and a filename to look for data
-        sigma_tot_PDG(double m1, double m2, std::array<double, 5> pdgparams, std::string datfile = "")
+        total_xsection_PDG(double m1, double m2, std::array<double, 5> pdgparams, std::string datfile = "")
         : _mBeam(m1), _mTarget(m2), _threshold((m1+m2)*(m1+m2)), interp(0, ROOT::Math::Interpolation::kLINEAR)
         {
             _iso   = pdgparams[0];
@@ -97,13 +97,13 @@ namespace jpacPhoto
     };
 
     // // Pi+ Proton 
-    // sigma_tot_PDG sigma_tot_pipp(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
+    // total_xsection_PDG total_xsection_pipp(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
 
     // // Pi- Proton
-    // sigma_tot_PDG sigma_tot_pimp(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+    // total_xsection_PDG total_xsection_pimp(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
 
     // // Gamma Proton
-    // sigma_tot_PDG sigma_tot_gamp(0.,     M_PROTON, { 0., 3.065E-3, 0.0139, 0., 34.41}, "rpp2020-gammap_total.dat");
+    // total_xsection_PDG total_xsection_gamp(0.,     M_PROTON, { 0., 3.065E-3, 0.0139, 0., 34.41}, "rpp2020-gammap_total.dat");
 };
 
 #endif

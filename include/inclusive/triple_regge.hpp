@@ -19,7 +19,7 @@
 #include "amplitudes/pseudoscalar_exchange.hpp"
 #include "inclusive/inclusive_production.hpp"
 #include "inclusive/inclusive_kinematics.hpp"
-#include "inclusive/sigma_tot.hpp"
+#include "inclusive/total_xsection.hpp"
 
 namespace jpacPhoto
 {
@@ -73,7 +73,7 @@ namespace jpacPhoto
         bool _useRegge = true;
 
         // Total cross-section associated with the bottom vertex
-        sigma_tot * _sigma_tot = NULL;
+        total_xsection * _sigma_tot = NULL;
 
         // Regge trajectory for the exchange if Reggeized
         regge_trajectory * _trajectory = NULL;

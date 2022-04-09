@@ -24,7 +24,7 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         };
 
         // Default: pi- exchange with the PDG parameterization (no resonances)
-        _sigma_tot = new sigma_tot_PDG(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+        _sigma_tot = new total_xsection_PDG(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
     }
     else 
     {
