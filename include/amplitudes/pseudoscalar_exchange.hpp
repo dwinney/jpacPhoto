@@ -99,6 +99,7 @@ namespace jpacPhoto
         inline double get_mEx2(){ return _mEx2; };
         inline linear_trajectory * get_trajectory(){ return _alpha; };
         inline double get_cutoff(){ return _cutoff; };
+        inline double get_coupling(){ return _gGamma; };
 
         // return the coupling function for the top vertex
         // For use with inclusive
