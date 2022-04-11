@@ -29,43 +29,17 @@ namespace jpacPhoto
         public:
 
         // Default constructor 
-        total_xsection(){};
+        total_xsection(double mb, double mt, double cutoff = 0.)
+        : _mBeam(mb), _mTarget(mt), 
+          _sth((mb + mt)*(mb + mt)),
+          _cutoff(cutoff)
+        {};
         
         // Only thing that is needed is a way to evaluate the cross-section
-        virtual double eval(double s) = 0;
-    };
-
-    // ---------------------------------------------------------------------------
-    // Coded up PDG parameterization for the asymptotic cross-sections
-
-    class total_xsection_PDG : public total_xsection
-    {
-        public:
-
-        // Constructor with masses and a filename to look for data
-        total_xsection_PDG(double m1, double m2, std::array<double, 5> pdgparams, std::string datfile = "")
-        : _mBeam(m1), _mTarget(m2), _threshold((m1+m2)*(m1+m2)), interp(0, ROOT::Math::Interpolation::kLINEAR)
-        {
-            _iso   = pdgparams[0];
-            _delta = pdgparams[1];
-            _R1    = pdgparams[2];
-            _R2    = pdgparams[3];
-            _P     = pdgparams[4];  
-            
-            if (datfile != "")
-            {
-                import_data(datfile);
-            };
-        };
-
         double eval(double s);
 
-        private:
-
-        double _mBeam, _mTarget;
-        double _threshold;
-        double _cutoff = 10.;
-
+        protected:
+        
         // Lab beam momentum
         inline double pLab(double s) const
         { 
@@ -73,13 +47,47 @@ namespace jpacPhoto
             return sqrt(Elab*Elab - _mBeam*_mBeam);
         };
 
-        // If theres data available interpolate between this first
-        ROOT::Math::Interpolator interp;
-        std::vector<double> _plab, _sigma;
-        void import_data(std::string datfile);
+        double _mBeam, _mTarget;
+        double _sth;
+        double _cutoff;
 
-        // Else use the fits from the PDG 
-        inline double PDG_parameterization(double s)
+        // To evaluate the cross-section we use two regions
+        // some way to handle the resonances at low s < _cutoff
+        // and the regge dominated behavior at high s > _cutoff
+        virtual double resonances(double s) = 0;
+        virtual double regge(double s) = 0;
+    };
+
+    // ---------------------------------------------------------------------------
+    // Coded up PDG parameterization for the asymptotic cross-sections
+
+    class PDG_parameterization : public total_xsection
+    {
+        public:
+
+        // Constructor with masses and a filename to look for data
+        PDG_parameterization(double m1, double m2, std::array<double, 5> pdgparams, std::string datfile = "")
+        : total_xsection(m1, m2, 0.), _interp(0, ROOT::Math::Interpolation::kLINEAR)
+        {
+            _iso   = pdgparams[0];  // isospin sign for pi+ or pi- dependence
+            _delta = pdgparams[1];  // VMD/Quark counting paramter for photon 
+            _R1    = pdgparams[2];  // Regge terms
+            _R2    = pdgparams[3];
+            _P     = pdgparams[4];  // Constant pomeron term
+            
+            if (datfile != "")
+            {
+                _cutoff = 6.;
+                import_data(datfile);
+            };
+        };
+
+        double eval(double s);
+
+        protected:
+
+        // Above the cutoff, we use the PDG parameterization of Regge behavior
+        inline double regge(double s)
         {
             // These params are universal for all collisions
             double M = 2.1206, H = 0.2720, eta1 = 0.4473, eta2 = 0.5486;
@@ -89,6 +97,18 @@ namespace jpacPhoto
             else sab = pow(_mBeam + _mTarget + M, 2);
 
             return _delta*(H*pow(log(s/sab), 2.) + _P) + _R1*pow(s/sab, -eta1) - _iso*_R2*pow(s/sab, -eta2);
+        };
+
+        // If theres data available in the low enegergy, 
+        // these methods read data files and store them
+        ROOT::Math::Interpolator _interp;
+        std::vector<double> _plab, _sigma;
+        void import_data(std::string datfile);
+
+        // Below we do a simple linear interpolation of data in resonance region
+        inline double resonances(double s)
+        {
+            return _interp.Eval( pLab(s) );
         };
 
         int _iso = 0;

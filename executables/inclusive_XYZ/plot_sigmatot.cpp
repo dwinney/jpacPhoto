@@ -1,4 +1,4 @@
-#include "inclusive/sigma_tot.hpp"
+#include "inclusive/total_xsection.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -14,20 +14,20 @@ int main( int argc, char** argv )
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    int N = 6000;
+    int N = 200;
 
     double  ymin = 1.;
     double  ymax = 1.E3;
 
     double xmin = (M_PION + M_PROTON) + EPS;   
-    double xmax = 20.;
+    double xmax = 5.;
 
     std::string filename = "sigma.pdf";
     std::string xlabel   = "W  [GeV]";
     std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
 
-    std::unique_ptr<sigma_tot_PDG> sigma_tot_pimp( new sigma_tot_PDG(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat"));
-    std::unique_ptr<sigma_tot_PDG> sigma_tot_pipp( new sigma_tot_PDG(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat"));
+    std::unique_ptr<total_xsection> sigma_tot_pimp( new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat"));
+    std::unique_ptr<total_xsection> sigma_tot_pipp( new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat"));
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line

@@ -10,28 +10,36 @@
 #include "inclusive/total_xsection.hpp"
 
 // ---------------------------------------------------------------------------
-// Actualy evaluate the cross-section
+// METHODS FOR THE GENERIC total_xsection CLASS
+// ---------------------------------------------------------------------------
 
-double jpacPhoto::total_xsection_PDG::eval(double s)
+// Method to evaluate the actual cross-section
+double jpacPhoto::total_xsection::eval(double s)
 {
     double result = 0.;
-    // if (s < _threshold + 10.*EPS) 
-    // {
-    //     return 0.;
-    // } 
-    // else if ((s < _cutoff) && (_sigma.size() > 0))
-    // {
-    //     result = interp.Eval( pLab(s) );
-    // }
-    // else
-    // {   
-        result = PDG_parameterization(s);
-    // }
-    return result; // output in mb!
+
+    if (s < _sth)
+    {
+        return 0.;
+    }
+    else if (s <= _cutoff)
+    {
+        return resonances(s);
+    }
+    else
+    {
+        return regge(s);  
+    };
 };
+
 // ---------------------------------------------------------------------------
-// Open up .dat file, import available data and use set up an interpolation
-void jpacPhoto::total_xsection_PDG::import_data(std::string datfile)
+// METHODS FOR THE PDG_parameterization
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Open up .dat files for low energy in PDG format
+// import available data and use set up an interpolation
+void jpacPhoto::PDG_parameterization::import_data(std::string datfile)
 {
     // Find the correct data file using the top level repo directory
     std::string top_dir;
@@ -57,7 +65,7 @@ void jpacPhoto::total_xsection_PDG::import_data(std::string datfile)
     };
 
     // Add a zero at exactly threshold
-    double plab_thresh = pLab(_threshold + EPS);
+    double plab_thresh = pLab(_sth + EPS);
     _plab.push_back(plab_thresh);
     _sigma.push_back(0.);
     double old_plab = plab_thresh;
@@ -89,6 +97,6 @@ void jpacPhoto::total_xsection_PDG::import_data(std::string datfile)
         _sigma.push_back(sigma);
     };
 
-    interp.SetData(_plab, _sigma);
+    _interp.SetData(_plab, _sigma);
     return;
 };
