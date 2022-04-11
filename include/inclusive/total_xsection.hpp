@@ -11,6 +11,8 @@
 #define SIGMA_TOT
 
 #include "constants.hpp"
+#include "regge_trajectory.hpp"
+#include "misc_math.hpp"
 
 #include <vector>
 #include <array>
@@ -59,7 +61,7 @@ namespace jpacPhoto
     };
 
     // ---------------------------------------------------------------------------
-    // Coded up PDG parameterization for the asymptotic cross-sections
+    // Total cross-sections based off of the 2016 PDG parameterizations
 
     class PDG_parameterization : public total_xsection
     {
@@ -81,8 +83,6 @@ namespace jpacPhoto
                 import_data(datfile);
             };
         };
-
-        double eval(double s);
 
         protected:
 
@@ -116,14 +116,110 @@ namespace jpacPhoto
         double _R1, _R2, _P;
     };
 
-    // // Pi+ Proton 
-    // total_xsection_PDG total_xsection_pipp(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
+    
+    // ---------------------------------------------------------------------------
+    // Total cross-sections based off of the 2015 JPAC publication
+    // V. Mathieu et al. [Phys. Rev. D 92, 074004]
+    class JPAC_parameterization : public total_xsection
+    {
+        public:
 
-    // // Pi- Proton
-    // total_xsection_PDG total_xsection_pimp(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+        // Currently only avialable for pion-nucleon 
+        JPAC_parameterization(int iso)
+        : total_xsection(M_PION, M_PROTON, 6.5), _iso(iso),
+          _interp(0, ROOT::Math::Interpolation::kCSPLINE)
+        {
+            if (abs(iso) != 1)
+            {
+                std::cout << "Error! JPAC_parameterization argument must be +1 or -1! Results may vary..." << std::endl;
+            };
 
-    // // Gamma Proton
-    // total_xsection_PDG total_xsection_gamp(0.,     M_PROTON, { 0., 3.065E-3, 0.0139, 0., 34.41}, "rpp2020-gammap_total.dat");
+            import_data();
+        };
+
+        protected:
+        // ----------------------------------------------------------------------
+        // Low-energy pieces
+
+        // Below the cutoff we do a simple interpolation of the SAID amplitude
+        inline double resonances(double s)
+        {
+            return _interp.Eval( pLab(s) );
+        };
+        
+        // If theres data available in the low enegergy, 
+        // these methods read data files and store them
+        ROOT::Math::Interpolator _interp;
+        std::vector<double> _plab, _sigma;
+        void import_data(std::string datfile = "SAID.dat");
+
+        // ----------------------------------------------------------------------
+        // High-energy pieces
+
+        // Above the cutoff, we use a Regge pole parameterization
+        inline double regge(double s)
+        {
+            return 0.389352 * std::imag(isoscalar(s, 0.) + double(_iso) * isovector(s, 0.)) / pLab(s);
+        };
+
+        // Parameter selecting pi + or pi - scattering
+        int _iso;  // plus or minus 1
+
+        // Internal class object for a Regge pole
+        class regge_pole
+        {
+            public: 
+
+            regge_pole(std::array<double, 2> pars, regge_trajectory * traj)
+            : _c(pars[0]), _b(pars[1]), _alpha(traj)
+            {};
+
+            inline std::complex<double> operator()(double s, double t)
+            {
+                double nu = crossing_nu(s, t);
+                double alpha = std::real(_alpha->eval(t));
+                std::complex<double> signature_factor = 0.5 * (double(_alpha->_signature) - exp(- XI * M_PI * alpha));
+
+                return _c * exp(_b * t) * signature_factor * pow(nu, alpha) * cgamma(1. - double(_alpha->_minJ) - alpha);
+            };
+
+            private:
+
+            // Crossing variable
+            inline double crossing_nu(double s, double t)
+            {
+                double u = 2.* (M_PROTON + M_PION) - s - t;
+                return (s - u) / (4.* M_PROTON);
+            };
+
+            double _b; // t-slope
+            double _c; // Overall coupling
+
+            // Trajectory object
+            regge_trajectory * _alpha;
+        };
+
+        // Trajectories for dominant Regge poles: Pomeron, F2, and Rho
+        linear_trajectory alphaPom = linear_trajectory(-1, 0, 1.075, 0.434, "Pomeron");
+        linear_trajectory alphaF   = linear_trajectory(-1, 0, 0.490, 0.943, "f2");
+        linear_trajectory alphaRho = linear_trajectory(+1, 1, 0.490, 0.943, "rho");
+
+        // Instances of the poles themselves
+        regge_pole _f    = regge_pole( {71.35, 3.18}, &alphaF);
+        regge_pole _pom  = regge_pole( {23.89, 2.21}, &alphaPom);
+        regge_pole _rho1 = regge_pole( { 5.01*1.573, 10.1}, &alphaRho);
+        regge_pole _rho2 = regge_pole( {-5.01*0.573,  0.0}, &alphaRho);
+
+        // t-channel amplitude contributions are just sums of the above Regge poles
+        inline std::complex<double> isovector(double s, double t)
+        {
+            return _rho1(s,t) + _rho2(s,t);
+        };
+        inline std::complex<double> isoscalar(double s, double t)
+        {
+            return _pom(s,t) + _f(s,t);
+        };
+    };
 };
 
 #endif
