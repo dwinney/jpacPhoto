@@ -125,7 +125,7 @@ namespace jpacPhoto
         public:
 
         // Currently only avialable for pion-nucleon 
-        JPAC_parameterization(int iso)
+        JPAC_parameterization(int iso, bool resonances = true)
         : total_xsection(M_PION, M_PROTON, 6.5), _iso(iso),
           _interp(0, ROOT::Math::Interpolation::kCSPLINE)
         {
@@ -134,7 +134,14 @@ namespace jpacPhoto
                 std::cout << "Error! JPAC_parameterization argument must be +1 or -1! Results may vary..." << std::endl;
             };
 
-            import_data();
+            if (resonances)
+            {
+                import_data();
+            }
+            else
+            {
+                _cutoff = 0.;
+            }
         };
 
         protected:

@@ -19,7 +19,7 @@ double jpacPhoto::total_xsection::eval(double s)
 {
     double result = 0.;
 
-    if (s < _sth)
+    if (s < _sth + 10.*EPS)
     {
         return 0.;
     }
