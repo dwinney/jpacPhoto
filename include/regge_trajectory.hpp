@@ -65,6 +65,14 @@ class linear_trajectory : public regge_trajectory
       _a0(inter), _aprime(slope)
     {};
 
+    // Parameterized constructor with minJ also
+    linear_trajectory(int sig, int minJ, double inter, double slope, std::string name = "")
+    : regge_trajectory(sig, name),
+      _a0(inter), _aprime(slope)
+    {
+        set_minJ(minJ);
+    };
+
     // copy Constructor
     linear_trajectory(const linear_trajectory & old)
     : regge_trajectory(old),
