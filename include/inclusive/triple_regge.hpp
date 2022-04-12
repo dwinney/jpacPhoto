@@ -53,6 +53,9 @@ namespace jpacPhoto
         // Evaluate the invariant amplitude
         double d3sigma_d3p(double s, double t, double mm);
 
+        // Change the stored sigma_total to another one
+        void set_sigma_total(sigma_option opt);
+
         // ---------------------------------------------------------------------------
         // Individual pieces that go into the amplitude
 

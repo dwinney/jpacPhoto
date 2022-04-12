@@ -24,7 +24,7 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         };
 
         // Default: pi- exchange with the PDG parameterization (no resonances)
-        _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+        _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75});
     }
     else 
     {
@@ -32,7 +32,66 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         {
             return 0.;
         };
+
+        _sigma_tot = new zero_xsection();
     };
+};
+
+// ---------------------------------------------------------------------------
+// Change the default sigma_total from initialize to a user-selected one
+void jpacPhoto::triple_regge::set_sigma_total(sigma_option opt)
+{
+    // We need to make sure to free up _sigma_tot first
+    delete _sigma_tot;
+
+    switch(opt)
+    {
+        case PDG_pipp_onlyRegge:
+        {
+            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75});
+            break;
+        } 
+        case PDG_pimp_onlyRegge:
+        {
+            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75});
+            break;
+        }
+        case PDG_pipp_withResonances:
+        {
+            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
+            break;
+        } 
+        case PDG_pimp_withResonances:
+        {
+            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
+            break;
+        }
+        case JPAC_pipp_onlyRegge:
+        {
+            _sigma_tot = new JPAC_parameterization(+1, false);
+            break;
+        }
+        case JPAC_pimp_onlyRegge:
+        {
+            _sigma_tot = new JPAC_parameterization(-1, false);
+            break;
+        }
+        case JPAC_pipp_withResonances:
+        {
+            _sigma_tot = new JPAC_parameterization(+1, true);
+            break;
+        }
+        case JPAC_pimp_withResonances:
+        {
+            _sigma_tot = new JPAC_parameterization(-1, true);
+            break;
+        }
+        default:
+        {
+            _sigma_tot = new zero_xsection();
+        };
+    };
+
 };
 
 // ---------------------------------------------------------------------------
@@ -41,6 +100,9 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
 {
     // Make sure to pass the CM energy to the kinematics
     _kinematics->_s = s;
+
+    // Things tend to blow up at exactly x = 1
+    if (_useTX && (abs(mm - 1) < 0.001)) return 0.;
 
     // Coupling squared
     double coupling2   = _coupling(t) * _coupling(t);

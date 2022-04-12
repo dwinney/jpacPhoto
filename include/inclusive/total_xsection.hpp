@@ -23,6 +23,13 @@
 
 namespace jpacPhoto
 {
+
+    // All the total cross-sections implemented so far
+    enum sigma_option { PDG_pipp_onlyRegge,       PDG_pimp_onlyRegge, 
+                        PDG_pipp_withResonances,  PDG_pimp_withResonances,
+                        JPAC_pipp_onlyRegge,      JPAC_pimp_onlyRegge,
+                        JPAC_pipp_withResonances, JPAC_pimp_withResonances };
+
     // ---------------------------------------------------------------------------
     // Generic template class
 
@@ -58,6 +65,19 @@ namespace jpacPhoto
         // and the regge dominated behavior at high s > _cutoff
         virtual double resonances(double s) = 0;
         virtual double regge(double s) = 0;
+    };
+
+    // ---------------------------------------------------------------------------
+    // "Zero" instance of the total_xsection to use as a default object
+    class zero_xsection : public total_xsection
+    {
+        public: 
+        zero_xsection()
+        : total_xsection(0.,0.,0.)
+        {};
+
+        inline double resonances(double s) { return 0.; };
+        inline double regge(double s)      { return 0.; };
     };
 
     // ---------------------------------------------------------------------------
