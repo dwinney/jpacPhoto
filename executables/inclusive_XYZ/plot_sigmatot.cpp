@@ -19,15 +19,15 @@ int main( int argc, char** argv )
     double  ymin = 7.;
     double  ymax = 4.E2;
 
-    double xmin = (M_PION + M_PROTON) + 0.1;   
-    double xmax = 3.;
+    double xmin = (M_PION + M_PROTON) + 0.01;   
+    double xmax = 3;
 
     std::string filename = "sigma.pdf";
     std::string xlabel   = "W  [GeV]";
     std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
 
-    // std::unique_ptr<total_xsection> PDG_pimp(  new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}));
-    // std::unique_ptr<total_xsection> PDG_pipp(  new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}));
+    std::unique_ptr<total_xsection> PDG_pimp(  new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}));
+    std::unique_ptr<total_xsection> PDG_pipp(  new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}));
 
     std::unique_ptr<total_xsection> JPAC_pimp_NR( new JPAC_parameterization(-1, false) );
     std::unique_ptr<total_xsection> JPAC_pipp_NR( new JPAC_parameterization(+1, false) );
@@ -68,7 +68,7 @@ int main( int argc, char** argv )
     auto FF = [&](double W)
     {
         double s = W*W;
-        return JPAC_pimp_NR->eval(s);
+        return PDG_pimp->eval(s);
     };
     x_fx = vec_fill(N, FF, xmin, xmax);
     plotter->AddDashedEntry(x_fx[0], x_fx[1]);
@@ -78,13 +78,13 @@ int main( int argc, char** argv )
     auto GG = [&](double W)
     {
         double s = W*W;
-        return JPAC_pipp_NR->eval(s);
+        return PDG_pipp->eval(s);
     };
     x_fx = vec_fill(N, GG, xmin, xmax);
     plotter->AddDashedEntry(x_fx[0], x_fx[1]);
 
     // Axes and legend options
-    plotter->SetXaxis(xlabel, 0., xmax);
+    plotter->SetXaxis(xlabel, 1., xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
     plotter->SetYlogscale(true);
 
