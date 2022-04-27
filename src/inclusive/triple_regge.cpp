@@ -25,6 +25,8 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
 
         // Default: pi- exchange with the PDG parameterization (no resonances)
         _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75});
+
+        _exchange_spin = 0;
     }
     else 
     {
@@ -131,11 +133,12 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     else
     {
         double pole          = 1. / (_exchange_mass2 - t);                                     // Simple pole 
-        exchange_propagator2 = pole * pole * pow(s_piece, -2. * double(_trajectory->_minJ));   // Squared
+        exchange_propagator2 = pole * pole * pow(s_piece, -2. * _exchange_spin);   // Squared
     };
 
-    double sigma_tot;
-    (_useTX) ? (sigma_tot = _sigma_tot->eval(s * (1. - mm))) : (sigma_tot = _sigma_tot->eval(mm));
+    double M2;
+    (_useTX) ? (M2 = _kinematics->M2fromTX(t, mm)) : (M2 = mm);
+    double sigma_tot =  _sigma_tot->eval(M2);
 
     return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * s_piece / pow(4.* M_PI, 3.);
 };  

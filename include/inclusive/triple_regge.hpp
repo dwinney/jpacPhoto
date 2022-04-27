@@ -83,6 +83,7 @@ namespace jpacPhoto
 
         // Else we have a fixed pole-mass
         double _exchange_mass2 = 0.;
+        int    _exchange_spin  = 0;
 
         double _s0 = 1.; // scale factor
         double _b  = 0.; // t-slope parameter in form-factor
