@@ -169,6 +169,16 @@ namespace jpacPhoto
             return 1./inv;
         };
 
+        // Also useful is M2 as a function of X and T
+        inline double M2fromTX(double t, double x)
+        {
+            double lami = Kallen(_s, 0., _mT2);
+            double lamf = Kallen(_s, _mX2, _minM2);
+            double num = _s*(_s + 2.*t - _mX2 - _mT2) - _mT2 * _mX2 - sqrt(lami * lamf) * x;
+
+            return num / (_s - _mT2);
+        };
+
         // FIXME: Bounds of integration for X at fixed T
         inline double XMINfromT(double t)
         {
