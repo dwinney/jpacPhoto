@@ -102,6 +102,11 @@ namespace jpacPhoto
             return 1./inv;
         };
 
+        inline double XfromRCOS(double r, double cos)
+        {
+            return r * cos;
+        };
+
         // ---------------------------------------------------------------------------
         // INVARIANT variables (t, M2)
 
@@ -122,6 +127,18 @@ namespace jpacPhoto
         inline double TfromM2COS(double M2, double cos)
         {
             double t = _mX2 - (_s - _mT2) * (_s - M2 + _mX2) / (2. * _s) + 2.* qGamma() * pXfromM2(M2) * cos;
+            return t;
+        };
+
+        inline double M2fromRCOS(double r, double cos)
+        {
+            return _mX2 + _s - 2. * sqrt(_mX2 * _s + pMax() * pMax() * r * r * _s);
+        };
+
+        inline double TfromRCOS(double r, double cos)
+        {
+            double M2 = M2fromRCOS(r, cos);
+            double t = _mX2 - (_s - _mT2) * (_s - M2 + _mX2) / (2. * _s) + 2.* qGamma() * pMax() * r * cos;
             return t;
         };
 
@@ -174,9 +191,8 @@ namespace jpacPhoto
         {
             double lami = Kallen(_s, 0., _mT2);
             double lamf = Kallen(_s, _mX2, _minM2);
-            double num = _s*(_s + 2.*t - _mX2 - _mT2) - _mT2 * _mX2 - sqrt(lami * lamf) * x;
-
-            return num / (_s - _mT2);
+            double num = _mT2 * _mX2 + _mT2 * _s + _mX2 * _s - _s*_s - 2.*_s*t + sqrt(lami * lamf) * x;
+            return num / (_mT2 - _s);
         };
 
         // FIXME: Bounds of integration for X at fixed T
