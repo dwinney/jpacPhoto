@@ -92,44 +92,38 @@ int main( int argc, char** argv )
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
 
+    // ---------------------------------------------------------------------------
     // Plotter object
     std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
 
     // ---------------------------------------------------------------------------
     //Add entries for all the different differential cross-sections at fixed s
-    std::array<std::vector<double>, 2> x_fx; 
-    auto Fr = [&](double x)
+
+    bool useRegge;
+    auto F = [&](double x)
     {
-        return incB1r->dsigma_dx(s, x) * 1.E3; // in mub!
+        return (useRegge * incB1r->dsigma_dx(s, x) + !useRegge * incB1f->dsigma_dx(s, x)) * 1.E3; // in mub!
     };
 
-    x_fx[0].clear(); x_fx[1].clear();
+    // Reggeized curves
+    useRegge = true;
+    
     incB1r->set_sigma_total(JPAC_pimp_withResonances);
-    x_fx = vec_fill(N, Fr, xmin, xmax, false);
-    plotter->AddEntry(x_fx[0], x_fx[1], "Reggeized #pi^{-}");
+    plotter->AddEntry(N, F, {xmin, xmax}, "Reggeized #pi^{-}");
 
-    x_fx[0].clear(); x_fx[1].clear();
+    // Remove resonances
     incB1r->set_sigma_total(PDG_pimp_onlyRegge);
-    x_fx = vec_fill(N, Fr, xmin, xmax, false);
-    plotter->AddDashedEntry(x_fx[0], x_fx[1]);
+    plotter->AddDashedEntry(N, F, {xmin, xmax});
 
-    // ---------------------------------------------------------------------------
     // Do th same wih the fixed-spin curves
+    useRegge = false;
 
-    auto Ff = [&](double x)
-    {
-        return incB1f->dsigma_dx(s, x) * 1.E3; // in mub!
-    };
-
-    x_fx[0].clear(); x_fx[1].clear();
     incB1f->set_sigma_total(JPAC_pimp_withResonances);
-    x_fx = vec_fill(N, Ff, xmin, xmax, false);
-    plotter->AddEntry(x_fx[0], x_fx[1], "Fixed-spin #pi^{-}");
-
-    x_fx[0].clear(); x_fx[1].clear();
+    plotter->AddEntry(N, F, {xmin, xmax}, "Fixed-spin #pi^{-}");
+    
+    // Remove resonances
     incB1f->set_sigma_total(PDG_pimp_onlyRegge);
-    x_fx = vec_fill(N, Ff, xmin, xmax, false);
-    plotter->AddDashedEntry(x_fx[0], x_fx[1]);
+    plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     // ---------------------------------------------------------------------------
     // Add the data points 

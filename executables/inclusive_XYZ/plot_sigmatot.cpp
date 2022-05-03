@@ -21,19 +21,19 @@ int main( int argc, char** argv )
 
     double xmin = (M_PION + M_PROTON) + 0.01;   
     double xmax = 3;
-
+    std::array<double, 2> bounds = {xmin, xmax};
+    
     std::string filename = "sigma.pdf";
     std::string xlabel   = "W  [GeV]";
     std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
 
+    // PDG parameterizations
     std::unique_ptr<total_xsection> PDG_pimp(  new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}));
     std::unique_ptr<total_xsection> PDG_pipp(  new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}));
 
-    std::unique_ptr<total_xsection> JPAC_pimp_NR( new JPAC_parameterization(-1, false) );
-    std::unique_ptr<total_xsection> JPAC_pipp_NR( new JPAC_parameterization(+1, false) );
-
-    std::unique_ptr<total_xsection> JPAC_pimp_R( new JPAC_parameterization(-1, true) );
-    std::unique_ptr<total_xsection> JPAC_pipp_R( new JPAC_parameterization(+1, true) );
+    // JPAC parameterizations
+    std::unique_ptr<total_xsection> JPAC_pimp( new JPAC_parameterization(-1, true) );
+    std::unique_ptr<total_xsection> JPAC_pipp( new JPAC_parameterization(+1, true) );
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
@@ -45,43 +45,25 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
     // Print the phase-space for each kinematics
 
-    std::array<std::vector<double>, 2> x_fx; 
-
+    double piPlus, useJPAC;
     auto F = [&](double W)
     {
         double s = W*W;
-        return JPAC_pimp_R->eval(s);
+        return piPlus * ( useJPAC * JPAC_pipp->eval(s) + !useJPAC * PDG_pipp->eval(s) ) 
+            + !piPlus * ( useJPAC * JPAC_pimp->eval(s) + !useJPAC * PDG_pimp->eval(s) );
     };
-    x_fx = vec_fill(N, F, xmin, xmax);
-    plotter->AddEntry(x_fx[0], x_fx[1], "#pi^{-} p");
 
-    x_fx[0].clear(); x_fx[1].clear();
-    auto G = [&](double W)
-    {
-        double s = W*W;
-        return JPAC_pipp_R->eval(s);
-    };
-    x_fx = vec_fill(N, G, xmin, xmax);
-    plotter->AddEntry(x_fx[0], x_fx[1], "#pi^{+} p");
-    
-    x_fx[0].clear(); x_fx[1].clear();
-    auto FF = [&](double W)
-    {
-        double s = W*W;
-        return PDG_pimp->eval(s);
-    };
-    x_fx = vec_fill(N, FF, xmin, xmax);
-    plotter->AddDashedEntry(x_fx[0], x_fx[1]);
+    piPlus = true; useJPAC = true;
+    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{+} p");
 
-    x_fx[0].clear(); x_fx[1].clear();
+    piPlus = true; useJPAC = false;
+    plotter->AddDashedEntry(N, F, {xmin, xmax});
 
-    auto GG = [&](double W)
-    {
-        double s = W*W;
-        return PDG_pipp->eval(s);
-    };
-    x_fx = vec_fill(N, GG, xmin, xmax);
-    plotter->AddDashedEntry(x_fx[0], x_fx[1]);
+    piPlus = false; useJPAC = true;
+    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{-} p");
+
+    piPlus = false; useJPAC = false;
+    plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     // Axes and legend options
     plotter->SetXaxis(xlabel, 1., xmax);
@@ -94,5 +76,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    return 1.;
+    return 0;
 };
