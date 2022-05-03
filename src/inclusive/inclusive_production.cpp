@@ -13,6 +13,8 @@
 // Singly-differential cross-sections in terms of (t, M2)
 double jpacPhoto::inclusive_production::dsigma_dt(double s, double t)
 {
+    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
 
@@ -43,6 +45,8 @@ double jpacPhoto::inclusive_production::dsigma_dt(double s, double t)
 
 double jpacPhoto::inclusive_production::dsigma_dM2(double s, double M2)
 {
+    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
 
@@ -86,6 +90,8 @@ double jpacPhoto::inclusive_production::dsigma_dM2(double s, double M2)
 // Singly-differential cross-sections with respect to fixed (x, y2)
 double jpacPhoto::inclusive_production::dsigma_dy2(double s, double y2)
 {
+    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
 
@@ -128,6 +134,8 @@ double jpacPhoto::inclusive_production::dsigma_dy2(double s, double y2)
 // Cross-section with fixed x
 double jpacPhoto::inclusive_production::dsigma_dx(double s, double x)
 {
+    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
 
@@ -170,5 +178,32 @@ double jpacPhoto::inclusive_production::dsigma_dx(double s, double x)
 // ---------------------------------------------------------------------------
 double jpacPhoto::inclusive_production::integrated_xsection(double s)
 {
-    return 0.;
+    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+
+    // Pass the total energy to the kinematics object
+    _kinematics->_s = s;
+
+    double result = 0.;
+
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    
+    if (_useTX == true)
+    {
+        // Assume argument 3 is M2
+        auto dSigma = [&](double x)
+        {
+            double sigma = dsigma_dx(s,x);
+            return sigma;
+        };
+        ROOT::Math::Functor1D wF(dSigma);
+        ig.SetFunction(wF);
+
+        result = ig.Integral(0.01, 1.);
+    }
+    else
+    {
+        result = 0.;
+    };  
+
+    return result * 1.E3;
 };
