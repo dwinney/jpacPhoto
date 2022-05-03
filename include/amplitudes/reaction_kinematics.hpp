@@ -53,8 +53,7 @@ namespace jpacPhoto
 
         // Constructor with a set mX and JP
         // defaults to proton as baryon and real photon
-        // string ID is deprecated but kept for backward compatibility
-        reaction_kinematics(double mX, std::string id = "")
+        reaction_kinematics(double mX, std::array<int,2> jp)
         : _mX(mX), _mX2(mX*mX)
         {
             _initial_state   = new two_body_state(0., M2_PROTON);
@@ -64,8 +63,9 @@ namespace jpacPhoto
             _final_state     = new two_body_state(mX*mX, M2_PROTON);
             _eps_vec         = new polarization_vector(_final_state);
             _recoil          = new dirac_spinor(_final_state);
-        };
 
+            set_JP(jp[0], jp[1]);
+        };
 
         // Constructor with a set mX and baryon mass mR
         // defaults to real photon
