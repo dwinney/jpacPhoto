@@ -87,6 +87,8 @@ double jpacPhoto::amplitude::probability_distribution(double s, double t)
 // in NANOBARN
 double jpacPhoto::amplitude::differential_xsection(double s, double t)
 {
+    if (s < _kinematics->sth()) return 0.;
+
     double sum = probability_distribution(s, t);
 
     double norm = 1.;
@@ -103,6 +105,8 @@ double jpacPhoto::amplitude::differential_xsection(double s, double t)
 // IN NANOBARN
 double jpacPhoto::amplitude::integrated_xsection(double s)
 {
+    if (s < _kinematics->sth()) return 0.;
+
     auto F = [&](double t)
     {
         return differential_xsection(s, t);
