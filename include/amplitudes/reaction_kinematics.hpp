@@ -53,7 +53,7 @@ namespace jpacPhoto
 
         // Constructor with a set mX and JP
         // defaults to proton as baryon and real photon
-        reaction_kinematics(double mX, std::array<int,2> jp)
+        reaction_kinematics(double mX, std::array<int,2> jp = VECTOR)
         : _mX(mX), _mX2(mX*mX)
         {
             _initial_state   = new two_body_state(0., M2_PROTON);
