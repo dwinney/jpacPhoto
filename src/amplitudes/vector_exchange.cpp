@@ -364,9 +364,9 @@ std::complex<double> jpacPhoto::vector_exchange::bottom_vertex(int mu, int lam_t
         for (int j = 0; j < 4; j++)
         {
             std::complex<double> temp;
-            temp  = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta + PI); // theta_rec = theta + pi
+            temp  = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta); // theta_rec = theta + pi
             temp *= GAMMA[mu][i][j];
-            temp *= _kinematics->_target->component(j, lam_tar, _s, PI); // theta_targ = pi
+            temp *= _kinematics->_target->component(j, lam_tar, _s, 0.); // theta_targ = pi
 
             vector += temp;
         }
@@ -387,9 +387,9 @@ std::complex<double> jpacPhoto::vector_exchange::bottom_vertex(int mu, int lam_t
                 }
 
                 std::complex<double> temp;
-                temp = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta + PI); // theta_rec = theta + pi
+                temp = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta); // theta_rec = theta + pi
                 temp *= sigma_q_ij;
-                temp *= _kinematics->_target->component(j, lam_tar, _s, PI); // theta_targ = pi
+                temp *= _kinematics->_target->component(j, lam_tar, _s, 0.); // theta_targ = pi
 
                 tensor += temp;
             }

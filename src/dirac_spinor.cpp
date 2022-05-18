@@ -32,13 +32,16 @@ double jpacPhoto::dirac_spinor::half_angle(int lam, double theta)
 
 // ---------------------------------------------------------------------------
 // Components for both the regular spinor or adjoint
-// Assumed to be particle 2 but moving in the +z direction
+// Assumed to be particle 2 but moving in the -z direction
 std::complex<double> jpacPhoto::dirac_spinor::component(int i, int lambda, double s, double theta)
 {
+    // We add pi because we assume theta is the meson angle from the +z axis
+    theta += M_PI;
+
     if (abs(lambda) != 1)
     {
         std::cout << "\ndirac_spinor: Invalid helicity projection passed as argument!\n";
-        return 0.;
+        return 0;
     }
 
     // theta convention

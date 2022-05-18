@@ -6,8 +6,8 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef _AMPLITUDE_
-#define _AMPLITUDE_
+#ifndef AMPLITUDE
+#define AMPLITUDE
 
 // ---------------------------------------------------------------------------
 // Abstract class to define helicity amplitudes. This will allow multiple different

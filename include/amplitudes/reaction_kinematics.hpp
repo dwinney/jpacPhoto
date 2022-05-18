@@ -10,8 +10,8 @@
 // ---------------------------------------------------------------------------
 
 
-#ifndef _KINEMATICS_
-#define _KINEMATICS_
+#ifndef KINEMATICS
+#define KINEMATICS
 
 #include "constants.hpp"
 #include "misc_math.hpp"
@@ -19,7 +19,6 @@
 #include "dirac_spinor.hpp"
 #include "polarization_vector.hpp"
 #include "helicities.hpp"
-#include "variables.hpp"
 
 #include "TMath.h"
 
@@ -42,7 +41,6 @@ namespace jpacPhoto
         // defaults to compton scattering: gamma p -> gamma p
         reaction_kinematics()
         {
-            _variables = new variables();
             initialize({0., M_PROTON, 0., M_PROTON});
         };
 
@@ -50,7 +48,6 @@ namespace jpacPhoto
         reaction_kinematics(double mX, double mR = M_PROTON)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR)
         {
-            _variables = new variables();
             initialize({0., M_PROTON, mX, mR});
         };
 
@@ -60,7 +57,6 @@ namespace jpacPhoto
           _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
         {
             if (mB > 0.) _photon = false;
-            _variables = new variables();
             initialize({mB, mT, mX, mR});
         };
 
@@ -68,7 +64,6 @@ namespace jpacPhoto
         // delete everything
         ~reaction_kinematics()
         {
-            delete _variables;
             delete _initial_state;
             delete _final_state;
             delete _eps_gamma;
@@ -78,16 +73,7 @@ namespace jpacPhoto
         }
 
         // ---------------------------------------------------------------------------
-        // Masses and energy variables
-
-        // Struct to keep all the current energy variables
-        variables * _variables;
-        inline void update(double s, double t)
-        {
-            _variables->_s = s;
-            _variables->_t = t;
-            _variables->_theta = theta_s(s , t);
-        };
+        // Masses 
 
         bool _photon = true;
         double _mB = 0., _mB2 = 0.;       // mass and mass squared of the "beam" 
@@ -171,7 +157,7 @@ namespace jpacPhoto
         {
             std::complex<double> qGamma_mu, qRec_mu;
             qGamma_mu   = _initial_state->q(mu, s, 0);
-            qRec_mu     = _final_state->p(mu, s, theta + PI);
+            qRec_mu     = _final_state->p(mu, s, theta);
 
             return qGamma_mu - qRec_mu;
         };
@@ -308,7 +294,6 @@ namespace jpacPhoto
             double mR = masses[3];
 
             if (mB > 0.) _photon = false;
-            _variables       = new variables();
             _initial_state   = new two_body_state(mB*mB, mT*mT);
             _eps_gamma       = new polarization_vector(_initial_state);
             _target          = new dirac_spinor(_initial_state);
