@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.9)
 
 project (jpacPhoto)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
@@ -72,8 +72,8 @@ endif()
 ##-----------------------------------------------------------------------
 ## build the auxiliary library jpacInclusive
 
-file(GLOB INC_SI "include/*.hpp" "include/inclusive/*.hpp")
-file(GLOB SRC_SI "src/*.cpp"     "src/inclusive/*.cpp")
+file(GLOB INC_SI  "include/inclusive/*.hpp")
+file(GLOB SRC_SI  "src/inclusive/*.cpp")
 
 add_library( jpacInclusive SHARED ${INC_SI} ${SRC_SI} )
 target_link_libraries( jpacInclusive ${ROOT_LIBRARIES})
