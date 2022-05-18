@@ -19,6 +19,7 @@
 #include "dirac_spinor.hpp"
 #include "polarization_vector.hpp"
 #include "helicities.hpp"
+#include "variables.hpp"
 
 #include "TMath.h"
 
@@ -34,75 +35,40 @@ namespace jpacPhoto
     // forthe reaction. Here you'll find the momenta and energies of all particles,
     //  spinors for the baryons and polarization vectors for the gamma and produced meson
     // ---------------------------------------------------------------------------
-
     class reaction_kinematics
     {
         public: 
-        // Empty constructor,
+        // Empty constructor
         // defaults to compton scattering: gamma p -> gamma p
         reaction_kinematics()
         {
-            _initial_state   = new two_body_state(0., M2_PROTON);
-            _eps_gamma       = new polarization_vector(_initial_state);
-            _target          = new dirac_spinor(_initial_state);
-
-            _final_state     = new two_body_state(0., M2_PROTON);
-            _eps_vec         = new polarization_vector(_final_state);
-            _recoil          = new dirac_spinor(_final_state);
+            _variables = new variables();
+            initialize({0., M_PROTON, 0., M_PROTON});
         };
 
-        // Constructor with a set mX and JP
-        // defaults to proton as baryon and real photon
-        reaction_kinematics(double mX, std::array<int,2> jp = VECTOR)
-        : _mX(mX), _mX2(mX*mX)
+        // Constructor to fully specify the final state
+        reaction_kinematics(double mX, double mR = M_PROTON)
+        : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR)
         {
-            _initial_state   = new two_body_state(0., M2_PROTON);
-            _eps_gamma       = new polarization_vector(_initial_state);
-            _target          = new dirac_spinor(_initial_state);
-
-            _final_state     = new two_body_state(mX*mX, M2_PROTON);
-            _eps_vec         = new polarization_vector(_final_state);
-            _recoil          = new dirac_spinor(_final_state);
-
-            set_JP(jp[0], jp[1]);
+            _variables = new variables();
+            initialize({0., M_PROTON, mX, mR});
         };
 
-        // Constructor with a set mX and baryon mass mR
-        // defaults to real photon
-        reaction_kinematics(double mX, double mR)
-        : _mX(mX), _mX2(mX*mX),
-          _mR(mR), _mR2(mR*mR)
-        {
-            _initial_state   = new two_body_state(0., M2_PROTON);
-            _eps_gamma       = new polarization_vector(_initial_state);
-            _target          = new dirac_spinor(_initial_state);
-
-            _final_state     = new two_body_state(mX*mX, mR*mR);
-            _eps_vec         = new polarization_vector(_final_state);
-            _recoil          = new dirac_spinor(_final_state);
-        };
-
-        // Constructor with a set mV and baryon mass mR
-        // and massive incoming scatterer and target
+        // Constructor to fully specify both final and initial states
         reaction_kinematics(double mX, double mR, double mT, double mB = 0.)
-        : _mX(mX), _mX2(mX*mX),
-          _mR(mR), _mR2(mR*mR),
-          _mB(mB), _mB2(mB*mB),
-          _mT(mT), _mT2(mT*mT)
+        : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
+          _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
         {
             if (mB > 0.) _photon = false;
-            _initial_state   = new two_body_state(mB*mB, mT*mT);
-            _eps_gamma       = new polarization_vector(_initial_state);
-            _target          = new dirac_spinor(_initial_state);
-
-            _final_state     = new two_body_state(mX*mX, mR*mR);
-            _eps_vec         = new polarization_vector(_final_state);
-            _recoil          = new dirac_spinor(_final_state);
+            _variables = new variables();
+            initialize({mB, mT, mX, mR});
         };
 
         // destructor
+        // delete everything
         ~reaction_kinematics()
         {
+            delete _variables;
             delete _initial_state;
             delete _final_state;
             delete _eps_gamma;
@@ -112,7 +78,17 @@ namespace jpacPhoto
         }
 
         // ---------------------------------------------------------------------------
-        // Masses
+        // Masses and energy variables
+
+        // Struct to keep all the current energy variables
+        variables * _variables;
+        inline void update(double s, double t)
+        {
+            _variables->_s = s;
+            _variables->_t = t;
+            _variables->_theta = theta_s(s , t);
+        };
+
         bool _photon = true;
         double _mB = 0., _mB2 = 0.;       // mass and mass squared of the "beam" 
         double _mX = 0., _mX2 = 0.;       // mass and mass squared of the produced particle
@@ -175,9 +151,33 @@ namespace jpacPhoto
         std::vector< std::array<int, 4> > _helicities = SPIN_ONE_HELICITIES;
 
         //--------------------------------------------------------------------------
+        // Covariant structures
+
         two_body_state * _initial_state,  * _final_state;
         polarization_vector * _eps_vec, * _eps_gamma;
         dirac_spinor * _target, * _recoil;
+
+        // momentum transfer 4-vectors
+        inline std::complex<double> t_exchange_momentum(int mu, double s, double theta)
+        {
+            std::complex<double> qGamma_mu, qA_mu;
+            qGamma_mu   = _initial_state->q(mu, s, 0.);
+            qA_mu       = _final_state->q(mu, s, theta);
+
+            return (qGamma_mu - qA_mu);
+        };
+
+        inline std::complex<double> u_exchange_momentum(int mu, double s, double theta)
+        {
+            std::complex<double> qGamma_mu, qRec_mu;
+            qGamma_mu   = _initial_state->q(mu, s, 0);
+            qRec_mu     = _final_state->p(mu, s, theta + PI);
+
+            return qGamma_mu - qRec_mu;
+        };
+
+        //--------------------------------------------------------------------------
+        // Other quantities
 
         // Get s-channel scattering angle from invariants
         inline double z_s(double s, double t)
@@ -237,25 +237,6 @@ namespace jpacPhoto
             return result;
         };
 
-        // momentum transfer 4-vectors
-        inline std::complex<double> t_exchange_momentum(int mu, double s, double theta)
-        {
-            std::complex<double> qGamma_mu, qA_mu;
-            qGamma_mu   = _initial_state->q(mu, s, 0.);
-            qA_mu       = _final_state->q(mu, s, theta);
-
-            return (qGamma_mu - qA_mu);
-        };
-
-        inline std::complex<double> u_exchange_momentum(int mu, double s, double theta)
-        {
-            std::complex<double> qGamma_mu, qRec_mu;
-            qGamma_mu   = _initial_state->q(mu, s, 0);
-            qRec_mu     = _final_state->p(mu, s, theta + PI);
-
-            return qGamma_mu - qRec_mu;
-        };
-
         inline double parity_phase(std::array<int, 4> helicities, HELICITY_CHANNEL channel)
         {
             int s_a, s_b, s_c, s_d;
@@ -310,6 +291,33 @@ namespace jpacPhoto
             int eta = eta_a * eta_b * eta_c * eta_d *  pow(-1, (lam - lamp)/2) * pow(-1., (s_c + s_d - s_a - s_b)/2);
 
             return double(eta);
+        };
+
+        private:
+
+
+        // Should never not need to call more than once
+        bool _initialized = false;
+        inline void initialize(std::array<double,4> masses)
+        {
+            if (_initialized) return;
+
+            double mB = masses[0];
+            double mT = masses[1];
+            double mX = masses[2];
+            double mR = masses[3];
+
+            if (mB > 0.) _photon = false;
+            _variables       = new variables();
+            _initial_state   = new two_body_state(mB*mB, mT*mT);
+            _eps_gamma       = new polarization_vector(_initial_state);
+            _target          = new dirac_spinor(_initial_state);
+
+            _final_state     = new two_body_state(mX*mX, mR*mR);
+            _eps_vec         = new polarization_vector(_final_state);
+            _recoil          = new dirac_spinor(_final_state);
+
+            _initialized = true;
         };
     };
 };
