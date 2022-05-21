@@ -106,9 +106,6 @@ namespace jpacPhoto
 
         // Initial and final CoM momenta evaluated at resonance energy.
         double _pibar, _pfbar;
-
-        // saved energies and angle
-        double _s, _t, _theta;
     };
 };
 #endif

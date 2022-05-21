@@ -11,20 +11,15 @@
 // Given a set of helicities for each particle, assemble the helicity amplitude by contracting Lorentz indicies
 std::complex<double> jpacPhoto::pomeron_exchange::helicity_amplitude(std::array<int, 4> helicities, double s, double t)
 {
-    int lam_gam = helicities[0];
-    int lam_targ = helicities[1];
-    int lam_vec = helicities[2];
-    int lam_rec = helicities[3];
-
-    // Save energies 
-    _s = s; _t = t; _theta = _kinematics->theta_s(s, t);
+    // Save energies and helicities
+    update(helicities, s, t);
  
     std::complex<double> result = 0.;
 
     // IF using helicity conserving delta fuction model
     if (_model == 1)
     {
-        (lam_gam == lam_vec && lam_rec == lam_targ) ? (result = regge_factor()) : (result = 0.);
+        (_lam_gam == _lam_vec && _lam_rec == _lam_tar) ? (result = regge_factor()) : (result = 0.);
         return result;
     }
 
@@ -33,9 +28,9 @@ std::complex<double> jpacPhoto::pomeron_exchange::helicity_amplitude(std::array<
     {
         std::complex<double> temp = 1.;
         temp *= regge_factor();
-        temp *= top_vertex(mu, lam_gam, lam_vec);
+        temp *= top_vertex(mu, _lam_gam, _lam_vec);
         temp *= METRIC[mu];
-        temp *= bottom_vertex(mu, lam_targ, lam_rec);
+        temp *= bottom_vertex(mu, _lam_tar, _lam_rec);
 
         result += temp;
     }
@@ -156,8 +151,8 @@ std::complex<double> jpacPhoto::pomeron_exchange::regge_factor()
         }
         case 2:
         {
-            double mX2 = _kinematics->_mX2;
-            double th  = pow((_kinematics->_mT + _kinematics->_mR), 2.);
+            double mX2 = _mX*_mX;
+            double th  = pow((_mT + _mR), 2.);
 
             double beta_0 = 2.;           // Pomeron - light quark coupling
             double beta_c = _norm;        // Pomeron - charm quark coupling

@@ -10,12 +10,12 @@
 
 // ---------------------------------------------------------------------------
 
-void jpacPhoto::amplitude::check_cache(double s, double t)
+void jpacPhoto::amplitude::update_cache(double s, double t)
 {
     // check if saved version its the one we want
-    if (  (abs(_cached_s - s) < 0.00001) && 
-          (abs(_cached_t - t) < 0.00001) &&
-          (abs(_cached_mX2 - _kinematics->_mX2) < 0.00001) // important to make sure the value of mX2 hasnt chanced since last time
+    if (  (abs(_cached_s - s) < _cache_tolerance) && 
+          (abs(_cached_t - t) < _cache_tolerance) &&
+          (abs(_cached_mX2 - _kinematics->get_meson_mass()) < _cache_tolerance) // important to make sure the value of mX2 hasnt chanced since last time
        )
     {
         return; // do nothing
@@ -59,7 +59,7 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
         };
 
         // update cache info
-        _cached_mX2 = _kinematics->_mX2; _cached_s = s; _cached_t = t;
+        _cached_mX2 = _kinematics->get_meson_mass(); _cached_s = s; _cached_t = t;
     }
 
     return;
@@ -70,7 +70,7 @@ void jpacPhoto::amplitude::check_cache(double s, double t)
 double jpacPhoto::amplitude::probability_distribution(double s, double t)
 {
     // Check we have the right amplitudes cached
-    check_cache(s, t);
+    update_cache(s, t);
 
     double sum = 0.;
     for (int i = 0; i < _kinematics->_nAmps; i++)
@@ -93,7 +93,7 @@ double jpacPhoto::amplitude::differential_xsection(double s, double t)
 
     double norm = 1.;
     norm /= 64. * PI * s;
-    norm /= real(pow(_kinematics->_initial_state->momentum(s), 2.));
+    norm /= std::real(pow(_kinematics->initial_momentum(s), 2.));
     norm /= (2.56819E-6); // Convert from GeV^-2 -> nb
     norm /= 4.; // Average over initial state helicites
 
@@ -127,7 +127,7 @@ double jpacPhoto::amplitude::integrated_xsection(double s)
 double jpacPhoto::amplitude::K_LL(double s, double t)
 {
     // Check we have the right amplitudes cached
-    check_cache(s, t);
+    update_cache(s, t);
 
     double sigmapp = 0., sigmapm = 0.;
     for (int i = 0; i < 6; i++)
@@ -153,7 +153,7 @@ double jpacPhoto::amplitude::K_LL(double s, double t)
 double jpacPhoto::amplitude::A_LL(double s, double t)
 {
     // Check we have the right amplitudes cached
-    check_cache(s, t);
+    update_cache(s, t);
 
     double sigmapp = 0., sigmapm = 0.;
     for (int i = 0; i < 6; i++)
@@ -184,9 +184,9 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
         return 0.;
     };
 
-    if (!_kinematics->_photon) 
+    if (!_kinematics->is_photon()) 
     {
-        std::cout << "\nError! SDME only valid for photon in the initial state. Returning 0!\n";
+        std::cout << "\nError! SDME currently only valid for photon in the initial state. Returning 0!\n";
         return 0.;
     };
 

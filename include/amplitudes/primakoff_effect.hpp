@@ -89,9 +89,9 @@ namespace jpacPhoto
         };
 
         // Kinematic quantities   
-        long double _mX2 =  _kinematics->_mX2;
-        long double _mA2 =  _kinematics->_mT2;
-        long double _mQ2  = -_kinematics->_mB2;
+        long double _mX2 =  pow(_kinematics->get_meson_mass(), 2.);
+        long double _mA2 = pow(_kinematics->get_target_mass(), 2.);
+        long double _mQ2  = - pow(_kinematics->get_beam_mass(), 2.);
 
         long double _cosX, _sinX2;
         long double _pGam, _pX;

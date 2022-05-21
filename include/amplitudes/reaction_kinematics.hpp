@@ -31,8 +31,11 @@ namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
     // The reaction kinematics object is intended to have all relevant kinematic quantities
-    // forthe reaction. Here you'll find the momenta and energies of all particles,
-    //  spinors for the baryons and polarization vectors for the gamma and produced meson
+    // forthe reaction. Here you'll find the momenta and energies of all particles, angles,
+    // invariant, etc.
+    //
+    // These are the basis for more complicated structures such as covariants or the
+    // amplitudes themselves
     // ---------------------------------------------------------------------------
     class reaction_kinematics
     {
@@ -40,81 +43,45 @@ namespace jpacPhoto
         // Empty constructor
         // defaults to compton scattering: gamma p -> gamma p
         reaction_kinematics()
-        {
-            initialize({0., M_PROTON, 0., M_PROTON});
-        };
+        {};
 
         // Constructor to fully specify the final state
         reaction_kinematics(double mX, double mR = M_PROTON)
-        : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR)
-        {
-            initialize({0., M_PROTON, mX, mR});
-        };
+        : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
+          _mB(0.), _mB2(0.), _mT(M_PROTON), _mT2(M2_PROTON)
+        {};
 
         // Constructor to fully specify both final and initial states
-        reaction_kinematics(double mX, double mR, double mT, double mB = 0.)
+        reaction_kinematics(double mT, double mB, double mX, double mR)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
           _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
-        {
-            if (mB > 0.) _photon = false;
-            initialize({mB, mT, mX, mR});
-        };
-
-        // destructor
-        // delete everything
-        ~reaction_kinematics()
-        {
-            delete _initial_state;
-            delete _final_state;
-            delete _eps_gamma;
-            delete _eps_vec;
-            delete _target;
-            delete _recoil;
-        }
+        { if (mB > 0.) _photon = false; };
 
         // ---------------------------------------------------------------------------
         // Masses 
 
-        bool _photon = true;
-        double _mB = 0., _mB2 = 0.;       // mass and mass squared of the "beam" 
-        double _mX = 0., _mX2 = 0.;       // mass and mass squared of the produced particle
-
-        double _mT = M_PROTON, _mT2 = M2_PROTON;  // mass of the target, assumed to be proton unless overriden
-        double _mR = M_PROTON, _mR2 = M2_PROTON;  // mass of the recoil baryon, assumed to be proton unless overriden
-
         inline double Wth(){ return (_mX + _mR); }; // square root of the threshold
         inline double sth(){ return Wth() * Wth(); }; // final state threshold
 
-        // Change the meson mass
-        inline void set_mX(double m)
-        {
-            _mX  = m;
-            _mX2 = m*m;
+        // Assessor functions for masses
+        inline double get_meson_mass() { return _mX; };
+        inline double get_recoil_mass(){ return _mR; };
+        inline double get_target_mass(){ return _mT; };
+        inline double get_beam_mass()  { return _mB; };
+        
+        // Setters for masses
+        inline void set_meson_mass(double x) {_mX = x; _mX2 = x*x; };
+        inline void set_target_mass(double x){_mT = x; _mT2 = x*x; };
+        inline void set_recoil_mass(double x){_mR = x; _mR2 = x*x; };
+        inline void set_beam_mass(double x, bool virtual_photon = false)
+        {  _mB = x; _mB2 = x*x; _virtual = virtual_photon; };
 
-            // also update the meson mass in two_body_state
-            _final_state->set_mV2(m*m);
-        };
-
-        inline void set_mX2(double m2)
-        {
-            _mX  = sqrt(m2);
-            _mX2 = m2;
-
-            // also update the meson mass in two_body_state
-            _final_state->set_mV2(m2);
-        };
-
-        // Change virtuality of the photon
-        // Q2 > 0
-        inline void set_Q2(double q2)
-        {
-            if (q2 < 0) { std::cout << "Caution! set_Q2(x) requires x > 0! \n"; }
-            _mB2 = -q2;
-            _initial_state->set_mV2(-q2);
-        };
+        // Get whether current kinematics has photon beam
+        inline bool is_photon(){ return _photon; };
 
         // ---------------------------------------------------------------------------
         // Quantum numbers of produced meson. 
+
         std::array<int,2> _jp{{1,1}};
         inline void set_JP(int J, int P)
         { 
@@ -165,11 +132,45 @@ namespace jpacPhoto
         //--------------------------------------------------------------------------
         // Other quantities
 
+        // Moduli of the initial and final state 3-momenta 
+
+        inline double initial_momentum(double s)
+        {
+            return sqrt( Kallen(s, _mB2, _mT2)) / (2. * sqrt(s));
+        };
+
+        inline double final_momentum(double s)
+        {
+            return sqrt( Kallen(s, _mR2, _mX2)) / (2. * sqrt(s));
+        };
+
+        // Energies of all the particles
+
+        inline double beam_energy(double s)
+        {
+            return (s - _mT2 + _mB2) / sqrt(4. * s);
+        };
+
+        inline double target_energy(double s)
+        {
+            return (s + _mT2 - _mB2) / sqrt(4. * s);
+        };
+
+        inline double meson_energy(double s)
+        {
+            return (s - _mR2 + _mX2) / sqrt(4. * s);
+        };
+
+        inline double recoil_energy(double s)
+        {
+            return (s + _mR2 - _mX2) / sqrt(4. * s);
+        };
+
         // Get s-channel scattering angle from invariants
         inline double z_s(double s, double t)
         {
-            std::complex<double> qdotqp = _initial_state->momentum(s) * _final_state->momentum(s);
-            std::complex<double> E1E3   = _initial_state->energy_V(s) * _final_state->energy_V(s);
+            std::complex<double> qdotqp = initial_momentum(s) * final_momentum(s);
+            std::complex<double> E1E3   = beam_energy(s) * meson_energy(s);
 
             double result = t - _mX2 - _mB2 + 2.*real(E1E3);
             result /= 2. * real(qdotqp);
@@ -187,8 +188,8 @@ namespace jpacPhoto
         // Invariant variables
         inline double t_man(double s, double theta)
         {
-            std::complex<double> qdotqp = _initial_state->momentum(s) * _final_state->momentum(s);
-            std::complex<double> E1E3   = _initial_state->energy_V(s) * _final_state->energy_V(s);
+            std::complex<double> qdotqp = initial_momentum(s) * final_momentum(s);
+            std::complex<double> E1E3   = beam_energy(s) * meson_energy(s);
 
             return _mX2 + _mB2 - 2. * real(E1E3) + 2. * real(qdotqp) * cos(theta);
         };
@@ -223,6 +224,9 @@ namespace jpacPhoto
             return result;
         };
 
+
+        // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
+        // Depends on the channel with respect to which the helicities are defined
         inline double parity_phase(std::array<int, 4> helicities, HELICITY_CHANNEL channel)
         {
             int s_a, s_b, s_c, s_d;
@@ -268,10 +272,7 @@ namespace jpacPhoto
                     break;
                 }
 
-                default:
-                {
-                    return 0.;
-                }
+                default: { return 0.; }
             };
 
             int eta = eta_a * eta_b * eta_c * eta_d *  pow(-1, (lam - lamp)/2) * pow(-1., (s_c + s_d - s_a - s_b)/2);
@@ -281,29 +282,13 @@ namespace jpacPhoto
 
         private:
 
-
-        // Should never not need to call more than once
-        bool _initialized = false;
-        inline void initialize(std::array<double,4> masses)
-        {
-            if (_initialized) return;
-
-            double mB = masses[0];
-            double mT = masses[1];
-            double mX = masses[2];
-            double mR = masses[3];
-
-            if (mB > 0.) _photon = false;
-            _initial_state   = new two_body_state(mB*mB, mT*mT);
-            _eps_gamma       = new polarization_vector(_initial_state);
-            _target          = new dirac_spinor(_initial_state);
-
-            _final_state     = new two_body_state(mX*mX, mR*mR);
-            _eps_vec         = new polarization_vector(_final_state);
-            _recoil          = new dirac_spinor(_final_state);
-
-            _initialized = true;
-        };
+        // Masses are private to prevent them from being changed mid calculation 
+        // Instead should be manipulated with public accessor and settor above
+        bool _photon = true, _virtual = false;    // whether we have a photon and if its virtual
+        double _mB = 0.,       _mB2 = 0.;         // mass and mass squared of the "beam" 
+        double _mX = 0.,       _mX2 = 0.;         // mass and mass squared of the produced particle
+        double _mT = M_PROTON, _mT2 = M2_PROTON;  // mass of the target, assumed to be proton unless overriden
+        double _mR = M_PROTON, _mR2 = M2_PROTON;  // mass of the recoil baryon, assumed to be proton unless overriden
     };
 };
 

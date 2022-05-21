@@ -105,8 +105,8 @@ namespace jpacPhoto
         // For use with inclusive
         inline double top_coupling(double t)
         { 
-            _t = t;
-            return std::real(top_residue(0,0)); 
+            update({0,0,0,0}, 0, t);
+            return std::real(top_residue()); 
         };
 
         private:
@@ -134,12 +134,12 @@ namespace jpacPhoto
         bool _useCovariant = false; 
 
         // Photon - pseudoscalar - Axial vertex
-        std::complex<double> top_residue(int lam_gam, int lam_vec);
-        std::complex<double> top_vertex( int lam_gam, int lam_vec);
+        std::complex<double> top_residue();
+        std::complex<double> top_vertex();
 
         // Pseudoscalar - Nucleon - Nucleon vertex
-        std::complex<double> bottom_residue(int lam_targ, int lam_rec);
-        std::complex<double> bottom_vertex( int lam_targ, int lam_rec);
+        std::complex<double> bottom_residue();
+        std::complex<double> bottom_vertex();
 
         // Simple pole propagator
         std::complex<double> scalar_propagator();
