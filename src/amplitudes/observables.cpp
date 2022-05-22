@@ -15,7 +15,7 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
     // check if saved version its the one we want
     if (  (abs(_cached_s - s) < _cache_tolerance) && 
           (abs(_cached_t - t) < _cache_tolerance) &&
-          (abs(_cached_mX2 - _kinematics->get_meson_mass()) < _cache_tolerance) // important to make sure the value of mX2 hasnt chanced since last time
+          (abs(_cached_mX - _kinematics->get_meson_mass()) < _cache_tolerance) // important to make sure the value of mX2 hasnt chanced since last time
        )
     {
         return; // do nothing
@@ -59,7 +59,8 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
         };
 
         // update cache info
-        _cached_mX2 = _kinematics->get_meson_mass(); _cached_s = s; _cached_t = t;
+        _cached_mX = _kinematics->get_meson_mass(); 
+        _cached_s = s; _cached_t = t;
     }
 
     return;

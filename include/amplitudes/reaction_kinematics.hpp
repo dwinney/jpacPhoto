@@ -49,7 +49,15 @@ namespace jpacPhoto
         reaction_kinematics(double mX, double mR = M_PROTON)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
           _mB(0.), _mB2(0.), _mT(M_PROTON), _mT2(M2_PROTON)
-        {};
+        {
+            _initial_state   = new two_body_state(0., M_PROTON);
+            _eps_gamma       = new polarization_vector(_initial_state);
+            _target          = new dirac_spinor(_initial_state);
+
+            _final_state     = new two_body_state(mX, M_PROTON);
+            _eps_vec         = new polarization_vector(_final_state);
+            _recoil          = new dirac_spinor(_final_state);
+        };
 
         // Constructor to fully specify both final and initial states
         reaction_kinematics(double mT, double mB, double mX, double mR)
@@ -57,6 +65,17 @@ namespace jpacPhoto
           _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
         { if (mB > 0.) _photon = false; };
 
+            // destructor
+        ~reaction_kinematics()
+        {
+            delete _initial_state;
+            delete _final_state;
+            delete _eps_gamma;
+            delete _eps_vec;
+            delete _target;
+            delete _recoil;
+        }
+        
         // ---------------------------------------------------------------------------
         // Masses 
 
@@ -99,7 +118,7 @@ namespace jpacPhoto
 
         // Helicity configurations
         // Defaults to spin-1
-        // Photon [0], Incoming Proton [1], Produced meson [2], Outgoing Proton [3]
+        // Beam [0], Target [1], Produced Meson [2], Recoil Baryon [3]
         int _nAmps = 24; 
         std::vector< std::array<int, 4> > _helicities = SPIN_ONE_HELICITIES;
 

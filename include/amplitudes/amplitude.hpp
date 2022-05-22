@@ -20,6 +20,7 @@
 // ---------------------------------------------------------------------------
 
 #include "reaction_kinematics.hpp"
+#include "covariant_kinematics.hpp"
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"
@@ -36,10 +37,21 @@ namespace jpacPhoto
         // Constructor with nParams for backward compatibility (now depricated)
         amplitude(reaction_kinematics * xkinem, std::string amp_name, std::string id = "", int n = 0)
         : _kinematics(xkinem), _identifier(id), _classname(amp_name)
-        {};
+        {
+            _covariants = new covariant_kinematics(xkinem);
+        };
+
+        // Destructor needs to delete the covariants object
+        ~amplitude()
+        {
+            delete _covariants;
+        }
 
         // Kinematics object for thresholds and etc.
         reaction_kinematics * _kinematics;
+
+        // Every amplitude gets a covariant_kinematics instance even if they dont use it
+        covariant_kinematics * _covariants;
 
         // Allow each amplitude to carry a string id
         // This is user set and can help differentiate amplitudes
@@ -193,7 +205,7 @@ namespace jpacPhoto
         // If helicity amplitudes have already been generated for a value of mV, s, t 
         // store them
         double _cache_tolerance = 1.E-4;
-        double _cached_mX2 = 0., _cached_s = 0., _cached_t = 0.;
+        double _cached_mX = 0., _cached_s = 0., _cached_t = 0.;
         std::vector<std::complex<double>> _cached_helicity_amplitude;
     };
 };

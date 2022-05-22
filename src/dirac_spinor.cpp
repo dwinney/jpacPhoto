@@ -16,8 +16,7 @@ std::complex<double> jpacPhoto::dirac_spinor::omega(int sign, double s)
         sign *= -1;
     }
 
-    std::complex<double> E = _state->energy_B(s);
-    return sqrt(XR * E + double(sign) * _state->get_mB());
+    return sqrt(_state->baryon_energy(s) + double(sign) * _state->get_baryon_mass());
 }
 
 // ---------------------------------------------------------------------------
