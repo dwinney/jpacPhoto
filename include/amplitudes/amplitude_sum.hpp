@@ -18,56 +18,73 @@
 
 namespace jpacPhoto
 {
-  class amplitude_sum : public amplitude
-  {
-  private:
-    // Store a vector of all the amplitudes you want to sum incoherently
-    std::vector<amplitude*> _amps;
-
-    // Flip the bool to let everyone this amplitude is a sum
-    bool _isSum = true;
-
-  public:
-    // Empty constructor
-    amplitude_sum(reaction_kinematics * xkinem, std::string identifer = "amplitude_sum")
-    : amplitude(xkinem, "amplitude_sum", identifer)
-    {};
-
-    // Constructor with a vector already set up
-    amplitude_sum(reaction_kinematics * xkinem, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
-    : amplitude(xkinem, "amplitude_sum", identifer), _amps(vec)
-    {};
-
-    // Add a new amplitude to the vector
-    void add_amplitude(amplitude * new_amp)
+    class amplitude_sum : public amplitude
     {
-      _amps.push_back(new_amp);
+        private:
+        // Store a vector of all the amplitudes you want to sum incoherently
+        std::vector<amplitude*> _amps;
+
+        // Make sure all amplitudes being summed are compatible kineamtically
+        bool check_compatibility(amplitude* amp);
+
+        // Flip the bool to let everyone this amplitude is a sum
+        bool _isSum = true;
+
+        public:
+        // Empty constructor
+        amplitude_sum(reaction_kinematics * xkinem, std::string identifer = "amplitude_sum")
+        : amplitude(xkinem, "amplitude_sum", identifer)
+        {};
+
+        // Constructor with a vector already set up
+        amplitude_sum(reaction_kinematics * xkinem, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
+        : amplitude(xkinem, "amplitude_sum", identifer)
+        {
+            for (int i = 0; i < vec.size(); i++)
+            {
+                if (check_compatibility(vec[i]))
+                {
+                    _amps.push_back(vec[i]);
+                };
+            }
+        };
+
+        // Add a new amplitude to the vector
+        void add_amplitude(amplitude * new_amp)
+        {
+            if (check_compatibility(new_amp))
+            {
+                _amps.push_back(new_amp);
+            };
+        };
+
+        // Add all the members of an existing sum to a new sum
+        void add_amplitude(amplitude_sum * new_sum)
+        {
+            for (int i = 0; i < new_sum->_amps.size(); i++)
+            {
+                if (check_compatibility(new_sum->_amps[i]))
+                {
+                    _amps.push_back(new_sum->_amps[i]);
+                };
+            }
+        };
+
+        // empty allowedJP, leave the checks to the individual amps instead
+        inline std::vector<std::array<int,2>> allowedJP()
+        {
+            return {};
+        };
+
+        // TODO: Add a set_params which timesi in one vector and allocates approriaten number of
+        // params to each sub amplitude
+
+        // Evaluate the sum for given set of helicites, energy, and cos
+        std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
+
+        // // Caching helicity amplitudes is a little different for sums since no parity relations
+        // void check_cache(double s, double t);
     };
-
-    // Add all the members of an existing sum to a new sum
-    void add_amplitude(amplitude_sum * new_sum)
-    {
-      for (int i = 0; i < new_sum->_amps.size(); i++)
-      {
-        _amps.push_back(new_sum->_amps[i]);
-      }
-    };
-
-    // empty allowedJP, leave the checks to the individual amps instead
-    inline std::vector<std::array<int,2>> allowedJP()
-    {
-        return {};
-    };
-
-    // TODO: Add a set_params which timesi in one vector and allocates approriaten number of
-    // params to each sub amplitude
-
-    // Evaluate the sum for given set of helicites, energy, and cos
-    std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
-    
-    // // Caching helicity amplitudes is a little different for sums since no parity relations
-    // void check_cache(double s, double t);
-  };
 };
 
 #endif
