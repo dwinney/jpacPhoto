@@ -36,7 +36,8 @@ namespace jpacPhoto
         public:
         // constructor for fixed meson exchange
         pseudoscalar_exchange(reaction_kinematics * xkinem, double mass, std::string name = "pseudoscalar_exchange")
-        : amplitude(xkinem, "pseudoscalar_exchange", name), _mEx2(mass*mass), _reggeized(false)
+        : amplitude(xkinem, "pseudoscalar_exchange", name),
+          _mEx2(mass*mass), _reggeized(false)
         {
             set_nParams(2);
             check_JP(xkinem->_jp);
@@ -44,7 +45,8 @@ namespace jpacPhoto
 
         // constructors for regge exchange
         pseudoscalar_exchange(reaction_kinematics * xkinem, linear_trajectory * traj, std::string name = "pseudoscalar_exchange")
-        : amplitude(xkinem, "pseudoscalar_exchange", name), _alpha(traj), _reggeized(true)
+        : amplitude(xkinem, "pseudoscalar_exchange", name), 
+          _alpha(traj), _reggeized(true)
         {
             set_nParams(2);
             check_JP(xkinem->_jp, true);
@@ -68,6 +70,9 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the spinor indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double xs, double xt);
 
+        // The parity phase depends on how we evaluate the amplitude
+        // Covariant quantities define lambda in S-channel
+        // Analytic ones in the T-channel
         inline int parity_phase(std::array<int, 4> helicities)
         {
             if (_useCovariant || _debug >= 1)
@@ -109,10 +114,13 @@ namespace jpacPhoto
             return std::real(top_residue()); 
         };
 
+        // --------------------------------------------------------------------
+
         private:
 
         // Whether to use fixed-spin propagator (false) or regge (true)
         bool _reggeized = false;
+        std::complex<double> _qt; // Momentum in t-channel
 
         // Mass of the exchanged pseudo-scalar (if REGGE = false)
         // ignored otherwise
@@ -133,13 +141,16 @@ namespace jpacPhoto
         // Whether to switch to using the feynman rules
         bool _useCovariant = false; 
 
-        // Photon - pseudoscalar - Axial vertex
+        // Analytic residues
         std::complex<double> top_residue();
-        std::complex<double> top_vertex();
-
-        // Pseudoscalar - Nucleon - Nucleon vertex
         std::complex<double> bottom_residue();
+
+        // Covariant vertices
+        std::complex<double> top_vertex();
         std::complex<double> bottom_vertex();
+        std::complex<double> axialvector_coupling();
+        std::complex<double> vector_coupling();
+        std::complex<double> pseudoscalar_coupling();
 
         // Simple pole propagator
         std::complex<double> scalar_propagator();

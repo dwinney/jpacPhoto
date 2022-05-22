@@ -18,24 +18,29 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
     update(helicities, s, t);
 
     std::complex<double> result;
-    if (_useCovariant == true || _debug == true)
+    if (_useCovariant == true || _debug == 1)
     {
+        // If we're using covariants we need to additionally save inputs in covariant_kinematics 
+        _covariants->update(helicities, s, t);
+
         // Because its a scalar exchange we dont have any loose indices to contract
-        result  = top_vertex();
+        result  = scalar_propagator();
+        result *= top_vertex();
         result *= bottom_vertex();
-        result *= scalar_propagator();
     }
     else
     {
+        _qt = sqrt(XR * Kallen(_t, _mX*_mX, _mB*_mB)) / sqrt(4. * _t * XR);
+
         if (_lam_vec != _lam_gam || _lam_tar != _lam_rec) 
         {
             return 0.; 
         }
         else
         {
-            result  = top_residue();
+            result  = scalar_propagator();
+            result *= top_residue();
             result *= bottom_residue();
-            result *= scalar_propagator();
         }
     }
 
@@ -97,8 +102,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue()
         (_kinematics->is_photon()) ? (result =  0.) : (result = 2.*XI/_mB );
     }
 
-    std::complex<double> q_t = sqrt(XR * Kallen(_t, _mX*_mX, _mB*_mB)) / sqrt(4. * _t * XR);
-    return 2. * _gGamma * q_t * sqrt(XR * _t) * result;
+    return 2. * _gGamma * _qt * sqrt(XR * _t) * result;
 };
 
 // Nucleon resiude 
@@ -118,116 +122,43 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_residue()
 //------------------------------------------------------------------------------
 // FEYNMAN EVALUATION
 
-// Nucleon vertex
+// Target -- Exchange -- Recoil Vertex
 std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex()
 {
-    // std::complex<double> result = 0.;
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     for (int j = 0; j < 4; j++)
-    //     {
-    //         // ubar(recoil) * gamma_5 * u(target)
-    //         std::complex<double> temp;
-    //         temp  = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta); // theta_recoil = theta + pi
-    //         temp *= GAMMA_5[i][j];
-    //         temp *= _kinematics->_target->component(j, lam_tar, _s, 0.); // theta_target = pi
+    std::complex<double> result = 0.;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            // ubar(recoil) * gamma_5 * u(target)
+            std::complex<double> temp;
+            temp  = _covariants->recoil_spinor(i);
+            temp *= GAMMA_5[i][j];
+            temp *= _covariants->target_spinor(j);
 
-    //         result += temp;
-    //     }
-    // }
+            result += temp;
+        }
+    }
 
-    // result *= _gNN;
+    result *= _gNN;
 
-    // return result;
-
-    return 0;
+    return result;
 };
 
-// Photon vertex
+// Beam -- Exchange -- Meson vertex
 std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex()
 {
-    // std::complex<double> result = 0.;
-    
-    // // A - V - P
-    // if (_kinematics->_jp == AXIAL_VECTOR)
-    // {
-    //      std::complex<double> term1 = 0., term2 = 0.;
-    //     for (int mu = 0; mu < 4; mu++)
-    //     {
-    //         for (int nu = 0; nu < 4; nu++)
-    //         {
-    //             // (eps*_lam . eps_gam)(q_vec . q_gam)
-    //             std::complex<double> temp1;
-    //             temp1  = _kinematics->_eps_vec->conjugate_component(mu, lam_vec, _s, _theta);
-    //             temp1 *= METRIC[mu];
-    //             temp1 *= _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
-    //             temp1 *= _kinematics->_initial_state->q(nu, _s, 0.);
-    //             temp1 *= METRIC[nu];
-    //             temp1 *= _kinematics->_final_state->q(nu, _s, _theta);
+    int jp = 10 * _kinematics->_jp[0] + (1+_kinematics->_jp[1])/2;
+    switch (jp)
+    {
+        case 11: return axialvector_coupling();
+        case 10: return vector_coupling();
+        case  0: return pseudoscalar_coupling();
 
-    //             term1 += temp1;
-
-    //             // (eps*_lam . q_gam)(eps_gam . q_vec)
-    //             std::complex<double> temp2;
-    //             temp2  = _kinematics->_eps_vec->conjugate_component(mu, lam_vec, _s, _theta);
-    //             temp2 *= METRIC[mu];
-    //             temp2 *= _kinematics->_initial_state->q(mu, _s, 0.);
-    //             temp2 *= _kinematics->_eps_gamma->component(nu, lam_gam, _s, 0.);
-    //             temp2 *= METRIC[nu];
-    //             temp2 *= _kinematics->_final_state->q(nu, _s, _theta);
-
-    //             term2 += temp2;
-    //         }
-    //     }
-
-    //     result = (term1 - term2) / _kinematics->_mX;
-    // }
-
-    // // V - V - P
-    // if (_kinematics->_jp == VECTOR)
-    // {
-    //     // Contract with LeviCivita
-    //     for (int mu = 0; mu < 4; mu ++)
-    //     {
-    //         for (int alpha = 0; alpha < 4; alpha++)
-    //         {
-    //             for (int beta = 0; beta < 4; beta++)
-    //             {
-    //                 for (int gamma = 0; gamma < 4; gamma++)
-    //                 {
-    //                     std::complex<double> temp;
-    //                     temp = - levi_civita(mu, alpha, beta, gamma);
-    //                     if (std::abs(temp) < 0.001) continue;
-    //                     temp *= _kinematics->_eps_vec->conjugate_component(mu, lam_vec, _s, _theta);
-    //                     temp *= _kinematics->_eps_gamma->field_tensor(alpha, beta, lam_gam, _s, 0.);
-    //                     temp *= _kinematics->_final_state->q(gamma, _s, _theta) - _kinematics->t_exchange_momentum(gamma, _s, _theta);
-
-    //                     if (!_kinematics->_photon) temp /= -4.;
-    //                     result += temp;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // // V - P - P
-    // if (_kinematics->_jp == PSEUDO_SCALAR)
-    // {
-    //     if (_kinematics->_mB < 1.E-3) return 0.;
-
-    //     for (int mu = 0; mu < 4; mu++)
-    //     {
-    //         std::complex<double> temp;
-    //         temp   = _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.);
-    //         temp  *= METRIC[mu];
-    //         temp  *= _kinematics->_final_state->q(mu, _s, _theta) - _kinematics->t_exchange_momentum(mu, _s, _theta);
-    //         result += XI * temp;
-    //     }
-    // }
-
-    // return _gGamma * result;
-    return 0.;
+        default: return 0.;
+    };
 };
+
 
 //------------------------------------------------------------------------------
 // Simple pole propagator
@@ -253,4 +184,87 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::scalar_propagator()
     }
 
     return 0.;
+};
+
+//------------------------------------------------------------------------------
+// These are the different top couplings which depend on the quantum numbers 
+
+std::complex<double> jpacPhoto::pseudoscalar_exchange::axialvector_coupling()
+{    
+    std::complex<double> term1 = 0., term2 = 0.;
+    for (int mu = 0; mu < 4; mu++)
+    {
+        for (int nu = 0; nu < 4; nu++)
+        {
+            // (eps*_lam . eps_gam)(q_vec . q_gam)
+            std::complex<double> temp1;
+            temp1  = _covariants->meson_polarization(mu);
+            temp1 *= METRIC[mu];
+            temp1 *= _covariants->beam_polarization(mu);
+            temp1 *= _covariants->beam_momentum(nu);
+            temp1 *= METRIC[nu];
+            temp1 *= _covariants->meson_momentum(nu);
+
+            term1 += temp1;
+
+            // (eps*_lam . q_gam)(eps_gam . q_vec)
+            std::complex<double> temp2;
+            temp2  = _covariants->meson_polarization(mu);
+            temp2 *= METRIC[mu];
+            temp2 *= _covariants->beam_momentum(mu);
+            temp2 *= _covariants->beam_polarization(nu);
+            temp2 *= METRIC[nu];
+            temp2 *= _covariants->meson_momentum(nu);
+
+            term2 += temp2;
+        }
+    }
+
+    return _gGamma * (term1 - term2) / _mX;
+};
+
+std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
+{
+    std::complex<double> result = 0.;
+
+    // Contract with LeviCivita
+    for (int mu = 0; mu < 4; mu ++)
+    {
+        for (int alpha = 0; alpha < 4; alpha++)
+        {
+            for (int beta = 0; beta < 4; beta++)
+            {
+                for (int gamma = 0; gamma < 4; gamma++)
+                {
+                    std::complex<double> temp;
+                    temp = - levi_civita(mu, alpha, beta, gamma);
+                    if (std::abs(temp) < 0.001) continue;
+                    temp *= _covariants->meson_polarization(mu);
+                    temp *= _covariants->beam_field_tensor(alpha, beta);
+                    temp *= _covariants->meson_momentum(gamma);
+
+                    result += temp;
+                }
+            }
+        }
+    }
+    
+    if (!_kinematics->is_photon()) result /= -4.;
+    return _gGamma * result;
+};
+
+std::complex<double> jpacPhoto::pseudoscalar_exchange::pseudoscalar_coupling()
+{
+    if (_kinematics->is_photon()) return 0.;
+
+    std::complex<double> result = 0.;
+    for (int mu = 0; mu < 4; mu++)
+    {
+        std::complex<double> temp;
+        temp  = _covariants->beam_polarization(mu);
+        temp *= METRIC[mu];
+        temp *= _covariants->beam_momentum(mu);
+        result += -XI * temp;
+    }
+    return _gGamma * result;
 };

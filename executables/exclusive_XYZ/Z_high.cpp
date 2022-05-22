@@ -128,7 +128,7 @@ int main( int argc, char** argv )
   // Print the desired observable for each amplitude
   for (int n = 0; n < amps.size(); n++)
   {
-    std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+    std::cout << std::endl << "Printing amplitude: " << amps[n]->get_id() << "\n";
 
     auto F = [&](double x)
     {
@@ -147,7 +147,7 @@ int main( int argc, char** argv )
       x_fx = vec_fill(N, F, xmin, xmax, PRINT_TO_COMMANDLINE);
     }
 
-    plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+    plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->get_id());
   }
 
   plotter->SetXaxis(xlabel, xmin, xmax);
