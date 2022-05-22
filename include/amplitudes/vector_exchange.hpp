@@ -32,7 +32,8 @@ namespace jpacPhoto
 
         // Constructor for fixed spin
         vector_exchange(reaction_kinematics * xkinem, double mass, std::string id = "vector_exchange")
-        : amplitude(xkinem, "vector_exchange", id), _mEx2(mass*mass), _ifReggeized(false)
+        : amplitude(xkinem, "vector_exchange", id),
+          _mEx2(mass*mass), _ifReggeized(false)
         {
             set_nParams(3);
             check_JP(xkinem->_jp);
@@ -43,7 +44,8 @@ namespace jpacPhoto
 
         // Constructor for the reggized)
         vector_exchange(reaction_kinematics * xkinem, linear_trajectory * traj, std::string id = "vector_exchange")
-        : amplitude(xkinem, "vector_exchange", id), _alpha(traj), _ifReggeized(true)
+        : amplitude(xkinem, "vector_exchange", id),
+          _alpha(traj), _ifReggeized(true)
         {
             set_nParams(3);
             check_JP(xkinem->_jp, true);
@@ -70,7 +72,7 @@ namespace jpacPhoto
 
         inline int parity_phase(std::array<int, 4> helicities)
         {
-            if (_useCovariant || _debug >= 1)
+            if (_useCovariant)
             {
                 return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
             }
@@ -100,7 +102,6 @@ namespace jpacPhoto
         bool _ifReggeized;
         // or the regge trajectory of the exchange
         linear_trajectory * _alpha;
-        double _zt;
 
         // Whether using analytic or covariant expression
         bool _useCovariant = false;
@@ -120,13 +121,17 @@ namespace jpacPhoto
         double _mEx2 = 0.;
 
         // Full covariant amplitude
-        std::complex<double> covariant_amplitude(std::array<int, 4> helicities);
+        std::complex<double> covariant_amplitude();
 
         // Photon - Axial Vector - Vector vertex
-        std::complex<double> top_vertex(int mu, int lam_gam, int lam_vec);
+        std::complex<double> top_vertex(int mu);
+        std::complex<double> axialvector_coupling(int mu);
+        std::complex<double> vector_coupling(int mu);
+        std::complex<double> pseudoscalar_coupling(int mu);
+        std::complex<double> scalar_coupling(int mu);
 
         // Nucleon - Nucleon - Vector vertex
-        std::complex<double> bottom_vertex(int nu, int lam_targ, int lam_rec);
+        std::complex<double> bottom_vertex(int nu);
 
         // Vector propogator
         std::complex<double> vector_propagator(int mu, int nu);
@@ -134,20 +139,32 @@ namespace jpacPhoto
         // ---------------------------------------------------------------------------
         // Analytic evaluation
 
+        // Net helicities
+        int _lam, _lamp, _M;
+
+        double _zt; // Scattering angle in the t-channel
+        std::complex<double> _qt; // momentum in t-channel
+        
+        // Full analytic amplitude
+        std::complex<double> analytic_amplitude();
+
         // Photon - Axial - Vector
-        std::complex<double> top_residue(int lam_gam, int lam_vec);
+        std::complex<double> top_residue();
+        std::complex<double> axialvector_residue();
+        std::complex<double> vector_residue();
+        std::complex<double> pseudoscalar_residue();
 
         // Nucleon - Nucleon - Vector
-        std::complex<double> bottom_residue(int lam_targ, int lam_rec);
+        std::complex<double> bottom_residue();
 
         // Reggeon propagator
-        std::complex<double> regge_propagator(int j, int lam, int lamp);
+        std::complex<double> regge_propagator();
 
         // Half angle factors
-        std::complex<double> half_angle_factor(int lam, int lamp);
+        std::complex<double> half_angle_factor();
 
         // Angular momentum barrier factor
-        std::complex<double> barrier_factor(int j, int M);
+        std::complex<double> barrier_factor();
     };
 };
 
