@@ -30,62 +30,64 @@ namespace jpacPhoto
   {
         private:
 
-        double _mV2; // Vector mass
+        bool _photon = false;
+        double _mM2; // Meson mass
         double _mB2; // Baryon mass (allowed to be float for N* or Δ)
 
         public:
 
         // Constructor
-        two_body_state(double mV2, double mB2)
-        : _mV2(mV2), _mB2(mB2)
-        {};
+        two_body_state(double m, double b)
+        : _mM2(m*m), _mB2(b*b)
+        {
+            if (m < 1.E-3) _photon = true;
+        };
+
+        // Whether or not our meson is massless photon
+        inline bool if_photon(){ return _photon; };
 
         // return mass
-        inline double get_mV() 
+        inline double get_meson_mass() 
         { 
-            if (_mV2 >= 0.) 
+            if (_mM2 >= 0.) 
             {
-                return sqrt(_mV2);
+                return sqrt(_mM2);
             }
             else
             {
-                return sqrt(-_mV2);
+                return sqrt(-_mM2);
             }
         };
 
-        inline double get_mB() { return sqrt(_mB2); };
-
-        // Return mass squared
-        inline double get_mV2() { return _mV2; };
-        inline double get_mB2() { return _mB2; };
+        inline double get_baryon_mass() { return sqrt(_mB2); };
 
         // set masses independently
-        inline void set_mV2(double mV2)
+        inline void set_meson_mass(double m)
         {
-            _mV2 = mV2;
+            _mM2 = m*m;
         };
 
-        inline void set_mB2(double mB2)
+        inline void set_baryon_mass(double m)
         {
-            _mB2 = mB2;
+            _mB2 = m*m;
         };
 
         // Momenta
-        // V is always particle 1 in + z direction, 
+        // meson is always particle 1 in + z direction, 
         inline std::complex<double> momentum(double s)
         {
-            return sqrt( Kallen(XR * s, XR *_mV2, XR * _mB2)) / (2. * sqrt(XR * s));
+            return sqrt( Kallen(XR * s, XR *_mM2, XR * _mB2)) / (2. * sqrt(XR * s));
         };
 
         // Energies
-        inline std::complex<double> energy_V(double s)
+        inline std::complex<double> meson_energy(double s)
         {
-            return (s + _mV2 - _mB2) / (2. * sqrt(XR * s));
+            return (s + _mM2 - _mB2) / (2. * sqrt(XR * s));
         };
 
-        inline std::complex<double> energy_B(double s)
+        inline std::complex<double> baryon_energy(double s)
         {
-            return (s - _mV2 + _mB2) / (2. * sqrt(XR * s));
+            return (s - _mM2 + _mB2) / (2. * sqrt(XR * s));
         };
 
         // Full 4-momenta 

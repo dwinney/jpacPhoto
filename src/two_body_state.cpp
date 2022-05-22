@@ -10,12 +10,12 @@
 #include "two_body_state.hpp"
 
 // ---------------------------------------------------------------------------
-// The four momentum of the vector particle
+// The four momentum of the meson
 std::complex<double> jpacPhoto::two_body_state::q(int mu, double s, double theta)
 {
     switch (mu)
     {
-        case 0: return energy_V(s);
+        case 0: return meson_energy(s);
         case 1: return momentum(s) * sin(theta);
         case 2: return 0.;
         case 3: return momentum(s) * cos(theta);
@@ -33,7 +33,7 @@ std::complex<double> jpacPhoto::two_body_state::p(int mu, double s, double theta
 {
     switch (mu)
     {
-        case 0: return energy_B(s);
+        case 0: return baryon_energy(s);
         case 1: return - momentum(s) * sin(theta);
         case 2: return 0.;
         case 3: return - momentum(s) * cos(theta);
