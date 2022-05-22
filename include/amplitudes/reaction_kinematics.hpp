@@ -201,6 +201,8 @@ namespace jpacPhoto
         // Use TMath::ACos instead of std::acos because its safer at the end points
         inline double theta_s(double s, double t)
         {
+            double zs = z_s(s, t);
+            if (std::abs(zs) - 1 < 1.E-3) zs = 1.;
             return TMath::ACos( z_s(s, t) );
         };
 
@@ -263,8 +265,8 @@ namespace jpacPhoto
                     s_c =  2*_jp[0];    eta_c = _jp[1] * pow(-1, _jp[0]);  // produced meson
                     s_d =  1;           eta_d = 1;                         // recoil baryon
 
-                    lam =  double(2 * helicities[0] - helicities[1]);
-                    lamp = double(2 * helicities[2] - helicities[3]);
+                    lam =  (2 * helicities[0] - helicities[1]);
+                    lamp = (2 * helicities[2] - helicities[3]);
 
                     break;
                 }
@@ -274,8 +276,8 @@ namespace jpacPhoto
                     s_c =  1;           eta_c = 1;                          // proton
                     s_d =  1;           eta_d = 1;                          // recoil baryon
 
-                    lam =  double(2 * (helicities[0] - helicities[2]));
-                    lamp = double(helicities[1] - helicities[3]);
+                    lam =  (2 * (helicities[0] - helicities[2]));
+                    lamp = (helicities[1] - helicities[3]);
 
                     break;
                 }
@@ -285,8 +287,8 @@ namespace jpacPhoto
                     s_c =  1;           eta_c = 1;                          // proton
                     s_d =  2*_jp[0];    eta_d = _jp[1] * pow(-1, _jp[0]);   // produced meson
 
-                    lam =  double(2 * helicities[0] - helicities[3]);
-                    lamp = double(2 * helicities[2] - helicities[1]);
+                    lam =  (2 * helicities[0] - helicities[3]);
+                    lamp = (2 * helicities[2] - helicities[1]);
 
                     break;
                 }
