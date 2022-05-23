@@ -38,7 +38,7 @@ int main( int argc, char** argv )
 
     // Uranium
     double mU = 221.6977;
-    reaction_kinematics * kU = new reaction_kinematics(mX, mU, mU);
+    reaction_kinematics * kU = new reaction_kinematics(0, mU, mX, mU);
     kU->set_Q2(Q2);
     kU->set_JP(1, 1);
 
@@ -47,7 +47,7 @@ int main( int argc, char** argv )
 
     // Tin
     double mSn = 115.3924;
-    reaction_kinematics * kSn = new reaction_kinematics(mX, mSn, mSn);
+    reaction_kinematics * kSn = new reaction_kinematics(0., mSn, mX, mSn);
     kSn->set_Q2(Q2);
     kSn->set_JP(1, 1);
 
@@ -56,7 +56,7 @@ int main( int argc, char** argv )
 
     // Zinc
     double mZn = 65.1202;
-    reaction_kinematics * kZn = new reaction_kinematics(mX, mZn, mZn);
+    reaction_kinematics * kZn = new reaction_kinematics(0., mZn, mX, mZn);
     kZn->set_Q2(Q2);
     kZn->set_JP(1, 1);
 
@@ -79,6 +79,7 @@ int main( int argc, char** argv )
     std::string filename = "primakoff_integrated.pdf";
 
     // X axis params
+    double  xmin =  kZn->Wth() / xNs[0];
     double  xmax =  5.;
     std::string xlabel  = "#it{W_{#gammaN}}    [GeV]";
 
@@ -107,16 +108,12 @@ int main( int argc, char** argv )
             return amps[n]->integrated_xsection(x*x);
         };
 
-        std::array<std::vector<double>, 2> x_fx, x_fx2; 
-
-        std::cout << std::endl << "Printing longitudinal xsection: " << amps[n]->_identifier << "\n";
-        x_fx = vec_fill(N, F, xmin, xmax, print_to_cmd);
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+        std::cout << std::endl << "Printing longitudinal xsection: " << amps[n]->get_id() << "\n";
+        plotter->AddEntry(N, F, {xmin, xmax}, amps[n]->get_id(), print_to_cmd);
 
         amps[n]->set_LT(1);
-        std::cout << std::endl << "Printing transverse xsection: " << amps[n]->_identifier << "\n";
-        x_fx2 = vec_fill  (N, F, xmin, xmax, print_to_cmd);
-        plotter->AddDashedEntry(x_fx2[0], x_fx2[1]);
+        std::cout << std::endl << "Printing transverse xsection: " << amps[n]->get_id() << "\n";
+        plotter->AddDashedEntry(N, F, {xmin,xmax});
     }
 
       // Add a header to legend to specify the fixed Q2
@@ -126,7 +123,7 @@ int main( int argc, char** argv )
     plotter->SetLegend(0.2, 0.74, header);
 
     // Set up axes
-    plotter->SetXaxis(xlabel, kZn->Wth() / xNs[0], xmax);
+    plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
     plotter->SetYlogscale(true);
 

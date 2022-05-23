@@ -37,8 +37,8 @@ int main( int argc, char** argv )
     double mX = 3.872; // Mass of produced X
 
     // Uranium
-    double mU = 221.6977; // GeV
-    reaction_kinematics * kU = new reaction_kinematics(mX, mU, mU);
+    double mU = 221.6977;
+    reaction_kinematics * kU = new reaction_kinematics(0, mU, mX, mU);
     kU->set_Q2(Q2);
     kU->set_JP(1, 1);
 
@@ -46,8 +46,8 @@ int main( int argc, char** argv )
     U.set_params({92, 34.48, 3.07, 3.2E-3});
 
     // Tin
-    double mSn = 115.3924; // GeV
-    reaction_kinematics * kSn = new reaction_kinematics(mX, mSn, mSn);
+    double mSn = 115.3924;
+    reaction_kinematics * kSn = new reaction_kinematics(0., mSn, mX, mSn);
     kSn->set_Q2(Q2);
     kSn->set_JP(1, 1);
 
@@ -55,8 +55,8 @@ int main( int argc, char** argv )
     Sn.set_params({50, 27.56, 2.73, 3.2E-3});
 
     // Zinc
-    double mZn = 65.1202; // GeV
-    reaction_kinematics * kZn = new reaction_kinematics(mX, mZn, mZn);
+    double mZn = 65.1202;
+    reaction_kinematics * kZn = new reaction_kinematics(0., mZn, mX, mZn);
     kZn->set_Q2(Q2);
     kZn->set_JP(1, 1);
 
@@ -80,6 +80,7 @@ int main( int argc, char** argv )
     std::string filename = "primakoff_differential.pdf";
 
     // x - axis params
+    double  xmin = 0.;
     double  xmax = 0.1;
     std::string xlabel = "#it{-t}   [GeV^{2}]";
 
@@ -109,16 +110,12 @@ int main( int argc, char** argv )
             return amps[n]->differential_xsection(s, -t);
         };
 
-        std::array<std::vector<double>, 2> x_fx, x_fx2; 
+        std::cout << std::endl << "Printing longitudinal xsection: " << "\n";
+        plotter->AddEntry(N, F, {xmin, xmax}, amps[n]->get_id(), print_to_cmd);
 
-        std::cout << std::endl << "Printing longitudinal xsection: " << amps[n]->_identifier << "\n";
-        x_fx = vec_fill(N, F, xmin, xmax, print_to_cmd);
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
-
-        std::cout << std::endl << "Printing tranverse xsection: " << amps[n]->_identifier << "\n";
+        std::cout << std::endl << "Printing tranverse xsection: "    << "\n";
         amps[n]->set_LT(1);
-        x_fx2 = vec_fill  (N, F, xmin, xmax, print_to_cmd);
-        plotter->AddDashedEntry(x_fx2[0], x_fx2[1]);
+        plotter->AddDashedEntry(N, F, {xmin, xmax}, print_to_cmd);
     }
 
     // Add a header to legend to specify the fixed energy
@@ -128,7 +125,7 @@ int main( int argc, char** argv )
     plotter->SetLegend(0.52, 0.6, header);
 
     // Set up axes
-    plotter->SetXaxis(xlabel, 0., xmax);
+    plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);    
     plotter->SetYlogscale(true);
 
