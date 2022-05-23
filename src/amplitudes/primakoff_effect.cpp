@@ -12,11 +12,7 @@
 double jpacPhoto::primakoff_effect::differential_xsection(double s, double t)
 {
     // update saved energies
-    _s = s; _t = t;
-    update_kinematics(); // calculate the other kinematics
-
-    // Form factor
-    _formFactor = form_factor(t);
+    update_kinematics(s, t); // calculate the other kinematics
     
     // output
     long double result = 1.;

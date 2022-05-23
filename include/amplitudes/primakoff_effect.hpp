@@ -89,15 +89,24 @@ namespace jpacPhoto
         };
 
         // Kinematic quantities   
-        long double _mX2 =  pow(_kinematics->get_meson_mass(), 2.);
+        long double _mX2 = pow(_kinematics->get_meson_mass(), 2.);
         long double _mA2 = pow(_kinematics->get_target_mass(), 2.);
-        long double _mQ2  = - pow(_kinematics->get_beam_mass(), 2.);
+        long double _mQ2 = pow(_kinematics->get_beam_mass(), 2.);
 
         long double _cosX, _sinX2;
         long double _pGam, _pX;
         long double _nu, _enX;
-        inline void update_kinematics()
+
+        inline void update_kinematics(double s, double t)
         {
+            // Save energies
+            _s = s; _t = t;
+
+            // Update masses which may have changed 
+            _mX2 = pow(_kinematics->get_meson_mass(), 2.);
+            _mQ2 = pow(_kinematics->get_beam_mass(), 2.);
+            _mA2 = pow(_kinematics->get_target_mass(), 2.);
+
             // lab frame momentum transfer
             _nu = (_s - _mA2 + _mQ2) / (2. * sqrt(_mA2));
 
@@ -117,6 +126,9 @@ namespace jpacPhoto
 
             // // Sine of the above 
             _sinX2 = 1. - _cosX * _cosX;
+
+            // Form factor
+            _formFactor = form_factor(t);
         };
 
         // Spin summed amplitude squared

@@ -60,7 +60,7 @@ namespace jpacPhoto
         };
 
         // Constructor to fully specify both final and initial states
-        reaction_kinematics(double mT, double mB, double mX, double mR)
+        reaction_kinematics(double mB, double mT, double mX, double mR)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
           _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
         { if (mB > 0.) _photon = false; };
@@ -92,11 +92,21 @@ namespace jpacPhoto
         inline void set_meson_mass(double x) {_mX = x; _mX2 = x*x; };
         inline void set_target_mass(double x){_mT = x; _mT2 = x*x; };
         inline void set_recoil_mass(double x){_mR = x; _mR2 = x*x; };
-        inline void set_beam_mass(double x, bool virtual_photon = false)
-        {  _mB = x; _mB2 = x*x; _virtual = virtual_photon; };
+        inline void set_beam_mass(double x){  _mB = x; _mB2 = x*x;};
 
         // Get whether current kinematics has photon beam
         inline bool is_photon(){ return _photon; };
+        inline void set_Q2(double x)
+        {
+            if (!is_photon()) 
+            {
+                std::cout << "Trying to set Q2 without initializing as a photon first! \n";
+                std::cout << "Initialize reaction_kinematics with massless beam to indicate photon then use set_Q2()!" << std::endl;
+                exit(1);
+            }
+            _virtual = true; 
+            set_beam_mass(x);
+        }
 
         // ---------------------------------------------------------------------------
         // Quantum numbers of produced meson. 
