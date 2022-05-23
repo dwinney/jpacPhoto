@@ -75,10 +75,10 @@ namespace jpacPhoto
         regge_trajectory * _traj;
 
         // Photon - Vector - Pomeron vertex
-        std::complex<double> top_vertex(int mu, int lam_gam, int lam_vec);
+        std::complex<double> top_vertex(int mu);
 
         // Nucleon - Nucleon - Pomeron vertex
-        std::complex<double> bottom_vertex(int mu, int lam_targ, int lam_rec);
+        std::complex<double> bottom_vertex(int mu);
 
         // Energy dependence from Pomeron propogator
         std::complex<double> regge_factor();

@@ -85,12 +85,12 @@ int main( int argc, char** argv )
     double  xmax = 100.;
 
     double  ymin = 0.;
-    double  ymax = 200.;
+    double  ymax = 100.;
 
     std::string ylabel  = ROOT_italics("#sigma(#gamma p #rightarrow Y p)") + "   [nb]";
     std::string filename = "Y_HE.pdf";
-
-
+    bool PRINT = true;
+    
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
@@ -102,24 +102,12 @@ int main( int argc, char** argv )
     // Print the desired observable for each amplitude
     for (int n = 0; n < amps.size(); n++)
     {
-        std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
-
         auto F = [&](double x)
         {
             return amps[n]->integrated_xsection(x*x);
         };
 
-        std::array<std::vector<double>, 2> x_fx;
-        if (xmin < amps[n]->_kinematics->Wth())
-        {
-            x_fx = vec_fill(N, F, amps[n]->_kinematics->Wth() + EPS, xmax, true);
-        }
-        else
-        {
-            x_fx = vec_fill(N, F, xmin, xmax, true);
-        }
-
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+        plotter->AddEntry(N, F, {xmin,xmax}, amps[n]->get_id(), PRINT);
     }
 
     plotter->SetXaxis(ROOT_italics("W_{#gammap}") + "  [GeV]", std::floor(xmin), xmax);

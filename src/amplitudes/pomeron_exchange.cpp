@@ -13,9 +13,11 @@ std::complex<double> jpacPhoto::pomeron_exchange::helicity_amplitude(std::array<
 {
     // Save energies and helicities
     update(helicities, s, t);
+
+    // We use covariants to eval the amplitude so update that too
+    _covariants->update(helicities, s, t);
  
     std::complex<double> result = 0.;
-
     // IF using helicity conserving delta fuction model
     if (_model == 1)
     {
@@ -28,9 +30,9 @@ std::complex<double> jpacPhoto::pomeron_exchange::helicity_amplitude(std::array<
     {
         std::complex<double> temp = 1.;
         temp *= regge_factor();
-        temp *= top_vertex(mu, _lam_gam, _lam_vec);
+        temp *= top_vertex(mu);
         temp *= METRIC[mu];
-        temp *= bottom_vertex(mu, _lam_tar, _lam_rec);
+        temp *= bottom_vertex(mu);
 
         result += temp;
     }
@@ -40,7 +42,7 @@ std::complex<double> jpacPhoto::pomeron_exchange::helicity_amplitude(std::array<
 
 // ---------------------------------------------------------------------------
 // Bottom vertex coupling the target and recoil proton spinors to the vector pomeron
-std::complex<double> jpacPhoto::pomeron_exchange::bottom_vertex(int mu, int lam_targ, int lam_rec)
+std::complex<double> jpacPhoto::pomeron_exchange::bottom_vertex(int mu)
 {
     std::complex<double> result = 0.;
     for (int i = 0; i < 4; i++)
@@ -48,14 +50,9 @@ std::complex<double> jpacPhoto::pomeron_exchange::bottom_vertex(int mu, int lam_
         for (int j = 0; j < 4; j++)
         {
             std::complex<double> temp;
-            // Recoil oriented an angle theta + pi
-            temp = _kinematics->_recoil->adjoint_component(i, lam_rec, _s, _theta);
-
-            // vector coupling
+            temp  = _covariants->recoil_spinor(i);
             temp *= GAMMA[mu][i][j];
-
-            // target oriented in negative z direction
-            temp *= _kinematics->_target->component(j, lam_targ, _s, 0.);
+            temp *= _covariants->target_spinor(j);
 
             result += temp;
         }
@@ -66,54 +63,29 @@ std::complex<double> jpacPhoto::pomeron_exchange::bottom_vertex(int mu, int lam_
 
 // ---------------------------------------------------------------------------
 // Top vertex coupling the photon, pomeron, and vector meson.
-std::complex<double> jpacPhoto::pomeron_exchange::top_vertex(int mu, int lam_gam, int lam_vec)
+std::complex<double> jpacPhoto::pomeron_exchange::top_vertex(int mu)
 {
     std::complex<double> result = 0.;
 
-    if (_model == 0)
+    std::complex<double> sum1 = 0., sum2 = 0.;
+    for (int nu = 0; nu < 4; nu++)
     {
-        std::complex<double> sum1 = 0., sum2 = 0.;
-        for (int nu = 0; nu < 4; nu++)
-        {
-            std::complex<double> temp1, temp2;
+        std::complex<double> temp1, temp2;
 
-            // (q . eps_vec^*) eps_gam^mu
-            temp1  = _kinematics->_initial_state->q(nu, _s, 0.);
-            temp1 *= METRIC[nu];
-            temp1 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
-            sum1  += _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.) * temp1;
+        // (q . eps_vec^*) eps_gam^mu
+        temp1  = _covariants->beam_momentum(nu);
+        temp1 *= METRIC[nu];
+        temp1 *= _covariants->meson_polarization(nu);
+        sum1  += temp1 * _covariants->beam_polarization(mu);
 
-            // (eps_vec^* . eps_gam) q^mu
-            temp2  = _kinematics->_eps_gamma->component(nu, lam_gam, _s, 0.);
-            temp2 *= METRIC[nu];
-            temp2 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
-            sum2  += _kinematics->_initial_state->q(mu, _s, 0.) * temp2;
-        }
-
-        result = -sum1 + sum2;
+        // (eps_vec^* . eps_gam) q^mu
+        temp2  = _covariants->beam_polarization(nu);
+        temp2 *= METRIC[nu];
+        temp2 *= _covariants->meson_polarization(nu);
+        sum2  += temp2 * _covariants->beam_momentum(mu);
     }
-    else if (_model == 2)
-    {
-        std::complex<double> sum1 = 0., sum2 = 0.;
-        for (int nu = 0; nu < 4; nu++)
-        {
-            std::complex<double> temp1, temp2;
 
-            // -2 * (q . eps_vec^*) eps_gam^mu
-            temp1  = _kinematics->_initial_state->q(nu, _s, 0.);
-            temp1 *= METRIC[nu];
-            temp1 *= _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
-            sum1  += -2. * _kinematics->_eps_gamma->component(mu, lam_gam, _s, 0.) * temp1;
-
-            // (eps_vec . eps_gam) (q + q')^mu
-            temp2  = _kinematics->_eps_vec->conjugate_component(nu, lam_vec, _s, _theta);
-            temp2 *= METRIC[nu];
-            temp2 *= _kinematics->_eps_gamma->component(nu, lam_gam, _s, 0.);
-            sum2  += (_kinematics->_initial_state->q(mu, _s, 0.) + _kinematics->_final_state->q(mu, _s, _theta)) * temp2;
-        }
-      
-        result = (sum1 + sum2);
-    };
+    result = -sum1 + sum2;
 
     return result;
 };
