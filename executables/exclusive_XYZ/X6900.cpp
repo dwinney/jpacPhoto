@@ -62,11 +62,7 @@ int main( int argc, char** argv )
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    // which amps to plot
-    std::vector<amplitude*> amps;
-    amps.push_back(&X_omega);
-
-    int N = 30;
+    int N = 100;
 
     double  xmin = 7.5;
     double  xmax = 15.;
@@ -75,7 +71,9 @@ int main( int argc, char** argv )
     double  ymax = 40.;
 
     std::string filename = "omega_exchange.pdf";
-    std::string ylabel  = "#it{#sigma(#gamma p #rightarrow X p)}   [nb]";
+    std::string xlabel   = "W_{#gammap} [GeV]";
+    std::string ylabel   = "#it{#sigma(#gamma p #rightarrow X p)}   [nb]";
+    bool PRINT = true;
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
@@ -86,37 +84,15 @@ int main( int argc, char** argv )
 
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
-    for (int n = 0; n < amps.size(); n++)
+
+    auto F = [&](double x)
     {
-        std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+        return X_omega.integrated_xsection(x*x);
+    };
 
-        auto F = [&](double x)
-        {
-            return amps[n]->integrated_xsection(x*x);
-        };
-
-        std::array<std::vector<double>, 2> x_fx; 
-        if (xmin < amps[n]->_kinematics->Wth())
-        {
-            x_fx = vec_fill(N, F, amps[n]->_kinematics->Wth() + EPS, 9., true);
-
-            for (int j = 1; j <= 10; j++)
-            {
-                double Wi = 9. + double(j) * (xmax - 9.) / 10.;
-                x_fx[0].push_back(Wi);
-                x_fx[1].push_back(F(Wi));
-            }
-        }
-        else
-        {
-            x_fx = vec_fill(N, F, xmin, xmax, true);
-        }
-
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
-    }
-
-    plotter->SetXaxis(ROOT_italics("W_{#gammap}") + "  [GeV]", xmin, xmax);
-
+    plotter->AddEntry(N, F, {xmin, xmax}, X_omega.get_id(), PRINT);
+    
+    plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
     plotter->SetYlogscale(true);
     

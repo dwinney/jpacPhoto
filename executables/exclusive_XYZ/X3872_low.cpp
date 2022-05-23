@@ -63,7 +63,6 @@ int main( int argc, char** argv )
     // Low-Energy Amplitudes
     // ---------------------------------------------------------------------------
 
-    ////////////////////
     // Chi_c1(1P)
     vector_exchange Chi_omega(kChi, M_OMEGA, "#omega");
     Chi_omega.set_params({gChi_omega, gV_omega, gT_omega});
@@ -81,9 +80,7 @@ int main( int argc, char** argv )
 
     std::vector<amplitude*> chi_exchanges = {&Chi_omega, &Chi_rho, &Chi_phi, &Chi_psi};
     amplitude_sum chi(kChi, chi_exchanges, "#it{#chi_{c1}(1P)}");
-    //////////////////
 
-    //////////////////
     // X(3872)
     vector_exchange X_omega(kX, M_OMEGA, "#omega");
     X_omega.set_params({gX_omega, gV_omega, gT_omega});
@@ -95,7 +92,6 @@ int main( int argc, char** argv )
 
     std::vector<amplitude*> X_exchanges = {&X_omega, &X_rho};
     amplitude_sum X(kX, X_exchanges, "#it{X}(3872)");
-    /////////////////
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -107,7 +103,7 @@ int main( int argc, char** argv )
     amps.push_back(&X);
 
     int N = 100;
-    bool PRINT_TO_COMMANDLINE = true;
+    bool PRINT = true;
 
     double  xmin = 4.;
     double  xmax = 7.;
@@ -130,26 +126,12 @@ int main( int argc, char** argv )
     // Print the desired observable for each amplitude
     for (int n = 0; n < amps.size(); n++)
     {
-        std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
-
         auto F = [&](double x)
         {
             return amps[n]->integrated_xsection(x*x);
         };
 
-        std::array<std::vector<double>, 2> x_fx, x_fx1;
-        if (xmin < amps[n]->_kinematics->Wth())
-        {
-            x_fx = vec_fill(N, F, amps[n]->_kinematics->Wth() + EPS, xmax, PRINT_TO_COMMANDLINE);
-            x_fx[0].insert(x_fx[0].begin(), amps[n]->_kinematics->Wth());
-            x_fx[1].insert(x_fx[1].begin(), 0.);
-        }
-        else
-        {
-            x_fx = vec_fill(N, F, xmin, xmax, PRINT_TO_COMMANDLINE);
-        }
-
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+        plotter->AddEntry(N, F, {xmin,xmax}, amps[n]->get_id(), PRINT);
     }
 
     plotter->SetXaxis(xlabel, xmin, xmax);
