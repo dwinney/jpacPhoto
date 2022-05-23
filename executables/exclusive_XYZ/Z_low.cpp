@@ -125,28 +125,14 @@ int main( int argc, char** argv )
   // Print the desired observable for each amplitude
   for (int n = 0; n < amps.size(); n++)
   {
-    std::cout << std::endl << "Printing amplitude: " << amps[n]->get_id() << "\n";
-
     auto F = [&](double x)
     {
       return amps[n]->integrated_xsection(x*x);
     };
 
-    std::array<std::vector<double>, 2> x_fx, x_fx1;
-    if (xmin < amps[n]->_kinematics->Wth())
-    {
-        x_fx = vec_fill(N, F, amps[n]->_kinematics->Wth() + EPS, xmax, PRINT_TO_COMMANDLINE);
-        x_fx[0].insert(x_fx[0].begin(), amps[n]->_kinematics->Wth());
-        x_fx[1].insert(x_fx[1].begin(), 0.);
-    }
-    else
-    {
-      x_fx = vec_fill(N, F, xmin, xmax, PRINT_TO_COMMANDLINE);
-    }
-
-    plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->get_id());
+    plotter->AddEntry(N, F, {xmin,xmax}, amps[n]->get_id(), PRINT_TO_COMMANDLINE);
   }
-
+  
   plotter->SetXaxis(xlabel, xmin, xmax);
   plotter->SetYaxis(ylabel, ymin, ymax);
   plotter->SetYlogscale(1);
