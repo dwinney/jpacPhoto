@@ -28,7 +28,7 @@ namespace jpacPhoto
         public:
 
         triple_regge(pseudoscalar_exchange * exclusive)
-        : inclusive_production(exclusive->_kinematics->_mX, exclusive->_identifier),
+        : inclusive_production(exclusive->_kinematics->get_meson_mass(), exclusive->get_id()),
          _exclusive(exclusive),
          _useRegge(exclusive->if_reggeized()),
          _exchange_mass2(exclusive->get_mEx2()), _trajectory(exclusive->get_trajectory()),

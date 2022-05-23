@@ -35,7 +35,8 @@ int main( int argc, char** argv )
     // Zc(3900)
 
     // Kinematics
-    reaction_kinematics * kZc = new reaction_kinematics(M_ZC, AXIAL_VECTOR);
+    reaction_kinematics * kZc = new reaction_kinematics(M_ZC);
+    kZc->set_JP(1, 1);
 
     // Coupling
     double gc_Psi = 1.91; // psi coupling before VMD scaling
@@ -54,7 +55,8 @@ int main( int argc, char** argv )
     // Zb(10610)
 
     // Kinematics
-    reaction_kinematics * kZb = new reaction_kinematics(M_ZB, AXIAL_VECTOR);
+    reaction_kinematics * kZb = new reaction_kinematics(M_ZB);
+    kZb->set_JP(1, 1);
 
     // Coupling 
     double gb_Ups1 = 0.49, gb_Ups2 = 3.30, gb_Ups3 = 9.22;
@@ -75,7 +77,8 @@ int main( int argc, char** argv )
     // Zb(10650)
 
     // Kinematics
-    reaction_kinematics * kZbp = new reaction_kinematics(M_ZBP, AXIAL_VECTOR);
+    reaction_kinematics * kZbp = new reaction_kinematics(M_ZBP);
+    kZbp->set_JP(1, 1);
 
     // Coupling 
     double gbp_Ups1 = 0.21, gbp_Ups2 = 1.47, gbp_Ups3 = 4.8;
@@ -131,8 +134,8 @@ int main( int argc, char** argv )
         amp = i;
         inc[amp]->set_sigma_total(JPAC_pimp_withResonances);
 
-        addInc = 1, addExc = 0.; 
-        plotter->AddEntry(N, F, {xmin, xmax}, inc[i]->_identifier, print_to_CMD);
+        addInc = 1, addExc = 1.; 
+        plotter->AddEntry(N, F, {xmin, xmax}, inc[i]->get_id(), print_to_CMD);
 
         addInc = 0, addExc = 1; 
         plotter->AddDashedEntry(N, F, {xmin, xmax}, print_to_CMD);

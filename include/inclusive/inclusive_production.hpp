@@ -43,11 +43,13 @@ namespace jpacPhoto
         };
 
         inclusive_kinematics * _kinematics;
-        std::string _identifier;
 
         // Set whether we should assume the independent variables are (t, M2) or (t, x)
         // See _useTX below
         inline void set_TX(bool opt){ _useTX = opt; };
+
+        // Print out the id
+        inline std::string get_id(){ return _identifier; };
 
         //--------------------------------------------------------------------
         // d3sigma/d3p (invariant cross-section)
@@ -71,6 +73,9 @@ namespace jpacPhoto
         double integrated_xsection(double s);   
 
         protected:
+
+        // String identifier just like exclusive amplitudes
+        std::string _identifier;
 
         // Different parameterizations may use different variables which make things tricky
         // when integrating. So I include this flag (set to default as false):
