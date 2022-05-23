@@ -14,9 +14,6 @@ std::complex<double> jpacPhoto::pomeron_exchange::helicity_amplitude(std::array<
     // Save energies and helicities
     update(helicities, s, t);
 
-    // We use covariants to eval the amplitude so update that too
-    _covariants->update(helicities, s, t);
- 
     std::complex<double> result = 0.;
     // IF using helicity conserving delta fuction model
     if (_model == 1)

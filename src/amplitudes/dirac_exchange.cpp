@@ -13,7 +13,6 @@ std::complex<double> jpacPhoto::dirac_exchange::helicity_amplitude(std::array<in
 {
     // Store the invariant energies to avoid having to pass them around 
     update(helicities, s, t);
-    _covariants->update(helicities, s ,t);
 
     // Exchange mass
     _u = _mB*_mB + _mT*_mT +_mX*_mX + _mR*_mR - _s - _t;

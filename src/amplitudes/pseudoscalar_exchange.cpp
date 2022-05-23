@@ -20,9 +20,6 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
     std::complex<double> result;
     if (_useCovariant == true || _debug == 1)
     {
-        // If we're using covariants we need to additionally save inputs in covariant_kinematics 
-        _covariants->update(helicities, s, t);
-
         // Because its a scalar exchange we dont have any loose indices to contract
         result  = scalar_propagator();
         result *= top_vertex();

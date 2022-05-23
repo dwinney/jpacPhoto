@@ -19,7 +19,6 @@ std::complex<double> jpacPhoto::vector_exchange::helicity_amplitude(std::array<i
 
     if ((_useCovariant == true))
     {
-        _covariants->update(helicities, s, t);
         result = covariant_amplitude();
     }
     else

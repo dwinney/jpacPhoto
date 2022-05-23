@@ -189,6 +189,8 @@ namespace jpacPhoto
             _mB = _kinematics->get_beam_mass();
             _mT = _kinematics->get_target_mass();
             _mR = _kinematics->get_recoil_mass();
+
+            _covariants->update(helicities, s, t);
         };  
 
         // Energies
