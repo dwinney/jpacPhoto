@@ -35,8 +35,8 @@ namespace jpacPhoto
         void set_params(std::vector<double> params)
         {
             check_nParams(params);
-            _gGam = params[0];
-            _gVec = params[1];
+            _gG = params[0];
+            _gN = params[1];
         };
 
         // Whether or not to include an form factor (default false)
@@ -50,12 +50,13 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the spinor indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
+        // Parity phase corresponds to the s-channel because using covariants
         inline int parity_phase(std::array<int, 4> helicities)
         {
             return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
         };
 
-        // only vector and psuedo-scalar kinematics
+        // only Vector and psuedo-scalar kinematics
         inline std::vector<std::array<int,2>> allowedJP()
         {
             return {VECTOR, PSEUDO_SCALAR};
@@ -73,26 +74,19 @@ namespace jpacPhoto
         double form_factor();
 
         // couplings
-        double _gGam = 0., _gVec = 0.;
+        double _gG, _gN;
 
         // Two different ways to evaluate (should be identical)
-        bool _useCovariant = true;
-        std::complex<double> covariant_amplitude(std::array<int,4> helicities);
+        std::complex<double> covariant_amplitude();
 
-        // Should be exactly u_man(s, zs);
-        double exchange_mass();
+        // Beam -- Exchange -- Produced Baryon
+        std::complex<double> top_vertex(int i);
+        std::complex<double> halfplus(int i);
 
-        // Slashed momentumn
-        std::complex<double> slashed_exchange_momentum(int i, int j);
-
-        // Slashed polarization vectors
-        std::complex<double> slashed_eps(int i, int j, double lam, polarization_vector * eps, bool STARRED, double s, double theta);
-
-        // Photon - excNucleon - recNucleon vertex
-        std::complex<double> top_vertex(int i, int lam_gam, int lam_rec);
-
-        // excNucleon - recNucleon - Vector vertex
-        std::complex<double> bottom_vertex(int j, int lam_vec, int lam_targ);
+        // Targer -- Exchange -- Produced Meson
+        std::complex<double> bottom_vertex(int j);
+        std::complex<double> vector_coupling(int j);
+        std::complex<double> pseudoscalar_coupling(int j);
 
         // Spin-1/2 propagator
         std::complex<double> dirac_propagator(int i, int j);
