@@ -203,7 +203,7 @@ namespace jpacPhoto
         {
             double zs = z_s(s, t);
             if (std::abs(zs) - 1 < 1.E-3) zs = 1.;
-            return TMath::ACos( z_s(s, t) );
+            return TMath::ACos( zs );
         };
 
         // Invariant variables
