@@ -15,9 +15,6 @@
 
 #include "constants.hpp"
 #include "misc_math.hpp"
-#include "two_body_state.hpp"
-#include "dirac_spinor.hpp"
-#include "polarization_vector.hpp"
 #include "helicities.hpp"
 
 #include "TMath.h"
@@ -37,6 +34,7 @@ namespace jpacPhoto
     // These are the basis for more complicated structures such as covariants or the
     // amplitudes themselves
     // ---------------------------------------------------------------------------
+    
     class reaction_kinematics
     {
         public: 
@@ -49,15 +47,7 @@ namespace jpacPhoto
         reaction_kinematics(double mX, double mR = M_PROTON)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
           _mB(0.), _mB2(0.), _mT(M_PROTON), _mT2(M2_PROTON)
-        {
-            _initial_state   = new two_body_state(0., M_PROTON);
-            _eps_gamma       = new polarization_vector(_initial_state);
-            _target          = new dirac_spinor(_initial_state);
-
-            _final_state     = new two_body_state(mX, M_PROTON);
-            _eps_vec         = new polarization_vector(_final_state);
-            _recoil          = new dirac_spinor(_final_state);
-        };
+        {};
 
         // Constructor to fully specify both final and initial states
         reaction_kinematics(double mB, double mT, double mX, double mR)
@@ -65,17 +55,6 @@ namespace jpacPhoto
           _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
         { if (mB > 0.) _photon = false; };
 
-            // destructor
-        ~reaction_kinematics()
-        {
-            delete _initial_state;
-            delete _final_state;
-            delete _eps_gamma;
-            delete _eps_vec;
-            delete _target;
-            delete _recoil;
-        }
-        
         // ---------------------------------------------------------------------------
         // Masses 
 
@@ -131,32 +110,6 @@ namespace jpacPhoto
         // Beam [0], Target [1], Produced Meson [2], Recoil Baryon [3]
         int _nAmps = 24; 
         std::vector< std::array<int, 4> > _helicities = SPIN_ONE_HELICITIES;
-
-        //--------------------------------------------------------------------------
-        // Covariant structures
-
-        two_body_state * _initial_state,  * _final_state;
-        polarization_vector * _eps_vec, * _eps_gamma;
-        dirac_spinor * _target, * _recoil;
-
-        // momentum transfer 4-vectors
-        inline std::complex<double> t_exchange_momentum(int mu, double s, double theta)
-        {
-            std::complex<double> qGamma_mu, qA_mu;
-            qGamma_mu   = _initial_state->q(mu, s, 0.);
-            qA_mu       = _final_state->q(mu, s, theta);
-
-            return (qGamma_mu - qA_mu);
-        };
-
-        inline std::complex<double> u_exchange_momentum(int mu, double s, double theta)
-        {
-            std::complex<double> qGamma_mu, qRec_mu;
-            qGamma_mu   = _initial_state->q(mu, s, 0);
-            qRec_mu     = _final_state->p(mu, s, theta);
-
-            return qGamma_mu - qRec_mu;
-        };
 
         //--------------------------------------------------------------------------
         // Other quantities

@@ -10,6 +10,10 @@
 #define COVARIANTS
 
 #include "reaction_kinematics.hpp"
+#include "dirac_spinor.hpp"
+#include "two_body_state.hpp"
+#include "polarization_vector.hpp"
+#include "gamma_matrices.hpp"
 #include <functional>
 
 namespace jpacPhoto
