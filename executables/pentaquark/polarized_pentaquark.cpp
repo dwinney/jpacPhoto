@@ -143,7 +143,7 @@ int main( int argc, char** argv )
         };
 
         std::array<std::vector<double>, 2> x_fx = vec_fill(N, F, sqrt(ptr->sth()) + 0.01, max);
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->get_id());
     }
 
     // Add a header to legend to specify the fixed energy

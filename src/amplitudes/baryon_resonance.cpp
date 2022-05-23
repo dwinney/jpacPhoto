@@ -14,7 +14,7 @@ std::complex<double> jpacPhoto::baryon_resonance::helicity_amplitude(std::array<
     int lam_f = 2 * helicities[2] - helicities[3];
 
     // update save values of energies and angle
-    _s = s; _t = t; _theta = _kinematics->theta_s(s, t);
+    update(helicities, s, t);
 
     std::complex<double> residue = 1.;
     residue  = photo_coupling(lam_i);
@@ -55,7 +55,7 @@ std::complex<double> jpacPhoto::baryon_resonance::photo_coupling(int lam_i)
     A_lam = sqrt(XR * A_lam);
 
     std::complex<double> result = sqrt(XR * _s) * _pibar / _mRes;
-    result *= sqrt(XR * 8. * M_PROTON * _mRes / _kinematics->_initial_state->momentum(_s));
+    result *= sqrt(XR * 8. * M_PROTON * _mRes / _kinematics->initial_momentum(_s));
     result *= A_lam * a;
 
     // FACTOR OF 4 PI SOMETIMES FACTORED OUT
@@ -75,7 +75,7 @@ std::complex<double> jpacPhoto::baryon_resonance::hadronic_coupling(int lam_f)
     g = sqrt(XR * g);
 
     std::complex<double> gpsi;
-    gpsi = g * pow(_kinematics->_final_state->momentum(_s), _lmin);
+    gpsi = g * pow(_kinematics->final_momentum(_s), _lmin);
 
     (lam_f < 0) ? (gpsi *= double(_naturality)) : (gpsi *= 1.);
 

@@ -147,8 +147,7 @@ int main( int argc, char** argv )
             return amps[n]->beam_asymmetry_4pi(W*W, t);
         };
 
-        std::array<std::vector<double>, 2> x_fx = vec_fill(N, F, 0., 90.);
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+        plotter->AddEntry(N, F, {0., 90.}, amps[n]->get_id());
     }
 
     // Add a header to legend to specify the fixed energy
