@@ -19,7 +19,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 #include "regge_trajectory.hpp"
 #include "amplitudes/pomeron_exchange.hpp"
 

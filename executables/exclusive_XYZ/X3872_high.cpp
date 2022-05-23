@@ -17,7 +17,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 #include "amplitudes/vector_exchange.hpp"
 #include "amplitudes/amplitude_sum.hpp"
 

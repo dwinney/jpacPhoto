@@ -12,7 +12,7 @@
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
 
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 #include "amplitudes/amplitude.hpp"
 
 #include <vector>

@@ -1,6 +1,6 @@
 
 #include "constants.hpp"
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 #include "amplitudes/pseudoscalar_exchange.hpp"
 #include "amplitudes/vector_exchange.hpp"
 #include "amplitudes/dirac_exchange.hpp"

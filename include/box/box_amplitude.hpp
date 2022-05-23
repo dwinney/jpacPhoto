@@ -10,7 +10,7 @@
 
 #include "constants.hpp"
 #include "amplitudes/amplitude.hpp"
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 #include "box/box_discontinuity.hpp"
 
 #include <boost/math/quadrature/gauss_kronrod.hpp>

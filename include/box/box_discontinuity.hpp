@@ -11,7 +11,7 @@
 
 #include "constants.hpp"
 #include "amplitudes/amplitude.hpp"
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 
 #include "Math/IntegratorMultiDim.h"
 

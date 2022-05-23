@@ -16,7 +16,7 @@
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
-#include "amplitudes/reaction_kinematics.hpp"
+#include "reaction_kinematics.hpp"
 #include "amplitudes/primakoff_effect.hpp"
 #include "amplitudes/amplitude_sum.hpp"
 
