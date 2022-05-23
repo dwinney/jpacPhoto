@@ -202,7 +202,8 @@ namespace jpacPhoto
         inline double theta_s(double s, double t)
         {
             double zs = z_s(s, t);
-            if (std::abs(zs) - 1 < 1.E-3) zs = 1.;
+            if (std::abs(zs - 1) < 1.E-5){zs =  1.;}
+            if (std::abs(zs + 1) < 1.E-5){zs = -1.;}
             return TMath::ACos( zs );
         };
 
