@@ -27,19 +27,19 @@ namespace jpacPhoto
         // Make sure all amplitudes being summed are compatible kineamtically
         bool check_compatibility(amplitude* amp);
 
-        // Flip the bool to let everyone this amplitude is a sum
-        bool _isSum = true;
-
         public:
         // Empty constructor
         amplitude_sum(reaction_kinematics * xkinem, std::string identifer = "amplitude_sum")
         : amplitude(xkinem, "amplitude_sum", identifer)
-        {};
+        {
+            _isSum = true;
+        };
 
         // Constructor with a vector already set up
         amplitude_sum(reaction_kinematics * xkinem, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
         : amplitude(xkinem, "amplitude_sum", identifer)
         {
+            _isSum = true;
             for (int i = 0; i < vec.size(); i++)
             {
                 if (check_compatibility(vec[i]))
@@ -81,9 +81,6 @@ namespace jpacPhoto
 
         // Evaluate the sum for given set of helicites, energy, and cos
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
-
-        // // Caching helicity amplitudes is a little different for sums since no parity relations
-        // void check_cache(double s, double t);
     };
 };
 
