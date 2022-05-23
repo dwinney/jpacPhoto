@@ -10,6 +10,7 @@
 #define COVARIANTS
 
 #include "reaction_kinematics.hpp"
+#include <functional>
 
 namespace jpacPhoto
 {
@@ -70,6 +71,7 @@ namespace jpacPhoto
         // ---------------------------------------------------------------------------
         // Aliases for stuff!
 
+        // -----------------------------------------------------------------
         // Four vectors of each particle
         inline std::complex<double> beam_momentum(int mu)
         {
@@ -88,6 +90,7 @@ namespace jpacPhoto
             return _final_state->p(mu, _s, _theta);
         };
 
+        // -----------------------------------------------------------------
         // Polarization vectors
         inline std::complex<double> beam_polarization(int mu)
         {
@@ -104,6 +107,7 @@ namespace jpacPhoto
             return _beam_polarization->field_tensor(mu, nu, _lam_gam, _s, 0.);
         }; 
 
+        // -----------------------------------------------------------------
         // Spinors 
         inline std::complex<double> target_spinor(int i)
         {
@@ -114,7 +118,7 @@ namespace jpacPhoto
             return _recoil_spinor->adjoint_component(i, _lam_rec, _s, _theta);
         };
 
-
+        // -----------------------------------------------------------------
         // momentum transfer 4-vectors
         inline std::complex<double> t_momentum(int mu)
         {
@@ -124,6 +128,51 @@ namespace jpacPhoto
         inline std::complex<double> u_momentum(int mu)
         {
             return _initial_state->q(mu, _s, 0) - _final_state->p(mu, _s, _theta);
+        };
+
+        // -----------------------------------------------------------------
+        // Slashed quantities 
+
+        // Take in a Lorentz vector and output the contraction with the gamma vector
+        inline std::complex<double> slash(int i, int j, std::function<std::complex<double>(int)> vec)
+        {
+            std::complex<double> result = 0.;
+            for (int mu = 0; mu < 4; mu++)
+            {
+                std::complex<double> temp;
+                temp  = GAMMA[mu][i][j];
+                temp *= METRIC[mu];
+                temp *= vec(mu);
+
+                result += temp;
+            }
+
+            return result;
+        };
+
+        inline std::complex<double> slashed_beam_polarization(int i, int j)
+        {
+            return slash(i, j, [this](int mu){ return beam_polarization(mu); });
+        };
+
+        inline std::complex<double> slashed_meson_polarization(int i, int j)
+        {
+            return slash(i, j, [this](int mu){ return meson_polarization(mu); });
+        };
+        
+        inline std::complex<double> slashed_u_momentum(int i, int j)
+        {
+            return slash(i, j, [this](int mu){ return u_momentum(mu); });
+        };
+
+        inline std::complex<double> slashed_beam_momentum(int i, int j)
+        {
+            return slash(i, j, [this](int mu){ return beam_momentum(mu); });
+        };
+
+        inline std::complex<double> slashed_meson_momentum(int i, int j)
+        {
+            return slash(i, j, [this](int mu){ return beam_momentum(mu); });
         };
 
         // ---------------------------------------------------------------------------
