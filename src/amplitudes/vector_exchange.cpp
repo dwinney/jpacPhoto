@@ -17,7 +17,7 @@ std::complex<double> jpacPhoto::vector_exchange::helicity_amplitude(std::array<i
     // Output
     std::complex<double> result;
 
-    if ((_useCovariant == true) || (_debug == 1))
+    if ((_useCovariant == true))
     {
         _covariants->update(helicities, s, t);
         result = covariant_amplitude();
@@ -301,7 +301,7 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
                 std::complex<double> temp = XI;
 
                 temp *= levi_civita(mu, alpha, beta, gamma);
-                if (std::abs(temp) < 0.001) continue;
+                if (std::abs(temp) < EPS) continue;
 
                 temp *= _covariants->meson_momentum(alpha);
                 temp *= _covariants->beam_polarization(beta);

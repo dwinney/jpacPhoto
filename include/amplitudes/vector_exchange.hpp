@@ -123,17 +123,19 @@ namespace jpacPhoto
         // Full covariant amplitude
         std::complex<double> covariant_amplitude();
 
-        // Photon - Axial Vector - Vector vertex
+        // Beam -- Vector -- Produced meson vertex
         std::complex<double> top_vertex(int mu);
+
+        // Depends on quantum numbers and carries one lorentz index
         std::complex<double> axialvector_coupling(int mu);
         std::complex<double> vector_coupling(int mu);
         std::complex<double> pseudoscalar_coupling(int mu);
         std::complex<double> scalar_coupling(int mu);
 
-        // Nucleon - Nucleon - Vector vertex
+        // Target -- Vector -- Produced baryon vertex
         std::complex<double> bottom_vertex(int nu);
 
-        // Vector propogator
+        // Vector propogator, with two Lorentz indices
         std::complex<double> vector_propagator(int mu, int nu);
 
         // ---------------------------------------------------------------------------
