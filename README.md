@@ -57,7 +57,6 @@ Available amplitudes, so far, include:
 
 ### u-channel:
 * [(fixed-spin) Dirac fermion exchange](./include/amplitudes/dirac_exchange.hpp) - allows production of mesons with pseudo-scalar and vector quantum numbers
-* [(fixed-spin) Rarita-Schwinger fermion exchange](./include/amplitudes/rarita_exchange.hpp) - allows production of mesons with pseudo-scalar and vector quantum numbers
 
 Incoherent (interfering) sums of amplitudes may be constructed through the [`amplitude_sum`](./include/amplitudes/amplitude_sum.hpp) class.
 
