@@ -38,16 +38,16 @@ namespace jpacPhoto
             {
                 std::cout << std::left;
                 std::cout << std::setw(40) << "box_amplitude: Intermediate state between sub-amplitudes dont match!" << std::endl;
-                std::cout << std::setw(20) << _initialAmp->_identifier << ": \t (" << _jp_left[0]  << ", " << _jp_left[1]  << ")\n";
-                std::cout << std::setw(20) << _finalAmp->_identifier   << ": \t (" << _jp_right[0] << ", " << _jp_right[1] << ")\n";
+                std::cout << std::setw(20) << _initialAmp->get_id() << ": \t (" << _jp_left[0]  << ", " << _jp_left[1]  << ")\n";
+                std::cout << std::setw(20) << _finalAmp->get_id()   << ": \t (" << _jp_right[0] << ", " << _jp_right[1] << ")\n";
                 std::cout << "Returning 0!" << std::endl;
 
                 _matchError = true;
             };
 
             // But also masses
-            if ((std::abs(left->_kinematics->_mX - right->_kinematics->_mX) > 1.E-4) 
-             || (std::abs(left->_kinematics->_mR - right->_kinematics->_mR) > 1.E-4))
+            if ((std::abs(left->_kinematics->get_meson_mass() - right->_kinematics->get_meson_mass()) > 1.E-4) 
+             || (std::abs(left->_kinematics->get_recoil_mass() - right->_kinematics->get_recoil_mass()) > 1.E-4))
             {
                 _matchError = true;
             };

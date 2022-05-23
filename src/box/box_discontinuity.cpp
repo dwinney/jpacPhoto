@@ -65,7 +65,7 @@ double jpacPhoto::box_discontinuity::eval(double s)
 
     // Muliply by the two-body phase space
     double phase_space;
-    phase_space  = real(_initialAmp->_kinematics->_final_state->momentum(s));
+    phase_space  = std::real(_initialAmp->_kinematics->final_momentum(s));
     phase_space *= 2. / sqrt(s);
 
     return result * phase_space / (64. * PI*PI);
