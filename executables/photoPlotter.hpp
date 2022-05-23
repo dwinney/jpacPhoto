@@ -52,7 +52,7 @@ namespace jpacPhoto
         
             for (int n = 0; n < amps.size(); n++)
             {
-                std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+                std::cout << std::endl << "Printing amplitude: " << amps[n]->get_id() << "\n";
     
                 double th;
                 (LAB_ENERGY) ? (th = E_beam(amps[n]->_kinematics->Wth())) : (th = amps[n]->_kinematics->Wth());
@@ -115,7 +115,7 @@ namespace jpacPhoto
                     x_fx = vec_fill(N, F, xmin, xmax, PRINT_TO_COMMANDLINE);
                 }
 
-                AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+                AddEntry(x_fx[0], x_fx[1], amps[n]->get_id());
             }
 
             SetXaxis(xlabel, xmin, xmax);

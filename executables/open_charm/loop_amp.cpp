@@ -58,7 +58,7 @@ int main( int argc, char** argv )
     // Gamma amplitudes
 
     // Kinematics for the sub-processes (gamma) p -> Lam D
-    auto kgamD = new reaction_kinematics(M_D, M_LAMBDAC, M_PROTON);
+    auto kgamD = new reaction_kinematics(0., M_PROTON, M_D, M_LAMBDAC);
     kgamD->set_JP(0, -1);  // Pseudo-scalar production
     
     auto gamD_DstarEx = new vector_exchange(kgamD, M_DSTAR, "D* exchange"); 
@@ -68,7 +68,7 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
     // Psi amplitudes
 
-    auto kpsiD = new reaction_kinematics(M_D, M_LAMBDAC, M_PROTON, M_JPSI);
+    auto kpsiD = new reaction_kinematics(M_JPSI, M_PROTON, M_D, M_LAMBDAC);
     kpsiD->set_JP(0, -1);  // Pseudo-scalar production
 
     auto psiD_DEx = new pseudoscalar_exchange(kpsiD, M_D, "D exchange");
@@ -98,7 +98,7 @@ int main( int argc, char** argv )
     // Gamma amplitudes
 
     // Kinematics for the sub-processes gamma p -> Lam Dstar
-    auto kgamDstar = new reaction_kinematics(M_DSTAR, M_LAMBDAC, M_PROTON);
+    auto kgamDstar = new reaction_kinematics(0., M_PROTON, M_DSTAR, M_LAMBDAC);
     kgamDstar->set_JP(1, -1);  // Vector 
     
     auto gamDstar_DEx = new pseudoscalar_exchange(kgamDstar, M_D);
@@ -115,7 +115,7 @@ int main( int argc, char** argv )
     // Psi amplitudes
 
     // Kinematics for the sub-processes psi p -> Lam Dstar
-    auto kpsiDstar = new reaction_kinematics(M_DSTAR, M_LAMBDAC, M_PROTON, M_JPSI);
+    auto kpsiDstar = new reaction_kinematics(M_JPSI, M_PROTON, M_DSTAR, M_LAMBDAC);
     kpsiDstar->set_JP(1, -1); 
 
     auto psiDstar_DEx = new pseudoscalar_exchange(kpsiDstar, M_D);
@@ -155,7 +155,7 @@ int main( int argc, char** argv )
 
     for (int n = 0; n < amps.size(); n++)
     {
-        std::cout << "\nPrinting amplitude: " << amps[n]->_identifier << "\n";
+        std::cout << "\nPrinting amplitude: " << amps[n]->get_id() << "\n";
         auto F = [&](double egam)
         {
             double s = pow(W_cm(egam), 2.);
@@ -163,8 +163,8 @@ int main( int argc, char** argv )
         };
         
         auto x_fx = vec_fill(N, F, xmin, xmax, true);
-        vec_print(x_fx[0], x_fx[1], amps[n]->_identifier + ".dat");
-        plotter->AddEntry(std::get<0>(x_fx), std::get<1>(x_fx), amps[n]->_identifier);
+        vec_print(x_fx[0], x_fx[1], amps[n]->get_id() + ".dat");
+        plotter->AddEntry(std::get<0>(x_fx), std::get<1>(x_fx), amps[n]->get_id());
     }
 
     plotter->SetLegend(0.2, 0.3);

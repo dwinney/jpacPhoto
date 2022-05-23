@@ -37,7 +37,7 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Set up Kinematics for Dbar LambdaC in final state
-    auto kD = new reaction_kinematics(M_D, M_LAMBDAC, M_PROTON);
+    auto kD = new reaction_kinematics(M_D, M_LAMBDAC);
     kD->set_JP(PSEUDO_SCALAR);
 
     auto d_dstarEx = new vector_exchange(kD, M_DSTAR, "D^{*} exchange");
