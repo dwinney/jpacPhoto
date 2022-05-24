@@ -71,10 +71,8 @@ namespace jpacPhoto
         };
 
         // empty allowedJP, leave the checks to the individual amps instead
-        inline std::vector<std::array<int,2>> allowedJP()
-        {
-            return {};
-        };
+        inline std::vector<std::array<int,2>> allowed_meson_JP() { return {}; };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP(){ return {}; };
 
         // TODO: Add a set_params which timesi in one vector and allocates approriaten number of
         // params to each sub amplitude

@@ -71,10 +71,7 @@ namespace jpacPhoto
         
         // ---------------------------------------------------------------------------
         // Integer flag each amplitude carries for debugging options 
-        inline void set_debug(int d)
-        {
-            _debug = d;
-        };
+        inline void set_debug(int d){ _debug = d; };
 
         // ---------------------------------------------------------------------------
         // Observables
@@ -103,10 +100,7 @@ namespace jpacPhoto
         // Parity asymmetry
         double parity_asymmetry(double s, double t);
 
-        virtual int parity_phase(std::array<int,4> helicities)
-        {
-            return 0;
-        };
+        virtual int parity_phase(std::array<int,4> helicities){ return 0; };
 
         // ---------------------------------------------------------------------------
         // nParams error message
@@ -114,21 +108,15 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Each amplitude must supply a function which returns a vector of allowed 2-tuples {J, P}
-        virtual std::vector<std::array<int,2>> allowedJP() = 0;
-        virtual std::vector<std::array<int,2>> allowedJP_Regge()
-        { 
-            return {};
-        };
+        virtual std::vector<std::array<int,2>> allowed_meson_JP()  = 0;
+        virtual std::vector<std::array<int,2>> allowed_baryon_JP() = 0;
         
         // Small function just to know whether a given instance is a sum 
         inline bool is_sum(){ return _isSum; };
 
         // Update the cache
         void update_cache(double s, double t);
-        std::complex<double> get_cached_helicity_amplitude(int i)
-        {
-            return _cached_helicity_amplitude[i];
-        };
+        std::complex<double> get_cached_helicity_amplitude(int i){ return _cached_helicity_amplitude[i]; };
 
         // ---------------------------------------------------------------------------
         protected:
@@ -142,15 +130,28 @@ namespace jpacPhoto
         };
 
         // Allowed JP error message
-        inline void check_JP(std::array<int,2> JP, bool REGGE = false)
+        inline void check_JP(reaction_kinematics * kinem)
         {
-           std::vector<std::array<int,2>> allowed_JP;
-           (REGGE) ? (allowed_JP = allowedJP_Regge()) : (allowed_JP = allowedJP());
-           
-            if (std::find(allowed_JP.begin(), allowed_JP.end(), JP) == allowed_JP.end())
+            // Get all the allowed JP's from the amplitude
+            std::vector<std::array<int,2>> allowed_meson_JP, allowed_baryon_JP;
+            allowed_meson_JP  = this->allowed_meson_JP();
+            allowed_baryon_JP = this->allowed_baryon_JP();
+
+            // Grab the requested JPs from the reaction_kinematics
+            std::array<int,2> requested_meson_JP, requested_baryon_JP;
+            requested_meson_JP  = kinem->get_meson_JP();
+            requested_baryon_JP = kinem->get_baryon_JP();
+
+            // Check if they are allowed
+            bool meson_passes, baryon_passes;
+            meson_passes  = !(std::find(allowed_meson_JP.begin(),  allowed_meson_JP.end(),  requested_meson_JP)  == allowed_meson_JP.end());
+            baryon_passes = !(std::find(allowed_baryon_JP.begin(), allowed_baryon_JP.end(), requested_baryon_JP) == allowed_baryon_JP.end());
+
+            if (!meson_passes || !baryon_passes)
             {
-                std::cout << "Error! Amplitude for spin: " << JP[0] << " and parity " << JP[1] << " for " << _identifier << " and REGGE = " << REGGE << " is unavailable.\n";
-                exit(0);
+                std::cout << "Fatal error! Amplitude " << _classname << " not available for meson (J, P) = (" << requested_meson_JP[0] << ", " << requested_meson_JP[1] << ")";
+                std::cout << " and baryon (J, P) = (" << requested_baryon_JP[0] << "/2, " << requested_baryon_JP[1] << ")! Quitting..." << std::endl;
+                exit(1);
             }      
         };
 

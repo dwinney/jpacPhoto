@@ -40,7 +40,7 @@ int main( int argc, char** argv )
 
     // X(6900)
     reaction_kinematics * kX = new reaction_kinematics(6.900);
-    kX->set_JP(0, 1);
+    kX->set_meson_JP(0, 1);
 
     double gV_psi = 1.6E-3, gT_psi = 0.;
     double gX_psi = 5.03;

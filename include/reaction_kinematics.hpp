@@ -46,14 +46,16 @@ namespace jpacPhoto
         // Constructor to fully specify the final state
         reaction_kinematics(double mX, double mR = M_PROTON)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
-          _mB(0.), _mB2(0.), _mT(M_PROTON), _mT2(M2_PROTON)
+          _mB(0.), _mB2(0.), _mT(M_PROTON), _mT2(M2_PROTON),
+          _photon(true)
         {};
 
         // Constructor to fully specify both final and initial states
         reaction_kinematics(double mB, double mT, double mX, double mR)
         : _mX(mX), _mX2(mX*mX), _mR(mR), _mR2(mR*mR),
-          _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT)
-        { if (mB > 0.) _photon = false; };
+          _mB(mB), _mB2(mB*mB), _mT(mT), _mT2(mT*mT),
+          _photon(!(mB>0.))
+        {};
 
         // ---------------------------------------------------------------------------
         // Masses 
@@ -68,13 +70,14 @@ namespace jpacPhoto
         inline double get_beam_mass()  { return _mB; };
         
         // Setters for masses
-        inline void set_meson_mass(double x) {_mX = x; _mX2 = x*x; };
-        inline void set_target_mass(double x){_mT = x; _mT2 = x*x; };
-        inline void set_recoil_mass(double x){_mR = x; _mR2 = x*x; };
-        inline void set_beam_mass(double x){  _mB = x; _mB2 = x*x;};
+        inline void set_meson_mass(double x) { _mX = x; _mX2 = x*x; };
+        inline void set_target_mass(double x){ _mT = x; _mT2 = x*x; };
+        inline void set_recoil_mass(double x){ _mR = x; _mR2 = x*x; };
+        inline void set_beam_mass(double x)  { _mB = x; _mB2 = x*x; };
 
         // Get whether current kinematics has photon beam
-        inline bool is_photon(){ return _photon; };
+        inline bool is_photon() { return _photon;  };
+        inline bool is_virtual(){ return _virtual; };
         inline void set_Q2(double x)
         {
             if (!is_photon()) 
@@ -89,27 +92,55 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Quantum numbers of produced meson. 
-
-        std::array<int,2> _jp{{1,1}};
-        inline void set_JP(int J, int P)
-        { 
-            _jp = {J, P};
-            _helicities = get_helicities(J, _mB);
-            _nAmps = _helicities.size();
-        };
         
-        inline void set_JP(std::array<int,2> jp)
+        inline std::array<int,2> get_meson_JP(){ return _mjp; };
+
+        inline void set_meson_JP(int J, int P)
         { 
-            _jp = jp;
-            _helicities = get_helicities(jp[0], _mB);
+            _mjp = {J, P};
+            _helicities = get_helicities(J, get_baryon_JP()[0], _photon);
+            _nAmps = _helicities.size();
+        };
+        inline void set_meson_JP(std::array<int,2> jp)
+        { 
+            _mjp = jp;
+            _helicities = get_helicities(jp[0], get_baryon_JP()[0], _photon);
             _nAmps = _helicities.size();
         };
 
-        // Helicity configurations
-        // Defaults to spin-1
-        // Beam [0], Target [1], Produced Meson [2], Recoil Baryon [3]
-        int _nAmps = 24; 
-        std::vector< std::array<int, 4> > _helicities = SPIN_ONE_HELICITIES;
+        
+        // ---------------------------------------------------------------------------
+        // Quantum numbers of produced baryon.
+        // The baryon spin (and only this quantity) is multiplied by 2 to be saves as an int
+
+        inline std::array<int,2> get_baryon_JP(){ return _bjp; };
+
+        inline void set_baryon_JP(int J, int P)
+        { 
+            _bjp = {J, P};
+            _helicities = get_helicities(get_meson_JP()[0], J, _photon);
+            _nAmps = _helicities.size();
+        };
+        inline void set_baryon_JP(std::array<int,2> jp)
+        { 
+            _bjp = jp;
+            _helicities = get_helicities(get_meson_JP()[0], jp[0], _photon);
+            _nAmps = _helicities.size();
+        };
+
+        // ---------------------------------------------------------------------------
+        // Accessing the helicity combinations 
+        inline int num_amps(){ return _nAmps; };
+        inline std::array<int, 4> helicities(int i)
+        {
+            if (i < 0 || i >= _nAmps) 
+            {
+                std::cout << "Error! Can't find helicities with index " << i << "! Returning zeros..." << std::endl;
+                return {0, 0, 0, 0};
+            }
+
+            return _helicities[i];
+        };
 
         //--------------------------------------------------------------------------
         // Other quantities
@@ -225,9 +256,9 @@ namespace jpacPhoto
             {
                 case HELICITY_CHANNEL::S :
                 {
-                    s_b =  1;           eta_b = 1;                         // proton
-                    s_c =  2*_jp[0];    eta_c = _jp[1] * pow(-1, _jp[0]);  // produced meson
-                    s_d =  1;           eta_d = 1;                         // recoil baryon
+                    s_b =  1;            eta_b = 1;                            // proton
+                    s_c =  2*_mjp[0];    eta_c = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
+                    s_d =  1;            eta_d = 1;                            // recoil baryon
 
                     lam =  (2 * helicities[0] - helicities[1]);
                     lamp = (2 * helicities[2] - helicities[3]);
@@ -236,9 +267,9 @@ namespace jpacPhoto
                 }
                 case HELICITY_CHANNEL::T :
                 {
-                    s_b =  2*_jp[0];    eta_b = _jp[1] * pow(-1, _jp[0]);   // produced meson
-                    s_c =  1;           eta_c = 1;                          // proton
-                    s_d =  1;           eta_d = 1;                          // recoil baryon
+                    s_b =  2*_mjp[0];   eta_b = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
+                    s_c =  1;           eta_c = 1;                            // proton
+                    s_d =  1;           eta_d = 1;                            // recoil baryon
 
                     lam =  (2 * (helicities[0] - helicities[2]));
                     lamp = (helicities[1] - helicities[3]);
@@ -247,9 +278,9 @@ namespace jpacPhoto
                 }
                 case HELICITY_CHANNEL::U :
                 {
-                    s_b =  1;           eta_b = 1;                          // recoil baryon
-                    s_c =  1;           eta_c = 1;                          // proton
-                    s_d =  2*_jp[0];    eta_d = _jp[1] * pow(-1, _jp[0]);   // produced meson
+                    s_b =  1;            eta_b = 1;                            // recoil baryon
+                    s_c =  1;            eta_c = 1;                            // proton
+                    s_d =  2*_mjp[0];    eta_d = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
 
                     lam =  (2 * helicities[0] - helicities[3]);
                     lamp = (2 * helicities[2] - helicities[1]);
@@ -274,6 +305,16 @@ namespace jpacPhoto
         double _mX = 0.,       _mX2 = 0.;         // mass and mass squared of the produced particle
         double _mT = M_PROTON, _mT2 = M2_PROTON;  // mass of the target, assumed to be proton unless overriden
         double _mR = M_PROTON, _mR2 = M2_PROTON;  // mass of the recoil baryon, assumed to be proton unless overriden
+
+        // Quantum numbers of final state meson and baryon 
+        std::array<int,2> _mjp{{1,1}};
+        std::array<int,2> _bjp{{1,1}}; // Baryon is multiplied by two (J,P) = (1,1) -> 1/2+
+
+        // Helicity configurations
+        // Defaults to spin-1 meson, spin-1/2 baryon
+        // Beam [0], Target [1], Produced Meson [2], Recoil Baryon [3]
+        int _nAmps = SPIN_ONE_HELICITIES.size(); 
+        std::vector< std::array<int, 4> > _helicities = SPIN_ONE_HELICITIES;
     };
 };
 

@@ -31,8 +31,8 @@ namespace jpacPhoto
 
             // Make sure the left and right amplitudes match!
             // Check the spins of the intermediate state
-            _jp_left  = left->_kinematics->_jp;
-            _jp_right = right->_kinematics->_jp;
+            _jp_left  = left->_kinematics->get_meson_JP();
+            _jp_right = right->_kinematics->get_meson_JP();
 
             if (_jp_left != _jp_right) 
             {
@@ -53,7 +53,7 @@ namespace jpacPhoto
             };
             
             // IF they match, get the spin and therefor helicities of the intermediate meson
-            _intermediate_helicities = get_helicities(_jp_left[0]);
+            _intermediate_helicities = get_helicities(_jp_left[0], _initialAmp->_kinematics->get_baryon_JP()[0]);
         };
 
         // Evaluate the discontinuity integrated over intermediate phase space

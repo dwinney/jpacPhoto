@@ -32,7 +32,7 @@ namespace jpacPhoto
           _resJ(j), _resP(p), _naturality(p * pow(-1, (j-1)/2))
         {
             set_nParams(2);
-            check_JP(xkinem->_jp);
+            check_JP(xkinem);
 
             // save momentum and other J^P dependent quantities
             _pibar = std::real(xkinem->initial_momentum(mass * mass));
@@ -73,9 +73,13 @@ namespace jpacPhoto
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
         // only vector kinematics allowed
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
             return {{1, -1}};
+        };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
+        {
+            return {{1,  1}};
         };
         
         inline int parity_phase(std::array<int, 4> helicities)

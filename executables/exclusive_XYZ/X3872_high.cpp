@@ -37,11 +37,11 @@ int main( int argc, char** argv )
 
     // Chi_c1(1P)
     reaction_kinematics * kChi = new reaction_kinematics(M_CHIC1);
-    kChi->set_JP(1, 1);
+    kChi->set_meson_JP(1, 1);
 
     // X(3872)
     reaction_kinematics * kX = new reaction_kinematics(M_X3872);
-    kX->set_JP(1, 1);
+    kX->set_meson_JP(1, 1);
 
     // Nucleon couplings and cutoffs
     double gV_omega = 16., gT_omega = 0.;

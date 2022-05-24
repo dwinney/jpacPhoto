@@ -43,7 +43,7 @@ int main( int argc, char** argv )
 
   // Zc(3900)
   reaction_kinematics * kZc = new reaction_kinematics(M_ZC3900);
-  kZc->set_JP(1, 1);
+  kZc->set_meson_JP(1, 1);
 
   double gc_Psi = 1.91; // psi coupling before VMD scaling
   double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
@@ -51,7 +51,7 @@ int main( int argc, char** argv )
 
   // Zb(10610)
   reaction_kinematics * kZb = new reaction_kinematics(M_ZB10610);
-  kZb->set_JP(1, 1);
+  kZb->set_meson_JP(1, 1);
 
   double gb_Ups1 = 0.49, gb_Ups2 = 3.30, gb_Ups3 = 9.22;
   double gb_Gamma = E * (F_UPSILON1S * gb_Ups1 / M_UPSILON1S 
@@ -62,7 +62,7 @@ int main( int argc, char** argv )
   
   // Zb(10650)
   reaction_kinematics * kZbp = new reaction_kinematics(M_ZB10650);
-  kZbp->set_JP(1, 1);
+  kZbp->set_meson_JP(1, 1);
 
   double gbp_Ups1 = 0.21, gbp_Ups2 = 1.47, gbp_Ups3 = 4.8;
   double gbp_Gamma = E * (F_UPSILON1S * gbp_Ups1 / M_UPSILON1S 

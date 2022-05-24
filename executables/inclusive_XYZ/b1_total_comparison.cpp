@@ -29,7 +29,7 @@ int main( int argc, char** argv )
     
     // Kinematics
     reaction_kinematics * kb1 = new reaction_kinematics(M_B1);
-    kb1->set_JP(1, +1);
+    kb1->set_meson_JP(1, +1);
 
     // ---------------------------------------------------------------------------
     // Fixed-spin pion amplitude 

@@ -83,21 +83,17 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue()
     if (_lam_gam != _lam_vec) return 0.;
 
     std::complex<double> result;
+    
+    std::array<int,2> JP = _kinematics->get_meson_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
 
-    if (_kinematics->_jp == AXIAL_VECTOR)
+    switch (jp)
     {
-        result  = 1. / _mX;
-    }
-    else if (_kinematics->_jp == VECTOR)
-    {
-        result = -1.; 
-        (_kinematics->is_photon()) ? (result *= -4.) : (result *= 1.);
-    }
-
-    else if (_kinematics->_jp == PSEUDO_SCALAR)
-    {
-        (_kinematics->is_photon()) ? (result =  0.) : (result = 2.*XI/_mB );
-    }
+        case (11): result = 1./_mX; break;
+        case (10): result = -1.; break;
+        case ( 0): result = _kinematics->is_photon() * 2.*XI/_mB; break;
+        default: return 0.;
+    };
 
     return 2. * _gGamma * _qt * sqrt(XR * _t) * result;
 };
@@ -145,7 +141,8 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex()
 // Beam -- Exchange -- Meson vertex
 std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex()
 {
-    int jp = 10 * _kinematics->_jp[0] + (1+_kinematics->_jp[1])/2;
+    std::array<int,2> JP = _kinematics->get_meson_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
     switch (jp)
     {
         case 11: return axialvector_coupling();

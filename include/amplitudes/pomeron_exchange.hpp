@@ -38,7 +38,7 @@ namespace jpacPhoto
         : amplitude(xkinem, "pomeron_exchange", name), _traj(alpha), _model(model)
         {
             set_nParams(2);
-            check_JP(xkinem->_jp);
+            check_JP(xkinem);
         };
 
         // Setting utility
@@ -58,9 +58,13 @@ namespace jpacPhoto
         };
 
         // only vector kinematics allowed
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
             return {{1, -1}};
+        };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
+        {
+            return {{1,  1}};
         };
 
         private:

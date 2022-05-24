@@ -28,7 +28,7 @@ namespace jpacPhoto
             _mEx(mass), _mEx2(mass*mass)
         {
             set_nParams(2);
-            check_JP(xkinem->_jp);
+            check_JP(xkinem);
         };
 
         // Setting utility
@@ -57,9 +57,13 @@ namespace jpacPhoto
         };
 
         // only Vector and psuedo-scalar kinematics
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
             return {VECTOR, PSEUDO_SCALAR};
+        };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
+        {
+            return {{1,  1}};
         };
 
         protected:

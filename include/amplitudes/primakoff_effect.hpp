@@ -20,7 +20,7 @@ namespace jpacPhoto
         : amplitude(xkinem, "primakoff_effect", amp_id)
         {
             set_nParams(4);
-            check_JP(xkinem->_jp);
+            check_JP(xkinem);
         };
 
         void set_params(std::vector<double> params)
@@ -57,9 +57,13 @@ namespace jpacPhoto
         double integrated_xsection(double s);
 
         // only axial-vector kinematics allowed
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
             return {{1, 1}};
+        };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
+        {
+            return {{1,  1}};
         };
 
         private:

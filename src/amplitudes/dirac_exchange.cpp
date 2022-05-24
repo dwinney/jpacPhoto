@@ -90,7 +90,8 @@ std::complex<double> jpacPhoto::dirac_exchange::top_vertex(int i)
 
 std::complex<double> jpacPhoto::dirac_exchange::bottom_vertex(int j)
 {
-    int jp = 10 * _kinematics->_jp[0] + (1+_kinematics->_jp[1])/2;
+    std::array<int,2> JP = _kinematics->get_meson_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
     
     switch (jp)
     {

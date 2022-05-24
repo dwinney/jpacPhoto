@@ -24,7 +24,7 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
     {
         _cached_helicity_amplitude.clear();
 
-        int n = _kinematics->_nAmps;
+        int n = _kinematics->num_amps();
         
         // If this is a single helicity ampltiude we can use the parity relation to only calculate half of the amplitudes
         if (!_isSum)
@@ -32,14 +32,14 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
 
             for (int i = 0; i < n/2; i++)
             {
-                std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
+                std::complex<double> amp_gamp = helicity_amplitude(_kinematics->helicities(i), s, t);
                 _cached_helicity_amplitude.push_back(amp_gamp);
             };
 
             for (int i = 0; i < n/2; i++)
             {
                 std::complex<double> amp_gamp = _cached_helicity_amplitude[n/2 - 1 - i];
-                double eta = double(parity_phase(_kinematics->_helicities[i]));
+                double eta = double(parity_phase(_kinematics->helicities(i)));
                 _cached_helicity_amplitude.push_back( eta * amp_gamp);
             };
         }
@@ -47,7 +47,7 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
         {
             for (int i = 0; i < n; i++)
             {
-                std::complex<double> amp_gamp = helicity_amplitude(_kinematics->_helicities[i], s, t);
+                std::complex<double> amp_gamp = helicity_amplitude(_kinematics->helicities(i), s, t);
                 _cached_helicity_amplitude.push_back(amp_gamp);
             };
         };
@@ -74,7 +74,7 @@ double jpacPhoto::amplitude::probability_distribution(double s, double t)
     update_cache(s, t);
 
     double sum = 0.;
-    for (int i = 0; i < _kinematics->_nAmps; i++)
+    for (int i = 0; i < _kinematics->num_amps(); i++)
     {
         std::complex<double> amp_i = _cached_helicity_amplitude[i];
         sum += std::real(amp_i * conj(amp_i));
@@ -192,7 +192,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     };
 
     // If spin is too small return 0 automatically
-    int j = _kinematics->_jp[0];
+    int j = _kinematics->get_meson_JP()[0];
     if (j < 2 && (abs(lam) == 2 || abs(lamp) == 2)) return 0.;
     if (j < 1 && (abs(lam) >= 1 || abs(lamp) >= 1)) return 0.;
 
@@ -228,7 +228,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     // l filters second index to be 0, 1, 2
     // m filters sign of second index
     int k, l, m;
-    std::array<std::vector<int>, 2> iters = get_iters(j);
+    std::array<std::vector<int>, 2> iters = get_iters(j, _kinematics->get_baryon_JP()[0]);
     
     int lamlamp = 10 * lam + abs(lamp);
     switch(lamlamp)
@@ -257,7 +257,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
         temp = real(amp * conj(amp_star));
         if (alpha == 2)
         {
-            temp *= XI * double(_kinematics->_helicities[iters[0][i] + k][0]);
+            temp *= XI * double(_kinematics->helicities(iters[0][i] + k)[0]);
         }
         
         result += temp;

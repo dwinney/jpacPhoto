@@ -36,10 +36,10 @@ namespace jpacPhoto
           _mEx2(mass*mass), _ifReggeized(false)
         {
             set_nParams(3);
-            check_JP(xkinem->_jp);
+            check_JP(xkinem);
 
             // Analytical residues only available for axial-vector production
-            if (xkinem->_jp == SCALAR) _useCovariant = true;
+            if (xkinem->get_meson_JP() == SCALAR) _useCovariant = true;
         };
 
         // Constructor for the reggized)
@@ -48,7 +48,7 @@ namespace jpacPhoto
           _alpha(traj), _ifReggeized(true)
         {
             set_nParams(3);
-            check_JP(xkinem->_jp, true);
+            check_JP(xkinem);
         };
 
         // Setting utility
@@ -85,16 +85,22 @@ namespace jpacPhoto
         };
 
         // axial vector and scalar kinematics allowed
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
-            return {AXIAL_VECTOR, VECTOR, SCALAR, PSEUDO_SCALAR};
+            if (!_ifReggeized)
+            {
+                return {AXIAL_VECTOR, VECTOR, SCALAR, PSEUDO_SCALAR};
+            }
+            else
+            {
+                return {AXIAL_VECTOR};
+            }
         };
-               
-        // axial vector and scalar kinematics allowed
-        inline std::vector<std::array<int,2>> allowedJP_Regge()
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return {AXIAL_VECTOR};
+            return {{1, 1}};
         };
+
 
         private:
 

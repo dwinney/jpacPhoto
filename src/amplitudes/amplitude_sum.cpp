@@ -27,7 +27,7 @@ bool jpacPhoto::amplitude_sum::check_compatibility(amplitude * amp)
 std::complex<double> jpacPhoto::amplitude_sum::helicity_amplitude(std::array<int, 4> helicities, double s, double t)
 {
     // Get the index in the cache corresponding to these helicities
-    int index = find_helicity(helicities, _kinematics->_jp[0], _kinematics->get_beam_mass());
+    int index = find_helicity(helicities, _kinematics->get_meson_JP()[0],  _kinematics->get_baryon_JP()[0], _kinematics->is_photon());
     
     // Sum over the caches of each constituate ampltiude
     std::complex<double> result = 0.;

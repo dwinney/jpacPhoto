@@ -40,7 +40,7 @@ int main( int argc, char** argv )
     double mU = 221.6977;
     reaction_kinematics * kU = new reaction_kinematics(0, mU, mX, mU);
     kU->set_Q2(Q2);
-    kU->set_JP(1, 1);
+    kU->set_meson_JP(1, 1);
 
     primakoff_effect U(kU, "^{238}U");
     U.set_params({92, 34.48, 3.07, 3.2E-3});
@@ -49,7 +49,7 @@ int main( int argc, char** argv )
     double mSn = 115.3924;
     reaction_kinematics * kSn = new reaction_kinematics(0., mSn, mX, mSn);
     kSn->set_Q2(Q2);
-    kSn->set_JP(1, 1);
+    kSn->set_meson_JP(1, 1);
 
     primakoff_effect Sn(kSn, "^{124}Sn");
     Sn.set_params({50, 27.56, 2.73, 3.2E-3});
@@ -58,7 +58,7 @@ int main( int argc, char** argv )
     double mZn = 65.1202;
     reaction_kinematics * kZn = new reaction_kinematics(0., mZn, mX, mZn);
     kZn->set_Q2(Q2);
-    kZn->set_JP(1, 1);
+    kZn->set_meson_JP(1, 1);
 
     primakoff_effect Zn(kZn, "^{70}Zn");
     Zn.set_params({30, 22.34, 2.954, 3.2E-3});

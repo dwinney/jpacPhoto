@@ -44,18 +44,18 @@ int main( int argc, char** argv )
 
     // J/Psi
     reaction_kinematics * kJpsi = new reaction_kinematics(M_JPSI);
-    kJpsi->set_JP(1, -1);
+    kJpsi->set_meson_JP(1, -1);
     double R_Jpsi = 1.;
 
     // Psi(2S)
     reaction_kinematics * kPsi2s = new reaction_kinematics(M_PSI2S);
-    kPsi2s->set_JP(1, -1);
+    kPsi2s->set_meson_JP(1, -1);
     double R_Psi2s = 0.55;
 
     // Y(4260)
     double mY = 4.220;
     reaction_kinematics * kY = new reaction_kinematics(M_Y4260);
-    kY->set_JP(1, -1);
+    kY->set_meson_JP(1, -1);
     double R_Y = 0.84;
 
     // ---------------------------------------------------------------------------

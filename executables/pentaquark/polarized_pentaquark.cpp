@@ -71,7 +71,7 @@ int main( int argc, char** argv )
 
     // Set up Kinematics
     reaction_kinematics * ptr = new reaction_kinematics(M_JPSI);
-    ptr->set_JP(1, -1);
+    ptr->set_meson_JP(1, -1);
 
     // ---------------------------------------------------------------------------
     // S - CHANNEL

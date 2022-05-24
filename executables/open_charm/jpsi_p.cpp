@@ -27,7 +27,7 @@ int main( int argc, char** argv )
 
     // Set up Kinematics for Dbar LambdaC in final state
     auto kDstar = new reaction_kinematics(M_JPSI, M_PROTON, M_DSTAR, M_LAMBDAC);
-    kDstar->set_JP(VECTOR);
+    kDstar->set_meson_JP(VECTOR);
 
     auto dstar_dstarEx = new vector_exchange(kDstar, M_DSTAR, "Analytic");
     dstar_dstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});

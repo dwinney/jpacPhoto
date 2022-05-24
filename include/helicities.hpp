@@ -6,9 +6,10 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef _HELIC_COMBO_
-#define _HELIC_COMBO_
+#ifndef HELIC_COMBO
+#define HELIC_COMBO
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <array>
@@ -178,68 +179,58 @@ namespace jpacPhoto
         { -1,  1, -1,  1}
     };
 
-    inline std::vector<std::array<int, 4>> get_helicities(int J, double m = 0.)
+    inline std::vector<std::array<int, 4>> get_helicities(int mJ, int bJ, bool is_massless = true)
     {
-        if (m > 1.E-3) 
+        int mjbj = 100 * is_massless + 10 * mJ + bJ;
+
+        switch (mjbj)
         {
-            switch (J)
-            {   
-                case 0: return MASSIVE_SPIN_ZERO_HELICITIES;
-                case 1: return MASSIVE_SPIN_ONE_HELICITIES;
-                default:
-                {
-                    std::cout << "Error! Amplitudes for spin J = " << J << " not yet implemented. Quitting...\n";
-                    exit(0);
-                }
-            };
+            case (121): return SPIN_TWO_HELICITIES;
+            case (111): return SPIN_ONE_HELICITIES;
+            case (101): return SPIN_ZERO_HELICITIES;
+            case ( 11): return MASSIVE_SPIN_ONE_HELICITIES;
+            case (  1): return MASSIVE_SPIN_ZERO_HELICITIES;
+            default: 
+            {
+                std::cout << "Fatal error! Can't find helicities for meson spin J = " << mJ << " and baryon spin " << bJ << "/2 not yet implemented.\n";
+                std::cout << "Quitting...\n";
+                exit(1);
+            }
+        }
+    };
+
+    inline std::array<std::vector<int>, 2> get_iters(int mJ, int bJ, bool massless = true)
+    {
+        int mjbj = 100 * massless + 10 * mJ + bJ;
+        switch (mjbj)
+        {
+            case (  1): return {SPIN_ZERO_POS_ITERS, SPIN_ZERO_NEG_ITERS};
+            case ( 11): return {SPIN_ONE_POS_ITERS,  SPIN_ONE_NEG_ITERS};
+            case ( 21): return {SPIN_TWO_POS_ITERS,  SPIN_TWO_NEG_ITERS};
+            default:
+            {
+                std::cout << "Fatal error! Can't find iters for meson spin J = " << mJ << " and baryon spin " << bJ << "/2 not yet implemented.\n";
+                std::cout << "Quitting...\n";
+                exit(1);
+            }
+        };
+    };
+
+    inline int find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless = true)
+    {
+        std::vector<std::array<int,4>> hels = get_helicities(mj, bj, is_massless);
+
+        auto iterator = std::find(hels.begin(), hels.end(), helicities);
+        
+        if (iterator != hels.end())
+        {
+            return iterator - hels.begin();
         }
         else
         {
-            switch (J)
-            {   
-                case 0: return SPIN_ZERO_HELICITIES;
-                case 1: return SPIN_ONE_HELICITIES;
-                case 2: return SPIN_TWO_HELICITIES;
-                default:
-                {
-                    std::cout << "Error! Amplitudes for spin J = " << J << " not yet implemented. Quitting...\n";
-                    exit(0);
-                }
-            };
+            std::cout << "Error cannot find helicities! Returning -1... \n";  
+            return -1;
         }
-        
-        return {};
-    };
-
-    inline std::array<std::vector<int>, 2> get_iters(int J)
-    {
-        switch (J)
-        {
-            case 0: return {SPIN_ZERO_POS_ITERS, SPIN_ZERO_NEG_ITERS};
-            case 1: return {SPIN_ONE_POS_ITERS,  SPIN_ONE_NEG_ITERS};
-            case 2: return {SPIN_TWO_POS_ITERS,  SPIN_TWO_NEG_ITERS};
-            default:
-            {
-                std::cout << "Error! Amplitudes for spin J = " << J << " not yet implemented. Quitting...\n";
-                exit(0);
-            }
-        };
-    };
-
-    inline int find_helicity(std::array<int, 4> helicities, int j, double m = 0.)
-    {
-        std::vector<std::array<int,4>> hels = get_helicities(j, m);
-
-        for (int i = 0; i < hels.size(); i++)
-        {
-            if (helicities == hels[i])
-            {
-                return i;
-            }
-        };
-
-        std::cout << "Error cannot find helicities! \n";  
-        return -1;
     };
 };
 

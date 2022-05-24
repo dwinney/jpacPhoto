@@ -51,9 +51,13 @@ namespace jpacPhoto
         };
 
         // only vector available
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
             return { {1, -1} };
+        };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
+        {
+            return { {1,  1} };
         };
 
         // Evaluate the helicity amplitude by dispersing

@@ -48,7 +48,7 @@ int main( int argc, char** argv )
 
     // Set up Kinematics for the overall process gamma p -> jpsi p
     auto kJPsi = new reaction_kinematics(M_JPSI, M_PROTON);
-    kJPsi->set_JP(1, -1); // Vector production
+    kJPsi->set_meson_JP(1, -1); // Vector production
 
     // ---------------------------------------------------------------------------
     // D loop
@@ -59,7 +59,7 @@ int main( int argc, char** argv )
 
     // Kinematics for the sub-processes (gamma) p -> Lam D
     auto kgamD = new reaction_kinematics(0., M_PROTON, M_D, M_LAMBDAC);
-    kgamD->set_JP(0, -1);  // Pseudo-scalar production
+    kgamD->set_meson_JP(0, -1);  // Pseudo-scalar production
     
     auto gamD_DstarEx = new vector_exchange(kgamD, M_DSTAR, "D* exchange"); 
     gamD_DstarEx->set_params({gGamDDstar, gDstarNLam, 0.});
@@ -69,7 +69,7 @@ int main( int argc, char** argv )
     // Psi amplitudes
 
     auto kpsiD = new reaction_kinematics(M_JPSI, M_PROTON, M_D, M_LAMBDAC);
-    kpsiD->set_JP(0, -1);  // Pseudo-scalar production
+    kpsiD->set_meson_JP(0, -1);  // Pseudo-scalar production
 
     auto psiD_DEx = new pseudoscalar_exchange(kpsiD, M_D, "D exchange");
     psiD_DEx->set_params({gPsiDD, gDNLam});
@@ -99,7 +99,7 @@ int main( int argc, char** argv )
 
     // Kinematics for the sub-processes gamma p -> Lam Dstar
     auto kgamDstar = new reaction_kinematics(0., M_PROTON, M_DSTAR, M_LAMBDAC);
-    kgamDstar->set_JP(1, -1);  // Vector 
+    kgamDstar->set_meson_JP(1, -1);  // Vector 
     
     auto gamDstar_DEx = new pseudoscalar_exchange(kgamDstar, M_D);
     gamDstar_DEx->set_params({gGamDDstar, gDstarNLam});
@@ -116,7 +116,7 @@ int main( int argc, char** argv )
 
     // Kinematics for the sub-processes psi p -> Lam Dstar
     auto kpsiDstar = new reaction_kinematics(M_JPSI, M_PROTON, M_DSTAR, M_LAMBDAC);
-    kpsiDstar->set_JP(1, -1); 
+    kpsiDstar->set_meson_JP(1, -1); 
 
     auto psiDstar_DEx = new pseudoscalar_exchange(kpsiDstar, M_D);
     psiDstar_DEx->set_params({gPsiDDstar, gDstarNLam});

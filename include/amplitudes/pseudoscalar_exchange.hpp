@@ -40,7 +40,7 @@ namespace jpacPhoto
           _mEx2(mass*mass), _reggeized(false)
         {
             set_nParams(2);
-            check_JP(xkinem->_jp);
+            check_JP(xkinem);
         };
 
         // constructors for regge exchange
@@ -49,7 +49,7 @@ namespace jpacPhoto
           _alpha(traj), _reggeized(true)
         {
             set_nParams(2);
-            check_JP(xkinem->_jp, true);
+            check_JP(xkinem);
         };
 
         // Setting utility
@@ -75,7 +75,7 @@ namespace jpacPhoto
         // Analytic ones in the T-channel
         inline int parity_phase(std::array<int, 4> helicities)
         {
-            if (_useCovariant || _debug >= 1)
+            if (_useCovariant)
             {
                 return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
             }
@@ -88,16 +88,22 @@ namespace jpacPhoto
         };
 
         // only axial-vector, vector, and pseudo-scalar available
-        inline std::vector<std::array<int,2>> allowedJP()
+        inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
-            return { AXIAL_VECTOR, VECTOR, PSEUDO_SCALAR };
+            if (!_reggeized)
+            {
+                return { AXIAL_VECTOR, VECTOR, PSEUDO_SCALAR };
+            }
+            else
+            {
+                return { AXIAL_VECTOR, VECTOR };
+            }
+        };
+        inline std::vector<std::array<int,2>> allowed_baryon_JP()
+        {
+            return {{1, 1}};
         };
 
-        // only axial-vector, vector, and pseudo-scalar available
-        inline std::vector<std::array<int,2>> allowedJP_Regge()
-        {
-            return { AXIAL_VECTOR, VECTOR };
-        };
 
         // Accessor functions for private memebers 
         inline bool if_reggeized(){ return _reggeized; };

@@ -89,7 +89,8 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue()
 {
     if (abs(_lam) >= 2) return 0.;
 
-    int jp = 10*_kinematics->_jp[0] + (1+_kinematics->_jp[1])/2;
+    std::array<int,2> JP = _kinematics->get_meson_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
     switch (jp)
     {
         case 11: return axialvector_residue();
@@ -232,7 +233,8 @@ std::complex<double> jpacPhoto::vector_exchange::covariant_amplitude()
 // Photon - Axial Vector - Vector vertex
 std::complex<double> jpacPhoto::vector_exchange::top_vertex(int mu)
 {
-        int jp = 10 * _kinematics->_jp[0] + (1+_kinematics->_jp[1])/2;
+    std::array<int,2> JP = _kinematics->get_meson_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
     switch (jp)
     {
         case 11: return axialvector_coupling(mu);

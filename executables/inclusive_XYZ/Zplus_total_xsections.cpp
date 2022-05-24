@@ -36,7 +36,7 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZc = new reaction_kinematics(M_ZC);
-    kZc->set_JP(1, 1);
+    kZc->set_meson_JP(1, 1);
 
     // Coupling
     double gc_Psi = 1.91; // psi coupling before VMD scaling
@@ -56,7 +56,7 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZb = new reaction_kinematics(M_ZB);
-    kZb->set_JP(1, 1);
+    kZb->set_meson_JP(1, 1);
 
     // Coupling 
     double gb_Ups1 = 0.49, gb_Ups2 = 3.30, gb_Ups3 = 9.22;
@@ -78,7 +78,7 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZbp = new reaction_kinematics(M_ZBP);
-    kZbp->set_JP(1, 1);
+    kZbp->set_meson_JP(1, 1);
 
     // Coupling 
     double gbp_Ups1 = 0.21, gbp_Ups2 = 1.47, gbp_Ups3 = 4.8;
