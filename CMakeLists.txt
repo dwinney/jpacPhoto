@@ -108,7 +108,10 @@ if (JSTYLELIB)
     ## Box amplitude plots
 
     include_directories("executables")
-    file(GLOB EXC_EXE_FILES "executables/pentaquark/*.cpp" "executables/exclusive_XYZ/*.cpp")
+    file(GLOB EXC_EXE_FILES "executables/pentaquark/*.cpp"      
+                            "executables/exclusive_XYZ/*.cpp"
+                            "executables/u_channel/*.cpp" 
+        )
     file(GLOB INC_EXE_FILES "executables/inclusive_XYZ/*.cpp")
     file(GLOB BOX_EXE_FILES "executables/open_charm/*.cpp")
 
