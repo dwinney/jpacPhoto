@@ -176,7 +176,7 @@ namespace jpacPhoto
 
         inline std::complex<double> slashed_meson_momentum(int i, int j)
         {
-            return slash(i, j, [this](int mu){ return beam_momentum(mu); });
+            return slash(i, j, [this](int mu){ return meson_momentum(mu); });
         };
 
         // ---------------------------------------------------------------------------
