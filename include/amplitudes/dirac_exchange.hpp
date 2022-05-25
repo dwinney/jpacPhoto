@@ -59,11 +59,11 @@ namespace jpacPhoto
         // only Vector and psuedo-scalar kinematics
         inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
-            return {VECTOR, PSEUDO_SCALAR};
+            return { VECTOR, PSEUDO_SCALAR };
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return {{1,  1}};
+            return { HALF_PLUS, HALF_MINUS };
         };
 
         protected:
@@ -80,12 +80,13 @@ namespace jpacPhoto
         // couplings
         double _gG, _gN;
 
-        // Two different ways to evaluate (should be identical)
+        // We only have the covariant amplitude evaulation here
         std::complex<double> covariant_amplitude();
 
         // Beam -- Exchange -- Produced Baryon
         std::complex<double> top_vertex(int i);
-        std::complex<double> halfplus(int i);
+        std::complex<double> halfplus_coupling(int i);
+        std::complex<double> halfminus_coupling(int i);
 
         // Targer -- Exchange -- Produced Meson
         std::complex<double> bottom_vertex(int j);
