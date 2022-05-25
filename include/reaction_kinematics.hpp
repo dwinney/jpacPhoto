@@ -256,9 +256,9 @@ namespace jpacPhoto
             {
                 case HELICITY_CHANNEL::S :
                 {
-                    s_b =  1;            eta_b = 1;                            // proton
-                    s_c =  2*_mjp[0];    eta_c = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
-                    s_d =  1;            eta_d = 1;                            // recoil baryon
+                    s_b =  1;            eta_b = 1;                                  // proton
+                    s_c =  2*_mjp[0];    eta_c = _mjp[1] * pow(-1, _mjp[0]);         // produced meson
+                    s_d =  _bjp[0];      eta_d = _bjp[1] * pow(-1, (_bjp[0]-1)/2);   // recoil baryon
 
                     lam =  (2 * helicities[0] - helicities[1]);
                     lamp = (2 * helicities[2] - helicities[3]);
