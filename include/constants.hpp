@@ -47,11 +47,17 @@ namespace jpacPhoto
 
 namespace jpacPhoto
 {
-    // Spin-parity combinations
-    constexpr std::array<int,2> SCALAR{{0, +1}};
-    constexpr std::array<int,2> VECTOR{{1, -1}};
-    constexpr std::array<int,2> PSEUDO_SCALAR{{0, -1}};
-    constexpr std::array<int,2> AXIAL_VECTOR{{1, +1}};
+    // Meson spin-parity combinations
+    constexpr std::array<int,2> SCALAR          {{0, +1}};
+    constexpr std::array<int,2> VECTOR          {{1, -1}};
+    constexpr std::array<int,2> PSEUDO_SCALAR   {{0, -1}};
+    constexpr std::array<int,2> AXIAL_VECTOR    {{1, +1}};
+
+    // Barony spin-parity combinations
+    constexpr std::array<int,2> HALF_PLUS        {{1, +1}};
+    constexpr std::array<int,2> HALF_MINUS       {{1, -1}};
+    constexpr std::array<int,2> THREEHALFS_PLUS  {{3, +1}};
+    constexpr std::array<int,2> THREEHALFS_MINUS {{3, -1}};
 
     enum HELICITY_CHANNEL{ S, T, U };
 
@@ -62,8 +68,8 @@ namespace jpacPhoto
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
 
-    const std::complex<double> XR(1., 0.);
-    const std::complex<double> XI(0., 1.);
+    const std::complex<double> XR  (1., 0.);
+    const std::complex<double> XI  (0., 1.);
     const std::complex<double> IEPS(0., EPS);
 
     // PDG Meson masses in GeV
@@ -99,10 +105,12 @@ namespace jpacPhoto
 
     // Baryon masses
     const double M_PROTON    = 0.938272;
+    const double M_LAMBDA    = 1.1157;
     const double M_LAMBDAC   = 2.28646;
 
     // Baryon masses squared
     const double M2_PROTON    = M_PROTON * M_PROTON;
+    const double M2_LAMBDA   = M_LAMBDA * M_LAMBDA;
     const double M2_LAMBDAC   = M_LAMBDAC * M_LAMBDAC;
 
     // Decay constants in GeV
