@@ -54,22 +54,19 @@ double jpacPhoto::dirac_exchange::form_factor()
 std::complex<double> jpacPhoto::dirac_exchange::covariant_amplitude()
 {
     std::complex<double> result = 0.;
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     for (int j = 0; j < 4; j++)
-    //     {
-    //         std::complex<double> temp;
-    //         temp  = top_vertex(i);
-    //         temp *= dirac_propagator(i, j);
-    //         temp *= bottom_vertex(j);
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::complex<double> temp;
+            temp  = top_vertex(i);
+            temp *= dirac_propagator(i, j);
+            temp *= bottom_vertex(j);
 
-    //         result += temp;
-    //     }
-    // }
+            result += temp;
+        }
+    }
 
-    result = _gG * _gN / (_u - _mEx2);
-    result /= sqrt(4.);
-    
     return result;
 };
 
@@ -111,16 +108,20 @@ std::complex<double> jpacPhoto::dirac_exchange::halfminus_coupling(int i)
     {
         for (int l = 0; l < 4; l++)
         {
-            std::complex<double> temp;
+            std::complex<double> temp, sigmaF;
+
             temp  = _covariants->recoil_spinor(k);
-            temp *= GAMMA_5[k][l];
-            temp *= _covariants->slashed_beam_polarization(l, i);
+
+            sigmaF  = _covariants->slashed_beam_momentum(k, l)     * _covariants->slashed_beam_polarization(l, i);
+            sigmaF -= _covariants->slashed_beam_polarization(k, l) * _covariants->slashed_beam_momentum(l, i);
+
+            temp *= sigmaF;
 
             result += temp;   
         }
     }
 
-    return _gG * result;
+    return XI * _gG / (2. * _mR) * result;
 };
 
 //------------------------------------------------------------------------------
@@ -179,7 +180,7 @@ std::complex<double> jpacPhoto::dirac_exchange::pseudoscalar_coupling(int j)
 std::complex<double> jpacPhoto::dirac_exchange::dirac_propagator(int i, int j)
 {
     std::complex<double> result;
-    result  = _covariants->slashed_u_momentum(i, j) - (i == j) * _mEx;
+    result  = _covariants->slashed_u_momentum(i, j) + std::complex<double>(i == j) * _mEx;
     result /= _u - _mEx2;
     return result;
 };
