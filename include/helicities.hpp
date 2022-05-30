@@ -32,8 +32,8 @@ namespace jpacPhoto
     };
 
     // POS / NEG refer to ordering whether hel[0] is +-1 everything else equal
-    const std::vector<int> SPIN_ZERO_POS_ITERS = {0, 1, 2, 3, 4, 5, 6, 7};
-    const std::vector<int> SPIN_ZERO_NEG_ITERS = {4, 5, 6, 7, 0, 1, 2, 3};
+    const std::vector<int> SPIN_ZERO_POS_ITERS = {0, 1, 2, 3};
+    const std::vector<int> SPIN_ZERO_NEG_ITERS = {4, 5, 6, 7};
 
     const std::vector< std::array<int, 4> > SPIN_ONE_HELICITIES =
     {
@@ -201,7 +201,7 @@ namespace jpacPhoto
 
     inline std::array<std::vector<int>, 2> get_iters(int mJ, int bJ, bool massless = true)
     {
-        int mjbj = 100 * massless + 10 * mJ + bJ;
+        int mjbj = 100 * !massless + 10 * mJ + bJ;
         switch (mjbj)
         {
             case (  1): return {SPIN_ZERO_POS_ITERS, SPIN_ZERO_NEG_ITERS};

@@ -23,7 +23,7 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
     else // save a new set
     {
         _cached_helicity_amplitude.clear();
-
+        
         int n = _kinematics->num_amps();
         
         // If this is a single helicity ampltiude we can use the parity relation to only calculate half of the amplitudes
@@ -131,7 +131,9 @@ double jpacPhoto::amplitude::K_LL(double s, double t)
     update_cache(s, t);
 
     double sigmapp = 0., sigmapm = 0.;
-    for (int i = 0; i < 6; i++)
+
+    int j = _kinematics->get_meson_JP()[0];
+    for (int i = 0; i < 2*(2*j+1); i++)
     {
         std::complex<double> squarepp, squarepm;
 
@@ -157,12 +159,16 @@ double jpacPhoto::amplitude::A_LL(double s, double t)
     update_cache(s, t);
 
     double sigmapp = 0., sigmapm = 0.;
-    for (int i = 0; i < 6; i++)
+
+    int  j = _kinematics->get_meson_JP()[0];
+    int nj = 2*(2*j+1); // number of diff amplitudes with same lam_gam lam_tar
+
+    for (int i = 0; i < nj; i++)
     {
         std::complex<double> squarepp, squarepm;
 
         // Amplitudes with lam_gam = + and lam_targ = +
-        squarepp  = _cached_helicity_amplitude[i+6];
+        squarepp  = _cached_helicity_amplitude[i+nj];
         squarepp *= conj(squarepp);
         sigmapp  += real(squarepp);
 
@@ -172,6 +178,7 @@ double jpacPhoto::amplitude::A_LL(double s, double t)
         sigmapm  += real(squarepm);
     }
 
+    debug(sigmapp, sigmapm);
     return (sigmapp - sigmapm) / (sigmapp + sigmapm);
 }
 
@@ -195,6 +202,9 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     int j = _kinematics->get_meson_JP()[0];
     if (j < 2 && (abs(lam) == 2 || abs(lamp) == 2)) return 0.;
     if (j < 1 && (abs(lam) >= 1 || abs(lamp) >= 1)) return 0.;
+
+    // Check we have the right amplitudes cached
+    update_cache(s, t);
 
     // Phase and whether to conjugate at the end
     bool CONJ = false;
@@ -224,21 +234,29 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     // Normalization (sum over all amplitudes squared)
     double norm = probability_distribution(s, t);
 
+    // iters[0] keeps track of helicity = + amplitudes
+    // while iters[1] keeps track of helicity = - 
+    std::array<std::vector<int>, 2> iters = get_iters(j, _kinematics->get_baryon_JP()[0]);
+    
+    // choose a starting point depending on alpha
+    bool pos_or_neg;
+    (alpha == 0) ? (pos_or_neg = 1) : (pos_or_neg = 0);
+    
+
     // k filters first index to be  0, 1, 2
     // l filters second index to be 0, 1, 2
     // m filters sign of second index
     int k, l, m;
-    std::array<std::vector<int>, 2> iters = get_iters(j, _kinematics->get_baryon_JP()[0]);
-    
-    int lamlamp = 10 * lam + abs(lamp);
-    switch(lamlamp)
+    int jlamlamp = 100*j + 10 * lam + abs(lamp);
+    switch(jlamlamp)
     {
-        case  0: {k =  2; l =  2; break;};
-        case 10: {k =  0; l =  2; break;};
-        case 11: {k =  0; l =  0; break;};
-        case 20: {k = -2; l =  2; break;};
-        case 21: {k = -2; l =  0; break;};
-        case 22: {k = -2; l = -2; break;};
+        case   0: {k =  0; l =  0; break;};
+        case 100: {k =  2; l =  2; break;};
+        case 110: {k =  0; l =  2; break;};
+        case 111: {k =  0; l =  0; break;};
+        case 220: {k = -2; l =  2; break;};
+        case 221: {k = -2; l =  0; break;};
+        case 222: {k = -2; l = -2; break;};
         default: exit(0);
     };
     
@@ -246,10 +264,10 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
 
     // Sum over the appropriate amplitude combinations
     std::complex<double> result = 0.;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < iters[0].size(); i++)
     {
-        int index;
-        (alpha == 0) ? (index = iters[0][i]) : (index = iters[1][i]);
+        int index = iters[pos_or_neg][i];
+
         std::complex<double> amp, amp_star, temp;
         amp      = _cached_helicity_amplitude[index + k];
         amp_star = _cached_helicity_amplitude[iters[0][i] + l + m];
@@ -259,7 +277,6 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
         {
             temp *= XI * double(_kinematics->helicities(iters[0][i] + k)[0]);
         }
-        
         result += temp;
     }
 
@@ -278,6 +295,9 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
 // Integrated beam asymmetry sigma_4pi
 double jpacPhoto::amplitude::beam_asymmetry_4pi(double s, double t)
 {
+    // Check we have the right amplitudes cached
+    update_cache(s, t);
+
     double rho100 = real(SDME(1, 0, 0, s, t));
     double rho111 = real(SDME(1, 1, 1, s, t));
     double rho122 = real(SDME(1, 2, 2, s, t));
@@ -291,6 +311,9 @@ double jpacPhoto::amplitude::beam_asymmetry_4pi(double s, double t)
 // Beam asymmetry along y axis sigma_y 
 double jpacPhoto::amplitude::beam_asymmetry_y(double s, double t)
 {
+    // Check we have the right amplitudes cached
+    update_cache(s, t);
+
     double rho111  = real(SDME(1, 1,  1, s, t));
     double rho11m1 = real(SDME(1, 1, -1, s, t));
     double rho011  = real(SDME(0, 1,  1, s, t));
@@ -303,6 +326,9 @@ double jpacPhoto::amplitude::beam_asymmetry_y(double s, double t)
 // Parity asymmetry P_sigma
 double jpacPhoto::amplitude::parity_asymmetry(double s, double t)
 {
+    // Check we have the right amplitudes cached
+    update_cache(s, t);
+
     double rho100  = real(SDME(1, 0,  0, s, t));
     double rho11m1 = real(SDME(1, 1, -1, s, t));
     double rho12m2 = real(SDME(1, 2, -2, s, t));
