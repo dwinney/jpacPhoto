@@ -162,7 +162,6 @@ double jpacPhoto::amplitude::A_LL(double s, double t)
 
     int  j = _kinematics->get_meson_JP()[0];
     int nj = 2*(2*j+1); // number of diff amplitudes with same lam_gam lam_tar
-
     for (int i = 0; i < nj; i++)
     {
         std::complex<double> squarepp, squarepm;
@@ -178,7 +177,6 @@ double jpacPhoto::amplitude::A_LL(double s, double t)
         sigmapm  += real(squarepm);
     }
 
-    debug(sigmapp, sigmapm);
     return (sigmapp - sigmapm) / (sigmapp + sigmapm);
 }
 
@@ -240,7 +238,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     
     // choose a starting point depending on alpha
     bool pos_or_neg;
-    (alpha == 0) ? (pos_or_neg = 1) : (pos_or_neg = 0);
+    (alpha == 0) ? (pos_or_neg = 0) : (pos_or_neg = 1);
     
 
     // k filters first index to be  0, 1, 2
@@ -271,7 +269,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
         std::complex<double> amp, amp_star, temp;
         amp      = _cached_helicity_amplitude[index + k];
         amp_star = _cached_helicity_amplitude[iters[0][i] + l + m];
-
+        
         temp = real(amp * conj(amp_star));
         if (alpha == 2)
         {
