@@ -11,6 +11,7 @@
 
 #include "reaction_kinematics.hpp"
 #include "dirac_spinor.hpp"
+#include "rarita_spinor.hpp"
 #include "two_body_state.hpp"
 #include "polarization_vector.hpp"
 #include "gamma_matrices.hpp"
@@ -35,6 +36,8 @@ namespace jpacPhoto
 
             _target_spinor = new dirac_spinor(_initial_state);
             _recoil_spinor = new dirac_spinor(_final_state);
+
+            _recoil_rarita_spinor = new rarita_spinor(_final_state);
         };
 
         ~covariant_kinematics()
@@ -45,6 +48,7 @@ namespace jpacPhoto
             delete _meson_polarization;
             delete _target_spinor;
             delete _recoil_spinor;
+            delete _recoil_rarita_spinor;
         }; 
 
         // ---------------------------------------------------------------------------
@@ -117,9 +121,16 @@ namespace jpacPhoto
         {
             return _target_spinor->component(i, _lam_tar, _s, 0.);
         };
+
+        // If called with only one index assume we mean the dirac spinor
         inline std::complex<double> recoil_spinor(int i)
         {
             return _recoil_spinor->adjoint_component(i, _lam_rec, _s, _theta);
+        };
+        // Else with two indices we use the rarita spinor
+        inline std::complex<double> recoil_spinor(int i, int mu)
+        {
+            return _recoil_rarita_spinor->adjoint_component(i, mu, _lam_rec, _s, _theta);
         };
 
         // -----------------------------------------------------------------
@@ -189,6 +200,7 @@ namespace jpacPhoto
         two_body_state * _initial_state,  * _final_state;
         polarization_vector * _beam_polarization, * _meson_polarization;
         dirac_spinor * _target_spinor, * _recoil_spinor;
+        rarita_spinor * _recoil_rarita_spinor;
 
         // Energies
         double _s, _t, _theta;
