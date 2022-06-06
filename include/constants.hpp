@@ -106,6 +106,7 @@ namespace jpacPhoto
     // Baryon masses
     const double M_PROTON    = 0.938272;
     const double M_LAMBDA    = 1.1157;
+    const double M_DELTA     = 1.23055;
     const double M_LAMBDAC   = 2.28646;
 
     // Baryon masses squared
