@@ -39,7 +39,6 @@ int main( int argc, char** argv )
 
   double g_NN = sqrt(2.) * sqrt(4. * M_PI * 13.81); // Nucleon coupling same for all
   double LamPi = .9;  // 900 MeV cutoff for formfactor
-  double bPi = 1. / (LamPi * LamPi);
 
   // Zc(3900)
   double mZc = 3.8884; // GeV
@@ -79,15 +78,15 @@ int main( int argc, char** argv )
 
   pseudoscalar_exchange Zc_fixedspin(kZc, M_PION, "#it{Z_{c}} (3900)^{+}");
   Zc_fixedspin.set_params(Zc_couplings);
-  Zc_fixedspin.set_formfactor(true, bPi);
+  Zc_fixedspin.set_formfactor(1, LamPi);
 
   pseudoscalar_exchange Zb_fixedspin(kZb, M_PION,  "#it{Z_{b}} (10610)^{+}");
   Zb_fixedspin.set_params(Zb_couplings);
-  Zb_fixedspin.set_formfactor(true, bPi);
+  Zb_fixedspin.set_formfactor(1, LamPi);
 
   pseudoscalar_exchange Zbp_fixedspin(kZbp, M_PION, "#it{Z'_{b}} (10650)^{+}");
   Zbp_fixedspin.set_params(Zbp_couplings);
-  Zbp_fixedspin.set_formfactor(true, bPi);
+  Zbp_fixedspin.set_formfactor(1, LamPi);
 
   // ---------------------------------------------------------------------------
   // Plotting options

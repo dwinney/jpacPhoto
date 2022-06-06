@@ -39,7 +39,6 @@ int main( int argc, char** argv )
 
   double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
   double LamPi = .9;  // 900 MeV cutoff for formfactor
-  double bPi = 1. / (LamPi * LamPi);
 
   // Zc(3900)
   reaction_kinematics * kZc = new reaction_kinematics(M_ZC3900);
@@ -82,15 +81,15 @@ int main( int argc, char** argv )
 
   pseudoscalar_exchange Zc(kZc, alpha, "#it{Z_{c}}(3900)^{+}");
   Zc.set_params(Zc_couplings);
-  Zc.set_formfactor(true, bPi);
+  Zc.set_formfactor(true, LamPi);
 
   pseudoscalar_exchange Zb(kZb, alpha,  "#it{Z_{b}}(10610)^{+}");
   Zb.set_params(Zb_couplings);
-  Zb.set_formfactor(true, bPi);
+  Zb.set_formfactor(true, LamPi);
 
   pseudoscalar_exchange Zbp(kZbp, alpha, "#it{Z_{b}}'(10650)^{+}");
   Zbp.set_params(Zbp_couplings);
-  Zbp.set_formfactor(true, bPi);
+  Zbp.set_formfactor(true, LamPi);
 
   // ---------------------------------------------------------------------------
   // Plotting options
