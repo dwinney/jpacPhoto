@@ -56,7 +56,7 @@ double jpacPhoto::pseudoscalar_exchange::form_factor()
         // exponential form factor
         case 1: 
         {
-            return exp((_t - _kinematics->t_man(_s, 0.)) / _cutoff*_cutoff);
+            return exp((_t - _kinematics->t_man(_s, 0.)) / (_cutoff*_cutoff));
         };
         // monopole form factor
         case 2:

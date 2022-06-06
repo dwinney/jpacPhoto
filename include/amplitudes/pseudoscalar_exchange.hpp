@@ -150,7 +150,7 @@ namespace jpacPhoto
         void check_covariant(reaction_kinematics * kinem)
         {
             std::array<int,2> bjp = kinem->get_baryon_JP();
-            (bjp[0] == 3)  ? (_useCovariant = true) : (_useCovariant = true);
+            (bjp[0] == 3)  ? (_useCovariant = true) : (_useCovariant = false);
         };
 
         // Analytic residues
