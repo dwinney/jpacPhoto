@@ -55,14 +55,13 @@ namespace jpacPhoto
             // Assume the inpue is a "normal" kinematics with meson is particle 1 and baryon in particle 2
             _particle_two = instate;
 
-            double meson_mass  = instate->get_meson_mass();
-            double baryon_mass = instate->get_baryon_mass();
-
-            // Create a new two_body_state with the masses reversed
-            _particle_one = new two_body_state(baryon_mass, meson_mass);
-
             // The spinor component comes from particle 2
             _spin_half = new dirac_spinor(_particle_two);
+
+            // Create a new two_body_state with the masses reversed
+            double meson_mass  = instate->get_meson_mass();
+            double baryon_mass = instate->get_baryon_mass();
+            _particle_one = new two_body_state(baryon_mass, meson_mass);
 
             // The "vector" component comes from particle 1
             _spin_one = new polarization_vector(_particle_one);

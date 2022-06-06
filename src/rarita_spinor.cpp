@@ -69,14 +69,17 @@ std::complex<double> jpacPhoto::rarita_spinor::component(int i, int mu, int lamb
 // Adjoint wave-function is similarly constructed from eps^* and bar u
 std::complex<double> jpacPhoto::rarita_spinor::adjoint_component(int i, int mu, int lambda, double s, double theta)
 {
+    double theta_1 = theta + M_PI;
+    double theta_2 = theta;
+
     switch(lambda)
     {
         case  3: 
         {
             std::complex<double> v1, hp;
 
-            v1 = _spin_one->conjugate_component(mu, +1, s, theta + M_PI); 
-            hp = _spin_half->adjoint_component(i, +1, s, theta);
+            v1 =   _spin_one->conjugate_component(mu, +1, s, theta_1); 
+            hp =   _spin_half->adjoint_component(  i, +1, s, theta_2);
 
             return v1 * hp;
         };  
@@ -84,10 +87,10 @@ std::complex<double> jpacPhoto::rarita_spinor::adjoint_component(int i, int mu, 
         {
             std::complex<double> v1, v0, hp, hm;
 
-            v1 = _spin_one->conjugate_component(mu, 1, s, theta + M_PI);
-            v0 = _spin_one->conjugate_component(mu, 0, s, theta + M_PI);
-            hp = _spin_half->adjoint_component(i, +1, s, theta);
-            hm = _spin_half->adjoint_component(i, -1, s, theta);
+            v1 =   _spin_one->conjugate_component(mu, +1, s, theta_1);
+            v0 =   _spin_one->conjugate_component(mu,  0, s, theta_1);
+            hp =   _spin_half->adjoint_component(  i, +1, s, theta_2);
+            hm =   _spin_half->adjoint_component(  i, -1, s, theta_2);
 
             return sqrt(1./3.) * v1 * hm + sqrt(2. / 3.) * v0 * hp;
         };
@@ -95,18 +98,18 @@ std::complex<double> jpacPhoto::rarita_spinor::adjoint_component(int i, int mu, 
         {
             std::complex<double> v1, v0, hp, hm;
 
-            v1 = _spin_one->conjugate_component(mu, -1, s, theta + M_PI);
-            v0 = _spin_one->conjugate_component(mu,  0, s, theta + M_PI);
-            hp = _spin_half->adjoint_component(i, +1, s, theta);
-            hm = _spin_half->adjoint_component(i, -1, s, theta);
-
+            v1 =   _spin_one->conjugate_component(mu, -1, s, theta_1);
+            v0 =   _spin_one->conjugate_component(mu,  0, s, theta_1);
+            hp =   _spin_half->adjoint_component(  i, +1, s, theta_2);
+            hm =   _spin_half->adjoint_component(  i, -1, s, theta_2);
+    
             return sqrt(1./3.) * v1 * hp + sqrt(2. / 3.) * v0 * hm;
         };
         case -3: 
         {
             std::complex<double> v1, hm;
-            v1 = _spin_one->conjugate_component(mu, -1, s, theta + M_PI); 
-            hm = _spin_half->adjoint_component(i, -1, s, theta);
+            v1 =   _spin_one->conjugate_component(mu, -1, s, theta_1); 
+            hm =   _spin_half->adjoint_component(  i, -1, s, theta_2);
 
             return v1 * hm;
         };  
