@@ -41,6 +41,7 @@ namespace jpacPhoto
         {
             set_nParams(2);
             check_JP(xkinem);
+            check_covariant(xkinem);
         };
 
         // constructors for regge exchange
@@ -56,8 +57,8 @@ namespace jpacPhoto
         void set_params(std::vector<double> params)
         {
             check_nParams(params);
-            _gGamma = params[0];
-            _gNN = params[1];
+            _gT = params[0];
+            _gB = params[1];
         };
 
         // Whether or not to include an exponential form factor (default false)
@@ -101,7 +102,7 @@ namespace jpacPhoto
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return {{1, 1}};
+            return { HALF_PLUS, THREEHALFS_PLUS };
         };
 
 
@@ -110,7 +111,7 @@ namespace jpacPhoto
         inline double get_mEx2(){ return _mEx2; };
         inline linear_trajectory * get_trajectory(){ return _alpha; };
         inline double get_cutoff(){ return _cutoff; };
-        inline double get_coupling(){ return _gGamma; };
+        inline double get_coupling(){ return _gT; };
 
         // return the coupling function for the top vertex
         // For use with inclusive
@@ -137,8 +138,8 @@ namespace jpacPhoto
         linear_trajectory * _alpha = NULL;
 
         // Coupling constants
-        double _gGamma = 0.; // Gamma - Axial - Pseudoscalar coupling 
-        double _gNN = 0.;    // Pseudoscalar - Nucleon coupling
+        double _gT = 0.; // Gamma - Axial - Pseudoscalar coupling 
+        double _gB = 0.;    // Pseudoscalar - Nucleon coupling
 
         int _useFormFactor = 0;   // Whether to include the exponential form factor
         double _cutoff = 0.;      // "t-slope" parameter in the FF
@@ -146,6 +147,11 @@ namespace jpacPhoto
 
         // Whether to switch to using the feynman rules
         bool _useCovariant = false; 
+        void check_covariant(reaction_kinematics * kinem)
+        {
+            std::array<int,2> bjp = kinem->get_baryon_JP();
+            (bjp[0] == 3)  ? (_useCovariant = true) : (_useCovariant = true);
+        };
 
         // Analytic residues
         std::complex<double> top_residue();
@@ -153,10 +159,13 @@ namespace jpacPhoto
 
         // Covariant vertices
         std::complex<double> top_vertex();
-        std::complex<double> bottom_vertex();
         std::complex<double> axialvector_coupling();
         std::complex<double> vector_coupling();
         std::complex<double> pseudoscalar_coupling();
+
+        std::complex<double> bottom_vertex();
+        std::complex<double> halfplus_coupling();
+        std::complex<double> threehalvesplus_coupling();
 
         // Simple pole propagator
         std::complex<double> scalar_propagator();

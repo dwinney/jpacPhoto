@@ -18,7 +18,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
     update(helicities, s, t);
 
     std::complex<double> result;
-    if (_useCovariant == true || _debug == 1)
+    if (_useCovariant == true)
     {
         // Because its a scalar exchange we dont have any loose indices to contract
         result  = scalar_propagator();
@@ -63,7 +63,6 @@ double jpacPhoto::pseudoscalar_exchange::form_factor()
         {
             return (_cutoff*_cutoff - _mEx2) / (_cutoff*_cutoff - _t); 
         };
-
         default:
         {
             return 1.;
@@ -95,7 +94,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue()
         default: return 0.;
     };
 
-    return 2. * _gGamma * _qt * sqrt(XR * _t) * result;
+    return 2. * _gT * _qt * sqrt(XR * _t) * result;
 };
 
 // Nucleon resiude 
@@ -105,7 +104,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_residue()
 
     if (_lam_tar != _lam_rec) return 0.;
 
-    result  = _gNN; 
+    result  = _gB; 
     result *= sqrt(XR * _t - pow((_mT - _mR), 2.));
     result /= 2.;
 
@@ -115,28 +114,19 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_residue()
 //------------------------------------------------------------------------------
 // FEYNMAN EVALUATION
 
-// Target -- Exchange -- Recoil Vertex
 std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_vertex()
 {
-    std::complex<double> result = 0.;
-    for (int i = 0; i < 4; i++)
+    std::array<int,2> JP = _kinematics->get_baryon_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
+
+    switch (jp)
     {
-        for (int j = 0; j < 4; j++)
-        {
-            // ubar(recoil) * gamma_5 * u(target)
-            std::complex<double> temp;
-            temp  = _covariants->recoil_spinor(i);
-            temp *= GAMMA_5[i][j];
-            temp *= _covariants->target_spinor(j);
-
-            result += temp;
-        }
-    }
-
-    result *= _gNN;
-
-    return result;
+        case 11: return halfplus_coupling();
+        case 31: return threehalvesplus_coupling();
+        default: return 0.;
+    };
 };
+
 
 // Beam -- Exchange -- Meson vertex
 std::complex<double> jpacPhoto::pseudoscalar_exchange::top_vertex()
@@ -181,6 +171,53 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::scalar_propagator()
 };
 
 //------------------------------------------------------------------------------
+// These are the different bottom couplings which depend on the quantum numbers 
+
+// Target -- Exchange -- Recoil Vertex
+std::complex<double> jpacPhoto::pseudoscalar_exchange::halfplus_coupling()
+{
+    std::complex<double> result = 0.;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            // ubar(recoil) * gamma_5 * u(target)
+            std::complex<double> temp;
+            temp  = _covariants->recoil_spinor(i);
+            temp *= GAMMA_5[i][j];
+            temp *= _covariants->target_spinor(j);
+
+            result += temp;
+        }
+    }
+
+    result *= _gB;
+
+    return result;
+};
+
+// Target -- Exchange -- Recoil Vertex
+std::complex<double> jpacPhoto::pseudoscalar_exchange::threehalvesplus_coupling()
+{
+    std::complex<double> result = 0.;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int mu = 0; mu < 4; mu ++)
+        {
+            std::complex<double> temp;
+            temp  = _covariants->recoil_spinor(i, mu);
+            temp *= METRIC[mu];
+            temp *= _covariants->t_momentum(mu);
+            temp *= _covariants->target_spinor(i);
+            result += temp;
+        }
+    }
+    result *= _gB / sqrt(_mEx2);
+
+    return result;
+};
+
+//------------------------------------------------------------------------------
 // These are the different top couplings which depend on the quantum numbers 
 
 std::complex<double> jpacPhoto::pseudoscalar_exchange::axialvector_coupling()
@@ -214,7 +251,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::axialvector_coupling()
         }
     }
 
-    return _gGamma * (term1 - term2) / _mX;
+    return _gT * (term1 - term2) / _mX;
 };
 
 std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
@@ -244,21 +281,20 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
     }
     
     if (!_kinematics->is_photon()) result /= -4.;
-    return _gGamma * result;
+    return _gT * result;
 };
 
 std::complex<double> jpacPhoto::pseudoscalar_exchange::pseudoscalar_coupling()
 {
-    if (_kinematics->is_photon()) return 0.;
-
     std::complex<double> result = 0.;
     for (int mu = 0; mu < 4; mu++)
     {
         std::complex<double> temp;
         temp  = _covariants->beam_polarization(mu);
         temp *= METRIC[mu];
-        temp *= _covariants->beam_momentum(mu);
-        result += -XI * temp;
+        temp *= _covariants->t_momentum(mu) - _covariants->meson_momentum(mu);
+        result += - temp; 
     }
-    return _gGamma * result;
+
+    return _gT * result;
 };
