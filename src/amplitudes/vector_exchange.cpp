@@ -37,7 +37,7 @@ double jpacPhoto::vector_exchange::form_factor()
     switch (_useFormFactor)
     {
         // exponential form factor
-        case 1: return exp((_t - _kinematics->t_man(_s, 0.)) / _cutoff*_cutoff);
+        case 1: return exp((_t - _kinematics->t_man(_s, 0.)) / (_cutoff*_cutoff));
         // monopole form factor
         case 2: return (_cutoff*_cutoff - _mEx2) / (_cutoff*_cutoff - _t); 
         // No form-factor
