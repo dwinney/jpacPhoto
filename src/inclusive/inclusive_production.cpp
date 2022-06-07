@@ -46,6 +46,7 @@ double jpacPhoto::inclusive_production::dsigma_dt(double s, double t)
 double jpacPhoto::inclusive_production::dsigma_dM2(double s, double M2)
 {
     if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+    if (!_useTX && (sqrt(M2) >= sqrt(s) - _kinematics->_mX)) return 0.;
 
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
@@ -65,7 +66,7 @@ double jpacPhoto::inclusive_production::dsigma_dM2(double s, double M2)
         ROOT::Math::Functor1D wF(dSigma);
         ig.SetFunction(wF);
 
-        result = ig.Integral(_kinematics->TMINfromM2(M2), _kinematics->TMAXfromM2(M2));
+        result = ig.Integral(_kinematics->TMAXfromM2(M2), _kinematics->TMINfromM2(M2));
     }
     else
     {
@@ -187,17 +188,34 @@ double jpacPhoto::inclusive_production::integrated_xsection(double s)
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
     
-    // Assume argument 3 is M2
-    auto dSigma = [&](double x)
+    if (_useTX == true)
     {
-        double sigma = dsigma_dx(s,x);
-        return sigma;
-    };
-    ROOT::Math::Functor1D wF(dSigma);
-    ig.SetFunction(wF);
+        // Assume argument 3 is M2
+        auto dSigma = [&](double x)
+        {
+            double sigma = dsigma_dx(s,x);
+            return sigma;
+        };
+        ROOT::Math::Functor1D wF(dSigma);
+        ig.SetFunction(wF);
 
-    // Integrate over x
-    result = ig.Integral(0.01, 1.);
+        // Integrate over x
+        result  = ig.Integral(0.1, 1.);
+    }
+    else
+    {
+        // Assume argument 3 is M2
+        auto dSigma = [&](double m2)
+        {
+            double sigma = dsigma_dM2(s,m2);
+            return sigma;
+        };
+        ROOT::Math::Functor1D wF(dSigma);
+        ig.SetFunction(wF);
+
+        // Integrate over x
+        result = ig.Integral(_kinematics->_minM2, pow(sqrt(s) - _kinematics->_mX, 2));
+    }
 
     return result * 1.E3;
 };
