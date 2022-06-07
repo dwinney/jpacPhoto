@@ -31,7 +31,7 @@ namespace jpacPhoto
         double _mX, _mX2;                         // Mass of the produce (observed particle)
         double _mT = M_PROTON, _mT2 = M2_PROTON;  // Mass of the target
 
-        double _minM2 = M2_PROTON; // Default to proton is minimum mass unobserved
+        double _minM2 = (M_PROTON + M_PION)*(M_PROTON + M_PION); // Default to proton is minimum mass unobserved
 
         double _s = 100.; // Total center-of-mass energies 
 
