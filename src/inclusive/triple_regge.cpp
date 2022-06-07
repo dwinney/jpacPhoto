@@ -112,10 +112,11 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     // Form factor with tprime corresponding to the exclusive limit
     double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( _kinematics->_minM2 )));
 
-    // phase_space factor (depends on whether mm is x or M2)
+    // We need to know whether we are using (1-x) or (M2 / s)
     double s_piece;
     (_useTX) ? (s_piece = (1. - mm)) : (s_piece = mm / s);
 
+    // The form of the exchange propagators depends on if we want a regge form or not
     double exchange_propagator2;
     if (_useRegge)
     {
@@ -132,13 +133,18 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     }
     else
     {
-        double pole          = 1. / (_exchange_mass2 - t);                                     // Simple pole 
+        double pole          = 1. / (_exchange_mass2 - t);                         // Simple pole 
         exchange_propagator2 = pole * pole * pow(s_piece, -2. * _exchange_spin);   // Squared
     };
 
+    // Get missing mass to put into the sigma_tot
     double M2;
     (_useTX) ? (M2 = _kinematics->M2fromTX(t, mm)) : (M2 = mm);
     double sigma_tot =  _sigma_tot->eval(M2);
 
-    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * s_piece / pow(4.* M_PI, 3.);
+    // Multiply by phase-space factor
+    double phase_space;
+    (_useTX) ? ( phase_space = s_piece ) : ( phase_space = sqrt(Kallen(M2, t, M2_PROTON) / Kallen(s, 0., M2_PROTON) ) );
+
+    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / pow(4. * M_PI, 3.);
 };  

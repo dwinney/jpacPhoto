@@ -32,7 +32,7 @@ namespace jpacPhoto
          _exclusive(exclusive),
          _useRegge(exclusive->if_reggeized()),
          _exchange_mass2(exclusive->get_mEx2()), _trajectory(exclusive->get_trajectory()),
-         _b(exclusive->get_cutoff()), _g(exclusive->get_coupling())
+         _b(pow(exclusive->get_cutoff(), -2.)), _g(exclusive->get_coupling())
         {
             initialize(exclusive->amplitude_name());
         };
