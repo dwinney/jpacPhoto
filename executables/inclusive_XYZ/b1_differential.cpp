@@ -137,7 +137,7 @@ int main( int argc, char** argv )
     plotter->SetYaxis(ylabel, ymin, ymax);
 
     // LEgend options
-    plotter->SetLegend(0.5, 0.65);
+    plotter->SetLegend(0.47, 0.7);
     plotter->SetLegendOffset(0.3, 0.13);
 
     // Output to file
