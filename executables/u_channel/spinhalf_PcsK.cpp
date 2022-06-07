@@ -45,25 +45,65 @@ int main( int argc, char** argv )
     jpacGraph1D* plotter = new jpacGraph1D();
 
     // ---------------------------------------------------------------------------
-    double  xmin = 5.;
-    double  xmax = 12.;
+    // Print the desired observable for each amplitude
 
-    double  ymin = 0.;
-    double  ymax = 0.8;
+    double xmin = 0.;
+    double xmax = 180;
+    double ymin = -1.;
+    double ymax = +1.;
+    double w = 5.5; 
+    double s = w*w;
+   
+    int o;
 
-    std::string ylabel    = "#sigma(#gamma p #rightarrow P K)  [nb]";
-    std::string xlabel    = "W_{#gammap}  [GeV]";
-
-    auto F = [&](double x)
+    std::string ylabel    = "";
+    std::string xlabel    = "#theta_{s}  [deg.]";
+    auto F = [&](double theta)
     {
-        return LamEx.integrated_xsection(x*x);
+        theta *= DEG2RAD;
+        double t = kPcsK->t_man(s, theta);
+        switch (o)
+        {
+            case 1: return LamEx.A_LL(s, t);
+            case 2: return LamEx.K_LL(s, t);
+            case 3: return LamEx.beam_asymmetry_4pi(s, t);
+            default: return 0.;
+        };
+        return 0.;
     };
 
-    plotter->AddEntry(N, F, {xmin,xmax}, LamEx.get_id(), PRINT_TO_COMMANDLINE);
+    // ---------------------------------------------------------------------------
+    // double  xmin = 5.;
+    // double  xmax = 12.;
+
+    // double  ymin = 0.;
+    // double  ymax = 0.;
+
+    // std::string ylabel    = "#sigma(#gamma p #rightarrow P K)  [nb]";
+    // std::string xlabel    = "W_{#gammap}  [GeV]";
+
+    // auto F = [&](double x)
+    // {
+    //     return LamEx.integrated_xsection(x*x);
+    // };
+
+    o = 1;
+    plotter->AddEntry(N, F, {xmin,xmax}, "A_{LL}");
+    o = 2;
+    plotter->AddEntry(N, F, {xmin,xmax}, "K_{LL}");
+    o = 3;
+    plotter->AddEntry(N, F, {xmin,xmax}, "#Sigma_{4#pi}");
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel,  ymin, ymax);
-    plotter->SetLegend(0.7, 0.65);
+    plotter->SetLegendOffset(0.3, 0.1);
+    plotter->RemoveLogo();
+
+    // Add a header to legend to specify the fixed Q2
+    std::ostringstream streamObj;
+    streamObj << std::setprecision(4) << "W = " << w << " GeV";
+    std::string header = streamObj.str();
+    plotter->SetLegend(0.7, 0.25, header);
 
     // Output to file
     plotter->Plot(filename);
