@@ -25,7 +25,6 @@ int main( int argc, char** argv )
     double g_b1 = 0.24;
     double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
     double LamPi = .9;  // 900 MeV cutoff for formfactor
-    double bPi = 1. / (LamPi * LamPi);
     
     // Kinematics
     reaction_kinematics * kb1 = new reaction_kinematics(M_B1);
@@ -37,7 +36,7 @@ int main( int argc, char** argv )
     // Exclusive amplitude
     std::unique_ptr<pseudoscalar_exchange> excB1f( new pseudoscalar_exchange(kb1, M_PION, "b1 production") );
     excB1f->set_params({g_b1, g_NN});
-    excB1f->set_formfactor(true, bPi);
+    excB1f->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incB1f( new triple_regge(excB1f.get()));
@@ -50,7 +49,7 @@ int main( int argc, char** argv )
     int N = 100;
 
     double xmin = 2.;   
-    double xmax = 12. ;
+    double xmax = 10.;
 
     double ymin = 0.;
     double ymax = 0.8;
