@@ -151,7 +151,7 @@ double jpacPhoto::inclusive_production::dsigma_dx(double s, double x)
             // convert x and y2 to fixed M2
             double M2 = _kinematics->M2fromXY2(x, y2);
             double t  = _kinematics->TfromXY2(x, y2);
-            return _kinematics->jacobianXY2(t, M2) * d3sigma_d3p(s, t, M2);
+            return _kinematics->jacobianXY2(x, y2) * d3sigma_d3p(s, t, M2);
         };
         ROOT::Math::Functor1D wF(dSigma);
         ig.SetFunction(wF);
@@ -187,23 +187,17 @@ double jpacPhoto::inclusive_production::integrated_xsection(double s)
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
     
-    if (_useTX == true)
+    // Assume argument 3 is M2
+    auto dSigma = [&](double x)
     {
-        // Assume argument 3 is M2
-        auto dSigma = [&](double x)
-        {
-            double sigma = dsigma_dx(s,x);
-            return sigma;
-        };
-        ROOT::Math::Functor1D wF(dSigma);
-        ig.SetFunction(wF);
+        double sigma = dsigma_dx(s,x);
+        return sigma;
+    };
+    ROOT::Math::Functor1D wF(dSigma);
+    ig.SetFunction(wF);
 
-        result = ig.Integral(0.01, 1.);
-    }
-    else
-    {
-        result = 0.;
-    };  
+    // Integrate over x
+    result = ig.Integral(0.01, 1.);
 
     return result * 1.E3;
 };
