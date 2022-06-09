@@ -18,7 +18,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
     update(helicities, s, t);
 
     std::complex<double> result;
-    if (_useCovariant == true)
+    if (_useCovariant == true && !_debug)
     {
         // Because its a scalar exchange we dont have any loose indices to contract
         result  = scalar_propagator();
@@ -62,6 +62,17 @@ double jpacPhoto::pseudoscalar_exchange::form_factor()
         case 2:
         {
             return (_cutoff*_cutoff - _mEx2) / (_cutoff*_cutoff - _t); 
+        };
+        case 3:
+        {
+            double u = _kinematics->u_man(_s, _theta);
+
+            auto Fx = [&] (double x, double m)
+            {
+                return pow(_cutoff, 4.) / (pow(_cutoff, 4.) + pow(x - m*m, 2.));
+            };
+
+            return 1. - (1. - Fx(_s, M_PROTON)) * (1. - Fx(_t, M_PION)) * (1. - Fx(u, M_LAMBDA));
         };
         default:
         {
@@ -212,7 +223,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::threehalvesplus_coupling(
             result += temp;
         }
     }
-    result *= _gB / sqrt(_mEx2);
+    result *= _gB;
 
     return result;
 };
