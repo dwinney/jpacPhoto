@@ -45,7 +45,7 @@ double jpacPhoto::inclusive_production::dsigma_dt(double s, double t)
 
 double jpacPhoto::inclusive_production::dsigma_dM2(double s, double M2)
 {
-    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+    if (sqrt(s) <= _kinematics->_mX + sqrt(_kinematics->_minM2)) return 0.;
     if (!_useTX && (sqrt(M2) >= sqrt(s) - _kinematics->_mX)) return 0.;
 
     // Pass the total energy to the kinematics object
@@ -135,7 +135,7 @@ double jpacPhoto::inclusive_production::dsigma_dy2(double s, double y2)
 // Cross-section with fixed x
 double jpacPhoto::inclusive_production::dsigma_dx(double s, double x)
 {
-    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+    if (sqrt(s) <= _kinematics->_mX + sqrt(_kinematics->_minM2)) return 0.;
 
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
@@ -179,7 +179,7 @@ double jpacPhoto::inclusive_production::dsigma_dx(double s, double x)
 // ---------------------------------------------------------------------------
 double jpacPhoto::inclusive_production::integrated_xsection(double s)
 {
-    if (sqrt(s) <= _kinematics->_mX + _kinematics->_mT) return 0.;
+    if (sqrt(s) <= _kinematics->_mX + sqrt(_kinematics->_minM2)) return 0.;
 
     // Pass the total energy to the kinematics object
     _kinematics->_s = s;
