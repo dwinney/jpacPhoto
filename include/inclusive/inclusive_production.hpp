@@ -51,6 +51,8 @@ namespace jpacPhoto
         // Print out the id
         inline std::string get_id(){ return _identifier; };
 
+        inline void set_debug(int d){ _debug = d; };
+
         //--------------------------------------------------------------------
         // d3sigma/d3p (invariant cross-section)
         // These need to be specified by a specific parameterization
@@ -82,6 +84,8 @@ namespace jpacPhoto
         // False -> assume independent variables are t and M2 
         // True  -> assume independent variables are t and x
         bool _useTX = false;    
+
+        int _debug = 0;
     };
 };
 
