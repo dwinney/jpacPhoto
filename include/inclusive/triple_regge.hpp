@@ -19,7 +19,8 @@
 #include "amplitudes/pseudoscalar_exchange.hpp"
 #include "inclusive/inclusive_production.hpp"
 #include "inclusive/inclusive_kinematics.hpp"
-#include "inclusive/total_xsection.hpp"
+
+#include "inclusive/total_xsection_options.hpp"
 
 namespace jpacPhoto
 {

@@ -45,55 +45,7 @@ void jpacPhoto::triple_regge::set_sigma_total(sigma_option opt)
 {
     // We need to make sure to free up _sigma_tot first
     delete _sigma_tot;
-
-    switch(opt)
-    {
-        case PDG_pipp_onlyRegge:
-        {
-            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75});
-            break;
-        } 
-        case PDG_pimp_onlyRegge:
-        {
-            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75});
-            break;
-        }
-        case PDG_pipp_withResonances:
-        {
-            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}, "rpp2020-pipp_total.dat");
-            break;
-        } 
-        case PDG_pimp_withResonances:
-        {
-            _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}, "rpp2020-pimp_total.dat");
-            break;
-        }
-        case JPAC_pipp_onlyRegge:
-        {
-            _sigma_tot = new JPAC_parameterization(+1, false);
-            break;
-        }
-        case JPAC_pimp_onlyRegge:
-        {
-            _sigma_tot = new JPAC_parameterization(-1, false);
-            break;
-        }
-        case JPAC_pipp_withResonances:
-        {
-            _sigma_tot = new JPAC_parameterization(+1, true);
-            break;
-        }
-        case JPAC_pimp_withResonances:
-        {
-            _sigma_tot = new JPAC_parameterization(-1, true);
-            break;
-        }
-        default:
-        {
-            _sigma_tot = new zero_xsection();
-        };
-    };
-
+    _sigma_tot = get_total_xsection(opt);
 };
 
 // ---------------------------------------------------------------------------
