@@ -119,9 +119,9 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
         // We are using M2 and t as our variables
         s_piece = mm / s;
         M2 = mm;
-        phase_space = sqrt(Kallen(M2, t, M2_PROTON) / Kallen(s, 0., M2_PROTON) );
+        phase_space = sqrt(Kallen(M2, t, M2_PROTON)  / Kallen(s, 0., M2_PROTON) );
     }
-
+    
     // Coupling squared
     double coupling2   = _coupling(t) * _coupling(t);
 
@@ -151,6 +151,7 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
 
     // Get missing mass to put into the sigma_tot
     double sigma_tot =  _sigma_tot->eval(M2);
+    double Rpi =  Kallen(M2, t, M2_PROTON) / Kallen(M2, M2_PION, M2_PROTON);
 
-    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / pow(4. * M_PI, 3.);
+    return Rpi * sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / pow(4. * M_PI, 3.);
 };  
