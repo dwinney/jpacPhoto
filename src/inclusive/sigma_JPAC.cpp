@@ -13,11 +13,101 @@
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// Import available data and use set up an interpolation
-// The .dat files for low energy in PDG format:
-// S PLAB LOG(PLAB) SIGMA(PI- P) SIGMA(PI+ P)
-void jpacPhoto::JPAC_parameterization::import_data(std::string datfile)
+// For a given isospin projection, assemble the 16 partial wave amplitudes
+void jpacPhoto::JPAC_parameterization::initialize_PWAs()
 {
+    // Get 8 waves per parity and per isospin 
+    for (int L = 0; L <= _Lmax ; L++)
+    {
+        _pw_1p.push_back( new SAID_PWA(L, 1, 2*L+1) );
+        _pw_1m.push_back( new SAID_PWA(L, 1, 2*L-1) );
+        _pw_3p.push_back( new SAID_PWA(L, 3, 2*L+1) );
+        _pw_3m.push_back( new SAID_PWA(L, 3, 2*L-1) );
+    };
+
+    return;
+};
+
+// ---------------------------------------------------------------------------
+void jpacPhoto::JPAC_parameterization::update_amplitudes(double s, double q2)
+{
+    double f1 = 0., f3 = 0., g1 = 0., g3 = 0.;
+    double fp, fm, gp, gm;
+    double f1p, f1m, f2p, f2m;
+    double Ap, Am, Bp, Bm;
+
+    double W    = sqrt(s);
+    double E    = (s + M2_PROTON - M2_PION) / (2.*W);
+    double Elab = (s - M2_PROTON - M2_PION)/(2.*M_PROTON);
+    double qcm  = sqrt(Kallen(s, M2_PROTON, M2_PION)) / (2.*W);
+    
+    // Clear and calculate the s-channel isospin amplitudes
+    for (int L = 0; L <= _Lmax; L++)
+    {
+        double Rpi = pow(Kallen(s, q2, M2_PROTON) / Kallen(s, M2_PION, M2_PROTON), L);
+        f1 += Rpi * ((L+1)*_pw_1p[L]->imaginary_part(s) + (L)*_pw_1m[L]->imaginary_part(s));
+        f3 += Rpi * ((L+1)*_pw_3p[L]->imaginary_part(s) + (L)*_pw_3m[L]->imaginary_part(s));
+        g1 += Rpi * coeffP(L) * (_pw_1p[L]->imaginary_part(s) - _pw_1m[L]->imaginary_part(s));
+        g3 += Rpi * coeffP(L) * (_pw_3p[L]->imaginary_part(s) - _pw_3m[L]->imaginary_part(s));
+    };
+
+    f1 /= qcm; f3 /= qcm; g1 /= qcm; g3 /= qcm;
+
+    // Use these to calculate the t-channel amplitudes
+    fp = (f1 + 2.*f3) / 3.;
+    gp = (g1 + 2.*g3) / 3.;
+    fm = (f1 - f3)    / 3.;
+    gm = (g1 - g3)    / 3.;
+
+
+    // Amplitudes f1 and f2 with t-channel isospin
+    f1p = fp + gp;
+    f2p = -gp;
+    f1m = fm + gm;
+    f2m = -gm;
+
+    // Invariant amplitudes
+    Ap = (W+M_PROTON)/(E+M_PROTON)*f1p - (W-M_PROTON)/(E-M_PROTON)*f2p;
+    Am = (W+M_PROTON)/(E+M_PROTON)*f1m - (W-M_PROTON)/(E-M_PROTON)*f2m;
+
+    Bp = f1p/(E+M_PROTON) + f2p/(E-M_PROTON);
+    Bm = f1m/(E+M_PROTON) + f2m/(E-M_PROTON);
+
+    _Cp = 4.*M_PI * (Ap + Elab * Bp);
+    _Cm = 4.*M_PI * (Am + Elab * Bm);
+};
+
+// ---------------------------------------------------------------------------
+// Print out the appropriate filename for the partial wave whose quantum numbers
+// are stored
+std::string jpacPhoto::JPAC_parameterization::SAID_PWA::get_filename()
+{
+    std::string filename = "/include/inclusive/total_xsection_data/SAID_PW/SAID_PiN_";
+    switch (_L)
+    {
+        case 0: filename += "S"; break;
+        case 1: filename += "P"; break;
+        case 2: filename += "D"; break;
+        case 3: filename += "F"; break;
+        case 4: filename += "G"; break;
+        case 5: filename += "H"; break;
+        case 6: filename += "I"; break;
+        case 7: filename += "J"; break;
+    }
+
+    filename += std::to_string(_I);
+    filename += std::to_string(_J);
+    filename += ".txt";
+
+    return filename;
+};
+
+// ---------------------------------------------------------------------------
+// Import available data and use set up an interpolation
+void jpacPhoto::JPAC_parameterization::SAID_PWA::import_data()
+{
+    std::string filename = get_filename();
+
     // Find the correct data file using the top level repo directory
     std::string top_dir;
     char const * env = std::getenv("JPACPHOTO");
@@ -31,8 +121,7 @@ void jpacPhoto::JPAC_parameterization::import_data(std::string datfile)
     {
         top_dir = std::string(env);
     }
-    std::string full_path = top_dir + "/include/inclusive/total_xsection_data/" + datfile;
-
+    std::string full_path = top_dir + filename;
     std::ifstream infile(full_path);
 
     if (!infile.is_open())
@@ -41,12 +130,6 @@ void jpacPhoto::JPAC_parameterization::import_data(std::string datfile)
         exit(0);
     };
 
-    // Add a zero at exactly threshold
-    double plab_thresh = pLab(_sth + EPS);
-    _plab.push_back(plab_thresh);
-    _sigma.push_back(0.);
-    double old_plab = plab_thresh;
-    
     // Import data!
     std::string line;
     while (std::getline(infile, line))
@@ -54,40 +137,20 @@ void jpacPhoto::JPAC_parameterization::import_data(std::string datfile)
         if (line.empty()) continue;     // skips empty lines
         std::istringstream is(line);   
 
-        double s;
-        double plab, sigma;
-        double sigmam, sigmap;
-        std::string trash; // columns in the file i dont care about
+        double plab, imA, reA;
+        double trash; // columns in the file i dont care about
 
-        is >> s >> plab;
-        is >> trash;
-        is >> sigmam >> sigmap;
+        is >> plab;
+        is >> trash >> trash >> trash >> trash;
+        is >> reA >> imA >> trash >> trash;
 
-        if (std::abs(old_plab - plab) < 1.E-5 || old_plab > plab) 
-        {   
-            continue; //no duplicates
-        };
-
-        old_plab = plab;
-
-        (_iso < 0) ? (sigma = sigmam) : (sigma = sigmap);
-
-        _plab.push_back(plab);
-        _sigma.push_back(sigma);
+        _plab.push_back(plab * 1.E-3);
+        _realPart.push_back(reA);
+        _imagPart.push_back(imA);
     };
 
-    // Add a point of the high-energy amplitude to smooth out any kink in the matching
-    _plab.push_back(   pLab(_cutoff) );
-    _sigma.push_back( regge(_cutoff) );    
+    _interpReal.SetData(_plab, _realPart);
+    _interpImag.SetData(_plab, _imagPart);
 
-    _interp.SetData(_plab, _sigma);
-
-    return;
-};
-
-// ---------------------------------------------------------------------------
-// Import available data and use set up an interpolation
-void jpacPhoto::JPAC_parameterization::SAID_PW::import_data()
-{
     return;
 };

@@ -1,4 +1,4 @@
-#include "inclusive/total_xsection.hpp"
+#include "inclusive/total_xsection_options.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -19,21 +19,21 @@ int main( int argc, char** argv )
     double  ymin = 7.;
     double  ymax = 4.E2;
 
-    double xmin = (M_PION + M_PROTON) + 0.01;   
-    double xmax = 3;
+    double xmin = pow((M_PROTON + M_PION) + 0.03, 2.);   
+    double xmax = 6.;
     std::array<double, 2> bounds = {xmin, xmax};
     
     std::string filename = "sigma.pdf";
-    std::string xlabel   = "W  [GeV]";
+    std::string xlabel   = "M^{2} [GeV^{2}]";
     std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
 
     // PDG parameterizations
-    std::unique_ptr<total_xsection> PDG_pimp(  new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75}));
-    std::unique_ptr<total_xsection> PDG_pipp(  new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75}));
+    total_xsection * PDG_pipp = get_total_xsection( PDG_pipp_onlyRegge );
+    total_xsection * PDG_pimp = get_total_xsection( PDG_pimp_onlyRegge );
 
-    // JPAC parameterizations
-    std::unique_ptr<total_xsection> JPAC_pimp( new JPAC_parameterization(-1, true) );
-    std::unique_ptr<total_xsection> JPAC_pipp( new JPAC_parameterization(+1, true) );
+    // JPAC - SAID parameterizations
+    total_xsection * JPAC_pimp = get_total_xsection( JPAC_pimp_withResonances );
+    total_xsection * JPAC_pipp = get_total_xsection( JPAC_pipp_withResonances );
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
@@ -46,11 +46,10 @@ int main( int argc, char** argv )
     // Print the phase-space for each kinematics
 
     double piPlus, useJPAC;
-    auto F = [&](double W)
+    auto F = [&](double s)
     {
-        double s = W*W;
-        return piPlus * ( useJPAC * JPAC_pipp->eval(s) + !useJPAC * PDG_pipp->eval(s) ) 
-            + !piPlus * ( useJPAC * JPAC_pimp->eval(s) + !useJPAC * PDG_pimp->eval(s) );
+        return piPlus * ( useJPAC * JPAC_pipp->eval(s, M2_PION) + !useJPAC * PDG_pipp->eval(s, M2_PION) ) 
+            + !piPlus * ( useJPAC * JPAC_pimp->eval(s, M2_PION) + !useJPAC * PDG_pimp->eval(s, M2_PION) );
     };
 
     piPlus = true; useJPAC = true;

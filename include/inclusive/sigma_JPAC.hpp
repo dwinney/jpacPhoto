@@ -22,7 +22,7 @@ namespace jpacPhoto
 
         // Currently only avialable for pion-nucleon 
         JPAC_parameterization(int iso, bool resonances = true)
-        : total_xsection(M_PION, M_PROTON, 6.5), _iso(iso),
+        : total_xsection(M_PION, M_PROTON), _iso(iso), _resonances(resonances),
           _interp(0, ROOT::Math::Interpolation::kCSPLINE)
         {
             if (abs(iso) != 1)
@@ -30,41 +30,105 @@ namespace jpacPhoto
                 std::cout << "Error! JPAC_parameterization argument must be +1 or -1! Results may vary..." << std::endl;
             };
 
-            if (resonances)
+            if (resonances) initialize_PWAs();
+        };
+
+        ~JPAC_parameterization()
+        {
+            for (int i = 0; i <= _Lmax; i++)
             {
-                import_data();
-            }
-            else
+                delete _pw_1p[i]; delete _pw_1m[i];
+                delete _pw_3p[i]; delete _pw_3m[i];
+            };
+        };
+
+        double eval(double s, double q2)
+        {
+            double Ap, Am;
+            
+            double _cutoff = 2.1;
+            double x1 = _cutoff - 0.1;
+            double x2 = _cutoff
+            ;
+
+            if ( sqrt(s) < sqrt(_sth) ) return 0.;
+            else if ( _resonances && sqrt(s) < x1 ) 
             {
-                _cutoff = 0.;
+                update_amplitudes(s, q2);
+                Ap = _Cp; Am = _Cm;
             }
+            else if ( _resonances && sqrt(s) >= x1 && sqrt(s) <= x2 )
+            {
+                double y  = (sqrt(s) - x1) / (x2 - x1);
+
+                update_amplitudes(x1*x1, q2);
+                Ap = _Cp * (1. - y) + isoscalar(s, 0.) * y;
+                Am = _Cm * (1. - y) + isovector(s, 0.) * y;
+            }
+            else 
+            {
+                Ap = isoscalar(s, 0.); Am = isovector(s, 0.);
+            }
+
+             return  0.389352 * ( Ap - double(_iso) * Am ) / pLab(s);
         };
 
         protected:
+        // Parameter selecting pi + or pi - scattering
+        int  _iso;  // plus or minus 1
+        bool _resonances = false;
+
         // ----------------------------------------------------------------------
         // Low-energy pieces
 
-        // Below the cutoff we do a simple interpolation of the SAID amplitude
-        inline double resonances(double s, double q2)
+        // Calculate the total cross-section be evaluating the forward imaginary part from individual partial waves
+        class SAID_PWA
         {
-            return _interp.Eval( pLab(s) );
-        };
-        
-        class SAID_PW
-        {
-            SAID_PW(double L, double I, double J)
+            public:
+
+            SAID_PWA(double L, double I, double J)
+            : _L(L), _I(I), _J(J)
             {
-                import_data();
+                if (J >= 0) import_data(); 
             }
             
+            // Lab beam momentum
+            inline double pLab(double s) const
+            { 
+                double Elab = (s - M2_PION - M2_PROTON) / (2.*M_PROTON); 
+                return sqrt(Elab*Elab - M2_PION);
+            };
+            
+            double imaginary_part(double s)
+            {
+                if ( _J < 0) return 0.;
+                return _interpImag.Eval( pLab(s) );
+            };
+
+            double real_part(double s)
+            {
+                if ( _J < 0) return 0.;
+                return _interpReal.Eval( pLab(s) );
+            };
+
+            std::complex<double> eval(double s)
+            {
+                if ( _J < 0) return 0.;
+                return XR * real_part(s) + XI * imaginary_part(s);
+            };
+
+            int orbital_spin(){ return _L; };
+
+            private:
+
             // Read in the data file and interpolate the imaginary part of the amplitude
             void import_data();
-            ROOT::Math::Interpolator _interp;
-            std::vector<double> _plab, _imagPart;
+            ROOT::Math::Interpolator _interpReal, _interpImag;
+            std::vector<double> _plab, _realPart, _imagPart;
 
-            double _L, _I, _J; // 2 x quantum number
+            int _L, _I, _J; 
+            std::string get_filename();
         };
-
 
         // If theres data available in the low enegergy, 
         // these methods read data files and store them
@@ -72,17 +136,19 @@ namespace jpacPhoto
         std::vector<double> _plab, _sigma;
         void import_data(std::string datfile = "SAID.dat");
 
+        // For given isospin set up the individual partial waves and store them in a vector
+        int _Lmax = 7.;
+        void initialize_PWAs();
+        std::vector<SAID_PWA*> _pw_1p, _pw_1m, _pw_3p, _pw_3m;
+
+        // First derivative of Legendre function evaluated at z = 1
+        double coeffP(int l){ return double(l*(l+1))/2.; };
+
+        void update_amplitudes(double s, double q2);
+        double _Cp, _Cm;
+
         // ----------------------------------------------------------------------
         // High-energy pieces
-
-        // Above the cutoff, we use a Regge pole parameterization
-        inline double regge(double s)
-        {
-            return 0.389352 * std::imag(isoscalar(s, 0.) + double(_iso) * isovector(s, 0.)) / pLab(s);
-        };
-
-        // Parameter selecting pi + or pi - scattering
-        int _iso;  // plus or minus 1
 
         // Internal class object for a Regge pole
         class regge_pole
@@ -126,17 +192,17 @@ namespace jpacPhoto
         // Instances of the poles themselves
         regge_pole _f    = regge_pole( {71.35, 3.18}, &alphaF);
         regge_pole _pom  = regge_pole( {23.89, 2.21}, &alphaPom);
-        regge_pole _rho1 = regge_pole( { 5.01*1.573, 10.1}, &alphaRho);
-        regge_pole _rho2 = regge_pole( {-5.01*0.573,  0.0}, &alphaRho);
+        regge_pole _rho1 = regge_pole( {-5.01*1.573, 10.1}, &alphaRho);
+        regge_pole _rho2 = regge_pole( { 5.01*0.573,  0.0}, &alphaRho);
 
         // t-channel amplitude contributions are just sums of the above Regge poles
-        inline std::complex<double> isovector(double s, double t)
+        inline double isovector(double s, double t)
         {
-            return _rho1(s,t) + _rho2(s,t);
+            return std::imag(_rho1(s,t) + _rho2(s,t));
         };
-        inline std::complex<double> isoscalar(double s, double t)
+        inline double isoscalar(double s, double t)
         {
-            return _pom(s,t) + _f(s,t);
+            return std::imag(_pom(s,t) + _f(s,t));
         };
     };
 };

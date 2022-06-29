@@ -31,32 +31,15 @@ namespace jpacPhoto
         public:
 
         // Default constructor 
-        total_xsection(double mb, double mt, double cutoff = 0.)
+        total_xsection(double mb, double mt)
         : _mBeam(mb), _mTarget(mt), 
-          _sth((mb + mt)*(mb + mt)),
-          _cutoff(cutoff)
+          _sth((mb + mt)*(mb + mt))
         {};
         
         // Only thing that is needed is a way to evaluate the cross-section
         // A second argument can be passed in case the method has a 
         // way to incorporate pion virtuality effects
-        double eval(double s, double q2 = M2_PION)
-        {
-            double result = 0.;
-
-            if (s < _sth + 10.*EPS)
-            {
-                return 0.;
-            }
-            else if (s <= _cutoff)
-            {
-                return resonances(s, q2);
-            }
-            else
-            {
-                return regge(s);  
-            };
-        };
+        virtual double eval(double s, double q2) = 0;
 
         protected:
         
@@ -69,15 +52,6 @@ namespace jpacPhoto
 
         double _mBeam, _mTarget;
         double _sth;
-        double _cutoff;
-
-        // To evaluate the cross-section we use two regions
-        // some way to handle the resonances at low s < _cutoff
-        // and the regge dominated behavior at high s > _cutoff
-
-        // Pion virtualilty is assumed to not matter in the Regge region
-        virtual double resonances(double s, double q2) = 0;
-        virtual double regge(double s) = 0;
     };
 
     // ---------------------------------------------------------------------------
@@ -86,11 +60,10 @@ namespace jpacPhoto
     {
         public: 
         zero_xsection()
-        : total_xsection(0.,0.,0.)
+        : total_xsection(0.,0.)
         {};
 
-        inline double resonances(double s, double q2)   { return 0.; };
-        inline double regge(double s)                   { return 0.; };
+        inline double eval(double s, double q2)   { return 0.; };
     };
 
 };
