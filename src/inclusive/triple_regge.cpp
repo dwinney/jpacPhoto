@@ -102,8 +102,7 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     };
 
     // Get missing mass to put into the sigma_tot
-    double sigma_tot =  _sigma_tot->eval(M2);
-    double Rpi =  Kallen(M2, t, M2_PROTON) / Kallen(M2, M2_PION, M2_PROTON);
+    double sigma_tot =  _sigma_tot->eval(M2, t);
 
-    return Rpi * sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / pow(4. * M_PI, 3.);
+    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / pow(4. * M_PI, 3.);
 };  

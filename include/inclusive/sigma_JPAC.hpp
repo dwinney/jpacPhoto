@@ -48,10 +48,9 @@ namespace jpacPhoto
             
             double _cutoff = 2.1;
             double x1 = _cutoff - 0.1;
-            double x2 = _cutoff
-            ;
+            double x2 = _cutoff;
 
-            if ( sqrt(s) < sqrt(_sth) ) return 0.;
+            if ( sqrt(s) < sqrt(_sth) + 1000.*EPS ) return 0.;
             else if ( _resonances && sqrt(s) < x1 ) 
             {
                 update_amplitudes(s, q2);
@@ -70,7 +69,9 @@ namespace jpacPhoto
                 Ap = isoscalar(s, 0.); Am = isovector(s, 0.);
             }
 
-             return  0.389352 * ( Ap - double(_iso) * Am ) / pLab(s);
+            double result = 0.389352 * ( Ap - double(_iso) * Am ) / pLab(s);
+            if ( result < 0 ) return 0.;
+            return  result;
         };
 
         protected:
@@ -118,7 +119,7 @@ namespace jpacPhoto
             };
 
             int orbital_spin(){ return _L; };
-
+            
             private:
 
             // Read in the data file and interpolate the imaginary part of the amplitude

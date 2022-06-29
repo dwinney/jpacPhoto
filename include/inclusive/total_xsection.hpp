@@ -41,6 +41,8 @@ namespace jpacPhoto
         // way to incorporate pion virtuality effects
         virtual double eval(double s, double q2) = 0;
 
+        void set_debug(int i){ _debug = i; };
+
         protected:
         
         // Lab beam momentum
@@ -50,6 +52,7 @@ namespace jpacPhoto
             return sqrt(Elab*Elab - _mBeam*_mBeam);
         };
 
+        int _debug = 0;
         double _mBeam, _mTarget;
         double _sth;
     };
