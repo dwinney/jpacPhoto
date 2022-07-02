@@ -40,11 +40,17 @@ void jpacPhoto::JPAC_parameterization::update_amplitudes(double s, double q2)
     double E    = (s + M2_PROTON - M2_PION) / (2.*W);
     double Elab = (s - M2_PROTON - M2_PION)/(2.*M_PROTON);
     double qcm  = sqrt(Kallen(s, M2_PROTON, M2_PION)) / (2.*W);
-    
-    // Clear and calculate the s-channel isospin amplitudes
+
+    double ellmax = 4;
+    double bfpi  = std::abs(Kallen(s, q2, M2_PROTON) / Kallen(s, M2_PION, M2_PROTON));
+
+    // Calculate the s-channel isospin amplitudes
     for (int L = 0; L <= _Lmax; L++)
     {
-        double Rpi = pow(Kallen(s, q2, M2_PROTON) / Kallen(s, M2_PION, M2_PROTON), L);
+        int LL;
+        (L <= ellmax) ? (LL = L) : (LL = ellmax);
+        double Rpi = pow(bfpi, double(LL));
+        
         f1 += Rpi * ((L+1)*_pw_1p[L]->imaginary_part(s) + (L)*_pw_1m[L]->imaginary_part(s));
         f3 += Rpi * ((L+1)*_pw_3p[L]->imaginary_part(s) + (L)*_pw_3m[L]->imaginary_part(s));
         g1 += Rpi * coeffP(L) * (_pw_1p[L]->imaginary_part(s) - _pw_1m[L]->imaginary_part(s));
