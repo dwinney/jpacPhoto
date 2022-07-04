@@ -16,7 +16,7 @@ int main( int argc, char** argv )
 
     int N = 500;
 
-    double  ymin = 7.;
+    double  ymin = 6.;
     double  ymax = 4.E2;
 
     double xmin = pow((M_PROTON + M_PION) + 0.03, 2.);   
@@ -24,8 +24,8 @@ int main( int argc, char** argv )
     std::array<double, 2> bounds = {xmin, xmax};
     
     std::string filename = "sigma.pdf";
-    std::string xlabel   = "M^{2} [GeV^{2}]";
-    std::string ylabel   = "#sigma_{tot}^{#pip}   [mb] ";
+    std::string xlabel   = "#it{M}^{2} [GeV^{2}]";
+    std::string ylabel   = "#sigma_{tot}^{#pi^{*+} p}   [mb] ";
 
     // PDG parameterizations
     total_xsection * PDG_pipp = get_total_xsection( PDG_pipp_onlyRegge );
@@ -46,20 +46,21 @@ int main( int argc, char** argv )
     // Print the phase-space for each kinematics
 
     double piPlus, useJPAC;
+    double q2 = M2_PION;
     auto F = [&](double s)
     {
-        return piPlus * ( useJPAC * JPAC_pipp->eval(s, M2_PION) + !useJPAC * PDG_pipp->eval(s, M2_PION) ) 
-            + !piPlus * ( useJPAC * JPAC_pimp->eval(s, M2_PION) + !useJPAC * PDG_pimp->eval(s, M2_PION) );
+        return piPlus * ( useJPAC * JPAC_pipp->eval(s, q2) + !useJPAC * PDG_pipp->eval(s, q2) ) 
+            + !piPlus * ( useJPAC * JPAC_pimp->eval(s, q2) + !useJPAC * PDG_pimp->eval(s, q2) );
     };
 
     piPlus = true; useJPAC = true;
-    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{+} p");
+    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#plus} p", 1);
 
     piPlus = true; useJPAC = false;
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     piPlus = false; useJPAC = true;
-    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{-} p");
+    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#minus} p");
 
     piPlus = false; useJPAC = false;
     plotter->AddDashedEntry(N, F, {xmin, xmax});
@@ -71,6 +72,14 @@ int main( int argc, char** argv )
 
     plotter->SetLegend(0.7, 0.2);
     plotter->SetLegendOffset(0.3, 0.075);
+
+    // Axes and legend options
+    plotter->SetXaxis(xlabel, 1., xmax);
+    plotter->SetYaxis(ylabel, ymin, ymax);
+    plotter->SetYlogscale(true);
+
+    plotter->SetLegend(0.7, 0.2);
+    plotter->SetLegendOffset(0.3, 0.1);
 
     // Output to file
     plotter->Plot(filename);
