@@ -9,6 +9,10 @@
 #include <cstring>
 #include <memory>
 
+#include "Math/GSLIntegrator.h"
+#include "Math/IntegrationTypes.h"
+#include "Math/Functor.h"
+
 using namespace jpacPhoto;
 
 int main( int argc, char** argv )
@@ -26,7 +30,7 @@ int main( int argc, char** argv )
     double g_N = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
 
     // Delta p pi coupling
-    double g_delta = 2.16;
+    double g_delta = 18.5;
     double g_pi = sqrt(4. * M_PI / 137.);
     double Lambda = .450;
 
@@ -57,24 +61,24 @@ int main( int argc, char** argv )
 
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incB1( new triple_regge(excN.get()));
-    incB1->set_high_energy_approximation(true);
+    incB1->set_high_energy_approximation(false);
     incB1->set_sigma_total(JPAC_pipp_withResonances);
     
     // // ---------------------------------------------------------------------------
     // // Plotting options
-    // // ---------------------------------------------------------------------------
+    // // --------------------------------------------------------------------------
 
-    int N = 50;
+    int N = 100;
 
-    double xmin = 2.4;   
+    double xmin = 2.2;   
     double xmax = 4.;
 
     double ymin = 0.;
-    double ymax = 6.;
+    double ymax = 10.;
 
     std::string filename = "integrated.pdf";
     std::string ylabel   = "#sigma  [#mub]";
-    std::string xlabel   = "W  [GeV]";
+    std::string xlabel   = "#it{W}_{#gamma#it{p}}  [GeV]";
 
     // ---------------------------------------------------------------------------  
     // You shouldnt need to change anything below this line
@@ -87,24 +91,55 @@ int main( int argc, char** argv )
     {
         return excDelta->integrated_xsection(w*w) * 1.E-3; // in mub!
     };
-    plotter->AddEntry(2*N, F, {xmin, xmax}, "#gamma p #rightarrow b_{1}^{-} #Delta^{++}", 1);
+    plotter->AddEntry(N, F, {xmin, xmax}, "#it{b}_{1}^{#minus} #Delta^{#plus#plus}", 0);
 
+    auto Sill = [&](double w)
+    {
+        double width = 0.09;
+        double mass  = 1.19;
+        double mN = 0.938, mpi = 0.134;
+        double sth = (mN + mpi)*(mN+mpi);
+
+        double gamma = width*mass / sqrt(mass*mass - sth);
+
+        return 2.*w/M_PI * sqrt(w*w - sth) *gamma / (pow(w*w-mass*mass, 2.) + pow(sqrt(w*w - sth)*gamma, 2.));
+    };
+
+    auto H = [&](double w)
+    {
+        auto dH = [&](double m)
+        {
+            
+            kDelta->set_recoil_mass(m);
+            return Sill(m)*excDelta->integrated_xsection(w*w) * 1.E-3; // in mub!
+        };
+
+        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+        ROOT::Math::Functor1D wH(dH);
+        ig.SetFunction(wH);
+
+        return ig.Integral(M_PION+M_PROTON, 3.);
+    };
+    plotter->AddEntry(N, H, {xmin, xmax}, "#it{b}_{1}^{#minus} #rightarrow #Delta^{#plus#plus} #rightarrow #pi^{+} #it{p}", 1);
+
+    kDelta->set_recoil_mass(M_DELTA);
     auto G = [&](double w)
     {
         return incB1->integrated_xsection(w*w); // in mub!
     };  
-    plotter->AddEntry(N, G, {xmin, xmax},   "#gamma p #rightarrow b_{1}^{+} X", 1);
+    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} #it{X}", 1.);
+
 
     // ---------------------------------------------------------------------------
     // Finally make the plot pretty
 
     // Axes options
     plotter->SetXaxis(xlabel, xmin, xmax);
-    plotter->SetYaxis(ylabel, ymin, ymax);
+    plotter->SetYaxis(ylabel,  ymin, ymax);
 
     // LEgend options
     plotter->SetLegend(0.6, 0.65);
-    plotter->SetLegendOffset(0.3, 0.1);
+    plotter->SetLegendOffset(0.3, 0.13);
 
     // Output to file
     plotter->Plot(filename);
