@@ -56,6 +56,7 @@ namespace jpacPhoto
 
         // Change the stored sigma_total to another one
         void set_sigma_total(sigma_option opt);
+        void set_sigma_total_option(int m){ _sigma_tot->set_debug(m); }
 
         // ---------------------------------------------------------------------------
         // Individual pieces that go into the amplitude

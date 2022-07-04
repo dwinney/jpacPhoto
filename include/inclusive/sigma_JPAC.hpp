@@ -31,6 +31,7 @@ namespace jpacPhoto
             };
 
             if (resonances) initialize_PWAs();
+            this->set_debug(3);
         };
 
         ~JPAC_parameterization()
