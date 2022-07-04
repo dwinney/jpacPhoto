@@ -60,18 +60,6 @@ int main( int argc, char** argv )
     incB1r->set_high_energy_approximation(true);
 
     // ---------------------------------------------------------------------------
-    // Fixed-spin pion amplitude 
-
-    // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excB1f( new pseudoscalar_exchange(kb1, M_PION, "b1 production") );
-    excB1f->set_params({g_b1, g_NN});
-    excB1f->set_formfactor(true, LamPi);
-
-    // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incB1f( new triple_regge(excB1f.get()));
-    incB1f->set_high_energy_approximation(true);
-    
-    // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
 
@@ -81,11 +69,11 @@ int main( int argc, char** argv )
     double xmax = 1.;
 
     double ymin = 0.;
-    double ymax = 3.2;
+    double ymax = 2.5;
 
     std::string filename = "dsigmadx.pdf";
-    std::string ylabel   = "d#sigma / dx  [#mub]";
-    std::string xlabel   = "x";
+    std::string ylabel   = "d#sigma/d#it{x} [#mub]";
+    std::string xlabel   = "#it{x}";
 
     // ---------------------------------------------------------------------------  
     // You shouldnt need to change anything below this line
@@ -98,30 +86,16 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
     //Add entries for all the different differential cross-sections at fixed s
 
-    bool useRegge;
     auto F = [&](double x)
     {
-        return (useRegge * incB1r->dsigma_dx(s, x) + !useRegge * incB1f->dsigma_dx(s, x)) * 1.E3; // in mub!
+        return incB1r->dsigma_dx(s, x) * 1.E3; // in mub!
     };
 
-    // Reggeized curves
-    useRegge = true;
-    
     incB1r->set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "Reggeized #pi^{-}");
+    plotter->AddEntry(N, F, {xmin, xmax}, "Inclusive #it{b}_{1}^{#plus}");
 
     // Remove resonances
     incB1r->set_sigma_total(PDG_pimp_onlyRegge);
-    plotter->AddDashedEntry(N, F, {xmin, xmax});
-
-    // Do th same wih the fixed-spin curves
-    useRegge = false;
-
-    incB1f->set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "Fixed-spin #pi^{-}");
-    
-    // Remove resonances
-    incB1f->set_sigma_total(PDG_pimp_onlyRegge);
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     // ---------------------------------------------------------------------------
@@ -136,8 +110,8 @@ int main( int argc, char** argv )
     plotter->SetYaxis(ylabel, ymin, ymax);
 
     // LEgend options
-    plotter->SetLegend(0.47, 0.7);
-    plotter->SetLegendOffset(0.3, 0.13);
+    plotter->SetLegend(0.25, 0.25);
+    plotter->SetLegendOffset(0.3, 0.1);
 
     // Output to file
     plotter->Plot(filename);
