@@ -40,23 +40,23 @@ int main( int argc, char** argv )
 
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incB1f( new triple_regge(excB1f.get()));
-    incB1f->set_high_energy_approximation(true);
+    incB1f->set_high_energy_approximation(false);
     
     // // ---------------------------------------------------------------------------
     // // Plotting options
     // // ---------------------------------------------------------------------------
 
-    int N = 100;
+    int N = 300;
 
     double xmin = 2.;   
-    double xmax = 12. ;
+    double xmax = 5. ;
 
     double ymin = 0.;
-    double ymax = 5.3;
+    double ymax = 10.;
 
     std::string filename = "integrated.pdf";
     std::string ylabel   = "#sigma  [#mub]";
-    std::string xlabel   = "W  [GeV]";
+    std::string xlabel   = "#it{W}_{#gamma#it{p}}  [GeV]";
 
     // ---------------------------------------------------------------------------  
     // You shouldnt need to change anything below this line
@@ -65,23 +65,28 @@ int main( int argc, char** argv )
     // Plotter object
     std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
 
-    bool addExc, excOnly;
+    bool addExc;
     auto F = [&](double w)
     {
-        return !excOnly * incB1f->integrated_xsection(w*w) + addExc * excB1f->integrated_xsection(w*w) * 1.E-3; // in mub!
+        return incB1f->integrated_xsection(w*w) + excB1f->integrated_xsection(w*w) * 1.E-3; // in mub!
+    };
+    auto G = [&](double w)
+    {
+        return excB1f->integrated_xsection(w*w) * 1.E-3; // in mub!
+    };
+    auto H = [&](double w)
+    {
+        return incB1f->integrated_xsection(w*w); // in mub!
     };
 
-    addExc = false, excOnly = false; 
+    incB1f->set_sigma_total(JPAC_pimp_withResonances);
+    plotter->AddEntry(N, F, {xmin, xmax}, "total #it{b}_{1}^{#plus} production", 1);
+
+    incB1f->set_sigma_total(JPAC_pimp_withResonances);
+    plotter->AddDashedEntry(N, G, {xmin, xmax});
+
     incB1f->set_sigma_total(JPAC_pipp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "total b_{1}^{-} production");
-
-    addExc = true,  excOnly = false; 
-    incB1f->set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "total b_{1}^{+} production");
-
-    addExc = true,  excOnly = true; 
-    incB1f->set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "exclusive b_{1}^{+} production");
+    plotter->AddEntry(N, H, {xmin, xmax}, "total #it{b}_{1}^{#minus} production", 1);
 
     // ---------------------------------------------------------------------------
     // Finally make the plot pretty
@@ -91,8 +96,8 @@ int main( int argc, char** argv )
     plotter->SetYaxis(ylabel, ymin, ymax);
 
     // LEgend options
-    plotter->SetLegend(0.5, 0.65);
-    plotter->SetLegendOffset(0.3, 0.15);
+    plotter->SetLegend(0.6, 0.65);
+    plotter->SetLegendOffset(0.3, 0.12);
 
     // Output to file
     plotter->Plot(filename);
