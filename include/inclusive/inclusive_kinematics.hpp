@@ -35,6 +35,11 @@ namespace jpacPhoto
 
         double _s = 100.; // Total center-of-mass energies 
 
+        inline double get_meson_mass()
+        {
+            return _mX;
+        };
+
         // ---------------------------------------------------------------------------
         // Photon Quantites
         // These dont depend on anything other than s and are characteristic of the initial state
