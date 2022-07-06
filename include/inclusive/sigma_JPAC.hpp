@@ -45,39 +45,33 @@ namespace jpacPhoto
 
         double eval(double s, double q2)
         {
-            double Ap, Am;
-            
-            double _cutoff = 2.1;
-            double x1 = _cutoff - 0.1;
-            double x2 = _cutoff;
+            double _cutoff = 4.;
+            double x1 = _cutoff;
+            double x2 = _cutoff + 0.12;
 
             if ( sqrt(s) < sqrt(_sth) + 1000.*EPS ) return 0.;
-            else if ( _resonances && sqrt(s) < x1 ) 
+            else if ( _resonances && s <= x1 ) 
             {
-                update_amplitudes(s, q2);
-                Ap = _Cp; Am = _Cm;
+                return sigma_resonance(s, q2);
             }
-            else if ( _resonances && sqrt(s) >= x1 && sqrt(s) <= x2 )
+            else if ( _resonances && (s > x1) && (s < x2) )
             {
-                double y  = (sqrt(s) - x1) / (x2 - x1);
-
-                update_amplitudes(x1*x1, q2);
-                Ap = _Cp * (1. - y) + isoscalar(s, 0.) * y;
-                Am = _Cm * (1. - y) + isovector(s, 0.) * y;
+                double fx1 = sigma_resonance(x1, M2_PION);
+                double fx2 = sigma_regge(x2);
+                double y  = (s - x1) / (x2 - x1);
+                return fx1 * (1. - y) + fx2 * y;
             }
             else 
             {
-                Ap = isoscalar(s, 0.); Am = isovector(s, 0.);
+                return sigma_regge(s);
             }
 
-            double result = 0.389352 * ( Ap - double(_iso) * Am ) / pLab(s);
-            if ( result < 0 ) return 0.;
-            return  result;
+            return 0.;
         };
 
         protected:
         // Parameter selecting pi + or pi - scattering
-        int  _iso;  // plus or minus 1
+        int  _iso = 1;  // plus or minus 1
         bool _resonances = false;
 
         // ----------------------------------------------------------------------
@@ -146,8 +140,28 @@ namespace jpacPhoto
         // First derivative of Legendre function evaluated at z = 1
         double coeffP(int l){ return double(l*(l+1))/2.; };
 
-        void update_amplitudes(double s, double q2);
-        double _Cp, _Cm;
+        void update_amplitudes(double s);
+        std::vector<double> _CpL, _CmL;
+        double sigma_resonance(double s, double q2)
+        {
+            double result = 0.;
+            double bfpi  = Kallen(s, q2, M2_PROTON) / Kallen(s, M2_PION, M2_PROTON);
+
+            update_amplitudes(s);
+            for (int L = 0; L <= _Lmax; L++)
+            {
+                int LL;
+                (L < _debug) ? (LL = L) : (LL = _debug);
+                
+                if (L >= 3 && s < 1.2) continue;
+
+                double sigmaL = 0.389352 * ( _CpL[L] - double(_iso) * _CmL[L] ) / pLab(s);
+                if (sigmaL < 0) continue;
+                result += pow( bfpi, double(LL) ) * sigmaL ;
+            };  
+
+            return result;
+        };
 
         // ----------------------------------------------------------------------
         // High-energy pieces
@@ -205,6 +219,11 @@ namespace jpacPhoto
         inline double isoscalar(double s, double t)
         {
             return std::imag(_pom(s,t) + _f(s,t));
+        };
+        inline double sigma_regge(double s) 
+        {
+            double Ap = isoscalar(s, 0.); double Am = isovector(s, 0.);
+            return 0.389352 * ( Ap - double(_iso) * Am ) / pLab(s);
         };
     };
 };

@@ -29,57 +29,57 @@ void jpacPhoto::JPAC_parameterization::initialize_PWAs()
 };
 
 // ---------------------------------------------------------------------------
-void jpacPhoto::JPAC_parameterization::update_amplitudes(double s, double q2)
+void jpacPhoto::JPAC_parameterization::update_amplitudes(double s)
 {
-    double f1 = 0., f3 = 0., g1 = 0., g3 = 0.;
-    double fp, fm, gp, gm;
-    double f1p, f1m, f2p, f2m;
-    double Ap, Am, Bp, Bm;
+    _CpL.clear(); _CmL.clear();
 
     double W    = sqrt(s);
     double E    = (s + M2_PROTON - M2_PION) / (2.*W);
     double Elab = (s - M2_PROTON - M2_PION)/(2.*M_PROTON);
     double qcm  = sqrt(Kallen(s, M2_PROTON, M2_PION)) / (2.*W);
 
-    double bfpi  = std::abs(Kallen(s, q2, M2_PROTON) / Kallen(s, M2_PION, M2_PROTON));
-
     // Calculate the s-channel isospin amplitudes
     for (int L = 0; L <= _Lmax; L++)
     {
-        int LL;
-        (L <= _debug) ? (LL = L) : (LL = _debug);
-        double Rpi = pow(bfpi, double(LL));
-        
-        f1 += Rpi * ((L+1)*_pw_1p[L]->imaginary_part(s) + (L)*_pw_1m[L]->imaginary_part(s));
-        f3 += Rpi * ((L+1)*_pw_3p[L]->imaginary_part(s) + (L)*_pw_3m[L]->imaginary_part(s));
-        g1 += Rpi * coeffP(L) * (_pw_1p[L]->imaginary_part(s) - _pw_1m[L]->imaginary_part(s));
-        g3 += Rpi * coeffP(L) * (_pw_3p[L]->imaginary_part(s) - _pw_3m[L]->imaginary_part(s));
+        double f1 = 0., f3 = 0., g1 = 0., g3 = 0.;
+        double fp, fm, gp, gm;
+        double f1p, f1m, f2p, f2m;
+        double Ap, Am, Bp, Bm, Cp, Cm;
+
+        // Assemble amplitudes from PWAs
+        f1 = ((L+1)*_pw_1p[L]->imaginary_part(s) + (L)*_pw_1m[L]->imaginary_part(s));
+        f3 = ((L+1)*_pw_3p[L]->imaginary_part(s) + (L)*_pw_3m[L]->imaginary_part(s));
+        g1 = coeffP(L) * (_pw_1p[L]->imaginary_part(s) - _pw_1m[L]->imaginary_part(s));
+        g3 = coeffP(L) * (_pw_3p[L]->imaginary_part(s) - _pw_3m[L]->imaginary_part(s));
+
+        f1 /= qcm; f3 /= qcm; g1 /= qcm; g3 /= qcm;
+
+        // Use these to calculate the t-channel amplitudes
+        fp = (f1 + 2.*f3) / 3.;
+        gp = (g1 + 2.*g3) / 3.;
+        fm = (f1 - f3)    / 3.;
+        gm = (g1 - g3)    / 3.;
+
+
+        // Amplitudes f1 and f2 with t-channel isospin
+        f1p = fp + gp;
+        f2p = -gp;
+        f1m = fm + gm;
+        f2m = -gm;
+
+        // Invariant amplitudes
+        Ap = (W+M_PROTON)/(E+M_PROTON)*f1p - (W-M_PROTON)/(E-M_PROTON)*f2p;
+        Am = (W+M_PROTON)/(E+M_PROTON)*f1m - (W-M_PROTON)/(E-M_PROTON)*f2m;
+
+        Bp = f1p/(E+M_PROTON) + f2p/(E-M_PROTON);
+        Bm = f1m/(E+M_PROTON) + f2m/(E-M_PROTON);
+
+        Cp = 4.*M_PI * (Ap + Elab * Bp);
+        Cm = 4.*M_PI * (Am + Elab * Bm);
+
+        _CpL.push_back(Cp);
+        _CmL.push_back(Cm);
     };
-
-    f1 /= qcm; f3 /= qcm; g1 /= qcm; g3 /= qcm;
-
-    // Use these to calculate the t-channel amplitudes
-    fp = (f1 + 2.*f3) / 3.;
-    gp = (g1 + 2.*g3) / 3.;
-    fm = (f1 - f3)    / 3.;
-    gm = (g1 - g3)    / 3.;
-
-
-    // Amplitudes f1 and f2 with t-channel isospin
-    f1p = fp + gp;
-    f2p = -gp;
-    f1m = fm + gm;
-    f2m = -gm;
-
-    // Invariant amplitudes
-    Ap = (W+M_PROTON)/(E+M_PROTON)*f1p - (W-M_PROTON)/(E-M_PROTON)*f2p;
-    Am = (W+M_PROTON)/(E+M_PROTON)*f1m - (W-M_PROTON)/(E-M_PROTON)*f2m;
-
-    Bp = f1p/(E+M_PROTON) + f2p/(E-M_PROTON);
-    Bm = f1m/(E+M_PROTON) + f2m/(E-M_PROTON);
-
-    _Cp = 4.*M_PI * (Ap + Elab * Bp);
-    _Cm = 4.*M_PI * (Am + Elab * Bm);
 };
 
 // ---------------------------------------------------------------------------
