@@ -67,6 +67,13 @@ namespace jpacPhoto
             _spin_one = new polarization_vector(_particle_one);
         };
 
+        // Syncs masses between the external kinematics and internal kinematics instances
+        void sync_masses()
+        {
+            _particle_one->set_meson_mass(  _particle_two->get_baryon_mass() );
+            _particle_one->set_baryon_mass( _particle_two->get_meson_mass()  );
+        };
+
         // Constituate objects
         polarization_vector * _spin_one;
         dirac_spinor        * _spin_half;
