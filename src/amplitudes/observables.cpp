@@ -245,7 +245,7 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
 
     // Sum over the appropriate amplitude combinations
     std::complex<double> result = 0.;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 4; i++)
     {
         int index;
         (alpha == 0) ? (index = iters[0][i]) : (index = iters[1][i]);
