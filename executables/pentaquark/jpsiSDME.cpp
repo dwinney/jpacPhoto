@@ -51,33 +51,28 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // The false means not helicity conserving version 
-    // flip to true if you want the conserving one
     pomeron_exchange * jpsi_LE = new pomeron_exchange(kJpsi, alpha_LE, false, "#it{J}/#psi");
     jpsi_LE->set_params({A_LE, b_LE});
+
+    // flip to true if you want the conserving one
+    pomeron_exchange * jpsi_HC = new pomeron_exchange(kJpsi, alpha_LE, true, "#it{J}/#psi");
+    jpsi_HC->set_params({A_LE, b_LE});
 
     // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
-
-    // which amps to plot
-    std::vector<amplitude*> amps;
-
-    // Options
-
-    int N = 50;
     
-    // forward SDME
-
+    // Beam energy
     double ebeam = 10.;
     double w = W_cm(ebeam);
     double s = w*w + EPS;
 
-    // Plotting ranges
-    double xmin = -kJpsi->t_man(s, 0.) + EPS;
-    double xmax = std::min(1., -kJpsi->t_man(s, M_PI));
+    int N = 50; // Number of points to plot
+    double xmin = -kJpsi->t_man(s, 0.) + EPS;               // tmin
+    double xmax = std::min(1., -kJpsi->t_man(s, M_PI));     // min(tmax, 1 GeV2)
 
-    double  ymin = -0.05;
-    double  ymax =  0.1;
+    double  ymin = -0.6;
+    double  ymax =  0.7;
 
     std::string filename = "jpsi_SDME.pdf";
     std::string ylabel  = "";
@@ -95,9 +90,18 @@ int main( int argc, char** argv )
     // Print the desired observable for each amplitude
     bool real;
     int alpha, lam, lamp;
+
+    // Solid line entries call jpsi_LE
     auto F = [&](double mt)
     {
         std::complex<double> sdme = jpsi_LE->SDME(alpha, lam, lamp, s, -mt);
+        return real * std::real(sdme) + !real * std::imag(sdme);
+    };
+
+    // Dashed line entries cal jpsi_HC
+    auto G = [&](double mt)
+    {
+        std::complex<double> sdme = jpsi_HC->SDME(alpha, lam, lamp, s, -mt);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 
@@ -105,15 +109,18 @@ int main( int argc, char** argv )
     real = true;
     alpha = 0; lam = 0; lamp = 0;
     plotter->AddEntry(N, F, {xmin,xmax}, "#rho^{0}_{00}", PRINT);
+    plotter->AddDashedEntry(N, G, {xmin,xmax}, PRINT);
 
     // And others
     real = true;
-    alpha = 1; lam = 1; lamp = 0;
-    plotter->AddEntry(N, F, {xmin,xmax}, "#rho^{1}_{10}", PRINT);
-    
-    real = false;
     alpha = 1; lam = 1; lamp = -1;
     plotter->AddEntry(N, F, {xmin,xmax}, "#rho^{1}_{1-1}", PRINT);
+    plotter->AddDashedEntry(N, G, {xmin,xmax}, PRINT);
+    
+    real = false;
+    alpha = 2; lam = 1; lamp = -1;
+    plotter->AddEntry(N, F, {xmin,xmax}, "Im #rho^{2}_{1-1}", PRINT);
+    plotter->AddDashedEntry(N, G, {xmin,xmax}, PRINT);
     
     // Make plot pretty
     plotter->SetXaxis(xlabel, xmin, xmax);
@@ -123,7 +130,7 @@ int main( int argc, char** argv )
     std::ostringstream streamObj;
     streamObj << std::setprecision(4) << "#it{E}_{#gamma} = " << ebeam << " GeV";
     std::string header = streamObj.str();
-    plotter->SetLegend(0.22, 0.65, header); 
+    plotter->SetLegend(0.22, 0.6, header); 
     plotter->SetLegendOffset(0.3, 0.18);
 
     // Output to file

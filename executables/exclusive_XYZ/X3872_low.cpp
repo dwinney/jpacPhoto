@@ -90,7 +90,7 @@ int main( int argc, char** argv )
     X_omega.set_formfactor(1, LamOmega);
 
     vector_exchange X_rho(kX, M_RHO, "#rho");
-    X_rho.set_params({gX_rho, gV_rho, gT_rho});
+    X_rho.set_params({gX_rho, gV_rho, 0.*gT_rho});
     X_rho.set_formfactor(1, LamRho);
 
     std::vector<amplitude*> X_exchanges = {&X_omega, &X_rho};
@@ -103,62 +103,77 @@ int main( int argc, char** argv )
 
     // which amps to plot
     std::vector<amplitude*> amps;
-    amps.push_back(&chi);
-    amps.push_back(&X);
+    // amps.push_back(&chi);
+    // amps.push_back(&X);
+        amps.push_back(&X);
+    amps.push_back(&X_omega);
+    amps.push_back(&X_rho);
 
-    int N = 100;
-    bool PRINT_TO_COMMANDLINE = true;
-
-    double  xmin = 4.;
-    double  xmax = 7.;
-
-    double  ymin = 2.E-3;
-    double  ymax = 800.;
-
-    std::string filename  = "X_FS.pdf";
-    std::string ylabel    = "#it{#sigma(#gamma p #rightarrow X p)}  [nb]";
-    std::string xlabel    = "#it{W_{#gammap}}  [GeV]";
-
-    // ---------------------------------------------------------------------------
-    // You shouldnt need to change anything below this line
-    // ---------------------------------------------------------------------------
-
-    // Plotter object
-    jpacGraph1D* plotter = new jpacGraph1D();
-
-    // ---------------------------------------------------------------------------
-    // Print the desired observable for each amplitude
-    for (int n = 0; n < amps.size(); n++)
+  double w = 7., theta = 0.4;
+    double s = w*w;
+    double t = kX->t_man(s, theta);
+    for (int i =0; i<24; i++)
     {
-        std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+        std::array<int,4> hel = kX->_helicities[i];
+        std::complex<double> amp1 = X_omega.helicity_amplitude(hel, s, t);
+        std::complex<double> amp2 = X_rho.helicity_amplitude(hel, s, t);
 
-        auto F = [&](double x)
-        {
-            return amps[n]->integrated_xsection(x*x);
-        };
+        debug(i, amp1, amp2);
+    };
 
-        std::array<std::vector<double>, 2> x_fx, x_fx1;
-        if (xmin < amps[n]->_kinematics->Wth())
-        {
-            x_fx = vec_fill(N, F, amps[n]->_kinematics->Wth() + EPS, xmax, PRINT_TO_COMMANDLINE);
-            x_fx[0].insert(x_fx[0].begin(), amps[n]->_kinematics->Wth());
-            x_fx[1].insert(x_fx[1].begin(), 0.);
-        }
-        else
-        {
-            x_fx = vec_fill(N, F, xmin, xmax, PRINT_TO_COMMANDLINE);
-        }
+    // int N = 100;
+    // bool PRINT_TO_COMMANDLINE = true;
 
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
-    }
+    // double  xmin = 4.;
+    // double  xmax = 7.;
 
-    plotter->SetXaxis(xlabel, xmin, xmax);
-    plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetYlogscale(1);
-    plotter->SetLegend(0.7, 0.2);
+    // double  ymin = 2.E-3;
+    // double  ymax = 800.;
 
-    // Output to file
-    plotter->Plot(filename);
+    // std::string filename  = "old.pdf";
+    // std::string ylabel    = "#it{#sigma(#gamma p #rightarrow X p)}  [nb]";
+    // std::string xlabel    = "#it{W_{#gammap}}  [GeV]";
+
+    // // ---------------------------------------------------------------------------
+    // // You shouldnt need to change anything below this line
+    // // ---------------------------------------------------------------------------
+
+    // // Plotter object
+    // jpacGraph1D* plotter = new jpacGraph1D();
+
+    // // ---------------------------------------------------------------------------
+    // // Print the desired observable for each amplitude
+    // for (int n = 0; n < amps.size(); n++)
+    // {
+    //     std::cout << std::endl << "Printing amplitude: " << amps[n]->_identifier << "\n";
+
+    //     auto F = [&](double x)
+    //     {
+    //         return amps[n]->integrated_xsection(x*x);
+    //     };
+
+    //     std::array<std::vector<double>, 2> x_fx, x_fx1;
+    //     if (xmin < amps[n]->_kinematics->Wth())
+    //     {
+    //         x_fx = vec_fill(N, F, amps[n]->_kinematics->Wth() + EPS, xmax, PRINT_TO_COMMANDLINE);
+    //         x_fx[0].insert(x_fx[0].begin(), amps[n]->_kinematics->Wth());
+    //         x_fx[1].insert(x_fx[1].begin(), 0.);
+    //     }
+    //     else
+    //     {
+    //         x_fx = vec_fill(N, F, xmin, xmax, PRINT_TO_COMMANDLINE);
+    //     }
+
+    //     plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->_identifier);
+    // }
+
+    // plotter->SetXaxis(xlabel, xmin, xmax);
+    // plotter->SetYaxis(ylabel, ymin, ymax);
+    // plotter->SetYlogscale(1);
+    // plotter->SetLegend(0.7, 0.2);
+
+    // // Output to file
+    // plotter->Plot(filename);
 
     return 0;
 }
