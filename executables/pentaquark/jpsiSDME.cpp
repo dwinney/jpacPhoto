@@ -1,21 +1,19 @@
 // ---------------------------------------------------------------------------
-// Prediction for Y(4260) and Psi(1S and 2S) based on effective vector
-// pomeron exchange at low enegies.
-//
-// Reproduces left plot in FIG 5 of [1] 
+// Prediction for the J/psi photoproduction SDME's based on pomeron exchange.
 // 
 // USAGE:
-// make Y_low && ./Y_low
+// make jpsiSDME && ./jpsiSDME
 //
 // OUTPUT:
-// Y_LE.pdf
+// jpsi_SDME.pdf
 //
-// Author:       Daniel Winney (2020)
+// Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
-// Email:        dwinney@iu.edu
+// Email:        dwinney@alumni.iu.edu
 // ---------------------------------------------------------------------------
 // REFERENCES:
-// [1] arXiv:2008.01001 [hep-ph]
+// [1] arXiv:1907.09393 [hep-ph]
+// [2] arXiv:1606.08912 [hep-ph]
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
@@ -37,14 +35,19 @@ int main( int argc, char** argv )
     // Preliminaries
     // ---------------------------------------------------------------------------
 
-    // Low - energy trajectory and couplings
+    // J/Psi kinematics, same for both models
+    reaction_kinematics * kJpsi = new reaction_kinematics(M_JPSI);
+    kJpsi->set_JP(1, -1);
+
+    // Low - energy trajectory and couplings from [1]
     linear_trajectory * alpha_LE = new linear_trajectory(1, 0.94, 0.36, "LE");
     double A_LE = 0.38;
     double b_LE = 0.12;
 
-    // J/Psi
-    reaction_kinematics * kJpsi = new reaction_kinematics(M_JPSI);
-    kJpsi->set_JP(1, -1);
+    // High - energy trajectory and couplings from [2]
+    linear_trajectory * alpha_HE = new linear_trajectory(1, 1.15, 0.11, "HE");
+    double b_HE = 1.01;
+    double A_HE = 0.16;
 
     // ---------------------------------------------------------------------------
     // Low-Energy Amplitudes
@@ -55,8 +58,8 @@ int main( int argc, char** argv )
     jpsi_LE->set_params({A_LE, b_LE});
 
     // flip to true if you want the conserving one
-    pomeron_exchange * jpsi_HC = new pomeron_exchange(kJpsi, alpha_LE, true, "#it{J}/#psi");
-    jpsi_HC->set_params({A_LE, b_LE});
+    pomeron_exchange * jpsi_HE = new pomeron_exchange(kJpsi, alpha_HE, true, "#it{J}/#psi");
+    jpsi_HE->set_params({A_HE, b_HE});
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -98,14 +101,16 @@ int main( int argc, char** argv )
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 
-    // Dashed line entries cal jpsi_HC
+    // Dashed line entries calls jpsi_HC
     auto G = [&](double mt)
     {
-        std::complex<double> sdme = jpsi_HC->SDME(alpha, lam, lamp, s, -mt);
+        std::complex<double> sdme = jpsi_HE->SDME(alpha, lam, lamp, s, -mt);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 
-    // Add upolarized
+    // ---------------------------------------------------------------------
+    // Add desired sdmes
+
     real = true;
     alpha = 0; lam = 0; lamp = 0;
     plotter->AddEntry(N, F, {xmin,xmax}, "#rho^{0}_{00}", PRINT);
@@ -121,8 +126,10 @@ int main( int argc, char** argv )
     alpha = 2; lam = 1; lamp = -1;
     plotter->AddEntry(N, F, {xmin,xmax}, "Im #rho^{2}_{1-1}", PRINT);
     plotter->AddDashedEntry(N, G, {xmin,xmax}, PRINT);
-    
-    // Make plot pretty
+
+    //--------------------------------------------------------------------
+    // Make the plot pretty
+
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
 
