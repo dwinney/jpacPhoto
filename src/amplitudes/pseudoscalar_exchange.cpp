@@ -28,6 +28,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
     else
     {
         _qt = sqrt(XR * Kallen(_t, _mX*_mX, _mB*_mB)) / sqrt(4. * _t * XR);
+        _pt = sqrt(XR * Kallen(_t, _mR*_mR, _mT*_mT)) / sqrt(4. * _t * XR);
 
         if (_lam_vec != _lam_gam || _lam_tar != _lam_rec) 
         {
@@ -111,15 +112,26 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue()
 // Nucleon resiude 
 std::complex<double> jpacPhoto::pseudoscalar_exchange::bottom_residue()
 {
+    if (_lam_tar != _lam_rec) return 0.
+    ;
+
+    std::array<int,2> JP = _kinematics->get_baryon_JP();
+    int jp = 10 * JP[0] + (1+JP[1])/2;
+
     std::complex<double> result;
+    switch (jp)
+    {
+        case (11): result = sqrt(XR * _t - pow((_mT - _mR), 2.)) / 2.; break;
+        case (31): 
+        {
+            result  = sqrt(2./3.) * _pt * sqrt(XR * _t) / _mR;
+            result *= sqrt(XR * _t - pow((_mT + _mR), 2.)) / 2.;
+            break;
+        };
+        default: return 0.;
+    }
 
-    if (_lam_tar != _lam_rec) return 0.;
-
-    result  = _gB; 
-    result *= sqrt(XR * _t - pow((_mT - _mR), 2.));
-    result /= 2.;
-
-    return result;
+    return _gB * result;
 };
 
 //------------------------------------------------------------------------------

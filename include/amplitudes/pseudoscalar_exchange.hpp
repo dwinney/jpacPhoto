@@ -127,7 +127,7 @@ namespace jpacPhoto
 
         // Whether to use fixed-spin propagator (false) or regge (true)
         bool _reggeized = false;
-        std::complex<double> _qt; // Momentum in t-channel
+        std::complex<double> _qt, _pt; // Momentum in t-channel
 
         // Mass of the exchanged pseudo-scalar (if REGGE = false)
         // ignored otherwise
@@ -149,8 +149,8 @@ namespace jpacPhoto
         bool _useCovariant = false; 
         void check_covariant(reaction_kinematics * kinem)
         {
-            std::array<int,2> bjp = kinem->get_baryon_JP();
-            (bjp[0] == 3)  ? (_useCovariant = true) : (_useCovariant = false);
+            // std::array<int,2> bjp = kinem->get_baryon_JP();
+            // (bjp[0] == 3)  ? (_useCovariant = true) : (_useCovariant = false);
         };
 
         // Analytic residues
