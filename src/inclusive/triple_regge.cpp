@@ -78,7 +78,7 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     double coupling2   = _coupling(t) * _coupling(t);
 
     // Form factor with tprime corresponding to the exclusive limit
-    double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( _kinematics->_minM2 )));
+    double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( M_PROTON )));
 
     // The form of the exchange propagators depends on if we want a regge form or not
     double exchange_propagator2;
