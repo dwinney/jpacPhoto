@@ -31,7 +31,19 @@ namespace jpacPhoto
             };
 
             if (resonances) initialize_PWAs();
-            this->set_debug(3);
+        };
+
+        JPAC_parameterization(int iso, int single_ell = 1)
+        : total_xsection(M_PION, M_PROTON), _iso(iso), _resonances(true), 
+          _singleL(true), _ell(single_ell),
+          _interp(0, ROOT::Math::Interpolation::kCSPLINE)
+        {
+            if (abs(iso) != 1)
+            {
+                std::cout << "Error! JPAC_parameterization argument must be +1 or -1! Results may vary..." << std::endl;
+            };
+
+            initialize_PWAs();
         };
 
         ~JPAC_parameterization()
@@ -73,6 +85,9 @@ namespace jpacPhoto
         // Parameter selecting pi + or pi - scattering
         int  _iso = 1;  // plus or minus 1
         bool _resonances = false;
+        
+        bool _singleL = false; 
+        int  _ell;
 
         // ----------------------------------------------------------------------
         // Low-energy pieces
@@ -133,7 +148,7 @@ namespace jpacPhoto
         void import_data(std::string datfile = "SAID.dat");
 
         // For given isospin set up the individual partial waves and store them in a vector
-        int _Lmax = 7.;
+        int _Lmax = 7, _Lcutoff = 3;
         void initialize_PWAs();
         std::vector<SAID_PWA*> _pw_1p, _pw_1m, _pw_3p, _pw_3m;
 
@@ -150,10 +165,14 @@ namespace jpacPhoto
             update_amplitudes(s);
             for (int L = 0; L <= _Lmax; L++)
             {
+                if ( _singleL && L != _ell) continue;
+
                 int LL;
-                (L < _debug) ? (LL = L) : (LL = _debug);
+                (L < _Lcutoff) ? (LL = L) : (LL = _Lcutoff);
                 
-                if (L >= 3 && s < 1.2) continue;
+                // Numerical safeguards near threshold for higher PWs
+                if (L >= 3 && s < 1.18) continue;
+                if (L >= 4 && s < 1.3) continue;
 
                 double sigmaL = 0.389352 * ( _CpL[L] - double(_iso) * _CmL[L] ) / pLab(s);
                 if (sigmaL < 0) continue;
