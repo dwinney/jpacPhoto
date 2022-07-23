@@ -72,7 +72,7 @@ int main( int argc, char** argv )
     double ymax = 2.5;
 
     std::string filename = "dsigmadx.pdf";
-    std::string ylabel   = "d#sigma/d#it{x} [#mub]";
+    std::string ylabel   = "d#sigma/d#it{x}   [#mub]";
     std::string xlabel   = "#it{x}";
 
     // ---------------------------------------------------------------------------  

@@ -41,18 +41,18 @@ int main( int argc, char** argv )
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incB1f( new triple_regge(excB1f.get()));
     incB1f->set_high_energy_approximation(false);
-    
+  
     // // ---------------------------------------------------------------------------
     // // Plotting options
     // // ---------------------------------------------------------------------------
 
-    int N = 300;
+    int N = 50;
 
     double xmin = 2.;   
     double xmax = 5. ;
 
     double ymin = 0.;
-    double ymax = 10.;
+    double ymax = 8.;
 
     std::string filename = "integrated.pdf";
     std::string ylabel   = "#sigma  [#mub]";
@@ -80,10 +80,27 @@ int main( int argc, char** argv )
     };
 
     incB1f->set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "total #it{b}_{1}^{#plus} production", 1);
-
-    incB1f->set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddDashedEntry(N, G, {xmin, xmax});
+    std::array<std::vector<double>, 2> x_fx, x_fx2;
+    x_fx  = vec_fill(2*N,   F, xmin, 3, 1);
+    x_fx2 = vec_fill(N, F, 3.1, xmax, 1);
+    for (int i = 0; i < x_fx2[0].size(); i++)
+    {
+        x_fx[0].push_back(x_fx2[0][i]);
+        x_fx[1].push_back(x_fx2[1][i]);
+    }
+    plotter->AddEntry(x_fx[0], x_fx[1], "total #it{b}_{1}^{#plus} production");
+    
+    // Add the exclusive curve
+    x_fx[0].clear(); x_fx[1].clear();
+    x_fx2[0].clear(); x_fx2[1].clear();
+    x_fx  = vec_fill(2*N,   G, xmin, 3, 1);
+    x_fx2 = vec_fill(N, G, 3.1, xmax, 1);
+    for (int i = 0; i < x_fx2[0].size(); i++)
+    {
+        x_fx[0].push_back(x_fx2[0][i]);
+        x_fx[1].push_back(x_fx2[1][i]);
+    }
+    plotter->AddDashedEntry(x_fx[0], x_fx[1]);
 
     incB1f->set_sigma_total(JPAC_pipp_withResonances);
     plotter->AddEntry(N, H, {xmin, xmax}, "total #it{b}_{1}^{#minus} production", 1);
@@ -97,7 +114,7 @@ int main( int argc, char** argv )
 
     // LEgend options
     plotter->SetLegend(0.6, 0.65);
-    plotter->SetLegendOffset(0.3, 0.12);
+    plotter->SetLegendOffset(0.3, 0.1);
 
     // Output to file
     plotter->Plot(filename);

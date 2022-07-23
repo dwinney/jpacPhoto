@@ -31,9 +31,6 @@ int main( int argc, char** argv )
 
     // Delta p pi coupling
     double g_delta = 18.5;
-    double g_pi = sqrt(4. * M_PI / 137.);
-    double Lambda = .450;
-
     double LamPi = .9;  // 900 MeV cutoff for formfactor
     
     // ---------------------------------------------------------------------------
@@ -86,49 +83,26 @@ int main( int argc, char** argv )
 
     // Plotter object
     std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
-    
+
+    // Stable delta
+    kDelta->set_recoil_mass(M_DELTA);
     auto F = [&](double w)
     {
         return excDelta->integrated_xsection(w*w) * 1.E-3; // in mub!
     };
-    plotter->AddEntry(N, F, {xmin, xmax}, "#it{b}_{1}^{#minus} #Delta^{#plus#plus}", 0);
 
-    auto Sill = [&](double w)
-    {
-        double width = 0.09;
-        double mass  = 1.19;
-        double mN = 0.938, mpi = 0.134;
-        double sth = (mN + mpi)*(mN+mpi);
-
-        double gamma = width*mass / sqrt(mass*mass - sth);
-
-        return 2.*w/M_PI * sqrt(w*w - sth) *gamma / (pow(w*w-mass*mass, 2.) + pow(sqrt(w*w - sth)*gamma, 2.));
-    };
-
-    auto H = [&](double w)
-    {
-        auto dH = [&](double m)
-        {
-            
-            kDelta->set_recoil_mass(m);
-            return Sill(m)*excDelta->integrated_xsection(w*w) * 1.E-3; // in mub!
-        };
-
-        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
-        ROOT::Math::Functor1D wH(dH);
-        ig.SetFunction(wH);
-
-        return ig.Integral(M_PION+M_PROTON, 3.);
-    };
-    plotter->AddEntry(N, H, {xmin, xmax}, "#it{b}_{1}^{#minus} #rightarrow #Delta^{#plus#plus} #rightarrow #pi^{+} #it{p}", 1);
-
-    kDelta->set_recoil_mass(M_DELTA);
+    // Inclusive
     auto G = [&](double w)
     {
         return incB1->integrated_xsection(w*w); // in mub!
     };  
-    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} #it{X}", 1.);
 
+    incB1->set_sigma_total(JPAC_pipp_onlyDelta);
+    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} (#Delta^{#plus#plus} #rightarrow #pi^{#plus} p)", 1);
+    plotter->AddDashedEntry(N, F, {xmin, xmax});
+
+    incB1->set_sigma_total(JPAC_pipp_withResonances);
+    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} #it{X}", 1);
 
     // ---------------------------------------------------------------------------
     // Finally make the plot pretty

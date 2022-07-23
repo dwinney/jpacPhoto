@@ -11,6 +11,7 @@
 
 using namespace jpacPhoto;
 
+
 int main( int argc, char** argv )
 {
 
@@ -23,6 +24,7 @@ int main( int argc, char** argv )
 
     // Couplings
     double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
+    double g_delta = 18.5; // Dleta p pi coupling
     double LamPi = .9;  // 900 MeV cutoff for formfactor
 
     // Masses
@@ -30,6 +32,32 @@ int main( int argc, char** argv )
     double M_ZB  = 10.6072;
     double M_ZBP = 10.6522;
 
+    // Pion trajectory 
+    int signature = +1;
+    double alpha_prime = 0.7; // GeV^-2
+    double alpha_0 =  - alpha_prime * M2_PION;
+    linear_trajectory * alpha = new linear_trajectory(signature, alpha_0, alpha_prime);
+
+    // ---------------------------------------------------------------------------
+    // B1
+
+    // Kinematics
+    reaction_kinematics * kb1 = new reaction_kinematics(M_B1);
+    kb1->set_meson_JP(1, +1);
+
+    // Couplings
+    double g_b1 = 0.24;
+
+    // Exclusive amplitude
+    std::unique_ptr<pseudoscalar_exchange> excB1f( new pseudoscalar_exchange(kb1, alpha, "b1 production") );
+    excB1f->set_params({g_b1, g_NN});
+    excB1f->set_formfactor(true, LamPi);
+
+    // We now can pass this to an inclusive amplitude
+    std::unique_ptr<triple_regge> incB1( new triple_regge(excB1f.get()));
+    incB1->set_high_energy_approximation(true);
+    incB1->set_sigma_total(JPAC_pipp_withResonances);
+  
     // ---------------------------------------------------------------------------
     // Zc(3900)
 
@@ -42,15 +70,14 @@ int main( int argc, char** argv )
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZc( new pseudoscalar_exchange(kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#plus} production") );
+    std::unique_ptr<pseudoscalar_exchange> excZc( new pseudoscalar_exchange(kZc, alpha, "Zc(3900)^{#minus}  production") );
     excZc->set_params({gc_Gamma, g_NN});
     excZc->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incZc( new triple_regge(excZc.get()));
-    incZc->set_high_energy_approximation(false);
+    incZc->set_high_energy_approximation(true);
     incZc->set_sigma_total(JPAC_pipp_withResonances);
-    incZc->set_sigma_total_option(5);
 
     // ---------------------------------------------------------------------------
     // Zb(10610)
@@ -66,13 +93,13 @@ int main( int argc, char** argv )
                           + F_UPSILON3S * gb_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZb( new pseudoscalar_exchange(kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#plus} production") );
+    std::unique_ptr<pseudoscalar_exchange> excZb( new pseudoscalar_exchange(kZb, alpha, "Zb(10610)^{#minus}  production") );
     excZb->set_params({gb_Gamma, g_NN});
     excZb->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incZb( new triple_regge(excZb.get()));
-    incZb->set_high_energy_approximation(false);
+    incZb->set_high_energy_approximation(true);
     incZb->set_sigma_total(JPAC_pipp_withResonances);
     
     // ---------------------------------------------------------------------------
@@ -89,75 +116,34 @@ int main( int argc, char** argv )
                            + F_UPSILON3S * gbp_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZbp( new pseudoscalar_exchange(kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#plus} production") );
+    std::unique_ptr<pseudoscalar_exchange> excZbp( new pseudoscalar_exchange(kZbp, alpha, "Zb(10650)^{#minus}  production") );
     excZbp->set_params({gbp_Gamma, g_NN});
     excZbp->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     std::unique_ptr<triple_regge> incZbp( new triple_regge(excZbp.get()));
-    incZbp->set_high_energy_approximation(false);
+    incZbp->set_high_energy_approximation(true);
     incZbp->set_sigma_total(JPAC_pipp_withResonances);
 
     // ---------------------------------------------------------------------------
-    // Plotting options
-    // ---------------------------------------------------------------------------
+    // 
+    std::vector<triple_regge*> inc = {incB1.get(), incZc.get(), incZb.get(), incZbp.get()};
 
-    int N = 100;
-
-    double xmin = 4.8;   
-    double xmax = 20.;
-
-    double ymin = 2.E-1;
-    double ymax = 1.E2;
-
-    std::string filename = "incZplus_total.pdf";
-    std::string ylabel   = "#sigma  [nb]";
-    std::string xlabel   = "#it{W}_{#gamma#it{p}}  [GeV]";
-    bool print_to_CMD    = true;
-
-    // ---------------------------------------------------------------------------  
-    // You shouldnt need to change anything below this line
-    // ---------------------------------------------------------------------------
- 
-    // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
-
-    int amp = 0;
-    std::vector<triple_regge*> inc = {incZc.get(), incZb.get(), incZbp.get()};
-    std::vector<amplitude*>    exc = {excZc.get(), excZb.get(), excZbp.get()};
-    bool addExc, addInc;
-
-    auto F = [&](double w)
+    for (int i = 0; i < inc.size(); i++)
     {
-        return inc[amp]->integrated_xsection(w*w) * 1.E3 + exc[amp]->integrated_xsection(w*w); // in nb!
+        std::cout << inc[i]->get_id() << std::endl;
+        double e30 = inc[i]->exclusive_xsection(30.*30.) * 1.E3;
+        double e60 = inc[i]->exclusive_xsection(60.*60.) * 1.E3;
+        double e90 = inc[i]->exclusive_xsection(90.*90.) * 1.E3;
+        debug(e30, e60, e90);
+
+        double i30 = inc[i]->integrated_xsection(30.*30.) * 1.E6;
+        double i60 = inc[i]->integrated_xsection(60.*60.) * 1.E6;
+        double i90 = inc[i]->integrated_xsection(90.*90.) * 1.E6;
+        debug(i30 + e30, i60 + e60, i90 + e90);
+
+        std::cout << std::endl;
     };
-
-    auto G = [&](double w)
-    {
-        return exc[amp]->integrated_xsection(w*w); // in nb!
-    };
-
-    for (int i = 0; i < 3; i++)
-    {
-        amp = i;
-        plotter->AddEntry(N, F, {xmin, xmax}, inc[i]->get_id(), print_to_CMD);
-        plotter->AddDashedEntry(N, G, {xmin, xmax}, print_to_CMD);
-    }
-
-    // ---------------------------------------------------------------------------
-    // Finally make the plot pretty
-
-    // Axes options
-    plotter->SetXaxis(xlabel, xmin, xmax);
-    plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetYlogscale(true);
-
-    // LEgend options
-    plotter->SetLegend(0.53, 0.69);
-    plotter->SetLegendOffset(0.3, 0.15);
-
-    // Output to file
-    plotter->Plot(filename);
 
     return 0;
 };

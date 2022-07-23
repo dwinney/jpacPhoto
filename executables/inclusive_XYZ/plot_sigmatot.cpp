@@ -45,24 +45,24 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
     // Print the phase-space for each kinematics
 
-    double piPlus, useJPAC;
     double q2 = M2_PION;
+    
+    total_xsection * sigma;
     auto F = [&](double s)
     {
-        return piPlus * ( useJPAC * JPAC_pipp->eval(s, q2) + !useJPAC * PDG_pipp->eval(s, q2) ) 
-            + !piPlus * ( useJPAC * JPAC_pimp->eval(s, q2) + !useJPAC * PDG_pimp->eval(s, q2) );
+        return sigma->eval(s, q2);
     };
 
-    piPlus = true; useJPAC = true;
+    sigma = JPAC_pipp;
     plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#plus} p", 1);
 
-    piPlus = true; useJPAC = false;
+    sigma = PDG_pipp;
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
-    piPlus = false; useJPAC = true;
+    sigma = JPAC_pimp;
     plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#minus} p");
 
-    piPlus = false; useJPAC = false;
+    sigma = PDG_pimp;
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     // Axes and legend options
