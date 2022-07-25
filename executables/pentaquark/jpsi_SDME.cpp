@@ -38,13 +38,13 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Low - energy trajectory and couplings
-    linear_trajectory * alpha_LE = new linear_trajectory(1, 0.94, 0.36, "LE");
+    linear_trajectory alpha_LE (1, 0.94, 0.36, "LE");
     double A_LE = 0.38;
     double b_LE = 0.12;
 
     // J/Psi
-    reaction_kinematics * kJpsi = new reaction_kinematics(M_JPSI);
-    kJpsi->set_meson_JP(1, -1);
+    reaction_kinematics kJpsi (M_JPSI);
+    kJpsi.set_meson_JP(1, -1);
 
     // ---------------------------------------------------------------------------
     // Low-Energy Amplitudes
@@ -52,22 +52,17 @@ int main( int argc, char** argv )
 
     // The false means not helicity conserving version 
     // flip to true if you want the conserving one
-    pomeron_exchange * jpsi_LE = new pomeron_exchange(kJpsi, alpha_LE, false, "#it{J}/#psi");
-    jpsi_LE->set_params({A_LE, b_LE});
+    pomeron_exchange jpsi_LE (&kJpsi, &alpha_LE, false, "#it{J}/#psi");
+    jpsi_LE.set_params({A_LE, b_LE});
 
     // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    // which amps to plot
-    std::vector<amplitude*> amps;
-
-    // Options
-
     int N = 100;
     
     // forward SDME
-    double ebeam = 130.;
+    double ebeam = 10.;
 
     // Plotting ranges
     double  xmin = 0.;
@@ -96,9 +91,9 @@ int main( int argc, char** argv )
     {
         double w = W_cm(ebeam);
         double s = w*w + EPS;
-        double t = kJpsi->t_man(s, theta * DEG2RAD);
+        double t = kJpsi.t_man(s, theta * DEG2RAD);
 
-        std::complex<double> sdme = jpsi_LE->SDME(alpha, lam, lamp, s, t);
+        std::complex<double> sdme = jpsi_LE.SDME(alpha, lam, lamp, s, t);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 

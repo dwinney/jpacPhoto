@@ -38,8 +38,8 @@ namespace jpacPhoto
             set_nParams(3);
             check_JP(xkinem);
 
-            // Analytical residues only available for axial-vector production
-            if (xkinem->get_meson_JP() == SCALAR) _useCovariant = true;
+            // Analytical residues not available for scalar quantum numbers yet
+            if ( xkinem->get_meson_JP()[0] == 0 && xkinem->get_meson_JP()[1] == +1 ) _useCovariant = true;
         };
 
         // Constructor for the reggized)
@@ -89,18 +89,17 @@ namespace jpacPhoto
         {
             if (!_ifReggeized)
             {
-                return {AXIAL_VECTOR, VECTOR, SCALAR, PSEUDO_SCALAR};
+                return { {1, +1}, {1, -1}, {0, +1}, {0, -1} };
             }
             else
             {
-                return {AXIAL_VECTOR};
+                return { {1, +1} };
             }
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return {{1, 1}};
+            return { {1, +1} };
         };
-
 
         private:
 

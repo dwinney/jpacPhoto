@@ -38,29 +38,29 @@ int main( int argc, char** argv )
 
     // Uranium
     double mU = 221.6977;
-    reaction_kinematics * kU = new reaction_kinematics(0, mU, mX, mU);
-    kU->set_Q2(Q2);
-    kU->set_meson_JP(1, 1);
+    reaction_kinematics kU(0, mU, mX, mU);
+    kU.set_Q2(Q2);
+    kU.set_meson_JP(1, 1);
 
-    primakoff_effect U(kU, "^{238}U");
+    primakoff_effect U(&kU, "^{238}U");
     U.set_params({92, 34.48, 3.07, 3.2E-3});
 
     // Tin
     double mSn = 115.3924;
-    reaction_kinematics * kSn = new reaction_kinematics(0., mSn, mX, mSn);
-    kSn->set_Q2(Q2);
-    kSn->set_meson_JP(1, 1);
+    reaction_kinematics kSn(0., mSn, mX, mSn);
+    kSn.set_Q2(Q2);
+    kSn.set_meson_JP(1, 1);
 
-    primakoff_effect Sn(kSn, "^{124}Sn");
+    primakoff_effect Sn(&kSn, "^{124}Sn");
     Sn.set_params({50, 27.56, 2.73, 3.2E-3});
 
     // Zinc
     double mZn = 65.1202;
-    reaction_kinematics * kZn = new reaction_kinematics(0., mZn, mX, mZn);
-    kZn->set_Q2(Q2);
-    kZn->set_meson_JP(1, 1);
+    reaction_kinematics kZn(0., mZn, mX, mZn);
+    kZn.set_Q2(Q2);
+    kZn.set_meson_JP(1, 1);
 
-    primakoff_effect Zn(kZn, "^{70}Zn");
+    primakoff_effect Zn(&kZn, "^{70}Zn");
     Zn.set_params({30, 22.34, 2.954, 3.2E-3});
 
     // ---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ int main( int argc, char** argv )
     double  ymin = 2.E-6;
     double  ymax = 100.;
 
-    std::string ylabel  = "#it{d#sigma/dt} (#gamma* A #rightarrow X A)   [nb GeV^{-2}]";
+    std::string ylabel  = "d#sigma/d#it{t} (#gamma* #it{A} #rightarrow #it{X A})   [nb GeV^{-2}]";
     bool print_to_cmd = true;
 
     // ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Plotter object
-    jpacGraph1D* plotter = new jpacGraph1D();
+    jpacGraph1D * plotter = new jpacGraph1D();
 
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
@@ -131,6 +131,8 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
+
+    delete plotter;
     
     return 0;
 };

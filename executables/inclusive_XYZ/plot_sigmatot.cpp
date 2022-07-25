@@ -4,7 +4,6 @@
 #include "jpacUtils.hpp"
 
 #include <cstring>
-#include <memory>
 
 using namespace jpacPhoto;
 
@@ -40,7 +39,7 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
+    jpacGraph1D * plotter = new jpacGraph1D();
 
     // ---------------------------------------------------------------------------
     // Print the phase-space for each kinematics

@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <memory>
 
 using namespace jpacPhoto;
 
@@ -49,12 +48,12 @@ int main( int argc, char** argv )
     double g_b1 = 0.24;
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excB1f( new pseudoscalar_exchange(kb1, alpha, "b1 production") );
+    pseudoscalar_exchange * excB1f = new pseudoscalar_exchange(kb1, alpha, "b1 production");
     excB1f->set_params({g_b1, g_NN});
     excB1f->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incB1( new triple_regge(excB1f.get()));
+    triple_regge * incB1 = new triple_regge(excB1f);
     incB1->set_high_energy_approximation(true);
     incB1->set_sigma_total(JPAC_pipp_withResonances);
   
@@ -63,19 +62,19 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZc = new reaction_kinematics(M_ZC);
-    kZc->set_meson_JP(1, 1);
+    kZc->set_meson_JP(1, +1);
 
     // Coupling
     double gc_Psi = 1.91; // psi coupling before VMD scaling
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZc( new pseudoscalar_exchange(kZc, alpha, "Zc(3900)^{#minus}  production") );
+    pseudoscalar_exchange * excZc = new pseudoscalar_exchange(kZc, alpha, "Zc(3900)^{#minus}  production");
     excZc->set_params({gc_Gamma, g_NN});
     excZc->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZc( new triple_regge(excZc.get()));
+    triple_regge * incZc = new triple_regge(excZc);
     incZc->set_high_energy_approximation(true);
     incZc->set_sigma_total(JPAC_pipp_withResonances);
 
@@ -84,7 +83,7 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZb = new reaction_kinematics(M_ZB);
-    kZb->set_meson_JP(1, 1);
+    kZb->set_meson_JP(1, +1);
 
     // Coupling 
     double gb_Ups1 = 0.49, gb_Ups2 = 3.30, gb_Ups3 = 9.22;
@@ -93,12 +92,12 @@ int main( int argc, char** argv )
                           + F_UPSILON3S * gb_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZb( new pseudoscalar_exchange(kZb, alpha, "Zb(10610)^{#minus}  production") );
+    pseudoscalar_exchange * excZb = new pseudoscalar_exchange(kZb, alpha, "Zb(10610)^{#minus}  production");
     excZb->set_params({gb_Gamma, g_NN});
     excZb->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZb( new triple_regge(excZb.get()));
+    triple_regge * incZb = new triple_regge(excZb);
     incZb->set_high_energy_approximation(true);
     incZb->set_sigma_total(JPAC_pipp_withResonances);
     
@@ -107,7 +106,7 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZbp = new reaction_kinematics(M_ZBP);
-    kZbp->set_meson_JP(1, 1);
+    kZbp->set_meson_JP(1, +1);
 
     // Coupling 
     double gbp_Ups1 = 0.21, gbp_Ups2 = 1.47, gbp_Ups3 = 4.8;
@@ -116,18 +115,18 @@ int main( int argc, char** argv )
                            + F_UPSILON3S * gbp_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZbp( new pseudoscalar_exchange(kZbp, alpha, "Zb(10650)^{#minus}  production") );
+    pseudoscalar_exchange * excZbp = new pseudoscalar_exchange(kZbp, alpha, "Zb(10650)^{#minus}  production");
     excZbp->set_params({gbp_Gamma, g_NN});
     excZbp->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZbp( new triple_regge(excZbp.get()));
+    triple_regge * incZbp = new triple_regge(excZbp);
     incZbp->set_high_energy_approximation(true);
     incZbp->set_sigma_total(JPAC_pipp_withResonances);
 
     // ---------------------------------------------------------------------------
     // 
-    std::vector<triple_regge*> inc = {incB1.get(), incZc.get(), incZb.get(), incZbp.get()};
+    std::vector<triple_regge*> inc = {incB1, incZc, incZb, incZbp};
 
     for (int i = 0; i < inc.size(); i++)
     {

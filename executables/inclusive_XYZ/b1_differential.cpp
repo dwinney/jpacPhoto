@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <memory>
 
 using namespace jpacPhoto;
 
@@ -47,16 +46,16 @@ int main( int argc, char** argv )
     int signature = +1;
     double alpha_prime = 0.7; // GeV^-2
     double alpha_0 =  - alpha_prime * M2_PION;
-    std::unique_ptr<linear_trajectory> alpha( new linear_trajectory(signature, alpha_0, alpha_prime));
+    linear_trajectory * alpha = new linear_trajectory(signature, alpha_0, alpha_prime);
     alpha->set_minJ(0);
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excB1r( new pseudoscalar_exchange(kb1, alpha.get(), "b1 production") );
+    pseudoscalar_exchange * excB1r = new pseudoscalar_exchange(kb1, alpha, "b1 production");
     excB1r->set_params({g_b1, g_NN});
     excB1r->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incB1r( new triple_regge(excB1r.get()));
+    triple_regge * incB1r = new triple_regge(excB1r);
     incB1r->set_high_energy_approximation(true);
 
     // ---------------------------------------------------------------------------

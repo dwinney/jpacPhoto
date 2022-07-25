@@ -39,8 +39,8 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // X(6900)
-    reaction_kinematics * kX = new reaction_kinematics(6.900);
-    kX->set_meson_JP(0, 1);
+    reaction_kinematics kX (6.900);
+    kX.set_meson_JP(0, 1);
 
     double gV_psi = 1.6E-3, gT_psi = 0.;
     double gX_psi = 5.03;
@@ -49,14 +49,13 @@ int main( int argc, char** argv )
     double gV_omega = 16., gT_omega = 0.;
     double gX_omega = 0.225;
     double gGam_omega = gX_omega * E * F_JPSI / M_JPSI;
-    double bOmega = 0.68; // Cuttoff of LamOmega = 1.2 GeV
 
-    vector_exchange X_psi(kX, M_JPSI, "J/#psi exchange, BR = 100%");
+    vector_exchange X_psi(&kX, M_JPSI, "J/#psi exchange, BR = 100%");
     X_psi.set_params({gGam_psi, gV_psi, gT_psi});
 
-    vector_exchange X_omega(kX, M_OMEGA, "#it{X}(6900) with BR(#it{X #rightarrow #psi#omega}) = 1%");
+    vector_exchange X_omega(&kX, M_OMEGA, "#it{X}(6900) with BR(#it{X #rightarrow #psi#omega}) = 1%");
     X_omega.set_params({gGam_omega, gV_omega, gT_omega});
-    X_omega.set_formfactor(true, bOmega);
+    X_omega.set_formfactor(true, 1.2);
    
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -71,8 +70,8 @@ int main( int argc, char** argv )
     double  ymax = 40.;
 
     std::string filename = "omega_exchange.pdf";
-    std::string xlabel   = "W_{#gammap} [GeV]";
-    std::string ylabel   = "#it{#sigma(#gamma p #rightarrow X p)}   [nb]";
+    std::string xlabel   = "#it{W}_{#gammap} [GeV]";
+    std::string ylabel   = "#sigma(#gamma #it{p} #rightarrow #it{X p})   [nb]";
     bool PRINT = true;
 
     // ---------------------------------------------------------------------------
@@ -100,6 +99,8 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
+
+    delete plotter;
 
     return 0;
 };

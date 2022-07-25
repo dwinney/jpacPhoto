@@ -38,37 +38,37 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Low - energy trajectory and couplings
-    linear_trajectory * alpha_LE = new linear_trajectory(1, 0.94, 0.36, "LE");
+    linear_trajectory alpha_LE (1, 0.94, 0.36, "LE");
     double b_LE = 0.12;
     double A_LE = 0.38;
 
     // J/Psi
-    reaction_kinematics * kJpsi = new reaction_kinematics(M_JPSI);
-    kJpsi->set_meson_JP(1, -1);
+    reaction_kinematics kJpsi (M_JPSI);
+    kJpsi.set_meson_JP(1, -1);
     double R_Jpsi = 1.;
 
     // Psi(2S)
-    reaction_kinematics * kPsi2s = new reaction_kinematics(M_PSI2S);
-    kPsi2s->set_meson_JP(1, -1);
+    reaction_kinematics kPsi2s (M_PSI2S);
+    kPsi2s.set_meson_JP(1, -1);
     double R_Psi2s = 0.55;
 
     // Y(4260)
     double mY = 4.220;
-    reaction_kinematics * kY = new reaction_kinematics(M_Y4260);
-    kY->set_meson_JP(1, -1);
+    reaction_kinematics kY (M_Y4260);
+    kY.set_meson_JP(1, -1);
     double R_Y = 0.84;
 
     // ---------------------------------------------------------------------------
     // Low-Energy Amplitudes
     // ---------------------------------------------------------------------------
 
-    pomeron_exchange Jpsi_LE(kJpsi, alpha_LE, false, "#it{J /#psi}");
+    pomeron_exchange Jpsi_LE(&kJpsi, &alpha_LE, false, "#it{J /#psi}");
     Jpsi_LE.set_params({A_LE * R_Jpsi, b_LE});
 
-    pomeron_exchange Psi2s_LE(kPsi2s, alpha_LE, false, "#psi(2#it{S})");
+    pomeron_exchange Psi2s_LE(&kPsi2s, &alpha_LE, false, "#psi(2#it{S})");
     Psi2s_LE.set_params({A_LE * R_Psi2s, b_LE});
 
-    pomeron_exchange Y_LE(kY, alpha_LE, false, "#it{Y}(4260)");
+    pomeron_exchange Y_LE(&kY, &alpha_LE, false, "#it{Y}(4260)");
     Y_LE.set_params({A_LE * R_Y, b_LE});
 
     // ---------------------------------------------------------------------------
@@ -120,6 +120,8 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
+
+    delete plotter;
 
     return 0;
 };

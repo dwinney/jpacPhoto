@@ -14,9 +14,9 @@ int main( int argc, char** argv )
 {
     // Set up kinematics of the Pcs K final state
     double M_PCS = 4.5880;
-    reaction_kinematics * kPcsK = new reaction_kinematics(M_KAON, M_PCS);
-    kPcsK->set_meson_JP(  PSEUDO_SCALAR );
-    kPcsK->set_baryon_JP( HALF_MINUS    );
+    reaction_kinematics kPcsK (M_KAON, M_PCS);
+    kPcsK.set_meson_JP(0, -1);
+    kPcsK.set_baryon_JP(1, -1);
 
     // Couplings 
     double gPhoton  =  0.0412501;
@@ -24,7 +24,7 @@ int main( int argc, char** argv )
     double cutoff   = 0.9;
 
     // Create the amplitude
-    dirac_exchange LamEx(kPcsK, M_LAMBDA, "#Lambda exchange");
+    dirac_exchange LamEx(&kPcsK, M_LAMBDA, "#Lambda exchange");
     LamEx.set_params({gPhoton, gNucleon});
     LamEx.set_formfactor(3, cutoff);
 
@@ -35,15 +35,14 @@ int main( int argc, char** argv )
     std::string filename  = "PcsK.pdf";
 
     // ---------------------------------------------------------------------------
-
-
-    // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
 
     // Plotter object
-    jpacGraph1D* plotter = new jpacGraph1D();
+    jpacGraph1D * plotter = new jpacGraph1D();
 
+    std::string ylabel    = "";
+    std::string xlabel    = "#theta_{s}  [deg.]";
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
 
@@ -55,13 +54,10 @@ int main( int argc, char** argv )
     double s = w*w;
    
     int o;
-
-    std::string ylabel    = "";
-    std::string xlabel    = "#theta_{s}  [deg.]";
     auto F = [&](double theta)
     {
         theta *= DEG2RAD;
-        double t = kPcsK->t_man(s, theta);
+        double t = kPcsK.t_man(s, theta);
         switch (o)
         {
             case 1: return LamEx.A_LL(s, t);
@@ -108,4 +104,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
+    delete plotter;
 };

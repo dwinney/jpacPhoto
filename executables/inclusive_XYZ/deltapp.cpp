@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <memory>
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"
@@ -42,7 +41,7 @@ int main( int argc, char** argv )
     kDelta->set_baryon_JP(3, +1); 
 
     // Exclusive amplitude for delta
-    std::unique_ptr<pseudoscalar_exchange> excDelta( new pseudoscalar_exchange(kDelta, M_PION, "b_{1}^{-} #Delta^{++}") );
+    pseudoscalar_exchange * excDelta = new pseudoscalar_exchange(kDelta, M_PION, "b_{1}^{-} #Delta^{++}");
     excDelta->set_params({g_b1, g_delta});
     excDelta->set_formfactor(1, LamPi);
 
@@ -52,12 +51,12 @@ int main( int argc, char** argv )
     kN->set_baryon_JP(1, +1); 
 
     // Exclusive amplitude for nucleon
-    std::unique_ptr<pseudoscalar_exchange> excN( new pseudoscalar_exchange(kN, M_PION, "b1 production") );
+    pseudoscalar_exchange * excN = new pseudoscalar_exchange(kN, M_PION, "b1 production");
     excN->set_params({g_b1, g_N});
     excN->set_formfactor(1, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incB1( new triple_regge(excN.get()));
+    triple_regge * incB1 = new triple_regge(excN);
     incB1->set_high_energy_approximation(false);
     incB1->set_sigma_total(JPAC_pipp_withResonances);
     
@@ -82,7 +81,7 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
+    jpacGraph1D * plotter = new jpacGraph1D();
 
     // Stable delta
     kDelta->set_recoil_mass(M_DELTA);

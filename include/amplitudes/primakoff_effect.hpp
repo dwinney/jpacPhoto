@@ -63,7 +63,7 @@ namespace jpacPhoto
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return {{1,  1}};
+            return {{1, 1}};
         };
 
         private:

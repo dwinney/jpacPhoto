@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <memory>
 
 using namespace jpacPhoto;
 
@@ -36,19 +35,19 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZc = new reaction_kinematics(M_ZC);
-    kZc->set_meson_JP(1, 1);
+    kZc->set_meson_JP(1, +1);
 
     // Coupling
     double gc_Psi = 1.91; // psi coupling before VMD scaling
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZc( new pseudoscalar_exchange(kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#minus}  production") );
+    pseudoscalar_exchange * excZc = new pseudoscalar_exchange(kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#minus}  production");
     excZc->set_params({gc_Gamma, g_NN});
     excZc->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZc( new triple_regge(excZc.get()));
+    triple_regge * incZc = new triple_regge(excZc);
     incZc->set_high_energy_approximation(false);
     incZc->set_sigma_total(JPAC_pipp_withResonances);
 
@@ -57,7 +56,7 @@ int main( int argc, char** argv )
 
     // Kinematics
     reaction_kinematics * kZb = new reaction_kinematics(M_ZB);
-    kZb->set_meson_JP(1, 1);
+    kZb->set_meson_JP(1, +1);
 
     // Coupling 
     double gb_Ups1 = 0.49, gb_Ups2 = 3.30, gb_Ups3 = 9.22;
@@ -66,12 +65,12 @@ int main( int argc, char** argv )
                           + F_UPSILON3S * gb_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZb( new pseudoscalar_exchange(kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#minus}  production") );
+    pseudoscalar_exchange * excZb = new pseudoscalar_exchange(kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#minus}  production");
     excZb->set_params({gb_Gamma, g_NN});
     excZb->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZb( new triple_regge(excZb.get()));
+    triple_regge * incZb = new triple_regge(excZb);
     incZb->set_high_energy_approximation(false);
     incZb->set_sigma_total(JPAC_pipp_withResonances);
     
@@ -89,12 +88,12 @@ int main( int argc, char** argv )
                            + F_UPSILON3S * gbp_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZbp( new pseudoscalar_exchange(kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#minus}  production") );
+    pseudoscalar_exchange * excZbp = new pseudoscalar_exchange(kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#minus}  production");
     excZbp->set_params({gbp_Gamma, g_NN});
     excZbp->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZbp( new triple_regge(excZbp.get()));
+    triple_regge * incZbp = new triple_regge(excZbp);
     incZbp->set_high_energy_approximation(false);
     incZbp->set_sigma_total(JPAC_pipp_withResonances);
 
@@ -120,13 +119,13 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
+    jpacGraph1D * plotter = new jpacGraph1D();
     
     // ---------------------------------------------------------------------------
     // Intermediate functions needed
 
     int amp = 0;
-    std::vector<triple_regge*> inc = {incZc.get(), incZb.get(), incZbp.get()};
+    std::vector<triple_regge*> inc = {incZc, incZb, incZbp};
     std::vector<double> coups = {gc_Gamma, gb_Gamma, gbp_Gamma};
 
     // Just the inclusive curve

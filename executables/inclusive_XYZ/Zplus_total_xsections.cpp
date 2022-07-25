@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <memory>
 
 using namespace jpacPhoto;
 
@@ -42,12 +41,12 @@ int main( int argc, char** argv )
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZc( new pseudoscalar_exchange(kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#plus} production") );
+    pseudoscalar_exchange * excZc = new pseudoscalar_exchange(kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#plus} production");
     excZc->set_params({gc_Gamma, g_NN});
     excZc->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZc( new triple_regge(excZc.get()));
+    triple_regge * incZc = new triple_regge(excZc);
     incZc->set_high_energy_approximation(false);
     incZc->set_sigma_total(JPAC_pipp_withResonances);
     incZc->set_sigma_total_option(5);
@@ -66,12 +65,12 @@ int main( int argc, char** argv )
                           + F_UPSILON3S * gb_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZb( new pseudoscalar_exchange(kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#plus} production") );
+    pseudoscalar_exchange * excZb = new pseudoscalar_exchange(kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#plus} production");
     excZb->set_params({gb_Gamma, g_NN});
     excZb->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZb( new triple_regge(excZb.get()));
+    triple_regge * incZb = new triple_regge(excZb);
     incZb->set_high_energy_approximation(false);
     incZb->set_sigma_total(JPAC_pipp_withResonances);
     
@@ -89,12 +88,12 @@ int main( int argc, char** argv )
                            + F_UPSILON3S * gbp_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excZbp( new pseudoscalar_exchange(kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#plus} production") );
+    pseudoscalar_exchange * excZbp = new pseudoscalar_exchange(kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#plus} production");
     excZbp->set_params({gbp_Gamma, g_NN});
     excZbp->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incZbp( new triple_regge(excZbp.get()));
+    triple_regge * incZbp = new triple_regge(excZbp);
     incZbp->set_high_energy_approximation(false);
     incZbp->set_sigma_total(JPAC_pipp_withResonances);
 
@@ -120,11 +119,11 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
  
     // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
+    jpacGraph1D * plotter = new jpacGraph1D();
 
     int amp = 0;
-    std::vector<triple_regge*> inc = {incZc.get(), incZb.get(), incZbp.get()};
-    std::vector<amplitude*>    exc = {excZc.get(), excZb.get(), excZbp.get()};
+    std::vector<triple_regge*> inc = {incZc, incZb, incZbp};
+    std::vector<amplitude*>    exc = {excZc, excZb, excZbp};
     bool addExc, addInc;
 
     auto F = [&](double w)

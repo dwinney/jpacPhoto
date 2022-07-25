@@ -6,7 +6,7 @@
 #include "amplitudes/dirac_exchange.hpp"
 #include "amplitudes/amplitude_sum.hpp"
 
-#include "photoPlotter.hpp"
+#include "jpacGraph1D.hpp"
 
 #include <cstring>
 #include <iostream>
@@ -27,7 +27,7 @@ int main( int argc, char** argv )
 
     // Set up Kinematics for Dbar LambdaC in final state
     auto kDstar = new reaction_kinematics(M_JPSI, M_PROTON, M_DSTAR, M_LAMBDAC);
-    kDstar->set_meson_JP(VECTOR);
+    kDstar->set_meson_JP(1 ,-1);
 
     auto dstar_dstarEx = new vector_exchange(kDstar, M_DSTAR, "Analytic");
     dstar_dstarEx->set_params({gPsiDDstar, gDstarNLam, 0.});
@@ -44,28 +44,47 @@ int main( int argc, char** argv )
     amps.push_back(dstar_dstarEx);
     amps.push_back(dstar_dstarExC);
 
-    auto plotter = new photoPlotter(amps);
+    int N = 10;
+    double PRINT = true;
 
-    plotter->N = 10;
-    plotter->PRINT_TO_COMMANDLINE = true;
-    plotter->LAB_ENERGY = true;
+    double xmin = 4.;
+    double xmax = 10.5;
 
-    plotter->xmin = 4.;
-    plotter->xmax = 10.5;
+    double ymin = 0.;
+    double ymax = 1.E4;
 
-    plotter->ymin = 0.;
-    plotter->ymax = 10000.;
+    std::string filename  = "open_charm.pdf";
+    std::string ylabel    = "#it{#sigma(#psi p #rightarrow D #Lambda_{c}^{+})}   [nb]";
+    std::string xlabel    = "E_{#gamma}  [GeV]";
 
-    plotter->SHOW_LEGEND = true;
-    plotter->xlegend = 0.2;
-    plotter->ylegend = 0.75;
+    // ---------------------------------------------------------------------------
+    // You shouldnt need to change anything below this line
+    // ---------------------------------------------------------------------------
+
+    jpacGraph1D * plotter = new jpacGraph1D();
+
+    // ---------------------------------------------------------------------------
+    // Print the desired observable for each amplitude
+    for (int n = 0; n < amps.size(); n++)
+    {
+        auto F = [&](double e)
+        {
+            double w = W_cm(e);
+            return amps[n]->integrated_xsection(w*w);
+        };
+
+        plotter->AddEntry(N, F, {xmin, xmax}, amps[n]->get_id(), PRINT);
+    };
+
+    plotter->SetXaxis(xlabel, xmin, xmax);
+    plotter->SetYaxis(ylabel, ymin, ymax);
+    plotter->SetLegend(0.2, 0.75);
     plotter->SetLegendOffset(0.5, 0.1);
 
-    plotter->filename  = "open_charm.pdf";
-    plotter->ylabel    = "#it{#sigma(#psi p #rightarrow D #Lambda_{c}^{+})}   [nb]";
-    plotter->xlabel    = "#it{W_{#gamma}}  [GeV]";
+    // Output to file
+    plotter->Plot(filename);
 
-    plotter->Plot("integrated_xsection");
+    delete plotter;
 
     return 0;
 };

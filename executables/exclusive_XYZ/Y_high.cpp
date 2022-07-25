@@ -36,37 +36,40 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
     // Preliminaries
     // ---------------------------------------------------------------------------
-    // Same but high-energy
-    linear_trajectory * alpha_HE = new linear_trajectory(1, 1.15, 0.11, "HE");
+
+    // High energy pomeron trajectory and couplings
+    linear_trajectory alpha_HE (1, 1.15, 0.11, "HE");
     double b_HE = 1.01;
     double A_HE = 0.16;
 
     // J/Psi
-    reaction_kinematics * kJpsi = new reaction_kinematics(M_JPSI);
-    kJpsi->set_meson_JP(1, -1);
+    reaction_kinematics kJpsi (M_JPSI);
+    kJpsi.set_meson_JP(1, -1);
     double R_Jpsi = 1.;
 
     // Psi(2S)
-    reaction_kinematics * kPsi2s = new reaction_kinematics(M_PSI2S);
-    kPsi2s->set_meson_JP(1, -1);
+    reaction_kinematics kPsi2s (M_PSI2S);
+    kPsi2s.set_meson_JP(1, -1);
     double R_Psi2s = 0.55;
 
     // Y(4260)
-    reaction_kinematics * kY = new reaction_kinematics(M_Y4260);
-    kY->set_meson_JP(1, -1);
+    reaction_kinematics kY (M_Y4260);
+    kY.set_meson_JP(1, -1);
     double R_Y = 0.84;
 
     // ---------------------------------------------------------------------------
     // High-enegy Amplitudes
     // ---------------------------------------------------------------------------
 
-    pomeron_exchange Jpsi_HE(kJpsi, alpha_HE, true, "#it{J /#psi}");
+    // Third argument (bool) sets the helicity conservation model
+
+    pomeron_exchange Jpsi_HE(&kJpsi, &alpha_HE, true, "#it{J}/#psi");
     Jpsi_HE.set_params({A_HE * R_Jpsi, b_HE});
 
-    pomeron_exchange Psi2s_HE(kPsi2s, alpha_HE, true, "#psi(2#it{S})");
+    pomeron_exchange Psi2s_HE(&kPsi2s, &alpha_HE, true, "#psi(2#it{S})");
     Psi2s_HE.set_params({A_HE * R_Psi2s, b_HE});
 
-    pomeron_exchange Y_HE(kY, alpha_HE, true, "#it{Y}(4260)");
+    pomeron_exchange Y_HE(&kY, &alpha_HE, true, "#it{Y}(4260)");
     Y_HE.set_params({A_HE * R_Y, b_HE});
 
     // ---------------------------------------------------------------------------
@@ -87,7 +90,8 @@ int main( int argc, char** argv )
     double  ymin = 0.;
     double  ymax = 100.;
 
-    std::string ylabel  = ROOT_italics("#sigma(#gamma p #rightarrow Y p)") + "   [nb]";
+    std::string xlabel  = "#it{W}_{#gammap}  [GeV]";
+    std::string ylabel  = "#sigma(#gamma #it{p} #rightarrow #it{Y p})  [nb]";
     std::string filename = "Y_HE.pdf";
     bool PRINT = true;
     
@@ -110,7 +114,7 @@ int main( int argc, char** argv )
         plotter->AddEntry(N, F, {xmin,xmax}, amps[n]->get_id(), PRINT);
     }
 
-    plotter->SetXaxis(ROOT_italics("W_{#gammap}") + "  [GeV]", std::floor(xmin), xmax);
+    plotter->SetXaxis(xlabel, std::floor(xmin), xmax);
 
     plotter->SetYaxis(ylabel, ymin, ymax);
     
@@ -118,6 +122,8 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
+
+    delete plotter;
 
     return 0;
 };

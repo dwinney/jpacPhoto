@@ -59,11 +59,11 @@ namespace jpacPhoto
         // only Vector and psuedo-scalar kinematics
         inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
-            return { VECTOR, PSEUDO_SCALAR };
+            return { {1, -1}, {0, -1} };
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return { HALF_PLUS, HALF_MINUS };
+            return { {1, +1}, {1, -1} };
         };
 
         protected:

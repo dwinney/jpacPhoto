@@ -36,12 +36,12 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Chi_c1(1P)
-    reaction_kinematics * kChi = new reaction_kinematics(M_CHIC1);
-    kChi->set_meson_JP(1, 1);
+    reaction_kinematics kChi (M_CHIC1);
+    kChi.set_meson_JP(1, 1);
 
     // X(3872)
-    reaction_kinematics * kX = new reaction_kinematics(M_X3872);
-    kX->set_meson_JP(1, 1);
+    reaction_kinematics kX (M_X3872);
+    kX.set_meson_JP(1, 1);
 
     // Nucleon couplings 
     double gV_omega = 16., gT_omega = 0.;
@@ -64,34 +64,33 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Chi_c1(1P)
-    vector_exchange Chi_omega(kChi, M_OMEGA, "#omega");
+    vector_exchange Chi_omega(&kChi, M_OMEGA, "#omega");
     Chi_omega.set_params({gChi_omega, gV_omega, gT_omega});
     Chi_omega.set_formfactor(1, LamOmega);
 
-    vector_exchange Chi_rho(kChi, M_RHO, "#rho");
+    vector_exchange Chi_rho(&kChi, M_RHO, "#rho");
     Chi_rho.set_params({gChi_rho, gV_rho, gT_rho});
     Chi_rho.set_formfactor(1, LamRho);
 
-    vector_exchange Chi_phi(kChi, M_PHI, "#phi");
+    vector_exchange Chi_phi(&kChi, M_PHI, "#phi");
     Chi_phi.set_params({gChi_phi, gV_phi, gT_phi});
 
-    vector_exchange Chi_psi(kChi, M_JPSI, "#psi");
+    vector_exchange Chi_psi(&kChi, M_JPSI, "#psi");
     Chi_psi.set_params({gChi_psi, gV_psi, gT_psi});
 
-    std::vector<amplitude*> chi_exchanges = {&Chi_omega, &Chi_rho, &Chi_phi, &Chi_psi};
-    amplitude_sum chi(kChi, chi_exchanges, "#it{#chi_{c1}(1P)}");
+    // Sum the exchanges together
+    amplitude_sum chi(&kChi, {&Chi_omega, &Chi_rho, &Chi_phi, &Chi_psi}, "#chi_{c1}(1P)");
 
     // X(3872)
-    vector_exchange X_omega(kX, M_OMEGA, "#omega");
+    vector_exchange X_omega(&kX, M_OMEGA, "#omega");
     X_omega.set_params({gX_omega, gV_omega, gT_omega});
     X_omega.set_formfactor(1, LamOmega);
 
-    vector_exchange X_rho(kX, M_RHO, "#rho");
+    vector_exchange X_rho(&kX, M_RHO, "#rho");
     X_rho.set_params({gX_rho, gV_rho, gT_rho});
     X_rho.set_formfactor(1, LamRho);
 
-    std::vector<amplitude*> X_exchanges = {&X_omega, &X_rho};
-    amplitude_sum X(kX, X_exchanges, "#it{X}(3872)");
+    amplitude_sum X(&kX, {&X_omega, &X_rho}, "#it{X}(3872)");
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -141,6 +140,8 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
+
+    delete plotter;
 
     return 0;
 }

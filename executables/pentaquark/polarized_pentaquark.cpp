@@ -70,18 +70,18 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Set up Kinematics
-    reaction_kinematics * ptr = new reaction_kinematics(M_JPSI);
-    ptr->set_meson_JP(1, -1);
+    reaction_kinematics kpsi (M_JPSI);
+    kpsi.set_meson_JP(1, -1);
 
     // ---------------------------------------------------------------------------
     // S - CHANNEL
 
     // Two different pentaquarks
     // masses and widths from 2015 LHCb paper [2]
-    baryon_resonance P_c4450(ptr, 1, 1, 4.45, 0.040, "P_{c}(4450)");
+    baryon_resonance P_c4450(&kpsi, 1, 1, 4.45, 0.040, "P_{c}(4450)");
     P_c4450.set_params({0.01, .7071}); // 2% branching fraction and equal photocouplings
 
-    baryon_resonance P_c4380(ptr, 5, +1, 4.38, 0.205, "P_{c}(4380)");
+    baryon_resonance P_c4380(&kpsi, 5, +1, 4.38, 0.205, "P_{c}(4380)");
     P_c4380.set_params({0.01, .7071}); // 2% branching fraction and equal photocouplings
 
     // ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ int main( int argc, char** argv )
     linear_trajectory alpha(+1, 0.941, 0.364, "pomeron");
 
     // Create amplitude with kinematics and trajectory
-    pomeron_exchange background(ptr, &alpha, false, "Background");
+    pomeron_exchange background(&kpsi, &alpha, false, "Background");
 
     // normalization and t-slope
     background.set_params({0.379, 0.12});
@@ -101,8 +101,8 @@ int main( int argc, char** argv )
     // SUM
     // ---------------------------------------------------------------------------
     // Incoherent sum of the s and t channels
-    amplitude_sum sum5q(ptr, {&background, &P_c4450}, "5q Sum");
-    amplitude_sum sum10q(ptr, {&background, &P_c4450, &P_c4380}, "10q Sum");
+    amplitude_sum sum5q(&kpsi, {&background, &P_c4450}, "5q Sum");
+    amplitude_sum sum10q(&kpsi, {&background, &P_c4450, &P_c4380}, "10q Sum");
 
     std::vector<amplitude*> amps = {&background, &sum5q, &sum10q};
 
@@ -120,7 +120,7 @@ int main( int argc, char** argv )
         // find the desired observable
         auto F = [&](double W)
         {
-            double t = ptr->t_man(W*W, theta * DEG2RAD);
+            double t = kpsi.t_man(W*W, theta * DEG2RAD);
             if (observable == "dxs")
             {
                 ylabel = "d#sigma/dt    (nb GeV^{-2})";
@@ -142,7 +142,7 @@ int main( int argc, char** argv )
             }
         };
 
-        std::array<std::vector<double>, 2> x_fx = vec_fill(N, F, sqrt(ptr->sth()) + 0.01, max);
+        std::array<std::vector<double>, 2> x_fx = vec_fill(N, F, sqrt(kpsi.sth()) + 0.01, max);
         plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->get_id());
     }
 
@@ -152,7 +152,7 @@ int main( int argc, char** argv )
     plotter->SetLegend(0.2, 0.7, "#theta = " + streamObj.str());
 
     // X axis
-    plotter->SetXaxis("W  (GeV)", sqrt(ptr->sth()) + 0.01, max);
+    plotter->SetXaxis("W  (GeV)", sqrt(kpsi.sth()) + 0.01, max);
 
     // To change the range of the Y-axis or the position of the Legend change the arguments here
     (custom_y == true) ? (plotter->SetYaxis(ylabel, y[0], y[1])) : (plotter->SetYaxis(ylabel));
@@ -160,5 +160,7 @@ int main( int argc, char** argv )
 
     plotter->Plot(filename);
 
+    delete plotter;
+    
     return 0;
 };

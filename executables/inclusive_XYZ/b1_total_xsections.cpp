@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <cstring>
-#include <memory>
 
 using namespace jpacPhoto;
 
@@ -34,12 +33,12 @@ int main( int argc, char** argv )
     // Fixed-spin pion amplitude 
 
     // Exclusive amplitude
-    std::unique_ptr<pseudoscalar_exchange> excB1f( new pseudoscalar_exchange(kb1, M_PION, "b1 production") );
+    pseudoscalar_exchange * excB1f = new pseudoscalar_exchange(kb1, M_PION, "b1 production");
     excB1f->set_params({g_b1, g_NN});
     excB1f->set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    std::unique_ptr<triple_regge> incB1f( new triple_regge(excB1f.get()));
+    triple_regge * incB1f = new triple_regge(excB1f);
     incB1f->set_high_energy_approximation(false);
   
     // // ---------------------------------------------------------------------------
@@ -63,7 +62,7 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
+    jpacGraph1D * plotter = new jpacGraph1D();
 
     bool addExc;
     auto F = [&](double w)

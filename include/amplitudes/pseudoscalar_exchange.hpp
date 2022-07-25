@@ -93,16 +93,16 @@ namespace jpacPhoto
         {
             if (!_reggeized)
             {
-                return { AXIAL_VECTOR, VECTOR, PSEUDO_SCALAR };
+                return { {1, +1}, {1, -1}, {0, -1} };
             }
             else
             {
-                return { AXIAL_VECTOR, VECTOR };
+                return { {1, +1}, {1, -1} };
             }
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return { HALF_PLUS, THREEHALFS_PLUS };
+            return { {1, +1}, {3, +1} };
         };
 
 

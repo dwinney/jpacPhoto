@@ -36,12 +36,12 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Chi_c1(1P)
-    reaction_kinematics * kChi = new reaction_kinematics(M_CHIC1);
-    kChi->set_meson_JP(1, 1);
+    reaction_kinematics kChi (M_CHIC1);
+    kChi.set_meson_JP(1, +1);
 
     // X(3872)
-    reaction_kinematics * kX = new reaction_kinematics(M_X3872);
-    kX->set_meson_JP(1, 1);
+    reaction_kinematics kX (M_X3872);
+    kX.set_meson_JP(1, +1);
 
     // Nucleon couplings and cutoffs
     double gV_omega = 16., gT_omega = 0.;
@@ -58,35 +58,35 @@ int main( int argc, char** argv )
     double gX_rho = 3.6E-3;
     
     // Linear trajectory for the rho
-    linear_trajectory * alpha = new linear_trajectory(-1, 0.5, 0.9, "#rho - #omega");
+    linear_trajectory alpha (-1, 0.5, 0.9, "#rho - #omega");
 
     // ---------------------------------------------------------------------------
     // High-Energy Amplitudes
     // ---------------------------------------------------------------------------
 
     // Chi_c1(1P)
-    vector_exchange Chi_omega(kChi, alpha, "#omega");
+    vector_exchange Chi_omega(&kChi, &alpha, "#omega");
     Chi_omega.set_params({gChi_omega, gV_omega, gT_omega});
     Chi_omega.set_formfactor(true, LamOmega);
 
-    vector_exchange Chi_rho(kChi, alpha, "#rho");
+    vector_exchange Chi_rho(&kChi, &alpha, "#rho");
     Chi_rho.set_params({gChi_rho, gV_rho, gT_rho});
     Chi_rho.set_formfactor(true, LamRho);
 
-    std::vector<amplitude*> chi_exchanges = {&Chi_omega, &Chi_rho};
-    amplitude_sum chi(kChi, chi_exchanges, "#it{#chi_{c1}(1P)}");
+    // sum the amplitudes together
+    amplitude_sum chi(&kChi, {&Chi_omega, &Chi_rho}, "#chi_{c1}(1P)");
 
     // X(3872)
-    vector_exchange X_omega(kX, alpha, "#omega");
+    vector_exchange X_omega(&kX, &alpha, "#omega");
     X_omega.set_params({gX_omega, gV_omega, gT_omega});
     X_omega.set_formfactor(true, LamOmega);
 
-    vector_exchange X_rho(kX, alpha, "#rho");
+    vector_exchange X_rho(&kX, &alpha, "#rho");
     X_rho.set_params({gX_rho, gV_rho, gT_rho});
     X_rho.set_formfactor(true, LamRho);
 
-    std::vector<amplitude*> X_exchanges = {&X_omega, &X_rho};
-    amplitude_sum X(kX, X_exchanges, "#it{X}(3872)");
+    // sum the amplitudes together
+    amplitude_sum X(&kX, {&X_omega, &X_rho}, "#it{X}(3872)");
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -106,8 +106,8 @@ int main( int argc, char** argv )
     double  ymax = 1.;
 
     std::string filename  = "X_regge.pdf";
-    std::string ylabel    = "#it{#sigma(#gamma p #rightarrow X p)}  [nb]";
-    std::string xlabel    = "#it{W_{#gammap}}  [GeV]";
+    std::string ylabel    = "#sigma(#gamma #it{p} #rightarrow #it{X p})  [nb]";
+    std::string xlabel    = "#it{W}_{#gammap}  [GeV]";
 
     bool PRINT = true;
 
@@ -137,6 +137,8 @@ int main( int argc, char** argv )
 
     // Output to file
     plotter->Plot(filename);
+
+    delete plotter;
 
     return 0;
 }

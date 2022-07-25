@@ -43,7 +43,7 @@ int main( int argc, char** argv )
   // Zc(3900)
   double mZc = 3.8884; // GeV
   reaction_kinematics * kZc = new reaction_kinematics(mZc);
-  kZc->set_meson_JP(AXIAL_VECTOR);
+  kZc->set_meson_JP(1, +1);
 
   double gc_Psi = 1.91; // psi coupling before VMD scaling
   double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
@@ -52,7 +52,7 @@ int main( int argc, char** argv )
   // Zb(10610)
   double mZb = 10.6072;
   reaction_kinematics * kZb = new reaction_kinematics(mZb);
-  kZb->set_meson_JP(AXIAL_VECTOR);
+  kZb->set_meson_JP(1, +1);
 
   double gb_Ups1 = 0.49, gb_Ups2 = 3.30, gb_Ups3 = 9.22;
   double gb_Gamma = E * (F_UPSILON1S * gb_Ups1 / M_UPSILON1S 
@@ -64,7 +64,7 @@ int main( int argc, char** argv )
   // Zb(10650)
   double mZbp = 10.6522;
   reaction_kinematics * kZbp = new reaction_kinematics(mZbp);
-  kZbp->set_meson_JP(AXIAL_VECTOR);
+  kZbp->set_meson_JP(1, +1);
 
   double gbp_Ups1 = 0.21, gbp_Ups2 = 1.47, gbp_Ups3 = 4.8;
   double gbp_Gamma = E * (F_UPSILON1S * gbp_Ups1 / M_UPSILON1S 

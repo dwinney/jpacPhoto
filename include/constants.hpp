@@ -47,18 +47,6 @@ namespace jpacPhoto
 
 namespace jpacPhoto
 {
-    // Meson spin-parity combinations
-    constexpr std::array<int,2> SCALAR          {{0, +1}};
-    constexpr std::array<int,2> VECTOR          {{1, -1}};
-    constexpr std::array<int,2> PSEUDO_SCALAR   {{0, -1}};
-    constexpr std::array<int,2> AXIAL_VECTOR    {{1, +1}};
-
-    // Barony spin-parity combinations
-    constexpr std::array<int,2> HALF_PLUS        {{1, +1}};
-    constexpr std::array<int,2> HALF_MINUS       {{1, -1}};
-    constexpr std::array<int,2> THREEHALFS_PLUS  {{3, +1}};
-    constexpr std::array<int,2> THREEHALFS_MINUS {{3, -1}};
-
     enum HELICITY_CHANNEL{ S, T, U };
 
     // ---------------------------------------------------------------------------
