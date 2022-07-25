@@ -23,56 +23,7 @@ namespace jpacPhoto
                         JPAC_pipp_onlyDelta };
 
     // Return a pointer to a new instance of desired cross-section
-    total_xsection * get_total_xsection(sigma_option opt)
-    {
-        total_xsection * sigma_tot;
-
-        switch(opt)
-        {
-            case PDG_pipp_onlyRegge:
-            {
-                sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {+1., 1., 9.56, 1.767, 18.75});
-                break;
-            } 
-            case PDG_pimp_onlyRegge:
-            {
-                sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75});
-                break;
-            }
-            case JPAC_pipp_onlyRegge:
-            {
-                sigma_tot = new JPAC_parameterization(+1, false);
-                break;
-            }
-            case JPAC_pimp_onlyRegge:
-            {
-                sigma_tot = new JPAC_parameterization(-1, false);
-                break;
-            }
-            case JPAC_pipp_withResonances:
-            {
-                sigma_tot = new JPAC_parameterization(+1, true);
-                break;
-            }
-            case JPAC_pimp_withResonances:
-            {
-                sigma_tot = new JPAC_parameterization(-1, true);
-                break;
-            }
-            case  JPAC_pipp_onlyDelta:
-            {
-                sigma_tot = new JPAC_parameterization(+1, 1);
-                break;
-            }
-            default:
-            {
-                sigma_tot = new zero_xsection();
-                break;
-            };
-        };
-
-        return sigma_tot;
-    };
+    total_xsection * get_total_xsection(sigma_option opt);
 };
 
 #endif

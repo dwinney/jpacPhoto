@@ -8,9 +8,9 @@
 // ---------------------------------------------------------------------------
 
 #ifndef INCLUSIVE
-#define INClUSIVE
+#define INCLUSIVE
 
-#include "inclusive/inclusive_kinematics.hpp"
+#include "inclusive_kinematics.hpp"
 
 #include "Math/IntegratorMultiDim.h"
 #include "Math/GSLIntegrator.h"

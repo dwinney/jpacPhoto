@@ -6,7 +6,7 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "box/box_discontinuity.hpp"
+#include "box_discontinuity.hpp"
 
 // ---------------------------------------------------------------------------
 // Evaluate the product of sub-amplitudes integrating over intermediate phase-space

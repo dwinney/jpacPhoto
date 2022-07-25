@@ -7,7 +7,7 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "inclusive/inclusive_production.hpp"
+#include "inclusive_production.hpp"
 
 // ---------------------------------------------------------------------------
 // Singly-differential cross-sections in terms of (t, M2)

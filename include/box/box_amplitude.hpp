@@ -9,9 +9,9 @@
 #define _BOX_AMP_
 
 #include "constants.hpp"
-#include "amplitudes/amplitude.hpp"
+#include "amplitude.hpp"
 #include "reaction_kinematics.hpp"
-#include "box/box_discontinuity.hpp"
+#include "box_discontinuity.hpp"
 
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 

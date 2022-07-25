@@ -5,7 +5,7 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "box/box_amplitude.hpp"
+#include "box_amplitude.hpp"
 
 // ---------------------------------------------------------------------------
 // Evaluate the entire loop diagram in terms of external helicites and invariant mass / momentum transfer of the gamma p -> jpsi p process

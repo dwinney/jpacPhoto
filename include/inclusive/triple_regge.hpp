@@ -16,11 +16,10 @@
 
 #include "misc_math.hpp"
 #include "regge_trajectory.hpp"
-#include "amplitudes/pseudoscalar_exchange.hpp"
-#include "inclusive/inclusive_production.hpp"
-#include "inclusive/inclusive_kinematics.hpp"
-
-#include "inclusive/total_xsection_options.hpp"
+#include "pseudoscalar_exchange.hpp"
+#include "inclusive_production.hpp"
+#include "inclusive_kinematics.hpp"
+#include "total_xsection_options.hpp"
 
 namespace jpacPhoto
 {

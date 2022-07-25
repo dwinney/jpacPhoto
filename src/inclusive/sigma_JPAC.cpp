@@ -6,7 +6,7 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "inclusive/sigma_JPAC.hpp"
+#include "sigma_JPAC.hpp"
 
 // ---------------------------------------------------------------------------
 // METHODS FOR THE JPAC_parameterization

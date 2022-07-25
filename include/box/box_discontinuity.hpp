@@ -10,7 +10,7 @@
 #define _BOX_DISC_
 
 #include "constants.hpp"
-#include "amplitudes/amplitude.hpp"
+#include "amplitude.hpp"
 #include "reaction_kinematics.hpp"
 
 #include "Math/IntegratorMultiDim.h"

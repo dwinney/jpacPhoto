@@ -36,6 +36,8 @@ namespace jpacPhoto
           _sth((mb + mt)*(mb + mt))
         {};
         
+        virtual ~total_xsection() = default;
+
         // Only thing that is needed is a way to evaluate the cross-section
         // A second argument can be passed in case the method has a 
         // way to incorporate pion virtuality effects

@@ -7,7 +7,7 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "inclusive/triple_regge.hpp"
+#include "triple_regge.hpp"
 
 // ---------------------------------------------------------------------------
 // Parse the passed amplitude_name string from an exclusive amplitude
