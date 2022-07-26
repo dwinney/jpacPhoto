@@ -11,7 +11,7 @@ set(CMAKE_INSTALL_LIBDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 
 # Make sure executables are always built with the install RPATH 
-# else exes get linked to the build library and not the installed one
+# else things get linked to the .so in the build directory and not the one in lib
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
@@ -22,7 +22,7 @@ if("${isSystemDir}" STREQUAL "-1")
 endif("${isSystemDir}" STREQUAL "-1")
 
 ##-----------------------------------------------------------------------
-## Finding and connecting ROOT
+## ROOT finding and connecting
 
 # Make sure we can find ROOT 
 execute_process(COMMAND root-config --prefix 
@@ -40,7 +40,16 @@ if (ROOT_FOUND)
     list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS}) 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}")
 else()
-    message(SEND_ERROR "-- Root not found!")
+    message(SEND_ERROR "-- Root not found")
+endif()
+
+##-----------------------------------------------------------------------
+## Check if JPACPHOTO environment variable is set. 
+
+if (DEFINED ENV{JPACPHOTO})
+    message("-- Environment variable JPACPHOTO found ($ENV{JPACPHOTO})")
+else()
+    message(WARNING "-- JPACPHOTO environment variable not set!")
 endif()
 
 ##-----------------------------------------------------------------------
@@ -49,11 +58,42 @@ endif()
 set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 if (Boost_FOUND)
+    option(BUILD_BOX "" ON)
     message("-- Building jpacBox")
 else()
-    message("-- BOOST not found! jpacBox will not be available.")
+    message("-- BOOST not found! jpacBox will not be available")
 endif()
 
-# Build library 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+##-----------------------------------------------------------------------
+## Look for jpacStyle to build the cling executable 
+
+# Find the jpacStyle library
+find_library(JSTYLELIB NAMES jpacStyle libjpacStyle 
+                       HINTS "$ENV{JPACSTYLE}/lib")
+if (JSTYLELIB)
+    option(BUILD_CLING "" ON)
+    message("-- jpacStyle found! (${JSTYLELIB})")
+    message("-- Building plotting executables")
+else()
+    message("-- jpacStyle not found! Plotting executables will not be available")
+endif()
+
+##-----------------------------------------------------------------------
+# Build core library 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/core)
 add_subdirectory(src/core)
+
+# Building jpacInclusive
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/inclusive)
+add_subdirectory(src/inclusive)
+
+# Building jpacBox requires BOOST
+if (BUILD_BOX)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/box)
+    add_subdirectory(src/box)
+endif()
+
+# build the plotting executable 
+if (BUILD_CLING)
+    add_subdirectory(src/cling)
+endif()

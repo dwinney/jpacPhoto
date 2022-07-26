@@ -1,5 +1,5 @@
-#include "inclusive/triple_regge.hpp"
-#include "inclusive/inclusive_kinematics.hpp"
+#include "triple_regge.hpp"
+#include "inclusive_kinematics.hpp"
 #include "regge_trajectory.hpp"
 
 #include "jpacUtils.hpp"
@@ -10,7 +10,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void b1_differential()
 {
     // ---------------------------------------------------------------------------
     // Data from OmegaPHOTON 
@@ -36,8 +36,8 @@ int main( int argc, char** argv )
     double LamPi = .9;  // 900 MeV cutoff for formfactor
     
     // Kinematics
-    reaction_kinematics * kb1 = new reaction_kinematics(M_B1);
-    kb1->set_meson_JP(1, +1);
+    reaction_kinematics kb1 (M_B1);
+    kb1.set_meson_JP(1, +1);
 
     // ---------------------------------------------------------------------------
     // Reggeized pion amplitude 
@@ -46,17 +46,17 @@ int main( int argc, char** argv )
     int signature = +1;
     double alpha_prime = 0.7; // GeV^-2
     double alpha_0 =  - alpha_prime * M2_PION;
-    linear_trajectory * alpha = new linear_trajectory(signature, alpha_0, alpha_prime);
-    alpha->set_minJ(0);
+    linear_trajectory alpha (signature, alpha_0, alpha_prime);
+    alpha.set_minJ(0);
 
     // Exclusive amplitude
-    pseudoscalar_exchange * excB1r = new pseudoscalar_exchange(kb1, alpha, "b1 production");
-    excB1r->set_params({g_b1, g_NN});
-    excB1r->set_formfactor(true, LamPi);
+    pseudoscalar_exchange excB1r (&kb1, &alpha, "b1 production");
+    excB1r.set_params({g_b1, g_NN});
+    excB1r.set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    triple_regge * incB1r = new triple_regge(excB1r);
-    incB1r->set_high_energy_approximation(true);
+    triple_regge incB1r (&excB1r);
+    incB1r.set_high_energy_approximation(true);
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -80,21 +80,21 @@ int main( int argc, char** argv )
 
     // ---------------------------------------------------------------------------
     // Plotter object
-    std::unique_ptr<jpacGraph1D> plotter( new jpacGraph1D() );
+    jpacGraph1D * plotter = new jpacGraph1D();
 
     // ---------------------------------------------------------------------------
     //Add entries for all the different differential cross-sections at fixed s
 
     auto F = [&](double x)
     {
-        return incB1r->dsigma_dx(s, x) * 1.E3; // in mub!
+        return incB1r.dsigma_dx(s, x) * 1.E3; // in mub!
     };
 
-    incB1r->set_sigma_total(JPAC_pimp_withResonances);
+    incB1r.set_sigma_total(JPAC_pimp_withResonances);
     plotter->AddEntry(N, F, {xmin, xmax}, "Inclusive #it{b}_{1}^{#plus}");
 
     // Remove resonances
-    incB1r->set_sigma_total(PDG_pimp_onlyRegge);
+    incB1r.set_sigma_total(PDG_pimp_onlyRegge);
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     // ---------------------------------------------------------------------------
@@ -115,5 +115,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    return 0;
+    delete plotter;
 };

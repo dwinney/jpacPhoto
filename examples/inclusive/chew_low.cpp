@@ -1,4 +1,4 @@
-#include "inclusive/inclusive_kinematics.hpp"
+#include "inclusive_kinematics.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -7,12 +7,11 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void chew_low()
 {
     // Kinematics object
-    inclusive_kinematics * kb1 = new inclusive_kinematics(M_B1);
-    // kb1->_s = 75.9421;
-    kb1->_s = 9.;
+    inclusive_kinematics kb1 (M_B1);
+    kb1._s = 9.;
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -23,8 +22,8 @@ int main( int argc, char** argv )
     double  ymax = 3.3;
 
     double Wmin = M_PROTON + M_PION;
-    double xmin = - kb1->TMINfromM2(Wmin*Wmin);   
-    double xmax = - kb1->TMAXfromM2(Wmin*Wmin);  
+    double xmin = - kb1.TMINfromM2(Wmin*Wmin);   
+    double xmax = - kb1.TMAXfromM2(Wmin*Wmin);  
     std::array<double, 2> bounds = {xmin, xmax};
     
     std::string filename = "phase-space.pdf";
@@ -44,11 +43,11 @@ int main( int argc, char** argv )
 
     auto M2max = [&](double mt)
     {
-        return kb1->M2MAXfromT(-mt);
+        return kb1.M2MAXfromT(-mt);
     };
     auto M2min = [&](double mt)
     {
-        return kb1->M2MINfromT(-mt);
+        return kb1.M2MINfromT(-mt);
     };
     plotter->AddEntry(N, M2max, bounds, "", PRINT);
     plotter->AddEntry(N, M2min, bounds, "", PRINT);
@@ -62,5 +61,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    return 0;
+    delete plotter;
 };

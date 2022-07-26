@@ -1,5 +1,5 @@
-#include "inclusive/triple_regge.hpp"
-#include "inclusive/inclusive_kinematics.hpp"
+#include "triple_regge.hpp"
+#include "inclusive_kinematics.hpp"
 #include "regge_trajectory.hpp"
 
 #include "jpacUtils.hpp"
@@ -14,9 +14,8 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void deltapp()
 {
-
     // ---------------------------------------------------------------------------
     // Amplitudes
     // ---------------------------------------------------------------------------
@@ -36,29 +35,29 @@ int main( int argc, char** argv )
     // Fixed-spin pion amplitudes
 
     // Kinematics for b1 Δ++ final state
-    reaction_kinematics * kDelta = new reaction_kinematics(M_B1, M_DELTA);
-    kDelta->set_meson_JP( 1, +1); 
-    kDelta->set_baryon_JP(3, +1); 
+    reaction_kinematics kDelta (M_B1, M_DELTA);
+    kDelta.set_meson_JP( 1, +1); 
+    kDelta.set_baryon_JP(3, +1); 
 
     // Exclusive amplitude for delta
-    pseudoscalar_exchange * excDelta = new pseudoscalar_exchange(kDelta, M_PION, "b_{1}^{-} #Delta^{++}");
-    excDelta->set_params({g_b1, g_delta});
-    excDelta->set_formfactor(1, LamPi);
+    pseudoscalar_exchange excDelta (&kDelta, M_PION, "b_{1}^{-} #Delta^{++}");
+    excDelta.set_params({g_b1, g_delta});
+    excDelta.set_formfactor(1, LamPi);
 
     // Kinematics b1 proton
-    reaction_kinematics * kN = new reaction_kinematics(M_B1, M_PROTON);
-    kN->set_meson_JP( 1, +1);
-    kN->set_baryon_JP(1, +1); 
+    reaction_kinematics kN (M_B1, M_PROTON);
+    kN.set_meson_JP( 1, +1);
+    kN.set_baryon_JP(1, +1); 
 
     // Exclusive amplitude for nucleon
-    pseudoscalar_exchange * excN = new pseudoscalar_exchange(kN, M_PION, "b1 production");
-    excN->set_params({g_b1, g_N});
-    excN->set_formfactor(1, LamPi);
+    pseudoscalar_exchange excN (&kN, M_PION, "b1 production");
+    excN.set_params({g_b1, g_N});
+    excN.set_formfactor(1, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    triple_regge * incB1 = new triple_regge(excN);
-    incB1->set_high_energy_approximation(false);
-    incB1->set_sigma_total(JPAC_pipp_withResonances);
+    triple_regge incB1 (&excN);
+    incB1.set_high_energy_approximation(false);
+    incB1.set_sigma_total(JPAC_pipp_withResonances);
     
     // // ---------------------------------------------------------------------------
     // // Plotting options
@@ -84,23 +83,23 @@ int main( int argc, char** argv )
     jpacGraph1D * plotter = new jpacGraph1D();
 
     // Stable delta
-    kDelta->set_recoil_mass(M_DELTA);
+    kDelta.set_recoil_mass(M_DELTA);
     auto F = [&](double w)
     {
-        return excDelta->integrated_xsection(w*w) * 1.E-3; // in mub!
+        return excDelta.integrated_xsection(w*w) * 1.E-3; // in mub!
     };
 
     // Inclusive
     auto G = [&](double w)
     {
-        return incB1->integrated_xsection(w*w); // in mub!
+        return incB1.integrated_xsection(w*w); // in mub!
     };  
 
-    incB1->set_sigma_total(JPAC_pipp_onlyDelta);
+    incB1.set_sigma_total(JPAC_pipp_onlyDelta);
     plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} (#Delta^{#plus#plus} #rightarrow #pi^{#plus} p)", 1);
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
-    incB1->set_sigma_total(JPAC_pipp_withResonances);
+    incB1.set_sigma_total(JPAC_pipp_withResonances);
     plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} #it{X}", 1);
 
     // ---------------------------------------------------------------------------
@@ -117,5 +116,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    return 0;
+    delete plotter;
 };

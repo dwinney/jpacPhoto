@@ -1,7 +1,7 @@
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
-#include "amplitudes/dirac_exchange.hpp"
-#include "amplitudes/vector_exchange.hpp"
+#include "dirac_exchange.hpp"
+#include "vector_exchange.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -10,10 +10,11 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void spinhalf_PcsK()
 {
     // Set up kinematics of the Pcs K final state
     double M_PCS = 4.5880;
+
     reaction_kinematics kPcsK (M_KAON, M_PCS);
     kPcsK.set_meson_JP(0, -1);
     kPcsK.set_baryon_JP(1, -1);

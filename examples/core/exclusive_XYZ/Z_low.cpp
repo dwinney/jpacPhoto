@@ -21,7 +21,7 @@
 
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
-#include "amplitudes/pseudoscalar_exchange.hpp"
+#include "pseudoscalar_exchange.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -30,7 +30,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void Z_low()
 {
 
   // ---------------------------------------------------------------------------

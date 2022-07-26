@@ -1,14 +1,14 @@
 // ---------------------------------------------------------------------------
-// Prediction for Y(4260) and Psi(1S and 2S) based on helicity conserving 
-// pomeron exchange at high energies.
+// Prediction for Y(4260) and Psi(1S and 2S) based on effective vector
+// pomeron exchange at low enegies.
 //
-// Reproduces right plot in FIG 5 of [1] 
+// Reproduces left plot in FIG 5 of [1] 
 // 
 // USAGE:
-// make Y_high && ./Y_high
+// make Y_low && ./Y_low
 //
 // OUTPUT:
-// Y_HE.pdf
+// Y_LE.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
@@ -21,7 +21,7 @@
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
 #include "regge_trajectory.hpp"
-#include "amplitudes/pomeron_exchange.hpp"
+#include "pomeron_exchange.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -30,17 +30,17 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void Y_low()
 {
 
     // ---------------------------------------------------------------------------
     // Preliminaries
     // ---------------------------------------------------------------------------
 
-    // High energy pomeron trajectory and couplings
-    linear_trajectory alpha_HE (1, 1.15, 0.11, "HE");
-    double b_HE = 1.01;
-    double A_HE = 0.16;
+    // Low - energy trajectory and couplings
+    linear_trajectory alpha_LE (1, 0.94, 0.36, "LE");
+    double b_LE = 0.12;
+    double A_LE = 0.38;
 
     // J/Psi
     reaction_kinematics kJpsi (M_JPSI);
@@ -53,24 +53,23 @@ int main( int argc, char** argv )
     double R_Psi2s = 0.55;
 
     // Y(4260)
+    double mY = 4.220;
     reaction_kinematics kY (M_Y4260);
     kY.set_meson_JP(1, -1);
     double R_Y = 0.84;
 
     // ---------------------------------------------------------------------------
-    // High-enegy Amplitudes
+    // Low-Energy Amplitudes
     // ---------------------------------------------------------------------------
 
-    // Third argument (bool) sets the helicity conservation model
+    pomeron_exchange Jpsi_LE(&kJpsi, &alpha_LE, false, "#it{J /#psi}");
+    Jpsi_LE.set_params({A_LE * R_Jpsi, b_LE});
 
-    pomeron_exchange Jpsi_HE(&kJpsi, &alpha_HE, true, "#it{J}/#psi");
-    Jpsi_HE.set_params({A_HE * R_Jpsi, b_HE});
+    pomeron_exchange Psi2s_LE(&kPsi2s, &alpha_LE, false, "#psi(2#it{S})");
+    Psi2s_LE.set_params({A_LE * R_Psi2s, b_LE});
 
-    pomeron_exchange Psi2s_HE(&kPsi2s, &alpha_HE, true, "#psi(2#it{S})");
-    Psi2s_HE.set_params({A_HE * R_Psi2s, b_HE});
-
-    pomeron_exchange Y_HE(&kY, &alpha_HE, true, "#it{Y}(4260)");
-    Y_HE.set_params({A_HE * R_Y, b_HE});
+    pomeron_exchange Y_LE(&kY, &alpha_LE, false, "#it{Y}(4260)");
+    Y_LE.set_params({A_LE * R_Y, b_LE});
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -78,23 +77,22 @@ int main( int argc, char** argv )
 
     // which amps to plot
     std::vector<amplitude*> amps;
-    amps.push_back(&Jpsi_HE);
-    amps.push_back(&Psi2s_HE);
-    amps.push_back(&Y_HE);
+    amps.push_back(&Jpsi_LE);
+    amps.push_back(&Psi2s_LE);
+    amps.push_back(&Y_LE);
 
     // Options
     int N = 25;
-    double  xmin = 30.;
-    double  xmax = 100.;
+    double  xmin = 4.;
+    double  xmax = 10.;
 
     double  ymin = 0.;
-    double  ymax = 100.;
+    double  ymax = 20.;
 
-    std::string xlabel  = "#it{W}_{#gammap}  [GeV]";
-    std::string ylabel  = "#sigma(#gamma #it{p} #rightarrow #it{Y p})  [nb]";
-    std::string filename = "Y_HE.pdf";
+    std::string filename = "Y_LE.pdf";
+    std::string ylabel  = ROOT_italics("#sigma(#gamma p #rightarrow Y p)") + "   [nb]";
     bool PRINT = true;
-    
+
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
     // ---------------------------------------------------------------------------
@@ -113,8 +111,8 @@ int main( int argc, char** argv )
 
         plotter->AddEntry(N, F, {xmin,xmax}, amps[n]->get_id(), PRINT);
     }
-
-    plotter->SetXaxis(xlabel, std::floor(xmin), xmax);
+    
+    plotter->SetXaxis(ROOT_italics("W_{#gammap}") + "  [GeV]", std::floor(xmin), xmax);
 
     plotter->SetYaxis(ylabel, ymin, ymax);
     
@@ -124,6 +122,4 @@ int main( int argc, char** argv )
     plotter->Plot(filename);
 
     delete plotter;
-
-    return 0;
 };

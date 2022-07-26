@@ -21,8 +21,7 @@
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
 #include "regge_trajectory.hpp"
-#include "amplitudes/vector_exchange.hpp"
-#include "amplitudes/amplitude_sum.hpp"
+#include "vector_exchange.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -31,7 +30,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void X6900()
 {
 
     // ---------------------------------------------------------------------------
@@ -101,6 +100,4 @@ int main( int argc, char** argv )
     plotter->Plot(filename);
 
     delete plotter;
-
-    return 0;
 };

@@ -1,10 +1,10 @@
 
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
-#include "amplitudes/pseudoscalar_exchange.hpp"
-#include "amplitudes/vector_exchange.hpp"
-#include "amplitudes/dirac_exchange.hpp"
-#include "amplitudes/amplitude_sum.hpp"
+#include "pseudoscalar_exchange.hpp"
+#include "vector_exchange.hpp"
+#include "dirac_exchange.hpp"
+#include "amplitude_sum.hpp"
 
 #include "jpacGraph1D.hpp"
 
@@ -14,7 +14,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void jpsi_p()
 {
     double eta       = 1.,    lambdaQCD      = 0.25;  // Form factor parameters
     double gPsiDD    = 7.44;                          // Top couplings
@@ -85,6 +85,4 @@ int main( int argc, char** argv )
     plotter->Plot(filename);
 
     delete plotter;
-
-    return 0;
 };

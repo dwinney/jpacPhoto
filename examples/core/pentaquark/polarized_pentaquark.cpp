@@ -2,8 +2,6 @@
 // Predicted sensativity to LHCb pentaquarks in double polarization Observables
 // at Hall A at JLab.
 //
-// USAGE:
-// make polarized_pentaquark && ./polarized_pentaquark -optional_flags flag_inputs
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
@@ -13,20 +11,12 @@
 // [1] 10.1103/PhysRevD.100.034019
 // [2] 10.1103/PhysRevLett.115.072001
 // ---------------------------------------------------------------------------
-// COMMAND LINE OPTIONS:
-// -f string          # Desired filename of plotted output (default: polarized_5q.pdf)
-// -c double          # Change CM angle in degree (default: 0)
-// -n int             # Number of points to plot (default: 100)
-// -m double          # Maximum CM angle to plot (default: 5 GeV)
-// -integ             # Plot integrated xsection (default: false)
-// -o string          # Desired observable: options "dxs", "kll", or "all" (default: dxs)
-// ---------------------------------------------------------------------------
 
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
-#include "amplitudes/baryon_resonance.hpp"
-#include "amplitudes/pomeron_exchange.hpp"
-#include "amplitudes/amplitude_sum.hpp"
+#include "baryon_resonance.hpp"
+#include "pomeron_exchange.hpp"
+#include "amplitude_sum.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -37,7 +27,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void polarized_pentaquark()
 {
     // ---------------------------------------------------------------------------
     // COMMAND LINE OPTIONS
@@ -45,25 +35,9 @@ int main( int argc, char** argv )
 
     // Default values
     double theta = 0.;
-    double y[2]; bool custom_y = false;
     int N = 100; // how many points to plot
     double max = 5.;
     std::string filename = "polarized_5q.pdf";
-    std::string observable = "dxs", ylabel;
-
-    // Parse input string
-    for (int i = 0; i < argc; i++)
-    {
-        if (std::strcmp(argv[i],"-c")==0) theta = atof(argv[i+1]);
-        if (std::strcmp(argv[i],"-m")==0) max = atof(argv[i+1]);
-        if (std::strcmp(argv[i],"-f")==0) filename = argv[i+1];
-        if (std::strcmp(argv[i],"-o")==0) observable = argv[i+1];
-        if (std::strcmp(argv[i],"-y")==0)
-        {
-            custom_y = true;
-            y_range(argv[i+1], y);
-        }
-    }
 
     // ---------------------------------------------------------------------------
     // AMPLITUDES
@@ -120,26 +94,8 @@ int main( int argc, char** argv )
         // find the desired observable
         auto F = [&](double W)
         {
-            double t = kpsi.t_man(W*W, theta * DEG2RAD);
-            if (observable == "dxs")
-            {
-                ylabel = "d#sigma/dt    (nb GeV^{-2})";
-                return amps[n]->differential_xsection(W*W, t);
-            }
-            else if (observable == "kll")
-            {
-                ylabel = "K_{LL}";
-                return amps[n]->K_LL(W*W, t);
-            }
-            else if (observable == "all")
-            {
-                ylabel = "A_{LL}";
-                return amps[n]->A_LL(W*W, t);
-            }
-            else
-            {
-                std::cout << "invalid observable passed. Quitting.... \n"; exit(0);
-            }
+            double t = kpsi.t_man(W*W, theta);
+            return amps[n]->K_LL(W*W, t);
         };
 
         std::array<std::vector<double>, 2> x_fx = vec_fill(N, F, sqrt(kpsi.sth()) + 0.01, max);
@@ -155,12 +111,9 @@ int main( int argc, char** argv )
     plotter->SetXaxis("W  (GeV)", sqrt(kpsi.sth()) + 0.01, max);
 
     // To change the range of the Y-axis or the position of the Legend change the arguments here
-    (custom_y == true) ? (plotter->SetYaxis(ylabel, y[0], y[1])) : (plotter->SetYaxis(ylabel));
-
+    plotter->SetYaxis("K_{LL}");
 
     plotter->Plot(filename);
 
-    delete plotter;
-    
-    return 0;
+    delete plotter;  
 };

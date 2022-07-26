@@ -31,12 +31,15 @@ int main(int argc, char **argv)
     new_argv.push_back((char *) "-l");
     new_argv.push_back(NULL);
     argv = new_argv.data();
-    argc++;    
+    argc += 1;    
 
     TRint * app = new TRint( "jpacPhoto", &argc, argv);
     TString JPACPHOTO = gSystem->Getenv("JPACPHOTO");
+    
+    if (JPACPHOTO == "") std::cout << "Environment variable JPACPHOTO not set!" << std::endl;
+    
     app->ProcessLine(".x $JPACPHOTO/src/cling/Load.C");
-    app->ProcessLine(Form(".x %s",macroName.Data()));
+    app->ProcessLine(Form(".x %s", macroName.Data()));
     app->Terminate(0);
 
     delete app;

@@ -1,4 +1,4 @@
-#include "inclusive/total_xsection_options.hpp"
+#include "total_xsection_options.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -7,7 +7,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void plot_sigmatot()
 {
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -83,5 +83,9 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    return 0;
+    delete PDG_pimp;
+    delete PDG_pipp;
+    delete JPAC_pipp;
+    delete JPAC_pimp;
+    delete plotter;
 };

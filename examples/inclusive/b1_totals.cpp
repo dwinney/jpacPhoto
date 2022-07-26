@@ -1,5 +1,5 @@
-#include "inclusive/triple_regge.hpp"
-#include "inclusive/inclusive_kinematics.hpp"
+#include "triple_regge.hpp"
+#include "inclusive_kinematics.hpp"
 #include "regge_trajectory.hpp"
 
 #include "jpacUtils.hpp"
@@ -10,7 +10,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void b1_totals( )
 {
 
     // ---------------------------------------------------------------------------
@@ -26,20 +26,20 @@ int main( int argc, char** argv )
     double LamPi = .9;  // 900 MeV cutoff for formfactor
     
     // Kinematics
-    reaction_kinematics * kb1 = new reaction_kinematics(M_B1);
-    kb1->set_meson_JP(1, +1);
+    reaction_kinematics kb1 (M_B1);
+    kb1.set_meson_JP(1, +1);
 
     // ---------------------------------------------------------------------------
     // Fixed-spin pion amplitude 
 
     // Exclusive amplitude
-    pseudoscalar_exchange * excB1f = new pseudoscalar_exchange(kb1, M_PION, "b1 production");
-    excB1f->set_params({g_b1, g_NN});
-    excB1f->set_formfactor(true, LamPi);
+    pseudoscalar_exchange excB1f (&kb1, M_PION, "b1 production");
+    excB1f.set_params({g_b1, g_NN});
+    excB1f.set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
-    triple_regge * incB1f = new triple_regge(excB1f);
-    incB1f->set_high_energy_approximation(false);
+    triple_regge incB1f (&excB1f);
+    incB1f.set_high_energy_approximation(false);
   
     // // ---------------------------------------------------------------------------
     // // Plotting options
@@ -67,18 +67,18 @@ int main( int argc, char** argv )
     bool addExc;
     auto F = [&](double w)
     {
-        return incB1f->integrated_xsection(w*w) + excB1f->integrated_xsection(w*w) * 1.E-3; // in mub!
+        return incB1f.integrated_xsection(w*w) + excB1f.integrated_xsection(w*w) * 1.E-3; // in mub!
     };
     auto G = [&](double w)
     {
-        return excB1f->integrated_xsection(w*w) * 1.E-3; // in mub!
+        return excB1f.integrated_xsection(w*w) * 1.E-3; // in mub!
     };
     auto H = [&](double w)
     {
-        return incB1f->integrated_xsection(w*w); // in mub!
+        return incB1f.integrated_xsection(w*w); // in mub!
     };
 
-    incB1f->set_sigma_total(JPAC_pimp_withResonances);
+    incB1f.set_sigma_total(JPAC_pimp_withResonances);
     std::array<std::vector<double>, 2> x_fx, x_fx2;
     x_fx  = vec_fill(2*N,   F, xmin, 3, 1);
     x_fx2 = vec_fill(N, F, 3.1, xmax, 1);
@@ -101,7 +101,7 @@ int main( int argc, char** argv )
     }
     plotter->AddDashedEntry(x_fx[0], x_fx[1]);
 
-    incB1f->set_sigma_total(JPAC_pipp_withResonances);
+    incB1f.set_sigma_total(JPAC_pipp_withResonances);
     plotter->AddEntry(N, H, {xmin, xmax}, "total #it{b}_{1}^{#minus} production", 1);
 
     // ---------------------------------------------------------------------------
@@ -118,5 +118,5 @@ int main( int argc, char** argv )
     // Output to file
     plotter->Plot(filename);
 
-    return 0;
+    delete plotter;
 };

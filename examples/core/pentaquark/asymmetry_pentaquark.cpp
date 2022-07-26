@@ -22,9 +22,9 @@
 
 #include "constants.hpp"
 #include "reaction_kinematics.hpp"
-#include "amplitudes/baryon_resonance.hpp"
-#include "amplitudes/pomeron_exchange.hpp"
-#include "amplitudes/amplitude_sum.hpp"
+#include "baryon_resonance.hpp"
+#include "pomeron_exchange.hpp"
+#include "amplitude_sum.hpp"
 
 #include "jpacGraph1D.hpp"
 #include "jpacUtils.hpp"
@@ -35,7 +35,7 @@
 
 using namespace jpacPhoto;
 
-int main( int argc, char** argv )
+void asymmetry_pentaquark()
 {
 
     // ---------------------------------------------------------------------------
@@ -43,24 +43,9 @@ int main( int argc, char** argv )
     // ---------------------------------------------------------------------------
 
     // Default values
-    double y[2]; bool custom_y = false;
     double W = 4.45;
     int N = 200; // how many points to plot
-    bool TENQ = false;
     std::string filename = "5q_beam_asymmetry.pdf";
-
-    // Parse input string
-    for (int i = 0; i < argc; i++)
-    {
-        if (std::strcmp(argv[i],"-e")==0) W = atof(argv[i+1]);
-        if (std::strcmp(argv[i],"-f")==0) filename = argv[i+1];
-        if (std::strcmp(argv[i],"-10q")==0) TENQ = true;
-        if (std::strcmp(argv[i],"-y")==0)
-        {
-            custom_y = true;
-            y_range(argv[i+1], y);
-        }
-    }
 
     // ---------------------------------------------------------------------------
     // AMPLITUDES
@@ -71,7 +56,7 @@ int main( int argc, char** argv )
     kPsi.set_meson_JP(1, -1);
 
     // ---------------------------------------------------------------------------
-    // T - CHANNEL // this is the same for all cases
+    // T - CHANNEL 
 
     // Set up pomeron trajectory
     // best fit values from [1]
@@ -85,7 +70,7 @@ int main( int argc, char** argv )
     background.set_params({0.379, 0.12});
 
     // ---------------------------------------------------------------------------
-    // S - CHANNEL  // Two different pentaquarks (if -10q == true)
+    // S - CHANNEL  // Two different pentaquarks 
 
     // masses and widths from 2015 LHCb paper [2]
     baryon_resonance P_c4450(&kPsi, 3, -1, 4.45, 0.040, "P_{c}(4450)");
@@ -98,35 +83,10 @@ int main( int argc, char** argv )
     // Incoherent sum of the s and t channels
     amplitude_sum sum(&kPsi, {&background, &P_c4450, &P_c4380}, "Sum");
 
-    // ---------------------------------------------------------------------------
-    // S - CHANNEL  // 1 5q but different BR scenarios (if -10q == false)
-
-    baryon_resonance P_c1(&kPsi, 3, -1, 4.45, 0.040, "1%");
-    P_c1.set_params({0.01, .7071});
-
-    baryon_resonance P_c05(&kPsi, 3, -1, 4.45, 0.040, "0.5%");
-    P_c05.set_params({0.005, .7071});
-
-    baryon_resonance P_c01(&kPsi, 3, -1, 4.45, 0.040, "0.1%");
-    P_c01.set_params({0.001, .7071});
-
-    // Add to the sum
-    amplitude_sum sum1(&kPsi, {&background, &P_c1}, "1%");
-    amplitude_sum sum2(&kPsi, {&background, &P_c05}, "0.5%");
-    amplitude_sum sum3(&kPsi, {&background, &P_c01}, "0.1%");
-
 
     // ---------------------------------------------------------------------------
     // Choose which scenario to plot
-    std::vector<amplitude*> amps;
-    if (TENQ == true)
-    {
-        amps = {&sum, &background, &P_c4450, &P_c4380};
-    }
-    else
-    {
-        amps = {&background, &sum1, &sum2, &sum3};
-    }
+    std::vector<amplitude*> amps = {&sum, &background, &P_c4450, &P_c4380};
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
@@ -157,12 +117,9 @@ int main( int argc, char** argv )
     plotter->SetXaxis("#theta", 0., 90.);
 
     // To change the range of the Y-axis or the position of the Legend change the arguments here
-    (custom_y == true) ? (plotter->SetYaxis("#Sigma", y[0], y[1])) : (plotter->SetYaxis("#Sigma"));
-
+    plotter->SetYaxis("#Sigma");
 
     plotter->Plot(filename.c_str());
 
-    delete plotter;
-    
-    return 0;
+    delete plotter;  
 };

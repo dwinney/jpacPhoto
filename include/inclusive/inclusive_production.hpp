@@ -60,6 +60,9 @@ namespace jpacPhoto
         // which is assumed to correspond to the _useTX member above
 
         virtual double d3sigma_d3p(double s, double t, double mm) = 0;
+        
+        // Alias function to rename d3sigma_d3p to more human name
+        inline double invariant_xsection(double s, double t, double mm){ return d3sigma_d3p(s, t, mm); };
 
         // Integrated cross-sections
 
