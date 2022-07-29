@@ -2,7 +2,6 @@
 // Predicted sensativity to LHCb pentaquarks in double polarization Observables
 // at Hall A at JLab.
 //
-//
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu

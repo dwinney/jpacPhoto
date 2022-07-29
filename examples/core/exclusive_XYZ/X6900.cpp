@@ -3,12 +3,6 @@
 // omega exchange amplitudes.
 // 
 // Reproduces the plot in FIG 4 of [1].
-// 
-// USAGE:
-// make X6900 && ./X6900
-//
-// OUTPUT:
-// omega_exchange.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

@@ -3,12 +3,6 @@
 // pomeron exchange at high energies.
 //
 // Reproduces right plot in FIG 5 of [1] 
-// 
-// USAGE:
-// make Y_high && ./Y_high
-//
-// OUTPUT:
-// Y_HE.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

@@ -243,7 +243,7 @@ namespace jpacPhoto
 
         // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
         // Depends on the channel with respect to which the helicities are defined
-        inline double parity_phase(std::array<int, 4> helicities, HELICITY_CHANNEL channel)
+        inline double parity_phase(std::array<int, 4> helicities, helicity_channel channel)
         {
             int s_a, s_b, s_c, s_d;
             int eta_a, eta_b, eta_c, eta_d;
@@ -254,7 +254,7 @@ namespace jpacPhoto
 
             switch (channel)
             {
-                case HELICITY_CHANNEL::S :
+                case helicity_channel::S :
                 {
                     s_b =  1;            eta_b = 1;                                  // proton
                     s_c =  2*_mjp[0];    eta_c = _mjp[1] * pow(-1, _mjp[0]);         // produced meson
@@ -265,7 +265,7 @@ namespace jpacPhoto
 
                     break;
                 }
-                case HELICITY_CHANNEL::T :
+                case helicity_channel::T :
                 {
                     s_b =  2*_mjp[0];   eta_b = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
                     s_c =  1;           eta_c = 1;                            // proton
@@ -276,7 +276,7 @@ namespace jpacPhoto
 
                     break;
                 }
-                case HELICITY_CHANNEL::U :
+                case helicity_channel::U :
                 {
                     s_b =  1;            eta_b = 1;                            // recoil baryon
                     s_c =  1;            eta_c = 1;                            // proton
@@ -294,6 +294,16 @@ namespace jpacPhoto
             int eta = eta_a * eta_b * eta_c * eta_d *  pow(-1, (lam - lamp)/2) * pow(-1., (s_c + s_d - s_a - s_b)/2);
 
             return double(eta);
+        };
+
+        inline double H_to_GJ_angle(double s, double t)
+        {
+            double beta = final_momentum(s) / meson_energy(s);
+            double zs = z_s(s, t);
+
+            double cosAlpha = (beta - zs) / (beta * zs - 1.);
+
+            return TMath::ACos( cosAlpha );
         };
 
         private:

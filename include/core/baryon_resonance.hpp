@@ -69,6 +69,9 @@ namespace jpacPhoto
             _photoR = params[1];
         };
 
+        // Helicities are always assumed to be in the s-channel cm frame
+        helicity_channel helicity_CM_frame(){ return S; };
+
         // Combined total amplitude including Breit Wigner pole
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
@@ -80,11 +83,6 @@ namespace jpacPhoto
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
             return {{1,  1}};
-        };
-        
-        inline int parity_phase(std::array<int, 4> helicities)
-        {
-            return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
         };
 
         private:

@@ -1,12 +1,6 @@
 // ---------------------------------------------------------------------------
 // Prediction for X(3872) and chi_c1(1P) photoproduction at low enegies
 // Reproduces the plot in FIG 3a of [1].
-// 
-// USAGE:
-// make X3872_low && ./X3872_low
-//
-// OUTPUT:
-// X_FS.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

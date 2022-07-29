@@ -289,6 +289,67 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     return result;
 };
 
+std::complex<double> jpacPhoto::amplitude::rotated_SDME(int alpha, int lam, int lamp, double s, double t, double theta)
+{
+    // First get the spin of the particle we're rotating
+    int J = _kinematics->get_meson_JP()[0];
+
+    std::complex<double> result;
+
+    // Start with the 00 component 
+    result = wigner_d_int(J, lam, 0, theta) * SDME(alpha, 0, 0, s, t) * wigner_d_int(J, lamp, 0, theta);
+    
+    // Sum over all the rest
+    for (int m = 0; m <= J; m++)
+    {
+        for (int mp = 0; mp <= J; mp++)
+        {
+            result += wigner_d_int(J, lam,  m, theta) * SDME(alpha,  m,  mp, s, t) * wigner_d_int(J, lamp,  mp, theta);
+            result += wigner_d_int(J, lam, -m, theta) * SDME(alpha, -m, -mp, s, t) * wigner_d_int(J, lamp, -mp, theta);
+        };
+    }
+
+    return result;
+};
+
+// Calculate the Helicity frame SDME
+std::complex<double> jpacPhoto::amplitude::SDME_H(int alpha, int lam, int lamp, double s, double t)
+{
+    helicity_channel frame = this->helicity_CM_frame();
+    
+    switch (frame)
+    {
+        case S: return SDME(alpha, lam, lamp, s, t);
+        case T: return rotated_SDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
+        case U: 
+        {
+            std::cout << "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0. \n";
+            return 0.;
+        };
+    };
+
+    return 0.;
+};
+
+// Calculate the Gottfried-Jackson SDME
+std::complex<double> jpacPhoto::amplitude::SDME_GJ(int alpha, int lam, int lamp, double s, double t)
+{
+    helicity_channel frame = this->helicity_CM_frame();
+
+    switch (frame)
+    {
+        case S: return rotated_SDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
+        case T: return SDME(alpha, lam, lamp, s, t);
+        case U: 
+        {
+            std::cout << "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0. \n";
+            return 0.;
+        };
+    };
+
+    return 0.;
+};
+
 // ---------------------------------------------------------------------------
 // Integrated beam asymmetry sigma_4pi
 double jpacPhoto::amplitude::beam_asymmetry_4pi(double s, double t)

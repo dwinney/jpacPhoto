@@ -3,12 +3,6 @@
 // pomeron exchange at low enegies.
 //
 // Reproduces left plot in FIG 5 of [1] 
-// 
-// USAGE:
-// make Y_low && ./Y_low
-//
-// OUTPUT:
-// Y_LE.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

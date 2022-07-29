@@ -47,8 +47,6 @@ namespace jpacPhoto
 
 namespace jpacPhoto
 {
-    enum HELICITY_CHANNEL{ S, T, U };
-
     // ---------------------------------------------------------------------------
     const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);

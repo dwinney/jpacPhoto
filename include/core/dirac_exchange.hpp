@@ -50,11 +50,8 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the spinor indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
-        // Parity phase corresponds to the s-channel because using covariants
-        inline int parity_phase(std::array<int, 4> helicities)
-        {
-            return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
-        };
+        // Helicities are always assumed to be in the s-channel cm frame
+        inline helicity_channel helicity_CM_frame(){ return S; };
 
         // only Vector and psuedo-scalar kinematics
         inline std::vector<std::array<int,2>> allowed_meson_JP()

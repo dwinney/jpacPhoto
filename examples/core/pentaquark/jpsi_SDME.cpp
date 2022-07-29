@@ -1,15 +1,6 @@
 // ---------------------------------------------------------------------------
-// Prediction for Y(4260) and Psi(1S and 2S) based on effective vector
-// pomeron exchange at low enegies.
-//
-// Reproduces left plot in FIG 5 of [1] 
+// Predictions for the Jpsi SDME's near-threhsold 
 // 
-// USAGE:
-// make Y_low && ./Y_low
-//
-// OUTPUT:
-// Y_LE.pdf
-//
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
@@ -99,14 +90,14 @@ void jpsi_SDME()
     // Solid line entries call jpsi_LE
     auto F = [&](double mt)
     {
-        std::complex<double> sdme = jpsi_LE.SDME(alpha, lam, lamp, s, -mt);
+        std::complex<double> sdme = jpsi_LE.SDME_GJ(alpha, lam, lamp, s, -mt);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 
     // Dashed line entries calls jpsi_HC
     auto G = [&](double mt)
     {
-        std::complex<double> sdme = jpsi_HE.SDME(alpha, lam, lamp, s, -mt);
+        std::complex<double> sdme = jpsi_HE.SDME_GJ(alpha, lam, lamp, s, -mt);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 

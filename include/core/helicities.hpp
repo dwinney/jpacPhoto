@@ -16,6 +16,9 @@
 
 namespace jpacPhoto
 {
+    // Each amplitude needs to be able to tell which frame its helicities are defined in
+    enum helicity_channel{ S, T, U };
+
     // ---------------------------------------------------------------------------
     // Massless helicity combinations
     const std::vector< std::array<int, 4> > SPIN_ZERO_HELICITIES =

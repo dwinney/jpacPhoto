@@ -1,12 +1,6 @@
 // ---------------------------------------------------------------------------
 // Prediction for X(3872) and chi_c1(1P) photoproduction at high enegies
 // Reproduces the plot in FIG 3b of [1].
-// 
-// USAGE:
-// make X3872_high && ./X3872_high
-//
-// OUTPUT:
-// X_regge.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

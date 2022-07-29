@@ -1,12 +1,6 @@
 // --------------------------------------------------------------------------- 
 // Prediction for X(3872) Primakoff production off a nuclear target
 //
-// USAGE:
-// make primakoff_integrated && ../bin/primakoff_integrated
-//
-// OUTPUT:
-// primakoff_integrated.pdf
-//
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu

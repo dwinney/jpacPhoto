@@ -91,7 +91,18 @@ namespace jpacPhoto
         double K_LL(double s, double t); // Beam and recoil
 
         // Spin density matrix elements
+
+        // this calculates the SDME in the amplitudes 'natural' frame 
+        // i.e. doesnt require any additional rotations
         std::complex<double> SDME(int alpha, int lam, int lamp, double s, double t);
+
+        // Rotate the SDMEs to another frame by and angle theta
+        std::complex<double> rotated_SDME(int alpha, int lam, int lamp, double s, double t, double theta);
+       
+        // These check what the natural frame and include rotations if required to ensure
+        // SDME is defined in the Helicity or Gottfried-Jackson frames
+        std::complex<double> SDME_H (int alpha, int lam, int lamp, double s, double t);
+        std::complex<double> SDME_GJ(int alpha, int lam, int lamp, double s, double t);
 
         // Beam Asymmetries
         double beam_asymmetry_y(double s, double t);    // Along the y direction
@@ -99,8 +110,6 @@ namespace jpacPhoto
 
         // Parity asymmetry
         double parity_asymmetry(double s, double t);
-
-        virtual int parity_phase(std::array<int,4> helicities){ return 0; };
 
         // ---------------------------------------------------------------------------
         // nParams error message
@@ -117,6 +126,15 @@ namespace jpacPhoto
         // Update the cache
         void update_cache(double s, double t);
         std::complex<double> get_cached_helicity_amplitude(int i){ return _cached_helicity_amplitude[i]; };
+
+        // Each amplitude needs to define which frame the helicities are defined in
+        virtual helicity_channel helicity_CM_frame() = 0;
+
+        // With this phase only half of the helicity amplitudes need to be calculated and cached
+        int parity_phase(std::array<int,4> helicities)
+        {
+            return _kinematics->parity_phase(helicities, this->helicity_CM_frame());
+        };
 
         // ---------------------------------------------------------------------------
         protected:

@@ -3,12 +3,6 @@
 // at high energies. 
 //
 // Reproduces right plot in FIG 3 of [1] 
-// 
-// USAGE:
-// make Z_high && ./Z_high
-//
-// OUTPUT:
-// Z_regge.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

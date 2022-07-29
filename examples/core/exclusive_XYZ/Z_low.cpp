@@ -3,12 +3,6 @@
 // at low energies. 
 //
 // Reproduces left plot in FIG 3 of [1] 
-// 
-// USAGE:
-// make Z_low && ./Z_low
-//
-// OUTPUT:
-// Z_FS.pdf
 //
 // Author:       Daniel Winney (2020)
 // Affiliation:  Joint Physics Analysis Center (JPAC)

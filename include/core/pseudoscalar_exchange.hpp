@@ -71,21 +71,18 @@ namespace jpacPhoto
         // Assemble the helicity amplitude by contracting the spinor indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double xs, double xt);
 
-        // The parity phase depends on how we evaluate the amplitude
         // Covariant quantities define lambda in S-channel
         // Analytic ones in the T-channel
-        inline int parity_phase(std::array<int, 4> helicities)
+        helicity_channel helicity_CM_frame()
         {
             if (_useCovariant)
             {
-                return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
+                return helicity_channel::S;
             }
             else
             {
-                return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::T);
+                return helicity_channel::T;
             }
-
-            return 0.;
         };
 
         // only axial-vector, vector, and pseudo-scalar available

@@ -49,13 +49,11 @@ namespace jpacPhoto
             _b0 = params[1];
         };
 
+        // Helicities are always assumed to be in the s-channel cm frame
+        helicity_channel helicity_CM_frame(){ return S; };
+        
         // Assemble the helicity amplitude by contracting the lorentz indices
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
-
-        inline int parity_phase(std::array<int, 4> helicities)
-        {
-            return _kinematics->parity_phase(helicities, HELICITY_CHANNEL::S);
-        };
 
         // only vector kinematics allowed
         inline std::vector<std::array<int,2>> allowed_meson_JP()
