@@ -294,18 +294,16 @@ std::complex<double> jpacPhoto::amplitude::rotated_SDME(int alpha, int lam, int 
     // First get the spin of the particle we're rotating
     int J = _kinematics->get_meson_JP()[0];
 
-    std::complex<double> result;
-
-    // Start with the 00 component 
-    result = wigner_d_int(J, lam, 0, theta) * SDME(alpha, 0, 0, s, t) * wigner_d_int(J, lamp, 0, theta);
-    
     // Sum over all the rest
+    std::complex<double> result = 0.;
     for (int m = 0; m <= J; m++)
     {
         for (int mp = 0; mp <= J; mp++)
         {
             result += wigner_d_int(J, lam,  m, theta) * SDME(alpha,  m,  mp, s, t) * wigner_d_int(J, lamp,  mp, theta);
-            result += wigner_d_int(J, lam, -m, theta) * SDME(alpha, -m, -mp, s, t) * wigner_d_int(J, lamp, -mp, theta);
+            if (m  != 0) result += wigner_d_int(J, lam, -m, theta) * SDME(alpha, -m,  mp, s, t) * wigner_d_int(J, lamp,  mp, theta);
+            if (mp != 0) result += wigner_d_int(J, lam, -m, theta) * SDME(alpha, -m, -mp, s, t) * wigner_d_int(J, lamp, -mp, theta);
+            if (m  != 0 && mp != 0) result += wigner_d_int(J, lam,  m, theta) * SDME(alpha,  m, -mp, s, t) * wigner_d_int(J, lamp, -mp, theta);
         };
     }
 
@@ -320,7 +318,7 @@ std::complex<double> jpacPhoto::amplitude::SDME_H(int alpha, int lam, int lamp, 
     switch (frame)
     {
         case S: return SDME(alpha, lam, lamp, s, t);
-        case T: return rotated_SDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
+        case T: return rotated_SDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
         case U: 
         {
             std::cout << "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0. \n";
@@ -338,7 +336,7 @@ std::complex<double> jpacPhoto::amplitude::SDME_GJ(int alpha, int lam, int lamp,
 
     switch (frame)
     {
-        case S: return rotated_SDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
+        case S: return rotated_SDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
         case T: return SDME(alpha, lam, lamp, s, t);
         case U: 
         {

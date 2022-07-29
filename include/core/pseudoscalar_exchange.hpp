@@ -99,7 +99,8 @@ namespace jpacPhoto
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return { {1, +1}, {3, +1} };
+            if (!_reggeized) return { {1, +1}, {3, +1} };
+            else return { {1, +1} };
         };
 
 
@@ -116,6 +117,11 @@ namespace jpacPhoto
         { 
             update({0,0,0,0}, 0, t);
             return std::real(top_residue()); 
+        };
+
+        inline void use_covariant(bool x)
+        {
+            if (!_reggeized) _useCovariant = x;
         };
 
         // --------------------------------------------------------------------

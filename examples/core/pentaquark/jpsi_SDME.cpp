@@ -90,14 +90,14 @@ void jpsi_SDME()
     // Solid line entries call jpsi_LE
     auto F = [&](double mt)
     {
-        std::complex<double> sdme = jpsi_LE.SDME_GJ(alpha, lam, lamp, s, -mt);
+        std::complex<double> sdme = jpsi_LE.SDME_H(alpha, lam, lamp, s, -mt);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 
     // Dashed line entries calls jpsi_HC
     auto G = [&](double mt)
     {
-        std::complex<double> sdme = jpsi_HE.SDME_GJ(alpha, lam, lamp, s, -mt);
+        std::complex<double> sdme = jpsi_HE.SDME_H(alpha, lam, lamp, s, -mt);
         return real * std::real(sdme) + !real * std::imag(sdme);
     };
 

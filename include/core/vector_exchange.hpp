@@ -39,7 +39,8 @@ namespace jpacPhoto
             check_JP(xkinem);
 
             // Analytical residues not available for scalar quantum numbers yet
-            if ( xkinem->get_meson_JP()[0] == 0 && xkinem->get_meson_JP()[1] == +1 ) _useCovariant = true;
+            std::array<int,2> jp = xkinem->get_meson_JP();
+            if ( jp[0] == 0 && jp[0] == +1 ) _useCovariant = true;
         };
 
         // Constructor for the reggized)
@@ -99,7 +100,9 @@ namespace jpacPhoto
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
             return { {1, +1} };
-        };
+        }; 
+
+        inline void use_covariant(bool x){ if (!_ifReggeized) _useCovariant = x; };
 
         private:
 

@@ -16,15 +16,8 @@ std::complex<double> jpacPhoto::vector_exchange::helicity_amplitude(std::array<i
 
     // Output
     std::complex<double> result;
-
-    if ((_useCovariant == true))
-    {
-        result = covariant_amplitude();
-    }
-    else
-    {
-        result = analytic_amplitude();
-    }
+    if (_useCovariant == true) result = covariant_amplitude();
+    else result = analytic_amplitude();
 
     // add form factor if wanted
     result *= form_factor();   
@@ -87,8 +80,6 @@ std::complex<double> jpacPhoto::vector_exchange::analytic_amplitude()
 
 std::complex<double> jpacPhoto::vector_exchange::top_residue()
 {
-    if (abs(_lam) >= 2) return 0.;
-
     std::array<int,2> JP = _kinematics->get_meson_JP();
     int jp = 10 * JP[0] + (1+JP[1])/2;
     switch (jp)
