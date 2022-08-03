@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     TRint * app = new TRint( "jpacPhoto", &argc, argv);
     TString JPACPHOTO = gSystem->Getenv("JPACPHOTO");
     
-    if (JPACPHOTO == "") std::cout << "Environment variable JPACPHOTO not set!" << std::endl;
+    if (JPACPHOTO.Length() == 0) std::cout << "Environment variable JPACPHOTO not set!" << std::endl;
     
     app->ProcessLine(".x $JPACPHOTO/src/cling/Load.C");
     app->ProcessLine(Form(".x %s", macroName.Data()));

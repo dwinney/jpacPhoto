@@ -10,25 +10,73 @@
 
 void Load()
 {
-    TString JPACPHOTO = gSystem->Getenv("JPACPHOTO");
-    TString JPACSTYLE = gSystem->Getenv("JPACSTYLE");
+    TString LIB_EXT = gSystem->GetSoExt();
 
-    // look for and load jpacstyle
-    gInterpreter->AddIncludePath(JPACSTYLE + "/include/");
-    auto stylib = gSystem->Load(JPACSTYLE + "/lib/libjpacStyle." + gSystem->GetSoExt());
-    if (stylib != 0) Fatal("jpacPhoto::Load","libjpacStyle not found");
+    //----------------------------------------------------------------------
+    // Core physics library
 
-    // do the same for jpacphoto
-    gInterpreter->AddIncludePath(JPACPHOTO + "/include/core");
-    auto photolib = gSystem->Load(JPACPHOTO + "/lib/libjpacPhoto." + gSystem->GetSoExt());
-    if (photolib != 0) Fatal("jpacPhoto::Load","libjpacPhoto not found");
+    TString JPACPHOTO_DIR  = gSystem->Getenv("JPACPHOTO");
+    TString JPACPHOTO_INC  = JPACPHOTO_DIR;
+            JPACPHOTO_INC += "/include/core";
+    TString JPACPHOTO_LIB  = JPACPHOTO_DIR;
+            JPACPHOTO_LIB += "/lib/libjpacPhoto.";
+            JPACPHOTO_LIB += LIB_EXT;
 
-    // Now check for the non-essential libraries
-    gInterpreter->AddIncludePath(JPACPHOTO + "/include/inclusive");
-    auto inclib = gSystem->Load(JPACPHOTO + "/lib/libjpacInclusive." + gSystem->GetSoExt());
-    if (inclib != 0) Warning("jpacPhoto::Load","libjpacInclusive not found");
+    if (!gSystem->AccessPathName(JPACPHOTO_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( JPACPHOTO_INC.Data());
+        Int_t pholib = gSystem->Load( JPACPHOTO_LIB.Data());
+    }
+    else
+    {
+        Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", JPACPHOTO_LIB.Data());
+    }
 
-    gInterpreter->AddIncludePath(JPACPHOTO + "/include/box");
-    auto boxlib = gSystem->Load(JPACPHOTO + "/lib/libjpacBox." + gSystem->GetSoExt());
-    if (boxlib != 0) Warning("jpacPhoto::Load","libjpacBox not found");
+    //----------------------------------------------------------------------
+    // Plotting library
+
+    TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
+    TString JPACSTYLE_INC  = JPACSTYLE_DIR;
+            JPACSTYLE_INC += "/include/";
+    TString JPACSTYLE_LIB  = JPACSTYLE_DIR;
+            JPACSTYLE_LIB += "/lib/libjpacStyle.";
+            JPACSTYLE_LIB += LIB_EXT;
+
+    if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( JPACSTYLE_INC.Data());
+        Int_t stylib = gSystem->Load( JPACSTYLE_LIB.Data());
+    }
+    else
+    {
+        Warning("jpacPhoto::Load", "jpacStyle library not found! Path given: %s", JPACSTYLE_LIB.Data());
+    }
+
+
+    //----------------------------------------------------------------------
+    // Non-essential libraries
+
+    TString INCLUSIVE_INC  = JPACPHOTO_DIR;
+            INCLUSIVE_INC += "/include/inclusive";
+    TString INCLUSIVE_LIB  = JPACPHOTO_DIR;
+            INCLUSIVE_LIB += "/lib/libjpacInclusive.";
+            INCLUSIVE_LIB += LIB_EXT;
+
+    if (!gSystem->AccessPathName(INCLUSIVE_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( INCLUSIVE_INC.Data());
+        Int_t inclib = gSystem->Load( INCLUSIVE_LIB.Data());
+    }
+
+    TString BOX_INC  = JPACPHOTO_DIR;
+            BOX_INC += "/include/box";
+    TString BOX_LIB  = JPACPHOTO_DIR;
+            BOX_LIB += "/lib/libjpacBox.";
+            BOX_LIB += LIB_EXT;
+
+    if (!gSystem->AccessPathName(BOX_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( BOX_INC.Data());
+        Int_t boxlib = gSystem->Load( BOX_LIB.Data());
+    }
 }
