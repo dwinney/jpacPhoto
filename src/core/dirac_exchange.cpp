@@ -81,6 +81,7 @@ std::complex<double> jpacPhoto::dirac_exchange::top_vertex(int i)
     {
         case 11: return halfplus_coupling(i);
         case 10: return halfminus_coupling(i);
+        case 30: return threehalfminus_coupling(i);
         default: return 0.;        
     };
 }
@@ -121,8 +122,29 @@ std::complex<double> jpacPhoto::dirac_exchange::halfminus_coupling(int i)
         }
     }
 
-    return XI * _gG / (2. * _mR) * result;
+    return XI * _gG * result;
 };
+
+std::complex<double> jpacPhoto::dirac_exchange::threehalfminus_coupling(int i)
+{   
+    std::complex<double> result = 0.;
+    for (int k = 0; k < 4; k++)
+    {
+        for (int mu = 0; mu < 4; mu++)
+        {
+            std::complex<double> temp;
+            temp  = _covariants->recoil_spinor(k, mu);
+            temp *= METRIC[mu];
+            temp *= _covariants->beam_momentum(mu) * _covariants->slashed_beam_polarization(k, i)
+                  - _covariants->slashed_beam_momentum(k, i) * _covariants->beam_polarization(mu);
+
+            result += temp;
+        }
+    }
+
+    return XI * _gG * result;
+};
+
 
 //------------------------------------------------------------------------------
 // Target -- Exchange -- Produced Meson vertex

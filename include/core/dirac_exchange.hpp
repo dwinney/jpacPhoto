@@ -5,8 +5,8 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef _PROTON_
-#define _PROTON_
+#ifndef PROTON_EXCHANGE
+#define PROTON_EXCHANGE
 
 #include <string>
 #include <vector>
@@ -60,7 +60,7 @@ namespace jpacPhoto
         };
         inline std::vector<std::array<int,2>> allowed_baryon_JP()
         {
-            return { {1, +1}, {1, -1} };
+            return { {1, +1}, {1, -1}, {3, -1} };
         };
 
         protected:
@@ -84,6 +84,7 @@ namespace jpacPhoto
         std::complex<double> top_vertex(int i);
         std::complex<double> halfplus_coupling(int i);
         std::complex<double> halfminus_coupling(int i);
+        std::complex<double> threehalfminus_coupling(int i);
 
         // Targer -- Exchange -- Produced Meson
         std::complex<double> bottom_vertex(int j);
