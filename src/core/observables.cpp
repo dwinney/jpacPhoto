@@ -15,7 +15,8 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
     // check if saved version its the one we want
     if (  (abs(_cached_s - s) < _cache_tolerance) && 
           (abs(_cached_t - t) < _cache_tolerance) &&
-          (abs(_cached_mX - _kinematics->get_meson_mass()) < _cache_tolerance) // important to make sure the value of mX2 hasnt chanced since last time
+          (abs(_cached_mX - _kinematics->get_meson_mass()) < _cache_tolerance) && // important to make sure the value of mX2 hasnt chanced since last time
+          (abs(_cached_mR - _kinematics->get_baryon_mass()) < _cache_tolerance) // also check the baryon mass
        )
     {
         return; // do nothing
@@ -60,6 +61,7 @@ void jpacPhoto::amplitude::update_cache(double s, double t)
 
         // update cache info
         _cached_mX = _kinematics->get_meson_mass(); 
+        _cached_mR = _kinematics->get_baryon_mass(); 
         _cached_s = s; _cached_t = t;
     }
 
@@ -127,57 +129,42 @@ double jpacPhoto::amplitude::integrated_xsection(double s)
 // Polarizatiopn asymmetry between beam and recoil proton
 double jpacPhoto::amplitude::K_LL(double s, double t)
 {
-    // Check we have the right amplitudes cached
-    update_cache(s, t);
+    // Calculate the denominator
+    // This will also update the cache 
+    double norm = probability_distribution(s, t);
 
-    double sigmapp = 0., sigmapm = 0.;
-
-    int j = _kinematics->get_meson_JP()[0];
-    for (int i = 0; i < 2*(2*j+1); i++)
+    double sum = 0.;
+    for (int i = 0; i < _kinematics->num_amps(); i++)
     {
-        std::complex<double> squarepp, squarepm;
+        std::array<int,4> hel = _kinematics->helicities(i);
+        int eta = (1 - hel[0]*hel[3] / abs(hel[0]*hel[3])) / 2;
 
-        // Amplitudes with lam_gam = + and lam_recoil = +
-        squarepp  = _cached_helicity_amplitude[2*i+1];
-        squarepp *= conj(squarepp);
-        sigmapp  += real(squarepp);
-
-        // Amplitudes with lam_gam = + and lam_recoil = -
-        squarepm  = _cached_helicity_amplitude[2*i];
-        squarepm *= conj(squarepm);
-        sigmapm  += real(squarepm);
+        std::complex<double> amp_i = _cached_helicity_amplitude[i];
+        sum += pow(-1, eta) * std::real(amp_i * conj(amp_i));
     }
 
-    return (sigmapp - sigmapm) / (sigmapp + sigmapm);
+    return sum / norm;
 }
 
 // ---------------------------------------------------------------------------
 // Polarization asymmetry between beam and target proton
 double jpacPhoto::amplitude::A_LL(double s, double t)
 {
-    // Check we have the right amplitudes cached
-    update_cache(s, t);
+    // Calculate the denominator
+    // This will also update the cache 
+    double norm = probability_distribution(s, t);
 
-    double sigmapp = 0., sigmapm = 0.;
-
-    int  j = _kinematics->get_meson_JP()[0];
-    int nj = 2*(2*j+1); // number of diff amplitudes with same lam_gam lam_tar
-    for (int i = 0; i < nj; i++)
+    double sum = 0.;
+    for (int i = 0; i < _kinematics->num_amps(); i++)
     {
-        std::complex<double> squarepp, squarepm;
+        std::array<int,4> hel = _kinematics->helicities(i);
+        int eta = (1 - hel[0]*hel[1] / abs(hel[0]*hel[1])) / 2;
 
-        // Amplitudes with lam_gam = + and lam_targ = +
-        squarepp  = _cached_helicity_amplitude[i+nj];
-        squarepp *= conj(squarepp);
-        sigmapp  += real(squarepp);
-
-        // Amplitudes with lam_gam = + and lam_targ = -
-        squarepm  = _cached_helicity_amplitude[i];
-        squarepm *= conj(squarepm);
-        sigmapm  += real(squarepm);
+        std::complex<double> amp_i = _cached_helicity_amplitude[i];
+        sum += pow(-1, eta) * std::real(amp_i * conj(amp_i));
     }
 
-    return (sigmapp - sigmapm) / (sigmapp + sigmapm);
+    return sum / norm;
 }
 
 // ---------------------------------------------------------------------------
@@ -239,7 +226,6 @@ std::complex<double> jpacPhoto::amplitude::SDME(int alpha, int lam, int lamp, do
     // choose a starting point depending on alpha
     bool pos_or_neg;
     (alpha == 0) ? (pos_or_neg = 0) : (pos_or_neg = 1);
-    
 
     // k filters first index to be  0, 1, 2
     // l filters second index to be 0, 1, 2
@@ -361,7 +347,7 @@ double jpacPhoto::amplitude::beam_asymmetry_4pi(double s, double t)
     double rho000 = real(SDME(0, 0, 0, s, t));
     double rho011 = real(SDME(0, 1, 1, s, t));
     double rho022 = real(SDME(0, 2, 2, s, t));
-
+    
     return -(rho100 + 2. * rho111 + 2. * rho122) / (rho000 + 2. * rho011 + 2. * rho022);
 };
 // ---------------------------------------------------------------------------
