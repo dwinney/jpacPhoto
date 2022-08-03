@@ -18,47 +18,23 @@ std::complex<double> jpacPhoto::rarita_spinor::component(int i, int mu, int lamb
     // Double check masses havent changed
     sync_masses();
 
+    double theta_1 = theta + M_PI;
+    double theta_2 = theta;
+
+    std::complex<double> v1p, v0, v1m, hp, hm;
+    v1p =    _spin_one->component(mu, +1, s, theta_1);
+    v0  =   -_spin_one->component(mu,  0, s, theta_1); // terms proportional to v0 get relative minus sign from Jacob-Wick phase
+    v1m =    _spin_one->component(mu, -1, s, theta_1);
+
+    hp  =    _spin_half->component(  i, +1, s, theta_2);
+    hm  =    _spin_half->component(  i, -1, s, theta_2);
+
     switch(lambda)
     {
-        case  3: 
-        {
-            std::complex<double> v1, hp;
-
-            v1 = _spin_one->component(mu, +1, s, theta + M_PI); 
-            hp = _spin_half->component(i, +1, s, theta);
-
-            return v1 * hp;
-        };  
-        case  1:
-        {
-            std::complex<double> v1, v0, hp, hm;
-
-            v1 = _spin_one->component(mu, 1, s, theta + M_PI);
-            v0 = _spin_one->component(mu, 0, s, theta + M_PI);
-            hp = _spin_half->component(i, +1, s, theta);
-            hm = _spin_half->component(i, -1, s, theta);
-
-            return sqrt(1./3.) * v1 * hm + sqrt(2. / 3.) * v0 * hp;
-        };
-        case -1:
-        {
-            std::complex<double> v1, v0, hp, hm;
-
-            v1 = _spin_one->component(mu, -1, s, theta + M_PI);
-            v0 = _spin_one->component(mu,  0, s, theta + M_PI);
-            hp = _spin_half->component(i, +1, s, theta);
-            hm = _spin_half->component(i, -1, s, theta);
-
-            return sqrt(1./3.) * v1 * hp + sqrt(2. / 3.) * v0 * hm;
-        };
-        case -3: 
-        {
-            std::complex<double> v1, hm;
-            v1 = _spin_one->component(mu, -1, s, theta + M_PI); 
-            hm = _spin_half->component(i, -1, s, theta);
-
-            return v1 * hm;
-        };  
+        case  3: return v1p * hp;  
+        case  1: return sqrt(1./3.) * v1p * hm + sqrt(2. / 3.) * v0 * hp;
+        case -1: return sqrt(1./3.) * v1m * hp + sqrt(2. / 3.) * v0 * hm;
+        case -3: return v1m * hm;
         default: 
         {
             std::cout << "Error! Invalid helicity: " << lambda << " passed to rarita_spinor. Returning 0." << std::endl;
@@ -68,7 +44,6 @@ std::complex<double> jpacPhoto::rarita_spinor::component(int i, int mu, int lamb
 
     return 0.;
 };
-
 // Adjoint wave-function is similarly constructed from eps^* and bar u
 std::complex<double> jpacPhoto::rarita_spinor::adjoint_component(int i, int mu, int lambda, double s, double theta)
 {
@@ -79,14 +54,12 @@ std::complex<double> jpacPhoto::rarita_spinor::adjoint_component(int i, int mu, 
     double theta_2 = theta;
 
     std::complex<double> v1p, v0, v1m, hp, hm;
-    v1p =   _spin_one->conjugate_component(mu, +1, s, theta_1);
-    v0  =   _spin_one->conjugate_component(mu,  0, s, theta_1);
-    v1m =   _spin_one->conjugate_component(mu, -1, s, theta_1);
-    // v1p = 1.;
-    // v0  = 1.;
-    // v1m = 1.;
-    hp  =   _spin_half->adjoint_component(  i, +1, s, theta_2);
-    hm  =   _spin_half->adjoint_component(  i, -1, s, theta_2);
+    v1p =    _spin_one->conjugate_component(mu, +1, s, theta_1);
+    v0  =   -_spin_one->conjugate_component(mu,  0, s, theta_1); // terms proportional to v0 get relative minus sign from Jacob-Wick phase
+    v1m =    _spin_one->conjugate_component(mu, -1, s, theta_1);
+
+    hp  =    _spin_half->adjoint_component(  i, +1, s, theta_2);
+    hm  =    _spin_half->adjoint_component(  i, -1, s, theta_2);
 
     switch(lambda)
     {
