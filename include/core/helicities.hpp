@@ -146,6 +146,10 @@ namespace jpacPhoto
         { -1,  1,  0,  3}, // 15
     };
 
+    // POS / NEG refer to ordering whether hel[0] is +-1 everything else equal
+    const std::vector<int> THREE_ZERO_POS_ITERS = {0, 1, 2,  3,  4,  5,  6,  7};
+    const std::vector<int> THREE_ZERO_NEG_ITERS = {8, 9, 10, 11, 12, 13, 14, 15};
+
     const std::vector< std::array<int, 4> > SPIN_ONE_THREEHALF =
     {
     //  {  γ,  p,  V,  p'}
@@ -290,6 +294,7 @@ namespace jpacPhoto
             case (  1): return {SPIN_ZERO_POS_ITERS, SPIN_ZERO_NEG_ITERS};
             case ( 11): return {SPIN_ONE_POS_ITERS,  SPIN_ONE_NEG_ITERS};
             case ( 21): return {SPIN_TWO_POS_ITERS,  SPIN_TWO_NEG_ITERS};
+            case (  3): return {THREE_ZERO_POS_ITERS, THREE_ZERO_POS_ITERS};
             default:
             {
                 std::cout << "Fatal error! Can't find iters for meson spin J = " << mJ << " and baryon spin " << bJ << "/2 not yet implemented.\n";
