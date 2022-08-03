@@ -10,24 +10,34 @@
 
 using namespace jpacPhoto;
 
-void spinhalf_PcsK()
+void compare_PcsK()
 {
     // Set up kinematics of the Pcs K final state
     double M_PCS = 4.5880;
 
-    reaction_kinematics kPcsK (M_KAON, M_PCS);
-    kPcsK.set_meson_JP(0, -1);
-    kPcsK.set_baryon_JP(1, -1);
-
     // Couplings 
-    double gPhoton  =  0.0412501;
+    double g1  = 4.45E-3;
+    double g3  = 3.01E-3;
     double gNucleon = -6.4469; 
     double cutoff   = 0.9;
 
-    // Create the amplitude
-    dirac_exchange LamEx(&kPcsK, M_LAMBDA, "#Lambda exchange");
-    LamEx.set_params({gPhoton, gNucleon});
-    LamEx.set_formfactor(3, cutoff);
+    //Spin-1/2
+    reaction_kinematics kPcsK1 (M_KAON, M_PCS);
+    kPcsK1.set_meson_JP (0, -1);
+    kPcsK1.set_baryon_JP(1, -1);
+
+    dirac_exchange LamEx1(&kPcsK1, M_LAMBDA, "#Lambda exchange");
+    LamEx1.set_params({g1, gNucleon});
+    LamEx1.set_formfactor(3, cutoff);
+
+    //Spin-3/2
+    reaction_kinematics kPcsK3 (M_KAON, M_PCS);
+    kPcsK3.set_meson_JP (0, -1);
+    kPcsK3.set_baryon_JP(3, -1);
+
+    dirac_exchange LamEx3(&kPcsK3, M_LAMBDA, "#Lambda exchange");
+    LamEx3.set_params({g3, gNucleon});
+    LamEx3.set_formfactor(3, cutoff);
 
     // // ---------------------------------------------------------------------------
 
@@ -58,42 +68,47 @@ void spinhalf_PcsK()
     auto F = [&](double theta)
     {
         theta *= DEG2RAD;
-        double t = kPcsK.t_man(s, theta);
+        double t = kPcsK1.t_man(s, theta);
         switch (o)
         {
-            case 1: return LamEx.A_LL(s, t);
-            case 2: return LamEx.K_LL(s, t);
-            case 3: return LamEx.beam_asymmetry_4pi(s, t);
+            case 1: return LamEx1.A_LL(s, t);
+            case 2: return LamEx1.K_LL(s, t);
+            case 3: return LamEx1.beam_asymmetry_4pi(s, t);
             default: return 0.;
         };
         return 0.;
     };
 
-    // ---------------------------------------------------------------------------
-    // double  xmin = 5.;
-    // double  xmax = 12.;
-
-    // double  ymin = 0.;
-    // double  ymax = 0.;
-
-    // std::string ylabel    = "#sigma(#gamma p #rightarrow P K)  [nb]";
-    // std::string xlabel    = "W_{#gammap}  [GeV]";
-
-    // auto F = [&](double x)
-    // {
-    //     return LamEx.integrated_xsection(x*x);
-    // };
+    auto G = [&](double theta)
+    {
+        theta *= DEG2RAD;
+        double t = kPcsK3.t_man(s, theta);
+        switch (o)
+        {
+            case 1: return LamEx3.A_LL(s, t);
+            case 2: return LamEx3.K_LL(s, t);
+            case 3: return LamEx3.beam_asymmetry_4pi(s, t);
+            default: return 0.;
+        };
+        return 0.;
+    };
 
     o = 1;
     plotter->AddEntry(N, F, {xmin,xmax}, "A_{LL}");
+    plotter->AddDashedEntry(N, G, {xmin,xmax});
+
     o = 2;
     plotter->AddEntry(N, F, {xmin,xmax}, "K_{LL}");
+    plotter->AddDashedEntry(N, G, {xmin,xmax});
+
     o = 3;
     plotter->AddEntry(N, F, {xmin,xmax}, "#Sigma_{4#pi}");
+    plotter->AddDashedEntry(N, G, {xmin,xmax});
+
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel,  ymin, ymax);
-    plotter->SetLegendOffset(0.3, 0.1);
+    plotter->SetLegendOffset(0.3, 0.15);
     plotter->RemoveLogo();
 
     // Add a header to legend to specify the fixed Q2

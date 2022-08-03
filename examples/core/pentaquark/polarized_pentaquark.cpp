@@ -35,7 +35,12 @@ void polarized_pentaquark()
     // Default values
     double theta = 0.;
     int N = 100; // how many points to plot
-    double max = 5.;
+
+    double xmin = M_JPSI + M_PROTON + 0.1;
+    double xmax = 5.;
+
+    double ymin = -0.15;
+    double ymax =  0.15;
     std::string filename = "polarized_5q.pdf";
 
     // ---------------------------------------------------------------------------
@@ -51,7 +56,7 @@ void polarized_pentaquark()
 
     // Two different pentaquarks
     // masses and widths from 2015 LHCb paper [2]
-    baryon_resonance P_c4450(&kpsi, 1, 1, 4.45, 0.040, "P_{c}(4450)");
+    baryon_resonance P_c4450(&kpsi, 3, -1, 4.45, 0.040, "P_{c}(4450)");
     P_c4450.set_params({0.01, .7071}); // 2% branching fraction and equal photocouplings
 
     baryon_resonance P_c4380(&kpsi, 5, +1, 4.38, 0.205, "P_{c}(4380)");
@@ -65,7 +70,7 @@ void polarized_pentaquark()
     linear_trajectory alpha(+1, 0.941, 0.364, "pomeron");
 
     // Create amplitude with kinematics and trajectory
-    pomeron_exchange background(&kpsi, &alpha, false, "Background");
+    pomeron_exchange background(&kpsi, &alpha, false, "Background only");
 
     // normalization and t-slope
     background.set_params({0.379, 0.12});
@@ -91,26 +96,33 @@ void polarized_pentaquark()
     for (int n = 0; n < amps.size(); n++)
     {
         // find the desired observable
-        auto F = [&](double W)
+        auto A = [&](double W)
+        {
+            double t = kpsi.t_man(W*W, theta);
+            return amps[n]->A_LL(W*W, t);
+        };
+        // find the desired observable
+        auto K = [&](double W)
         {
             double t = kpsi.t_man(W*W, theta);
             return amps[n]->K_LL(W*W, t);
         };
 
-        std::array<std::vector<double>, 2> x_fx = vec_fill(N, F, sqrt(kpsi.sth()) + 0.01, max);
-        plotter->AddEntry(x_fx[0], x_fx[1], amps[n]->get_id());
+        plotter->AddEntry(N, A, {xmin, xmax}, amps[n]->get_id(), 1);
+        plotter->AddDashedEntry(N, K, {xmin, xmax});
+
     }
 
     // Add a header to legend to specify the fixed energy
     std::ostringstream streamObj;
     streamObj << std::setprecision(2) << theta;
-    plotter->SetLegend(0.2, 0.7, "#theta = " + streamObj.str());
+    plotter->SetLegend(0.2, 0.76, "#theta = " + streamObj.str());
 
     // X axis
-    plotter->SetXaxis("W  (GeV)", sqrt(kpsi.sth()) + 0.01, max);
+    plotter->SetXaxis("W  (GeV)", xmin, xmax);
 
     // To change the range of the Y-axis or the position of the Legend change the arguments here
-    plotter->SetYaxis("K_{LL}");
+    plotter->SetYaxis("", ymin, ymax);
 
     plotter->Plot(filename);
 
