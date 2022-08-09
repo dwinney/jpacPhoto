@@ -7,5 +7,6 @@
 
 #pragma link C++ defined_in "box_amplitude.hpp";
 #pragma link C++ defined_in "box_discontinuity.hpp";
+#pragma link C++ defined_in "projected_amplitude.hpp";
 
 #endif
