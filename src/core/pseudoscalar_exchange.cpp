@@ -18,7 +18,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
     update(helicities, s, t);
 
     std::complex<double> result;
-    if (_useCovariant == true)
+    if (_useCovariant && !_reggeized)
     {
         // Because its a scalar exchange we dont have any loose indices to contract
         result  = scalar_propagator();

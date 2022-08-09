@@ -37,20 +37,20 @@ namespace jpacPhoto
         // constructor for fixed meson exchange
         pseudoscalar_exchange(reaction_kinematics * xkinem, double mass, std::string name = "pseudoscalar_exchange")
         : amplitude(xkinem, "pseudoscalar_exchange", name),
-          _mEx2(mass*mass), _reggeized(false)
+          _mEx2(mass*mass)
         {
             set_nParams(2);
             check_JP(xkinem);
-            check_covariant(xkinem);
         };
 
         // constructors for regge exchange
         pseudoscalar_exchange(reaction_kinematics * xkinem, linear_trajectory * traj, std::string name = "pseudoscalar_exchange")
         : amplitude(xkinem, "pseudoscalar_exchange", name), 
-          _alpha(traj), _reggeized(true)
+          _alpha(traj)
         {
             set_nParams(2);
             check_JP(xkinem);
+            _reggeized = true;
         };
 
         // Setting utility
@@ -119,17 +119,11 @@ namespace jpacPhoto
             return std::real(top_residue()); 
         };
 
-        inline void use_covariant(bool x)
-        {
-            if (!_reggeized) _useCovariant = x;
-        };
-
         // --------------------------------------------------------------------
 
         private:
 
         // Whether to use fixed-spin propagator (false) or regge (true)
-        bool _reggeized = false;
         std::complex<double> _qt, _pt; // Momentum in t-channel
 
         // Mass of the exchanged pseudo-scalar (if REGGE = false)
@@ -144,17 +138,10 @@ namespace jpacPhoto
         double _gT = 0.; // Gamma - Axial - Pseudoscalar coupling 
         double _gB = 0.;    // Pseudoscalar - Nucleon coupling
 
+        // Exchange form-factor
         int _useFormFactor = 0;   // Whether to include the exponential form factor
         double _cutoff = 0.;      // "t-slope" parameter in the FF
         double form_factor();
-
-        // Whether to switch to using the feynman rules
-        bool _useCovariant = false; 
-        void check_covariant(reaction_kinematics * kinem)
-        {
-            // std::array<int,2> bjp = kinem->get_baryon_JP();
-            // (bjp[0] == 3)  ? (_useCovariant = true) : (_useCovariant = false);
-        };
 
         // Analytic residues
         std::complex<double> top_residue();

@@ -33,7 +33,7 @@ namespace jpacPhoto
         // Constructor for fixed spin
         vector_exchange(reaction_kinematics * xkinem, double mass, std::string id = "vector_exchange")
         : amplitude(xkinem, "vector_exchange", id),
-          _mEx2(mass*mass), _ifReggeized(false)
+          _mEx2(mass*mass)
         {
             set_nParams(3);
             check_JP(xkinem);
@@ -46,10 +46,11 @@ namespace jpacPhoto
         // Constructor for the reggized)
         vector_exchange(reaction_kinematics * xkinem, linear_trajectory * traj, std::string id = "vector_exchange")
         : amplitude(xkinem, "vector_exchange", id),
-          _alpha(traj), _ifReggeized(true)
+          _alpha(traj)
         {
             set_nParams(3);
             check_JP(xkinem);
+            this->_reggeized = true;
         };
 
         // Setting utility
@@ -88,7 +89,7 @@ namespace jpacPhoto
         // axial vector and scalar kinematics allowed
         inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
-            if (!_ifReggeized)
+            if (!_reggeized)
             {
                 return { {1, +1}, {1, -1}, {0, +1}, {0, -1} };
             }
@@ -102,17 +103,7 @@ namespace jpacPhoto
             return { {1, +1} };
         }; 
 
-        inline void use_covariant(bool x){ if (!_ifReggeized) _useCovariant = x; };
-
         private:
-
-        // if using reggeized propagator
-        bool _ifReggeized;
-        // or the regge trajectory of the exchange
-        linear_trajectory * _alpha;
-
-        // Whether using analytic or covariant expression
-        bool _useCovariant = false;
 
         // Form factor parameters
         int _useFormFactor = 0;
@@ -148,6 +139,9 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Analytic evaluation
+        
+        // if using reggeized propagator
+        linear_trajectory * _alpha;  // regge trajectory of the exchange
 
         // Net helicities
         int _lam, _lamp, _M;

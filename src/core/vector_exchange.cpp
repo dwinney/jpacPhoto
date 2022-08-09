@@ -16,7 +16,7 @@ std::complex<double> jpacPhoto::vector_exchange::helicity_amplitude(std::array<i
 
     // Output
     std::complex<double> result;
-    if (_useCovariant == true) result = covariant_amplitude();
+    if (_useCovariant && !_reggeized) result = covariant_amplitude();
     else result = analytic_amplitude();
 
     // add form factor if wanted
@@ -59,7 +59,7 @@ std::complex<double> jpacPhoto::vector_exchange::analytic_amplitude()
     result *= bottom_residue();
 
     // Pole with d function residue if fixed spin
-    if (_ifReggeized == false)
+    if (!_reggeized)
     {
         result *= wigner_d_int_cos(1, _lam, _lamp, _zt);
         result /= _t - _mEx2;

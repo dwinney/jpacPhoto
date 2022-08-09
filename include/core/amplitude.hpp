@@ -73,6 +73,9 @@ namespace jpacPhoto
         // Integer flag each amplitude carries for debugging options 
         inline void set_debug(int d){ _debug = d; };
 
+        // Force amplitude to evaluate using s-channel covariants if possible
+        inline void force_covariant(bool x){ _useCovariant = x; };
+
         // ---------------------------------------------------------------------------
         // Observables
         // Evaluatable in terms of s and t or an event object (see reaction_kinematics.hpp)
@@ -191,6 +194,12 @@ namespace jpacPhoto
         // Number of parameters this amplitude takes in 
         int _nParams = 0;
 
+        // Flag to force amplitude to use covariant evaluation
+        bool _useCovariant = false;
+
+        // Flag to let amplitude know if it's a reggeized amplitude or not
+        bool _reggeized = false;
+
         // ---------------------------------------------------------------------------
         // Each amplitude may save these values to avoid having to pass them as arguments
         // at each amplitude evaluation step
@@ -226,7 +235,8 @@ namespace jpacPhoto
         // If helicity amplitudes have already been generated for a value of mV, s, t 
         // store them
         double _cache_tolerance = 1.E-4;
-        double _cached_mX = 0., _cached_s = 0., _cached_t = 0.;
+        double _cached_mX = 0., _cached_mR = 0.;
+        double _cached_s = 0., _cached_t = 0.;
         std::vector<std::complex<double>> _cached_helicity_amplitude;
     };
 };
