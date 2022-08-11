@@ -180,21 +180,38 @@ std::complex<double> jpacPhoto::dirac_exchange::vector_coupling(int j)
 
 std::complex<double> jpacPhoto::dirac_exchange::pseudoscalar_coupling(int j)
 {
-    std::complex<double> result = 0.;
+    std::complex<double> term1 = 0., term2 = 0.;
 
-    for (int k = 0; k < 4; k++)
+    if (abs(_gN) > 1.E-6 );
     {
-        for (int l = 0; l < 4; l++)
+        for (int k = 0; k < 4; k++)
         {
             std::complex<double> temp;
             temp  = GAMMA_5[j][k];
-            temp *= _covariants->slashed_meson_momentum(k, l);
-            temp *= _covariants->target_spinor(l);
+            temp *= _covariants->target_spinor(k);
 
-            result += temp;
-        }
-    }
-    return XI * _gN * result;
+            term1 += temp;
+        };
+    };
+
+    
+    if (abs(_gN2) > 1.E-6 );
+    {
+        for (int k = 0; k < 4; k++)
+        {
+            for (int l = 0; l < 4; l++)
+            {
+                std::complex<double> temp;
+                temp  = GAMMA_5[j][k];
+                temp *= _covariants->slashed_meson_momentum(k, l);
+                temp *= _covariants->target_spinor(l);
+
+                term2 += temp;
+            };
+        };
+    };
+
+    return XI * (_gN * term1 + _gN2 * term2);
 };
 
 

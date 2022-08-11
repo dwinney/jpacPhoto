@@ -27,7 +27,7 @@ void compare_PcsK()
     kPcsK1.set_baryon_JP(1, -1);
 
     dirac_exchange LamEx1(&kPcsK1, M_LAMBDA, "#Lambda exchange");
-    LamEx1.set_params({g1, gNucleon});
+    LamEx1.set_params({g1, 0., gNucleon});
     LamEx1.set_formfactor(3, cutoff);
 
     //Spin-3/2
@@ -36,7 +36,7 @@ void compare_PcsK()
     kPcsK3.set_baryon_JP(3, -1);
 
     dirac_exchange LamEx3(&kPcsK3, M_LAMBDA, "#Lambda exchange");
-    LamEx3.set_params({g3, gNucleon});
+    LamEx3.set_params({g3, 0., gNucleon});
     LamEx3.set_formfactor(3, cutoff);
 
     // // ---------------------------------------------------------------------------

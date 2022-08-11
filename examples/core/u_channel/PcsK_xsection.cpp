@@ -28,7 +28,7 @@ void PcsK_xsection()
     kspinhalf.set_baryon_JP(1, -1);
 
     dirac_exchange spinhalf(&kspinhalf, M_LAMBDA, "Spin-1/2");
-    spinhalf.set_params({g1, gNucleon});
+    spinhalf.set_params({g1, 0., gNucleon});
     spinhalf.set_formfactor(3, cutoff);
 
     // Spin three-halves
@@ -37,7 +37,7 @@ void PcsK_xsection()
     kspinthreehalf.set_baryon_JP(3, -1);
 
     dirac_exchange spinthreehalf(&kspinthreehalf, M_LAMBDA, "Spin-3/2");
-    spinthreehalf.set_params({g3, gNucleon});
+    spinthreehalf.set_params({g3, 0., gNucleon});
     spinthreehalf.set_formfactor(3, cutoff);
 
     // // ---------------------------------------------------------------------------

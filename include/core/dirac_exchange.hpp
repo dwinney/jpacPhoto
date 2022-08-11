@@ -27,7 +27,9 @@ namespace jpacPhoto
         : amplitude(xkinem, "dirac_exchange", name),
             _mEx(mass), _mEx2(mass*mass)
         {
-            set_nParams(2);
+            if (xkinem->get_meson_JP()[0] == 0)  set_nParams(3);
+            else set_nParams(2);
+
             check_JP(xkinem);
         };
 
@@ -35,8 +37,11 @@ namespace jpacPhoto
         void set_params(std::vector<double> params)
         {
             check_nParams(params);
-            _gG = params[0];
-            _gN = params[1];
+            _gG  = params[0];
+            _gN  = params[1];
+
+            // Scalar particles get extra parameter
+            if (_kinematics->get_meson_JP()[0] == 0) _gN2 = params[2];
         };
 
         // Whether or not to include an form factor (default false)
@@ -75,7 +80,7 @@ namespace jpacPhoto
         double form_factor();
 
         // couplings
-        double _gG, _gN;
+        double _gG, _gN, _gN2;
 
         // We only have the covariant amplitude evaulation here
         std::complex<double> covariant_amplitude();
