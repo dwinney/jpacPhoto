@@ -101,7 +101,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::top_residue()
     switch (jp)
     {
         case (11): result = 1./_mX; break;
-        case (10): result = -1.; break;
+        case (10): result = _kinematics->is_photon() * -4. + !_kinematics->is_photon() * -1.; break;
         case ( 0): result = _kinematics->is_photon() * 2.*XI/_mB; break;
         default: return 0.;
     };
@@ -293,9 +293,10 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
                     std::complex<double> temp;
                     temp = - levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < 0.001) continue;
+
                     temp *= _covariants->meson_polarization(mu);
                     temp *= _covariants->beam_field_tensor(alpha, beta);
-                    temp *= _covariants->meson_momentum(gamma);
+                    temp *= _covariants->meson_momentum(gamma) - _covariants->t_momentum(gamma);
 
                     result += temp;
                 }
