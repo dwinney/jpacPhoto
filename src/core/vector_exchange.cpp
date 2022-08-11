@@ -86,7 +86,7 @@ std::complex<double> jpacPhoto::vector_exchange::top_residue()
     {
         case 11: return axialvector_residue();
         case 10: return vector_residue();
-        case  1: return pseudoscalar_residue();
+        case  0: return pseudoscalar_residue();
         default: return 0.;
     };
 };
@@ -292,9 +292,10 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
             {
                 std::complex<double> temp = XI;
 
-                temp *= levi_civita(mu, alpha, beta, gamma);
+                temp  = levi_civita(mu, alpha, beta, gamma);
                 if (std::abs(temp) < EPS) continue;
 
+                temp *= METRIC[mu];
                 temp *= _covariants->meson_momentum(alpha);
                 temp *= _covariants->beam_polarization(beta);
                 temp *= _covariants->t_momentum(gamma);
