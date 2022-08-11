@@ -94,7 +94,7 @@ std::complex<double> jpacPhoto::dirac_exchange::halfplus_coupling(int i)
         std::complex<double> temp;
 
         temp  = _covariants->recoil_spinor(k);
-        temp *= _covariants->slashed_beam_momentum(k, i);
+        temp *= _covariants->slashed_beam_polarization(k, i);
 
         result += temp;
     }
