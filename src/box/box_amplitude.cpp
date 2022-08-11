@@ -14,7 +14,7 @@ std::complex<double> jpacPhoto::box_amplitude::helicity_amplitude(std::array<int
     // Store the invariant energies to avoid having to pass them around 
     _s = s; _t = t, _theta = _kinematics->theta_s(s, t);
 
-    // Pass external values to the discontinuity
+    // // Pass external values to the discontinuity
     _disc->set_externals(helicities, _theta);
 
     double sub =  _disc->eval(s);
@@ -24,8 +24,8 @@ std::complex<double> jpacPhoto::box_amplitude::helicity_amplitude(std::array<int
         return result;
     };
 
-    std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, _disc->_threshold + EPS, _s_cut, 0, 1.E-6, NULL);
-    std::complex<double> logpiece = sub * (log(_s_cut - s - IEPS) - log(_disc->_threshold + EPS - s - IEPS));
+    std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, _kinematics->sth() + EPS, _s_cut, 0, 1.E-6, NULL);
+    std::complex<double> logpiece = sub * (log(_s_cut - s - IEPS) - log(_kinematics->sth() + EPS - s - IEPS));
     std::complex<double> result =  (intpiece + logpiece) / M_PI;
 
     return result;
@@ -41,7 +41,7 @@ double jpacPhoto::box_amplitude::integrated_xsection(double s)
         double result = differential_xsection(s, t);
         if (_debug == 1)
         {
-            debug(i, t, result);
+            // debug(i, t, result);
             i++;
         }
 

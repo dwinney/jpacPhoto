@@ -1,13 +1,22 @@
 // Discontinuity across unitarity cut for vector production via a one-loop box diagram
 // Used as a container class in integration processes
+//
+// We consider the OVERALL process: B T -> X R (Beam + Target -> Meson + Recoil)
+// through an intermediate state:   Xp Rp 
+// 
+// The "left"  amplitude corresponds to B T -> Xp Rp 
+// the "right" amplitude corresponds to X R -> Xp Rp 
+//
+// By default this will try to calculate the intermediate phase-space integration by brute force
+// This can be overrided by a derived class to have other behavior
 // 
 // Author:       Daniel Winney (2021)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef _BOX_DISC_
-#define _BOX_DISC_
+#ifndef BOX_DISC
+#define BOX_DISC
 
 #include "constants.hpp"
 #include "amplitude.hpp"
@@ -19,80 +28,84 @@ namespace jpacPhoto
 {
     class box_discontinuity
     {
-        public: 
-        box_discontinuity(double threshold)
-        : _threshold(threshold)
-        {};
+        // -------------------------------------------------------------------
+        public:
 
-        box_discontinuity(amplitude * left, amplitude * right)
-        : _initialAmp(left), _finalAmp(right)
+        // Constructor requires a kinematics object for the OVERALL process
+        // Then two amplitudes for the left and right subprocesses
+        box_discontinuity(reaction_kinematics * xkinem, amplitude * left, amplitude * right)
+        : _kinematics(xkinem), _left_amp(left), _right_amp(right)
         {
-            _threshold = left->_kinematics->sth();
-
-            // Make sure the left and right amplitudes match!
-            // Check the spins of the intermediate state
-            _jp_left  = left->_kinematics->get_meson_JP();
-            _jp_right = right->_kinematics->get_meson_JP();
-
-            if (_jp_left != _jp_right) 
-            {
-                std::cout << std::left;
-                std::cout << std::setw(40) << "box_amplitude: Intermediate state between sub-amplitudes dont match!" << std::endl;
-                std::cout << std::setw(20) << _initialAmp->get_id() << ": \t (" << _jp_left[0]  << ", " << _jp_left[1]  << ")\n";
-                std::cout << std::setw(20) << _finalAmp->get_id()   << ": \t (" << _jp_right[0] << ", " << _jp_right[1] << ")\n";
-                std::cout << "Returning 0!" << std::endl;
-
-                _matchError = true;
-            };
-
-            // But also masses
-            if ((std::abs(left->_kinematics->get_meson_mass() - right->_kinematics->get_meson_mass()) > 1.E-4) 
-             || (std::abs(left->_kinematics->get_recoil_mass() - right->_kinematics->get_recoil_mass()) > 1.E-4))
-            {
-                _matchError = true;
-            };
-            
-            // IF they match, get the spin and therefor helicities of the intermediate meson
-            _intermediate_helicities = get_helicities(_jp_left[0], _initialAmp->_kinematics->get_baryon_JP()[0]);
+            compatibility_check(xkinem, left, right);
         };
 
         // Evaluate the discontinuity integrated over intermediate phase space
+        // This is virtual and can be overridden
+        // Default behavior is to try doing the double integral over the intermediate phasepace
+        // and sum over intermediate helicities numerically
         virtual double eval(double s);
 
-        // Pass values that come from the external gamma p -> V p reaction
+        // Save the scattering angle and helicities from the parent process
         inline void set_externals(std::array<int,4> helicities, double theta)
         {
-            _external_theta = theta; 
+            _external_theta      = theta; 
             _external_helicities = helicities;
         };
 
-        double _threshold; 
+        // -------------------------------------------------------------------
+        protected:
 
-        private:
-        double _external_theta;
-        std::array<int,4> _external_helicities;
+        // All kinematic quantities of the overall scattering process
+        reaction_kinematics * _kinematics;
 
-        // Individual tree amplitudes
-        amplitude * _initialAmp;
-        amplitude * _finalAmp;
+        // The sub-process amplitudes
+        amplitude * _left_amp;
+        amplitude * _right_amp;
 
-        std::array<int,2> _jp_left, _jp_right;
-        std::vector< std::array<int,4> > _intermediate_helicities;
-        bool _matchError = false;
+        // Need to be able to know the kinematic variables of the external process 
+        double             _external_theta;
+        std::array<int,4>  _external_helicities; 
+
+        // Save an array of the helicities for easier indexing sums later
+        std::vector<std::array<int,4>> _intermediate_helicities;
+
+        // Two-body phase-space
+        inline double phase_space(double s)
+        {
+            if (s < _left_amp->_kinematics->sth()) return 0.;
+            return _left_amp->_kinematics->final_momentum(s) / (8. * PI * sqrt(s));
+        };
+
+        // At initialization, check that the left and right amplitudes are kinematically compatible
+        void compatibility_check(reaction_kinematics * kinem, amplitude * left, amplitude * right);
+        void qn_error(amplitude * left, amplitude * right);
+        void mass_error(reaction_kinematics * kinem, amplitude * left, amplitude * right);
+        bool _match_error = false;
     };
 
-    class test_disc : public box_discontinuity
+    // ---------------------------------------------------------------------------
+    // Testing discontinuity given by helicity conservation and purely (S-wave) phase-space
+    class flat_discontinuity : public box_discontinuity
     {
-        public: 
-
-        test_disc(double w)
-        : box_discontinuity(w*w)
+        public:
+        // Do not require any amplitudes
+        flat_discontinuity(reaction_kinematics * xkinem, amplitude * left, amplitude * right)
+        : box_discontinuity(xkinem, left, right)
         {};
 
         inline double eval(double s)
         {
-            if (s < _threshold) return 0.;
-            return sqrt(s - _threshold);
+            // if below threshold return 0
+            if (s < _kinematics->sth()) return 0.;
+            
+            // make sure the external helicites get passed correctly
+            int lam_gam = _external_helicities[0];
+            int lam_tar = _external_helicities[1];
+            int lam_vec = _external_helicities[2];
+            int lam_rec = _external_helicities[3];
+
+            if (lam_gam != lam_vec || lam_rec != lam_tar) return 0.;
+            return phase_space(s);
         };
     };
 };
