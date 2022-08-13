@@ -7,6 +7,8 @@ ROOT_GENERATE_DICTIONARY(G__jpacBox
         LINKDEF jpacBoxLinkDef.h
         )
 
+include_directories(${Boost_INCLUDE_DIRS})
+
 add_library(jpacBox SHARED ${SRC} G__jpacBox.cxx)
 target_link_libraries( jpacBox ROOT::Core ROOT::MathMore )
 target_link_libraries( jpacBox jpacPhoto )
