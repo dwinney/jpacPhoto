@@ -283,29 +283,54 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
 {  
     std::complex<double> result = 0.;
 
-    // Contract with LeviCivita
-    for (int alpha = 0; alpha < 4; alpha++)
+    if (_kinematics->is_photon())
     {
-        for (int beta = 0; beta < 4; beta++)
+        // Contract with LeviCivita
+        for (int alpha = 0; alpha < 4; alpha++)
         {
-            for (int gamma = 0; gamma < 4; gamma++)
+            for (int beta = 0; beta < 4; beta++)
             {
-                std::complex<double> temp = XI;
+                for (int gamma = 0; gamma < 4; gamma++)
+                {
+                    std::complex<double> temp = XI;
 
-                temp  = levi_civita(mu, alpha, beta, gamma);
-                if (std::abs(temp) < EPS) continue;
+                    temp  = levi_civita(mu, alpha, beta, gamma);
+                    if (std::abs(temp) < EPS) continue;
 
-                temp *= METRIC[mu];
-                temp *= _covariants->meson_momentum(alpha);
-                temp *= _covariants->beam_polarization(beta);
-                temp *= _covariants->t_momentum(gamma);
+                    temp *= METRIC[mu];
+                    temp *= _covariants->beam_field_tensor(alpha, beta);
+                    temp *= _covariants->meson_momentum(gamma) - _covariants->t_momentum(gamma);
 
-                result += temp;
+                    result += temp;
+                }
+            }
+        }
+    }
+    else 
+    {
+        // Contract with LeviCivita
+        for (int alpha = 0; alpha < 4; alpha++)
+        {
+            for (int beta = 0; beta < 4; beta++)
+            {
+                for (int gamma = 0; gamma < 4; gamma++)
+                {
+                    std::complex<double> temp = XI;
+
+                    temp  = levi_civita(mu, alpha, beta, gamma);
+                    if (std::abs(temp) < EPS) continue;
+
+                    temp *= METRIC[mu];
+                    temp *= _covariants->meson_momentum(alpha);
+                    temp *= _covariants->beam_polarization(beta);
+                    temp *= _covariants->t_momentum(gamma);
+
+                    result += temp;
+                }
             }
         }
     }
 
-    if (_kinematics->is_photon()) result *= - 4.;
     return _gGam * result;
 };
 
@@ -387,7 +412,7 @@ std::complex<double> jpacPhoto::vector_exchange::vector_propagator(int mu, int n
 {
     // q_mu q_nu / t - g_mu nu
     std::complex<double> result;
-    result = _covariants->t_momentum(mu) * _covariants->t_momentum(nu) / _t;
+    result = _covariants->t_momentum(mu) * _covariants->t_momentum(nu) / _mEx2;
 
     if (mu == nu)
     {

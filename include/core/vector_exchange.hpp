@@ -41,6 +41,9 @@ namespace jpacPhoto
             // Analytical residues not available for scalar quantum numbers yet
             std::array<int,2> jp = xkinem->get_meson_JP();
             if ( jp[0] == 0 && jp[0] == +1 ) _useCovariant = true;
+
+            // If massive beam use covariant to avoid 1/t instabilities
+            if (!xkinem->is_photon())        _useCovariant = true;
         };
 
         // Constructor for the reggized)
