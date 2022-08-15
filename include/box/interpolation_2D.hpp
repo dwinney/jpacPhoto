@@ -59,7 +59,7 @@ namespace jpacPhoto
         };
 
         // Take in a function and generate a grid of points based in set grid parameters
-        void generate_grid(std::function<double(double, double)> f);
+        void generate_grid(std::function<double(double, double)> f, bool skip_interp = false);
 
         // Output the function at a given value
         double eval(double x, double y);
@@ -90,6 +90,7 @@ namespace jpacPhoto
         
         // 1D interpolations of f as function of y at fixed x
         void set_up_slices();
+        bool _slices_made = false;
         std::vector<ROOT::Math::Interpolator*> _y_slices;
     };
 };

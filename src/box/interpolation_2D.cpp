@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 // Take in a function of signature double(double, double) and generate grid of points
 // based on saved grid parameters
-void jpacPhoto::interpolation_2D::generate_grid(std::function<double(double, double)> f)
+void jpacPhoto::interpolation_2D::generate_grid(std::function<double(double, double)> f, bool skip_interp)
 {
     // Make sure we're starting with clean slate
     clear_grid();
@@ -19,7 +19,7 @@ void jpacPhoto::interpolation_2D::generate_grid(std::function<double(double, dou
         std::cout << "interpolation_2D: Error! Grid limits not set, generate_grid() returning without change!" << std::endl;
         return;
     };
-
+    
     // Sum over the x variable
     for (int i=0; i < _xN; i++)
     {
@@ -42,12 +42,23 @@ void jpacPhoto::interpolation_2D::generate_grid(std::function<double(double, dou
         _f_values.push_back(f_i);
     }
 
-    // In addition to saving the actual grid points, at each fixed x_i we interpolate across y values
+    if (!skip_interp) set_up_slices();
+};
+
+void jpacPhoto::interpolation_2D::set_up_slices()
+{
+    if ( _y_slices.size() != 0 )
+    {
+        for (int i = 0; i < _y_slices.size(); i++) delete _y_slices[i];
+        _y_slices.clear();
+    }
+
     for (int i=0; i < _xN; i++)
     {
         _y_slices.push_back(new ROOT::Math::Interpolator(_y_values[i], _f_values[i], ROOT::Math::Interpolation::kCSPLINE));
     };
-};
+    _slices_made = true;
+}
 
 // ---------------------------------------------------------------------------
 // Evaluate the interpolation at given x and y
@@ -84,7 +95,7 @@ double jpacPhoto::interpolation_2D::eval(double x, double y)
 // Can be useful to export grid to a file 
 void jpacPhoto::interpolation_2D::export_grid(std::string filename)
 {
-    if (_x_values.size() == 0 || _y_slices.size() == 0)
+    if (_x_values.size() == 0 || _y_values.size() == 0 || _f_values.size() == 0)
     {
         std::cout << "interpolation_2D: No grid is stored! export_grid() returning  without change!" << std::endl;
         return;
@@ -118,7 +129,7 @@ void jpacPhoto::interpolation_2D::export_grid(std::string filename)
     output.close();
 
     // Command-line messages
-    if (_verbose) std::cout << "interpolation_2D: grid exported to: " << filename << std::endl;
+    if (_verbose) std::cout << "interpolation_2D: grid exported to " << filename << std::endl;
 };
 
 // ---------------------------------------------------------------------------
