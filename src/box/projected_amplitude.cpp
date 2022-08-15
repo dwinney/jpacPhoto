@@ -30,11 +30,11 @@ std::complex<double> jpacPhoto::projected_amplitude::helicity_amplitude(std::arr
     std::complex<double> pwa;
     if ( hel_id < n_amps / 2 )
     {
-        pwa = _projections[hel_id]->helicity_partial_wave(s);
+        pwa = _projections[hel_id]->eval(s);
     }
     else 
     {
-        pwa = parity_phase(helicities) * _projections[hel_id - n_amps/2]->helicity_partial_wave(s);
+        pwa = parity_phase(helicities) * _projections[hel_id - n_amps/2]->eval(s);
     }
 
     // Net helicities
@@ -62,6 +62,6 @@ void jpacPhoto::projected_amplitude::initialize_amplitudes()
     for (int i = 0; i < _kinematics->num_amps() / 2; i++)
     {
         std::array<int,4> helicities = _kinematics->helicities(i);
-        _projections.push_back( new helicity_pwa(_amplitude, _J, helicities) );
+        _projections.push_back( new helicity_PWA(_amplitude, _J, helicities) );
     };
 };

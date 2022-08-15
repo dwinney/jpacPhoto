@@ -20,7 +20,7 @@
 
 namespace jpacPhoto
 {
-    class helicity_pwa
+    class helicity_PWA
     {
         // ---------------------------------------------------------------------------
         public: 
@@ -28,30 +28,43 @@ namespace jpacPhoto
         // Constructor
         // Needs pointer to an amplitude object which we will take projections of
         // Also the spins and helicities
-        helicity_pwa(amplitude * amp, int J, std::array<int,4> helicities)
+        helicity_PWA(amplitude * amp)
+        : _amplitude(amp), _kinematics(amp->_kinematics), 
+          _J(0), _helicities(amp->_kinematics->helicities(0))
+        {};
+
+        helicity_PWA(amplitude * amp, int J, std::array<int,4> helicities)
         : _amplitude(amp), _kinematics(amp->_kinematics), 
           _J(J), _helicities(helicities)
         {};
 
         // Destructor should clean up interpolation if that was initiated
-        ~helicity_pwa()
+        ~helicity_PWA()
         {
             if (_interpSaved) delete _interp;
         };
 
         // Output the helicity parial wave projection onto the s-channel with total spin j/2
-        double helicity_partial_wave(double s);
+        double eval(double s);
 
         // Update and output the helicity PWA from saved interpolation
         void   update_interpolation();
         double interpolation(double s);
+        inline void set_interpolation_cutoff(double s){ _smax = s; update_interpolation(); };
+        inline void clear_interpolation()
+        {
+            if (_interpSaved) delete _interp;
+            _x.clear(); _fx.clear();
+        };
 
         // Access private members
         inline int get_J(){ return _J; };
         inline std::array<int, 4> get_helicities(){ return _helicities; };
 
-        // Set the interval of interpolation
-        inline void set_interpolation_cutoff(double s){ _smax = s; update_interpolation(); };
+        // Change J or helicity set after intitialization
+        inline void set_helicities(std::array<int,4> hel){ _helicities = hel; clear_interpolation();};
+        inline void set_J(int j){ _J = j; clear_interpolation(); };
+
 
         // ---------------------------------------------------------------------------
         private: 

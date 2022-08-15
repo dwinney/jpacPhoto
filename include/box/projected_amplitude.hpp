@@ -11,7 +11,7 @@
 #ifndef PARTIAL_WAVE
 #define PARTIAL_WAVE
 
-#include "helicity_pwa.hpp"
+#include "helicity_PWA.hpp"
 
 namespace jpacPhoto
 {
@@ -70,7 +70,7 @@ namespace jpacPhoto
         void initialize_amplitudes();
 
         // Vector containing all the independent helicity projection combinations
-        std::vector<helicity_pwa*> _projections;
+        std::vector<helicity_PWA*> _projections;
     };
 };
 

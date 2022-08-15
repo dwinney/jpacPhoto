@@ -6,14 +6,14 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "helicity_pwa.hpp"
+#include "helicity_PWA.hpp"
 
 // ---------------------------------------------------------------------------
 // Partial-wave projection on the s-channel
 
 // Output the helicity parial wave projection onto the s-channel with total spin j/2
 // Assume the resulting partial-wave amlitude is real 
-double jpacPhoto::helicity_pwa::helicity_partial_wave(double s)
+double jpacPhoto::helicity_PWA::eval(double s)
 {
     if (s < _kinematics->sth()) return 0.;
 
@@ -52,16 +52,16 @@ double jpacPhoto::helicity_pwa::helicity_partial_wave(double s)
 
 // ---------------------------------------------------------------------------
 // Output the helicity parial wave projection based on the saved interpolation
-double jpacPhoto::helicity_pwa::interpolation(double s)
+double jpacPhoto::helicity_PWA::interpolation(double s)
 {
-    if ( _smax == -1 ) std::cout << "helicity_pwa interpolation interval not set! Returning 0." << std::endl;
+    if ( _smax == -1 ) std::cout << "helicity_PWA interpolation interval not set! Returning 0." << std::endl;
     if ( s < _smin || s > _smax ) return 0;
     if (!_interpSaved) update_interpolation();
     return _interp->Eval(s);
 };
 
 // Update the inteprolation thats saved
-void jpacPhoto::helicity_pwa::update_interpolation()
+void jpacPhoto::helicity_PWA::update_interpolation()
 {
     // Clear any existing interpolation
     if ( _interpSaved ) 
@@ -74,7 +74,7 @@ void jpacPhoto::helicity_pwa::update_interpolation()
     for (int i = 0; i < _Ninterp; i++)
     {
         double x  = _smin + (_smax - _smin) * double(i) / double(_Ninterp - 1);
-        double fx = helicity_partial_wave(x);
+        double fx = eval(x);
 
         _x.push_back(x); _fx.push_back(fx);
     };  
