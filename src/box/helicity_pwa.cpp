@@ -37,14 +37,13 @@ double jpacPhoto::helicity_pwa::helicity_partial_wave(double s)
         double t = _kinematics->t_man(s, theta);
 
         double integrand;
-        integrand  = double(_J + 1);
-        integrand *= sin(theta);
+        integrand  = sin(theta);
         integrand *= wigner_d_half(_J, lam, lamp, theta);
-        integrand *= std::real(_amplitude->helicity_amplitude(_helicities, s, t));
+        integrand *= std::imag(_amplitude->helicity_amplitude(_helicities, s, t));
         return integrand;
     };
     
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 

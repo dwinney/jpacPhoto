@@ -43,7 +43,7 @@ std::complex<double> jpacPhoto::projected_amplitude::helicity_amplitude(std::arr
 
     double theta = _kinematics->theta_s(s, t);
 
-    return wigner_d_half(_J, lam, lamp, theta) * pwa;
+    return double(_J + 1) * wigner_d_half(_J, lam, lamp, theta) * pwa;
 };
 
 // ---------------------------------------------------------------------------
