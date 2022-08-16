@@ -45,7 +45,7 @@ void gamp_dlam()
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -4.3});
+    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -4.3, 0.});
     d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
     d_lamcEx.force_covariant(true);
 
