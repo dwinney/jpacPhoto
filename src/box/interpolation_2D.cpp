@@ -78,7 +78,7 @@ double jpacPhoto::interpolation_2D::eval(double x, double y)
 
     // Set up vector of values from the stored slices at fixed y 
     std::vector<double> fy_values;
-    for (int i = 0; i < _yN; i++)
+    for (int i = 0; i < _xN; i++)
     {
         double fy = _y_slices[i]->Eval(y);
         fy_values.push_back(fy);
@@ -145,6 +145,11 @@ void jpacPhoto::interpolation_2D::import_grid(std::string filename)
         return;
     }
 
+    if (_verbose) std::cout << "interpolation_2D: importing grid from " << filename << std::endl;
+    
+    // On new import delete all saved data
+    clear_grid();
+
     // Read first line which will give us grid parameters
     data >> _xmin >> _xmax >> _xN >> _ymin >> _ymax >> _yN; 
 
@@ -170,7 +175,8 @@ void jpacPhoto::interpolation_2D::import_grid(std::string filename)
 
         if ( ys.size( )!= _yN || fs.size() != _yN ) 
         {
-            std::cout << "interpolation_2D: Error! Imported data doesnt match expected size (Expected " << _yN << " but got " << ys.size() << ")... Returning without change." << std::endl;
+            std::cout << "interpolation_2D: Error! Imported data doesnt match expected size (Expected " << _yN << " but got " << ys.size() << ")...\n";
+            std::cout << "Returning without change." << std::endl;
             return;
         }
 
@@ -180,7 +186,8 @@ void jpacPhoto::interpolation_2D::import_grid(std::string filename)
 
     if ( _y_values.size()!= _xN || _f_values.size() != _xN ) 
     {
-        std::cout << "interpolation_2D: Error! Imported data doesnt match expected size (Expected " << _xN << " but got " << _y_values.size() << ")... Returning without change." << std::endl;
+        std::cout << "interpolation_2D: Error! Imported data doesnt match expected size (Expected " << _xN << " but got " << _y_values.size() << ")...\n";
+        std::cout << "Returning without change." << std::endl;
         return;
     }
 

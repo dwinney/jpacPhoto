@@ -26,7 +26,8 @@ namespace jpacPhoto
         public: 
 
         // Constructor
-        interpolation_2D()
+        interpolation_2D(bool verbose = false)
+        : _verbose(verbose)
         {};
 
         ~interpolation_2D()
@@ -69,6 +70,9 @@ namespace jpacPhoto
 
         // or import a grid from a file
         void import_grid(std::string filename);
+
+        // Access function value saved at a given index location of the grid
+        double get_data_point(int i, int j){ return _f_values[i][j]; };
 
         // Whether to show messages like file locations etc
         void set_verbose(bool x){ _verbose = x; };
