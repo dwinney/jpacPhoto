@@ -295,6 +295,10 @@ namespace jpacPhoto
 
             return double(eta);
         };
+        inline double parity_phase(int i, helicity_channel channel)
+        {
+            return parity_phase(_helicities[i], channel);
+        };
 
         inline double H_to_GJ_angle(double s, double t)
         {
