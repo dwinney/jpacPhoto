@@ -219,7 +219,7 @@ std::complex<double> jpacPhoto::dirac_exchange::pseudoscalar_coupling(int j)
 std::complex<double> jpacPhoto::dirac_exchange::dirac_propagator(int i, int j)
 {
     std::complex<double> result;
-    result  = _covariants->slashed_u_momentum(i, j) + std::complex<double>(i == j) * _mEx;
+    result  = _covariants->slashed_u_momentum(i, j) - std::complex<double>(i == j) * _mEx;
     result /= _u - _mEx2;
     return result;
 };
