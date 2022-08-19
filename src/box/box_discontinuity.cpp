@@ -10,7 +10,7 @@
 
 // ---------------------------------------------------------------------------
 // Evaluate the product of sub-amplitudes integrating over intermediate phase-space
-double jpacPhoto::box_discontinuity::eval(double s)
+double jpacPhoto::brute_force_discontinuity::eval(double s)
 {
     // if below threshold return 0
     if (s < _kinematics->sth()) return 0.;
@@ -73,7 +73,7 @@ double jpacPhoto::box_discontinuity::eval(double s)
 
 // ---------------------------------------------------------------------------
 // Check the two amplitudes given are compatible with each other and with the desired overall process
-void jpacPhoto::box_discontinuity::compatibility_check(reaction_kinematics * kinem, amplitude * left, amplitude * right)
+void jpacPhoto::brute_force_discontinuity::compatibility_check(reaction_kinematics * kinem, amplitude * left, amplitude * right)
 {
     // Grab all the quantum numbers for all three processes
     std::array<int,2> mjp_left  = left->_kinematics->get_meson_JP(),  bjp_left  = left->_kinematics->get_baryon_JP(); 
@@ -108,7 +108,7 @@ void jpacPhoto::box_discontinuity::compatibility_check(reaction_kinematics * kin
     if (!_match_error) _intermediate_helicities = get_helicities(mjp_left[0], bjp_left[0]);
 };
 
-void jpacPhoto::box_discontinuity::qn_error(amplitude * left, amplitude * right)
+void jpacPhoto::brute_force_discontinuity::qn_error(amplitude * left, amplitude * right)
 {
     // Grab all the quantum numbers for all three processes
     std::array<int,2> mjp_left  = left->_kinematics->get_meson_JP(),  bjp_left  = left->_kinematics->get_baryon_JP(); 
@@ -125,7 +125,7 @@ void jpacPhoto::box_discontinuity::qn_error(amplitude * left, amplitude * right)
     _match_error = true;
 };
 
-void jpacPhoto::box_discontinuity::mass_error(reaction_kinematics * kinem, amplitude * left, amplitude * right)
+void jpacPhoto::brute_force_discontinuity::mass_error(reaction_kinematics * kinem, amplitude * left, amplitude * right)
 {
     // Now we should check all the masses involved
     double mX, mR, mB, mT;

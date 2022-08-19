@@ -1,15 +1,15 @@
 // Discontinuity across unitarity cut for vector production via a one-loop box diagram
 // Used as a container class in integration processes
 //
+// box_discontinuity is abstract to allow different parameterizations
+//
+// brute_force_discontinuity will try to calculate the intermediate phase-space integration numerically
 // We consider the OVERALL process: B T -> X R (Beam + Target -> Meson + Recoil)
 // through an intermediate state:   Xp Rp 
 // 
 // The "left"  amplitude corresponds to B T -> Xp Rp 
 // the "right" amplitude corresponds to X R -> Xp Rp 
 //
-// By default this will try to calculate the intermediate phase-space integration by brute force
-// This can be overrided by a derived class to have other behavior
-// 
 // Author:       Daniel Winney (2021)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
@@ -26,24 +26,19 @@
 
 namespace jpacPhoto
 {
+    // Abstract class for a generic discontinuity
     class box_discontinuity
     {
-        // -------------------------------------------------------------------
-        public:
+        public: 
 
-        // Constructor requires a kinematics object for the OVERALL process
-        // Then two amplitudes for the left and right subprocesses
-        box_discontinuity(reaction_kinematics * xkinem, amplitude * left, amplitude * right)
-        : _kinematics(xkinem), _left_amp(left), _right_amp(right)
-        {
-            compatibility_check(xkinem, left, right);
-        };
+        box_discontinuity(reaction_kinematics * xkinem)
+        : _kinematics(xkinem)
+        {};
 
-        // Evaluate the discontinuity integrated over intermediate phase space
-        // This is virtual and can be overridden
-        // Default behavior is to try doing the double integral over the intermediate phasepace
-        // and sum over intermediate helicities numerically
-        virtual double eval(double s);
+        virtual ~box_discontinuity() = default;
+
+        // Need to specify some way to evaluate at fixed s
+        virtual double eval(double s) = 0;
 
         // Save the scattering angle and helicities from the parent process
         inline void set_externals(std::array<int,4> helicities, double theta)
@@ -52,19 +47,46 @@ namespace jpacPhoto
             _external_helicities = helicities;
         };
 
-        // -------------------------------------------------------------------
+        // Number of parameters needed
+        // By default we require no additional parameters
+        virtual int  get_nParams() { return 0; };
+        virtual void set_params(std::vector<double> params) { return; };
+
         protected:
 
         // All kinematic quantities of the overall scattering process
         reaction_kinematics * _kinematics;
 
-        // The sub-process amplitudes
-        amplitude * _left_amp;
-        amplitude * _right_amp;
-
         // Need to be able to know the kinematic variables of the external process 
         double             _external_theta;
         std::array<int,4>  _external_helicities; 
+    };
+
+    // -------------------------------------------------------------------
+    // Attempt to do calculate the phase-space integral analytically
+
+    class brute_force_discontinuity : public box_discontinuity
+    {
+        public:
+
+        // Constructor requires a kinematics object for the OVERALL process
+        // Then two amplitudes for the left and right subprocesses
+        brute_force_discontinuity(reaction_kinematics * xkinem, amplitude * left, amplitude * right)
+        : box_discontinuity(xkinem), _left_amp(left), _right_amp(right)
+        {
+            compatibility_check(xkinem, left, right);
+        };
+
+        // Try doing the double integral over the intermediate phasepace
+        // and sum over intermediate helicities numerically
+        double eval(double s);
+
+        // -------------------------------------------------------------------
+        protected:
+
+        // The sub-process amplitudes
+        amplitude * _left_amp;
+        amplitude * _right_amp;
 
         // Save an array of the helicities for easier indexing sums later
         std::vector<std::array<int,4>> _intermediate_helicities;
@@ -84,13 +106,14 @@ namespace jpacPhoto
     };
 
     // ---------------------------------------------------------------------------
-    // Testing discontinuity given by helicity conservation and purely (S-wave) phase-space
+    // Testing discontinuity which return a helicity-conserving delta function
+    
     class flat_discontinuity : public box_discontinuity
     {
         public:
         // Do not require any amplitudes
-        flat_discontinuity(reaction_kinematics * xkinem, amplitude * left, amplitude * right)
-        : box_discontinuity(xkinem, left, right)
+        flat_discontinuity(reaction_kinematics * xkinem)
+        : box_discontinuity(xkinem)
         {};
 
         inline double eval(double s)
@@ -105,7 +128,7 @@ namespace jpacPhoto
             int lam_rec = _external_helicities[3];
 
             if (lam_gam != lam_vec || lam_rec != lam_tar) return 0.;
-            return phase_space(s);
+            return 1.;
         };
     };
 };

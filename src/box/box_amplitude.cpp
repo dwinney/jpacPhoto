@@ -31,29 +31,29 @@ std::complex<double> jpacPhoto::box_amplitude::helicity_amplitude(std::array<int
     return result;
 };
 
-// ---------------------------------------------------------------------------
-// Override the usual integrated_xsection to use a gauss-legendre integrator since t behavior is smooth but extremely slow
-double jpacPhoto::box_amplitude::integrated_xsection(double s)
-{
-    int i = 0;
-    auto F = [&](double t)
-    {
-        double result = differential_xsection(s, t);
-        if (_debug == 1)
-        {
-            // debug(i, t, result);
-            i++;
-        }
+// // ---------------------------------------------------------------------------
+// // Override the usual integrated_xsection to use a gauss-legendre integrator since t behavior is smooth but extremely slow
+// double jpacPhoto::box_amplitude::integrated_xsection(double s)
+// {
+//     int i = 0;
+//     auto F = [&](double t)
+//     {
+//         double result = differential_xsection(s, t);
+//         if (_debug == 1)
+//         {
+//             // debug(i, t, result);
+//             i++;
+//         }
 
-        return result;
-    };
+//         return result;
+//     };
 
-    ROOT::Math::GaussLegendreIntegrator ig(10);
-    ROOT::Math::Functor1D wF(F);
-    ig.SetFunction(wF);
+//     ROOT::Math::GaussLegendreIntegrator ig(10);
+//     ROOT::Math::Functor1D wF(F);
+//     ig.SetFunction(wF);
 
-    double t_min = _kinematics->t_man(s, 0.);
-    double t_max = _kinematics->t_man(s, PI);
+//     double t_min = _kinematics->t_man(s, 0.);
+//     double t_max = _kinematics->t_man(s, PI);
 
-    return ig.Integral(t_max, t_min);
-};
+//     return ig.Integral(t_max, t_min);
+// };

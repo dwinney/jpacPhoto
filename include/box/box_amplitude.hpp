@@ -30,13 +30,19 @@ namespace jpacPhoto
         // Need the parent reaction kinematics and pre-set sub-amplitudes
         box_amplitude(reaction_kinematics * xkinem, box_discontinuity * disc, std::string id = "Box Amplitude")
         : amplitude(xkinem, "box_amplitude", id), _disc(disc)
-        {};
+        {
+            set_nParams(1 + _disc->get_nParams());
+            check_JP(xkinem);
+        };
 
         box_amplitude(reaction_kinematics * xkinem, amplitude * left, amplitude * right, std::string id = "Box Amplitude")
         : amplitude(xkinem, "box_amplitude", id)
         {
-            _disc = new box_discontinuity(xkinem, left, right);
+            _disc = new brute_force_discontinuity(xkinem, left, right);
             _needDelete = true;
+
+            set_nParams(1);
+            check_JP(xkinem);
         };
 
         // Destructor
@@ -45,8 +51,22 @@ namespace jpacPhoto
             if (_needDelete) delete _disc;
         };
 
-        // Setter for max cutoff in dispersion relation
-        inline void set_cutoff(double s_cut){ _s_cut = s_cut; };
+        // Setting utility for free parameters
+        void set_params(std::vector<double> params)
+        {
+            check_nParams(params);
+            _s_cut = params[0];
+            if (_nParams > 1)
+            {
+                for (int i = 1; i < params.size(); i++) _disc_params.push_back(params[i]);
+                if (_disc_params.size() != _disc->get_nParams())
+                {
+                    std::cout << "Error! # of params passed to box_amplitude, doesnt match the number needed by discontinuity. \n";
+                    std::cout << "Results may vary..." << std::endl;
+                } 
+                _disc->set_params(_disc_params);
+            }
+        };
 
         // only vector and proton quantum numbers available currently
         inline std::vector<std::array<int,2>> allowed_meson_JP()
@@ -75,7 +95,8 @@ namespace jpacPhoto
         bool _needDelete = false;
 
         // Integration momentum cutoff. Defaults to 2 GeV above threshold (an arbitrary value)
-        double _s_cut = _kinematics->sth() + 2.;
+        double _s_cut;
+        std::vector<double> _disc_params;
     };
 };
 
