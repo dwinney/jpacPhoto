@@ -24,8 +24,7 @@ namespace jpacPhoto
         // just needs an exchange amplitude and total spin J
         projected_amplitude(amplitude * amp, int J, std::string id = "")
         : amplitude(amp->_kinematics, "projected_amplitude", id), 
-         _amplitude(amp), _kinematics(amp->_kinematics),
-         _J(J)
+         _amplitude(amp), _J(J)
         {
             check_amplitude(amp);
         };
@@ -56,7 +55,6 @@ namespace jpacPhoto
 
         // The total amplitude being projected
         amplitude * _amplitude;
-        reaction_kinematics * _kinematics;
         inline void check_amplitude(amplitude * amp)
         {
             if (amp->helicity_CM_frame() != S)
