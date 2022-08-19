@@ -141,7 +141,7 @@ void jpacPhoto::interpolation_2D::import_grid(std::string filename)
 
     if (data.fail())
     {
-        std::cout << "interpolation_2D:: Could not open file " << filename << "\n."; 
+        std::cout << "interpolation_2D:: Could not open file " << filename << "\n"; 
         return;
     }
 
