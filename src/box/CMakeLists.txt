@@ -7,6 +7,7 @@ ROOT_GENERATE_DICTIONARY(G__jpacBox
         projected_amplitude.hpp
         helicity_PWA.hpp
         interpolation_2D.hpp
+        interpolated_discontinuity.hpp
         LINKDEF jpacBoxLinkDef.h
         )
 

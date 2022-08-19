@@ -10,5 +10,6 @@
 #pragma link C++ defined_in "projected_amplitude.hpp";
 #pragma link C++ defined_in "interpolation_2D.hpp";
 #pragma link C++ defined_in "helicity_PWA.hpp";
+#pragma link C++ defined_in "interpolated_discontinuity.hpp"
 
 #endif
