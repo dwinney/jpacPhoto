@@ -67,12 +67,13 @@ namespace jpacPhoto
         // Integrated cross-sections
 
         // (t, M2)
-        double dsigma_dt(double s, double t);     // integrated over M2
+        double dsigma_dt(double  s, double t);     // integrated over M2
         double dsigma_dM2(double s, double M2);   // integrated over t
 
         // (x, y2)
-        double dsigma_dy2(double s, double y2);   // integrated over x
-        double dsigma_dx(double s,  double x);    // integrated over pT2
+        double dsigma_dy2(double s,  double y2);    // integrated over x
+        double dsigma_dy(double  s,  double y ){ return dsigma_dy2(s, y*y) / (2.*y); };
+        double dsigma_dx(double  s,  double x);    // integrated over pT2
 
         // Fully integrated
         double integrated_xsection(double s);   

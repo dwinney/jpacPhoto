@@ -57,9 +57,9 @@ namespace jpacPhoto
 
         double eval(double s, double q2)
         {
-            double _cutoff = 4.;
+            double _cutoff = 4.6;
             double x1 = _cutoff;
-            double x2 = _cutoff + 0.12;
+            double x2 = _cutoff + 1.;
 
             if ( sqrt(s) < sqrt(_sth) + 1000.*EPS ) return 0.;
             else if ( _resonances && s <= x1 ) 
