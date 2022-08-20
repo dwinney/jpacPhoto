@@ -18,13 +18,13 @@ void plot_sigmatot()
     double  ymin = 6.;
     double  ymax = 4.E2;
 
-    double xmin = pow((M_PROTON + M_PION) + 0.03, 2.);   
-    double xmax = 6.;
+    double xmin = (M_PROTON + M_PION) + 0.03;   
+    double xmax = 2.5;
     std::array<double, 2> bounds = {xmin, xmax};
     
     std::string filename = "sigma.pdf";
-    std::string xlabel   = "#it{M}^{2} [GeV^{2}]";
-    std::string ylabel   = "#sigma_{tot}^{#pi^{*+} p}   [mb] ";
+    std::string xlabel   = "#it{W}_{#pi#it{p}} [GeV]";
+    std::string ylabel   = "#sigma_{tot}^{#pi^{*+}#it{p}}   [mb] ";
 
     // PDG parameterizations
     total_xsection * PDG_pipp = get_total_xsection( PDG_pipp_onlyRegge );
@@ -47,19 +47,19 @@ void plot_sigmatot()
     double q2 = M2_PION;
     
     total_xsection * sigma;
-    auto F = [&](double s)
+    auto F = [&](double w)
     {
-        return sigma->eval(s, q2);
+        return sigma->eval(w*w, q2);
     };
 
     sigma = JPAC_pipp;
-    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#plus} p", 1);
+    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#plus} #it{p}", 1);
 
     sigma = PDG_pipp;
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
     sigma = JPAC_pimp;
-    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#minus} p");
+    plotter->AddEntry(N, F, {xmin, xmax}, "#pi^{#minus} #it{p}");
 
     sigma = PDG_pimp;
     plotter->AddDashedEntry(N, F, {xmin, xmax});
