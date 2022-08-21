@@ -9,6 +9,37 @@
 #include "box_discontinuity.hpp"
 
 // ---------------------------------------------------------------------------
+// Default behavior of the helicity amplitude which is to fix
+std::complex<double> jpacPhoto::brute_force_discontinuity::helicity_amplitude(std::array<int,4> helicities, double s, double t)
+{
+    // Save external values
+    _external_helicities = helicities; 
+    _external_theta      = _kinematics->theta_s(s, t);
+
+    // The one free parameter is the dispersion cutoff
+    double s_cut = _params[0];
+
+    if (s_cut < _kinematics->sth() + EPS)
+    {
+        std::cout<< "Warning! Dispersion integral cutoff less than threshold. Returning 0..." << std::endl;
+        return 0.;
+    };
+
+    // Store the invariant energies to avoid having to pass them around 
+    double sub = eval(s);
+    auto F = [&](double sp)
+    {
+        std::complex<double> result = (eval(sp) - sub) / (sp - s - IEPS);
+        return result;
+    };
+
+    std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, _kinematics->sth() + EPS, s_cut, 0, 1.E-6, NULL);
+    std::complex<double> logpiece = sub * (log(s_cut - s - IEPS) - log(_kinematics->sth() + EPS - s - IEPS));
+    std::complex<double> result =  (intpiece + logpiece) / M_PI;
+
+    return result;
+};
+// ---------------------------------------------------------------------------
 // Evaluate the product of sub-amplitudes integrating over intermediate phase-space
 double jpacPhoto::brute_force_discontinuity::eval(double s)
 {

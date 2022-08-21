@@ -22,6 +22,8 @@
 #include "amplitude.hpp"
 #include "reaction_kinematics.hpp"
 
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+
 #include "Math/IntegratorMultiDim.h"
 
 namespace jpacPhoto
@@ -37,29 +39,19 @@ namespace jpacPhoto
 
         virtual ~box_discontinuity() = default;
 
-        // Need to specify some way to evaluate at fixed s
-        virtual double eval(double s) = 0;
-
-        // Save the scattering angle and helicities from the parent process
-        inline void set_externals(std::array<int,4> helicities, double theta)
-        {
-            _external_theta      = theta; 
-            _external_helicities = helicities;
-        };
+        // Alternatively evaluate the full dispersion relation
+        virtual std::complex<double> helicity_amplitude(std::array<int,4> helicities, double s, double t) = 0;
 
         // Number of parameters needed
         // By default we require no additional parameters
-        virtual int  get_nParams() { return 0; };
-        virtual void set_params(std::vector<double> params) { return; };
+        virtual int  get_nParams() = 0;
+        virtual void set_params(std::vector<double> params) { _params.clear(); _params = params; };
 
         protected:
 
         // All kinematic quantities of the overall scattering process
         reaction_kinematics * _kinematics;
-
-        // Need to be able to know the kinematic variables of the external process 
-        double             _external_theta;
-        std::array<int,4>  _external_helicities; 
+        std::vector<double> _params;
     };
 
     // -------------------------------------------------------------------
@@ -77,12 +69,22 @@ namespace jpacPhoto
             compatibility_check(xkinem, left, right);
         };
 
+        // Only need one parameter 
+        int get_nParams(){ return 1; };
+
         // Try doing the double integral over the intermediate phasepace
         // and sum over intermediate helicities numerically
         double eval(double s);
 
+        // Evaluate the dispersion relation and spit out the helicity amplitude
+        std::complex<double> helicity_amplitude(std::array<int,4> helicities, double s, double t);
+
         // -------------------------------------------------------------------
         protected:
+
+        // External quantities saved for easy access
+        double             _external_theta;
+        std::array<int, 4> _external_helicities;
 
         // The sub-process amplitudes
         amplitude * _left_amp;
@@ -116,16 +118,16 @@ namespace jpacPhoto
         : box_discontinuity(xkinem)
         {};
 
-        inline double eval(double s)
+        inline std::complex<double> helicity_amplitude(std::array<int,4> helicities, double s, double t)
         {
             // if below threshold return 0
             if (s < _kinematics->sth()) return 0.;
             
             // make sure the external helicites get passed correctly
-            int lam_gam = _external_helicities[0];
-            int lam_tar = _external_helicities[1];
-            int lam_vec = _external_helicities[2];
-            int lam_rec = _external_helicities[3];
+            int lam_gam = helicities[0];
+            int lam_tar = helicities[1];
+            int lam_vec = helicities[2];
+            int lam_rec = helicities[3];
 
             if (lam_gam != lam_vec || lam_rec != lam_tar) return 0.;
             return 1.;

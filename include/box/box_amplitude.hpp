@@ -1,4 +1,7 @@
 // Vector production via a one-loop box diagram
+// This class is actually just a wrapper class for interfacing with the rest of jpacPhoto
+//
+// The actual evaluation of the box amplitudes is handled in the box_discontinuity object
 //
 // Author:       Daniel Winney (2021)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
@@ -31,7 +34,7 @@ namespace jpacPhoto
         box_amplitude(reaction_kinematics * xkinem, box_discontinuity * disc, std::string id = "Box Amplitude")
         : amplitude(xkinem, "box_amplitude", id), _disc(disc)
         {
-            set_nParams(1 + _disc->get_nParams());
+            set_nParams(disc->get_nParams());
             check_JP(xkinem);
         };
 
@@ -41,7 +44,7 @@ namespace jpacPhoto
             _disc = new brute_force_discontinuity(xkinem, left, right);
             _needDelete = true;
 
-            set_nParams(1);
+            set_nParams(_disc->get_nParams());
             check_JP(xkinem);
         };
 
@@ -55,17 +58,7 @@ namespace jpacPhoto
         void set_params(std::vector<double> params)
         {
             check_nParams(params);
-            _s_cut = params[0];
-            if (_nParams > 1)
-            {
-                for (int i = 1; i < params.size(); i++) _disc_params.push_back(params[i]);
-                if (_disc_params.size() != _disc->get_nParams())
-                {
-                    std::cout << "Error! # of params passed to box_amplitude, doesnt match the number needed by discontinuity. \n";
-                    std::cout << "Results may vary..." << std::endl;
-                } 
-                _disc->set_params(_disc_params);
-            }
+            _disc->set_params(params);
         };
 
         // only vector and proton quantum numbers available currently
@@ -81,8 +74,12 @@ namespace jpacPhoto
         // Box always works with s-channel helicity projections
         inline helicity_channel helicity_CM_frame(){ return S; };
 
-        // Evaluate the helicity amplitude by dispersing
-        std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
+        // Evaluate the helicity amplitude
+        // this is actually just a fake function that instead calls the disc objects eval function
+        std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t)
+        {
+            return _disc->helicity_amplitude(helicities, s, t);
+        };
 
         // Override the jpacPhoto::amplitude::integrated_xsection
         double integrated_xsection(double s);
@@ -93,10 +90,6 @@ namespace jpacPhoto
         // Discontinutity given in terms of the two tree amplitudes
         box_discontinuity * _disc;
         bool _needDelete = false;
-
-        // Integration momentum cutoff. Defaults to 2 GeV above threshold (an arbitrary value)
-        double _s_cut;
-        std::vector<double> _disc_params;
     };
 };
 
