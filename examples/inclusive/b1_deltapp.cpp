@@ -57,7 +57,6 @@ void deltapp()
     // We now can pass this to an inclusive amplitude
     triple_regge incB1 (&excN);
     incB1.set_high_energy_approximation(false);
-    incB1.set_sigma_total(JPAC_pipp_withResonances);
     
     // // ---------------------------------------------------------------------------
     // // Plotting options
@@ -83,10 +82,39 @@ void deltapp()
     jpacGraph1D * plotter = new jpacGraph1D();
 
     // Stable delta
-    kDelta.set_recoil_mass(M_DELTA);
     auto F = [&](double w)
     {
         return excDelta.integrated_xsection(w*w) * 1.E-3; // in mub!
+    };
+    
+    // Sill line-shape
+    // Mass and width from 2106.03749
+    auto Sill = [&](double w)
+    {
+        double width = 90.4E-3;
+        double mass  = 1236.2E-3;
+        double mN = 0.938, mpi = 0.134;
+        double sth = (mN + mpi)*(mN+mpi);
+
+        double gamma = width*mass / sqrt(mass*mass - sth);
+
+        return 2.*w/M_PI * sqrt(w*w - sth) *gamma / (pow(w*w-mass*mass, 2.) + pow(sqrt(w*w - sth)*gamma, 2.));
+    };
+
+    auto H = [&](double w)
+    {
+        auto dH = [&](double m)
+        {
+            
+            kDelta.set_recoil_mass(m);
+            return Sill(m)*excDelta.integrated_xsection(w*w) * 1.E-3; // in mub!
+        };
+
+        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+        ROOT::Math::Functor1D wH(dH);
+        ig.SetFunction(wH);
+
+        return ig.Integral(M_PION+M_PROTON, 3.);
     };
 
     // Inclusive
@@ -95,22 +123,25 @@ void deltapp()
         return incB1.integrated_xsection(w*w); // in mub!
     };  
 
-    incB1.set_sigma_total(JPAC_pipp_onlyDelta);
-    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} (#Delta^{#plus#plus} #rightarrow #pi^{#plus} p)", 1);
+    plotter->AddEntry(N, H, {xmin, xmax},   "#it{b}_{1}^{#minus} (#Delta^{#plus#plus} #rightarrow #pi^{#plus} #it{p}) from BW", 1);
+    kDelta.set_recoil_mass(M_DELTA);
     plotter->AddDashedEntry(N, F, {xmin, xmax});
 
+    incB1.set_sigma_total(JPAC_pipp_onlyDelta);
+    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} (#Delta^{#plus#plus} #rightarrow #pi^{#plus} #it{p}) from SAID", 1);
+
     incB1.set_sigma_total(JPAC_pipp_withResonances);
-    plotter->AddEntry(N, G, {xmin, xmax},   "#it{b}_{1}^{#minus} #it{X}", 1);
+    plotter->AddEntry(N, G, {xmin, xmax},   "Inclusive #it{b}_{1}^{#minus}", 1);
 
     // ---------------------------------------------------------------------------
     // Finally make the plot pretty
 
     // Axes options
     plotter->SetXaxis(xlabel, xmin, xmax);
-    plotter->SetYaxis(ylabel,  ymin, ymax);
+    plotter->SetYaxis(ylabel, ymin, ymax);
 
     // LEgend options
-    plotter->SetLegend(0.6, 0.65);
+    plotter->SetLegend(0.5, 0.65);
     plotter->SetLegendOffset(0.3, 0.13);
 
     // Output to file
