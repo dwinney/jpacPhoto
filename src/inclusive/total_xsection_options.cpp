@@ -50,6 +50,11 @@ jpacPhoto::total_xsection * jpacPhoto::get_total_xsection(sigma_option opt)
                 sigma_tot = new JPAC_parameterization(+1, 1);
                 break;
             }
+            case  JPAC_pimp_onlyDelta:
+            {
+                sigma_tot = new JPAC_parameterization(-1, 1);
+                break;
+            }
             default:
             {
                 sigma_tot = new zero_xsection();

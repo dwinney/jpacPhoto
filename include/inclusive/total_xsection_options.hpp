@@ -20,7 +20,7 @@ namespace jpacPhoto
     enum sigma_option { PDG_pipp_onlyRegge,       PDG_pimp_onlyRegge, 
                         JPAC_pipp_onlyRegge,      JPAC_pimp_onlyRegge,
                         JPAC_pipp_withResonances, JPAC_pimp_withResonances,
-                        JPAC_pipp_onlyDelta };
+                        JPAC_pipp_onlyDelta,      JPAC_pimp_onlyDelta  };
 
     // Return a pointer to a new instance of desired cross-section
     total_xsection * get_total_xsection(sigma_option opt);
