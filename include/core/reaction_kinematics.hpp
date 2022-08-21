@@ -241,6 +241,8 @@ namespace jpacPhoto
         };
 
 
+        inline int helicity_index(std::array<int,4> hel){ return find_helicity(hel, _mjp[0], _bjp[0], _photon); };
+
         // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
         // Depends on the channel with respect to which the helicities are defined
         inline double parity_phase(std::array<int, 4> helicities, helicity_channel channel)
