@@ -2,6 +2,7 @@
 *.cmake
 /gnuplot/
 /examples/tests
+/tests/
 /.vscode/
 /bin/
 /lib/
