@@ -36,8 +36,7 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_amplitude(s
 // Evaluate the discontinutiy by summing helicity amplitudes with corresponding d-functions
 std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int external_hel_index, int J, double s)
 {
-    if ((J < _jmax) || (s < _kinematics->sth())) return 0.;
-
+    if ((J > _jmax) || (s < _kinematics->sth())) return 0.;
     int  j_index = (J - 1)/2;
     int  hel_index; 
     bool phase;
@@ -50,6 +49,7 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int ext
     };
 
     std::complex<double> result = dispersion(F, s);
+    // std::complex<double> result = F(s);
     if (phase) result *= _kinematics->parity_phase(hel_index, S);
 
     return result;
@@ -59,19 +59,41 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int ext
 // Take in a function F which is the imaginary part of an amplitude and calculate the dispersion integral
 std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::function<double(double)> f, double s)
 {
-    // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
-    double sub_point = f(s);
-
-    auto g = [&] (double sp)
+    if ( _hardCutoff )
     {
-        return (f(sp) - sub_point) / (sp - s - IEPS);
-    };
+        // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
+        double sub_point = f(s);
 
-    std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _kinematics->sth() + EPS, _scut, 0, 1.E-6, NULL);
-    std::complex<double> logpiece = sub_point * (log(_scut - s - 10.*IEPS) - log(_kinematics->sth() + EPS - s - 10.*IEPS));
-    
-    std::complex<double> result =  (intpiece + logpiece) / M_PI;
+        auto g = [&] (double sp)
+        {
+            return (f(sp) - sub_point) / (sp - s - IEPS);
+        };
+
+        std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _kinematics->sth() + EPS, _xi, 0, 1.E-6, NULL);
+        std::complex<double> logpiece = sub_point * (log(_xi - s - 10.*IEPS) - log(_kinematics->sth() + EPS - s - 10.*IEPS));
+        
+        std::complex<double> result =  (intpiece /* + logpiece */) / M_PI;
 
 
-    return result;
+        return result;
+    }
+    else
+    {
+        // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
+        double fs  = f(s);
+        double sth = _kinematics->sth();
+
+        auto g = [&] (double sp)
+        {
+            return ( f(sp) - fs ) / (sp * (sp - s - IEPS));
+        };
+
+        std::complex<double> intpiece, logpiece;
+        intpiece =   ( s / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, sth + EPS, 100., 0, 1.E-6, NULL);
+        logpiece = - (fs / PI) * log(1. - s / sth - IEPS);
+        
+        std::complex<double> result =  _xi * (1. + intpiece + logpiece);
+
+        return result;
+    }
 };
