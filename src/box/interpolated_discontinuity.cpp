@@ -12,14 +12,14 @@
 // Evaluate the discontinutiy by summing partial-wave amplitudes with corresponding d-functions
 std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_amplitude(std::array<int,4> helicities, double s, double t)
 {
-    // For fixed helicities we just multiply the corresponding HPWA's by d-functions and sum over J
-    std::complex<double> sum = 0.;
-
+    // Arguemnts of the d-function
     int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
     int lamp = 2 * helicities[2] - helicities[3]; // Meson  - Recoil
 
     double theta = _kinematics->theta_s(s, t);
 
+    // For fixed helicities we just multiply the corresponding HPWA's by d-functions and sum over J
+    std::complex<double> sum = 0.;
     for (int j = 0; (2*j+1) <= _jmax; j++)
     {
         int J = (2*j+1);
@@ -34,18 +34,19 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_amplitude(s
 
 // ---------------------------------------------------------------------------
 // Evaluate the discontinutiy by summing helicity amplitudes with corresponding d-functions
-std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int external_hel_index, int j, double s)
+std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int external_hel_index, int J, double s)
 {
-    if ((j < _jmax) || (s < _kinematics->sth())) return 0.;
+    if ((J < _jmax) || (s < _kinematics->sth())) return 0.;
 
+    int  j_index = (J - 1)/2;
     int  hel_index; 
     bool phase;
-    if ( external_hel_index < _nAmps/2 ){ hel_index = external_hel_index;            phase = false; }
-    else                                { hel_index = external_hel_index - _nAmps/2; phase = true;  }
+    if ( external_hel_index < _nAmps/2 ){ hel_index = external_hel_index;              phase = false; }
+    else                                { hel_index = _nAmps - external_hel_index - 1; phase = true;  }
     
     auto F = [&] (double x)
     {
-        return _hpw_projections[j][hel_index]->eval(x, _eta);
+        return _hpw_projections[j_index][hel_index]->eval(x, _eta);
     };
 
     std::complex<double> result = dispersion(F, s);
@@ -63,12 +64,14 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::func
 
     auto g = [&] (double sp)
     {
-        return f(sp) - sub_point;
+        return (f(sp) - sub_point) / (sp - s - IEPS);
     };
 
     std::complex<double> intpiece = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _kinematics->sth() + EPS, _scut, 0, 1.E-6, NULL);
-    std::complex<double> logpiece = sub_point * (log(_scut - s - IEPS) - log(_kinematics->sth() + EPS - s - IEPS));
+    std::complex<double> logpiece = sub_point * (log(_scut - s - 10.*IEPS) - log(_kinematics->sth() + EPS - s - 10.*IEPS));
+    
     std::complex<double> result =  (intpiece + logpiece) / M_PI;
+
 
     return result;
 };

@@ -29,6 +29,7 @@ namespace jpacPhoto
     {
         // ---------------------------------------------------------------------------
         public: 
+
         // Constructor.
         // Need the parent reaction kinematics and pre-set sub-amplitudes
         box_amplitude(reaction_kinematics * xkinem, box_discontinuity * disc, std::string id = "Box Amplitude")
@@ -76,13 +77,10 @@ namespace jpacPhoto
 
         // Evaluate the helicity amplitude
         // this is actually just a fake function that instead calls the disc objects eval function
-        std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t)
+        inline std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t)
         {
             return _disc->helicity_amplitude(helicities, s, t);
         };
-
-        // Override the jpacPhoto::amplitude::integrated_xsection
-        double integrated_xsection(double s);
         
         // ---------------------------------------------------------------------------
         private:        

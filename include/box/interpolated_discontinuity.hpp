@@ -51,19 +51,24 @@ namespace jpacPhoto
         };
 
         // For a selected jmax we set up j * nAmps 2D interpolations 
-        void set_Jmax(int j, bool verbose)
+        void set_Jmax(int J, bool verbose = false)
         {
+            _jmax = J;
+
             if (_hpw_projections.size() != 0) delete_pointers();
 
-            std::vector<interpolation_2D*> jth_row;
-
-            // Only need half of the amplitudes
-            for (int i = 0; i < _kinematics->num_amps()/2 ; i++)
+            for (int j = 0; (2*j+1) <= J; j++)
             {
-                jth_row.push_back( new interpolation_2D(verbose) );
-            };
+                std::vector<interpolation_2D*> jth_row;
+
+                // Only need half of the amplitudes
+                for (int i = 0; i < _kinematics->num_amps()/2 ; i++)
+                {
+                    jth_row.push_back( new interpolation_2D(verbose) );
+                };
 
                 _hpw_projections.push_back(jth_row);
+            };
         };
 
         // Parameter setting and getting
