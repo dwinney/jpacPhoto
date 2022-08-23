@@ -99,7 +99,7 @@ std::complex<double> jpacPhoto::dirac_exchange::halfplus_coupling(int i)
         result += temp;
     }
 
-    return _gG * result;
+    return - XI * _gG * result;
 };
 
 std::complex<double> jpacPhoto::dirac_exchange::halfminus_coupling(int i)
@@ -211,7 +211,7 @@ std::complex<double> jpacPhoto::dirac_exchange::pseudoscalar_coupling(int j)
         };
     };
 
-    return XI * (_gN * term1 + _gN2 * term2);
+    return (_gN * term1 + _gN2 * term2);
 };
 
 
