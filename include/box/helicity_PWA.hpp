@@ -33,6 +33,11 @@ namespace jpacPhoto
           _J(0), _helicities(amp->_kinematics->helicities(0))
         {};
 
+        helicity_PWA(amplitude * amp, int J, int h)
+        : _amplitude(amp), _kinematics(amp->_kinematics), 
+          _J(J), _helicities(amp->_kinematics->helicities(h))
+        {};
+
         helicity_PWA(amplitude * amp, int J, std::array<int,4> helicities)
         : _amplitude(amp), _kinematics(amp->_kinematics), 
           _J(J), _helicities(helicities)
@@ -45,7 +50,10 @@ namespace jpacPhoto
         };
 
         // Output the helicity parial wave projection onto the s-channel with total spin j/2
-        double eval(double s);
+        std::complex<double> eval(double s);
+        inline double real_part(double s) { return std::real(eval(s)); };
+        inline double imag_part(double s) { return std::imag(eval(s)); };
+
 
         // Update and output the helicity PWA from saved interpolation
         void   update_interpolation();

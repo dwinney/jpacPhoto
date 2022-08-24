@@ -11,9 +11,7 @@
 // ---------------------------------------------------------------------------
 // Partial-wave projection on the s-channel
 
-// Output the helicity parial wave projection onto the s-channel with total spin j/2
-// Assume the resulting partial-wave amlitude is real 
-double jpacPhoto::helicity_PWA::eval(double s)
+std::complex<double> jpacPhoto::helicity_PWA::eval(double s)
 {
     if (s < _kinematics->sth()) return 0.;
 
@@ -36,18 +34,15 @@ double jpacPhoto::helicity_PWA::eval(double s)
     {
         double t = _kinematics->t_man(s, theta);
 
-        double integrand;
+        std::complex<double> integrand;
         integrand  = sin(theta);
         integrand *= wigner_d_half(_J, lam, lamp, theta);
-        integrand *= std::imag(_amplitude->helicity_amplitude(_helicities, s, t));
+        integrand *= _amplitude->helicity_amplitude(_helicities, s, t);
         return integrand;
     };
     
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);
-    ROOT::Math::Functor1D wF(F);
-    ig.SetFunction(wF);
-
-    return ig.Integral(0., PI) / 2.;
+    std::complex<double> result = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, 0., PI, 0., 1.E-6, NULL);
+    return result / 2.;
 };
 
 // ---------------------------------------------------------------------------
@@ -74,7 +69,7 @@ void jpacPhoto::helicity_PWA::update_interpolation()
     for (int i = 0; i < _Ninterp; i++)
     {
         double x  = _smin + (_smax - _smin) * double(i) / double(_Ninterp - 1);
-        double fx = eval(x);
+        double fx = real_part(x);
 
         _x.push_back(x); _fx.push_back(fx);
     };  

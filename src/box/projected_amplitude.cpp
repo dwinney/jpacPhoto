@@ -34,7 +34,7 @@ std::complex<double> jpacPhoto::projected_amplitude::helicity_amplitude(std::arr
     }
     else 
     {
-        pwa = parity_phase(helicities) * _projections[hel_id - n_amps/2]->eval(s);
+        pwa = double(parity_phase(helicities)) * _projections[hel_id - n_amps/2]->eval(s);
     }
 
     // Net helicities
