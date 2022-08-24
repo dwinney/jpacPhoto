@@ -55,7 +55,7 @@ void jpacPhoto::interpolation_2D::set_up_slices()
 
     for (int i=0; i < _xN; i++)
     {
-        _y_slices.push_back(new ROOT::Math::Interpolator(_y_values[i], _f_values[i], ROOT::Math::Interpolation::kCSPLINE));
+        _y_slices.push_back(new ROOT::Math::Interpolator(_y_values[i], _f_values[i], ROOT::Math::Interpolation::kLINEAR));
     };
     _slices_made = true;
 }
@@ -85,7 +85,7 @@ double jpacPhoto::interpolation_2D::eval(double x, double y)
     }
     
     // Generate new interpolation across x
-    ROOT::Math::Interpolator fxy(_x_values, fy_values, ROOT::Math::Interpolation::kCSPLINE);
+    ROOT::Math::Interpolator fxy(_x_values, fy_values, ROOT::Math::Interpolation::kLINEAR);
     
     // Return value
     return fxy.Eval(x);
@@ -194,6 +194,6 @@ void jpacPhoto::interpolation_2D::import_grid(std::string filename)
     // In addition to saving the actual grid points, at each fixed x_i we interpolate across y values
     for (int i=0; i < _xN; i++)
     {
-        _y_slices.push_back(new ROOT::Math::Interpolator(_y_values[i], _f_values[i], ROOT::Math::Interpolation::kCSPLINE));
+        _y_slices.push_back(new ROOT::Math::Interpolator(_y_values[i], _f_values[i], ROOT::Math::Interpolation::kLINEAR));
     };
 };
