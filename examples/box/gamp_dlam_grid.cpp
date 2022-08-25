@@ -72,12 +72,12 @@ void gamp_dlam_grid()
 
     // Prefix identifier for the name of files
     // These are the pw of the amplitude "B"
-    std::string prefix = "gamD";
+    std::string prefix = "./grid_data/gamD";
 
     //Grid size parameters
-    double Wmin = 4., Wmax = 6.;
+    double Wmin = kD.Wth(), Wmax = 6.;
     double etamin = 0., etamax = 1.5;
-    int nS = 50, nEta = 20;
+    int nS = 400, nEta = 20;
 
     // Interpolation object that actually generates the grid
     interpolation_2D interpolator;

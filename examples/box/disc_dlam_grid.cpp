@@ -60,9 +60,9 @@ void disc_dlam_grid()
     };
 
     //Grid size parameters (same as those used in the consitutent grids but this is not necessary)
-    double Wmin = 4., Wmax = 6.;
+    double Wmin = kgamD.Wth(), Wmax = 6.;
     double etamin = 0., etamax = 1.5;
-    int nS = 50, nEta = 20;
+    int nS = 400, nEta = 20;
 
     // Interpolation object that actually generates the grid
     interpolation_2D output;
@@ -132,7 +132,7 @@ void disc_dlam_grid()
             };
 
             // Finish the filename with J and H index values
-            std::string filename = "boxD_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
+            std::string filename = path + "boxD_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
             
             if (verbose)
             {
