@@ -18,12 +18,12 @@
 
 using namespace jpacPhoto;
 
-void dlam_integrated()
+void box_dlam_integrated()
 {
     reaction_kinematics kBox(M_JPSI, M_PROTON);
     kBox.set_meson_JP( {1, -1} );
 
-    double scut   = pow(4.61, 2.) ;
+    double Wcut = 4.61 ;
     double eta  = 1.;
     int    jMax = 1;
 
@@ -31,8 +31,8 @@ void dlam_integrated()
     disc.import_data("./grid_data/boxD_");
 
     box_amplitude box(&kBox, &disc, "#bar{D} #Lambda_{c} box");
-    box.set_intermediate_threshold(M_D + M_LAMBDAC + EPS);
-    box.set_params( {scut, eta} );
+    box.set_intermediate_threshold(M_D + M_LAMBDAC);
+    box.set_params( {Wcut, eta} );
 
     // ---------------------------------------------------------------------------
     // Plot settings
@@ -48,7 +48,7 @@ void dlam_integrated()
     double  xmax = 10.5;
 
     double  ymin = 0.;
-    double  ymax = 1.47;
+    double  ymax = 1.427;
 
     std::string filename = "box.pdf";
     std::string ylabel  = "#sigma(#gamma#it{p} #rightarrow #it{J}/#psi #it{p})  [nb]";

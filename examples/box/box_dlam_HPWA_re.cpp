@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------
 
 #include "reaction_kinematics.hpp"
-#include "interpolation_2D.hpp"
+#include "interpolated_discontinuity.hpp"
 
 #include "jpacGraph1D.hpp"
 
@@ -18,61 +18,49 @@
 
 using namespace jpacPhoto;
 
-void disc_dlam_HPWAs()
+void box_dlam_HPWA_re()
 {
-
-    double smin = 4.;
-    double smax = 5.;
-
-    double ymin = -0.05;
-    double ymax =  0.08;
-
-    double eta =  1.;
-    bool verbose = true;
-    bool PRINT = true;
-
     int h;
     int J = 1;
     int N = 200;
 
-    std::string filename = "hpwa.pdf";
+    std::string filename = "box_hpwa_re.pdf";
 
-    // ---------------------------------------------------------------------------
-    // Preliminaries 
+    auto Wcut = [&] (double qmax)
+    {
+        return sqrt(qmax*qmax + M_D*M_D) + sqrt(qmax*qmax + M_LAMBDAC*M_LAMBDAC);
+    };
+
+    double qmax = 1.;
+    double eta  = 1.;
+    int    jMax = 1;
 
     // Need the kinematics of the intermediate reactions to get phases and helicity combinations
     reaction_kinematics kBox (M_JPSI, M_PROTON);
     kBox.set_meson_JP(1, -1);
-    int nBox = kBox.num_amps();
 
-    // Set up a vector to hold the helicity PWA interpoaltions
-    std::vector<interpolation_2D*> ampA;
-    for (int i = 0; i < nBox; i++) ampA.push_back( new interpolation_2D(verbose) );
-
-    std::string path = "./grid_data/";
-    
-    // ---------------------------------------------------------------------------
-    // Assemble the box PWAS
-
-    // File name prefix
-    std::string prefix = path + "boxD_J_" + std::to_string(J) + "_H_";
-
-    // Grab the grids (remember we only saved half the amplitudes!)
-    // first the ImA amps 
-    for (int i=0; i < nBox/2; i++)
-    {
-        std::string filename = prefix + std::to_string(i) + ".dat";
-        ampA[i]->import_grid(filename);
-    };
+    interpolated_discontinuity disc(&kBox, jMax);
+    disc.import_data("./grid_data/boxD_");
+    disc.set_intermediate_threshold(M_D + M_LAMBDAC + EPS);
+    disc.set_params( { Wcut(1.), eta } );
 
     // Plotter object
     jpacGraph1D* plotter = new jpacGraph1D();
 
+    double smin = kBox.Wth();
+    double smax = Wcut(1.);
+
+    double ymin = -0.07;
+    double ymax =  0.1;
+
+    bool verbose = true;
+    bool PRINT = true;
+
     // ---------------------------------------------------------------------------
-    // Print the desired observable for each amplitude
+    Print the desired observable for each amplitude
     auto F = [&](double w)
     {
-        return ampA[h]->eval(w*w, eta);
+        return std::real( disc.helicity_pwa(h, J, w*w) );
     };
     
     h = 7;
@@ -88,12 +76,11 @@ void disc_dlam_HPWAs()
     plotter->AddEntry(N, F, {smin,smax}, "#{}{ + +, #minus #minus }", PRINT);
 
     plotter->SetXaxis("#it{W}   [GeV]", smin, smax);
-    plotter->SetYaxis("Im #it{a}_{#{}{#lambda}}^{1/2}(s)", ymin, ymax);
+    plotter->SetYaxis("Re #it{a}_{#{}{#lambda}}^{1/2}(s)", ymin, ymax);
     plotter->SetLegend(0.2, 0.73);
 
     // Output to file
     plotter->Plot(filename);
 
     delete plotter;
-
 };
