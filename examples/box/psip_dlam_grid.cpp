@@ -37,13 +37,12 @@ using namespace jpacPhoto;
 void psip_dlam_grid()
 {
     // Form factor parameter
-    double eta = 1.;
     double lambdaQCD = 0.25;
 
     double gPsiDD  = 7.4;
     double gPsiDDs = gPsiDD / sqrt(M_D * M_DSTAR);
-    double gDNL    = -4.3;
-    double gDsNL   = -13.2;
+    double gDNL    = -13.2;
+    double gDsNL   = -4.3;
     double gPsiLL  = -1.4;
 
     // ---------------------------------------------------------------------------
@@ -56,17 +55,14 @@ void psip_dlam_grid()
 
     pseudoscalar_exchange d_dEx (&kD, M_D, "D exchange");
     d_dEx.set_params({gPsiDD, gDNL});
-    d_dEx.set_formfactor(2, M_D + eta * lambdaQCD);
     d_dEx.force_covariant(true);
 
-    vector_exchange d_dstarEx (&kD, M_DSTAR, "D^{*} exchange");
+    vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
     d_dstarEx.set_params({gPsiDDs, gDsNL, 0.});
-    d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), gPsiLL, 0.});
-    d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
+    d_lamcEx.set_params({gPsiLL, gDNL, 0.});
     d_lamcEx.force_covariant(true);
 
     amplitude_sum d_sum (&kD,  {&d_dEx, &d_dstarEx, &d_lamcEx}, "Sum");
@@ -76,7 +72,7 @@ void psip_dlam_grid()
     // ---------------------------------------------------------------------------
 
     // We want partial waves up to 5/2
-    int Jmax = 5;
+    int Jmax = 1;
     
     // Pass the full amplitude to the helicity pwa amplitude
     helicity_PWA hpwa(&d_sum);
@@ -123,7 +119,7 @@ void psip_dlam_grid()
                 d_dstarEx.set_formfactor( 2, M_DSTAR   + eta * lambdaQCD);
                 d_lamcEx.set_formfactor(  2, M_LAMBDAC + eta * lambdaQCD);
                 
-                return hpwa.eval(s);
+                return hpwa.real_part(s);
             };
             
             // Finish the filename with J and H index values

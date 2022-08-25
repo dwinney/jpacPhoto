@@ -16,13 +16,13 @@
 
 using namespace jpacPhoto;
 
-void disc_dlam()
+void disc_dlam_grid()
 {
     // ---------------------------------------------------------------------------
     // Preliminaries 
 
     // How many partial waves to process
-    int  Jmax = 5;
+    int  Jmax = 1;
     bool verbose = false;
 
     // Need the kinematics of the intermediate reactions to get phases and helicity combinations
@@ -44,8 +44,6 @@ void disc_dlam()
     
     // path to where the grid files are
     std::string path = "./grid_data/";
-    std::string gamPrefix = path + "gamD_";
-    std::string psiPrefix = path + "psiD_";
     
     // ---------------------------------------------------------------------------
     // Set up kinematics for the overall process

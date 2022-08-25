@@ -40,30 +40,28 @@ void gamp_dlam_grid()
     double lambdaQCD = 0.25;
 
     // ---------------------------------------------------------------------------
-    // gamma p -> D Lambda amplitude
+    // D phototproduction
     // ---------------------------------------------------------------------------
 
     // Set up Kinematics for Dbar LambdaC in final state
     reaction_kinematics kD (M_D, M_LAMBDAC);
     kD.set_meson_JP(0, -1);
 
-    vector_exchange d_dstarEx (&kD, M_DSTAR, "D^{*} exchange");
-    d_dstarEx.set_params({0.134, -4.2, 0.});
+    vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
+    d_dstarEx.set_params({0.134, -4.3, 0.});
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
     d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -13.2, 0.});
     d_lamcEx.force_covariant(true);
 
-    // Full amplitude sum
-    amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Full Sum");
-
+    amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Sum");
     // ---------------------------------------------------------------------------
     // PWA projection 
     // ---------------------------------------------------------------------------
 
     // We want partial waves up to 5/2
-    int Jmax = 5;
+    int Jmax = 1;
     
     // Pass the full amplitude to the helicity pwa amplitude
     helicity_PWA hpwa(&d_sum);
@@ -74,7 +72,7 @@ void gamp_dlam_grid()
 
     // Prefix identifier for the name of files
     // These are the pw of the amplitude "B"
-    std::string prefix = "gamD_";
+    std::string prefix = "gamD";
 
     //Grid size parameters
     double Wmin = 4., Wmax = 6.;
@@ -107,9 +105,9 @@ void gamp_dlam_grid()
             {
                 // Pass eta to the form-factors of the constituent amplitudes
                 d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
-                d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
+                d_lamcEx.set_formfactor( 2, M_LAMBDAC + eta * lambdaQCD);
                 
-                return hpwa.eval(s);
+                return hpwa.real_part(s);
             };
             
             // Finish the filename with J and H index values
