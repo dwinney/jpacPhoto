@@ -53,7 +53,7 @@ namespace jpacPhoto
 
         // All kinematic quantities of the overall scattering process
         reaction_kinematics * _kinematics;
-        double _intermediateThreshold;
+        double _intermediateThreshold = -1.;
         std::vector<double> _params;
     };
 

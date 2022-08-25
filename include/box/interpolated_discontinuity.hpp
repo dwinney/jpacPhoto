@@ -73,12 +73,9 @@ namespace jpacPhoto
             if (_hpw_projections.size() != (J-1)/2 + 1 ) std::cout << "interpolated_discontinuity: Something's wrong number of interpolations not equal to specified max J" << std::endl;
         };
 
-        // Evaluate the dispersion relation and spit out the helicity amplitude
-        inline void use_cutoff(bool i){ _hardCutoff = i; };
-
         // Parameter setting and getting
         int  get_nParams(){ return 2; };
-        void set_params(std::vector<double> params) { _xi = params[0]; _eta = params[1]; };
+        void set_params(std::vector<double> params) { _cutoff = params[0]*params[0]; _eta = params[1]; };
 
         // Set the file path and prefix for where to search for grids
         // Files are assumed to be in the format:
@@ -123,10 +120,9 @@ namespace jpacPhoto
 
         int    _jmax;   // Maximal s-channel spin in PWA expansion
         int    _nAmps;  // Number of helicity amplitudes to import
-        double _xi;     // s-channel cut-off in dispersion relation
+        double _cutoff = 0.; // s-channel cut-off in dispersion relation
         double _eta;    // t-channel cut-off in form-factor
         double _sth;
-        bool   _hardCutoff = true;
 
         std::string _prefix = "./";
         bool _dataImported = false;

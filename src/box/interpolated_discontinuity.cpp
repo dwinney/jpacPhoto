@@ -58,39 +58,29 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int ext
 // Take in a function F which is the imaginary part of an amplitude and calculate the dispersion integral
 std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::function<double(double)> f, double s)
 {
-    if ( _hardCutoff )
+    if (_intermediateThreshold < 0)
     {
-        // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
-        double fs;
-        (s > _intermediateThreshold) ? (fs = f(s)) : (fs = 0.);
-
-        auto g = [&] (double sp)
-        {
-            return (f(sp) - fs) / (sp - s - IEPS);
-        };
-
-        std::complex<double> result;
-        result  = (1. / PI) * boost::math::quadrature::gauss_kronrod<double, 31>::integrate(g, _intermediateThreshold, _xi, 0, 1.E-6, NULL);
-        result += (fs / PI) * (log(_xi - XR * s) - log(_intermediateThreshold - XR * s));
+        std::cout << "interpolated_discontinutiy: Warning! intermediate threshold not set. Returning 0." << std::endl;
+        return 0.;
+    }
+    if (_cutoff < _intermediateThreshold)
+    {
+        std::cout << "interpolated_discontinutiy: Warning! Cutoff below threshold. Returning 0." << std::endl;
+        return 0.;
+    }
     
-        return result;
-    }
-    else
+    // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
+    double fs;
+    (s > _intermediateThreshold) ? (fs = f(s)) : (fs = 0.);
+
+    auto g = [&] (double sp)
     {
-        // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
-        double fs  = f(s);
+        return (f(sp) - fs) / (sp - s - IEPS);
+    };
 
-        auto g = [&] (double sp)
-        {
-            return ( f(sp) - fs ) / (sp * (sp - s - IEPS));
-        };
+    std::complex<double> result;
+    result  = (1. / PI) * boost::math::quadrature::gauss_kronrod<double, 31>::integrate(g, _intermediateThreshold, _cutoff, 0, 1.E-6, NULL);
+    result += (fs / PI) * (log(_cutoff - XR * s) - log(_intermediateThreshold - XR * s));
 
-        std::complex<double> intpiece, logpiece;
-        intpiece =   ( s / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _intermediateThreshold, 100., 0, 1.E-6, NULL);
-        logpiece = - (fs / PI) * log(1. - s / _intermediateThreshold - IEPS);
-        
-        std::complex<double> result =  _xi * (/* 1. + */ intpiece + logpiece);
-
-        return result;
-    }
+    return result;
 };
