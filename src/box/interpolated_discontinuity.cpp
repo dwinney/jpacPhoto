@@ -61,20 +61,17 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::func
     if ( _hardCutoff )
     {
         // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
-        double fs = f(s);
+        double fs;
+        (s > _intermediateThreshold) ? (fs = f(s)) : (fs = 0.);
 
         auto g = [&] (double sp)
         {
-            if (sp < _intermediateThreshold) return XR * 0.;
             return (f(sp) - fs) / (sp - s - IEPS);
         };
 
-        std::complex<double> intpiece, logpiece;
-        intpiece = (1. / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _intermediateThreshold + EPS, _xi, 0, 1.E-6, NULL);
-
-        logpiece = (fs / PI) * (log(_xi - XR * s) - log(_intermediateThreshold + EPS - XR * s));
-
-        std::complex<double> result =  intpiece + logpiece;
+        std::complex<double> result;
+        result  = (1. / PI) * boost::math::quadrature::gauss_kronrod<double, 31>::integrate(g, _intermediateThreshold, _xi, 0, 1.E-6, NULL);
+        result += (fs / PI) * (log(_xi - XR * s) - log(_intermediateThreshold - XR * s));
     
         return result;
     }
