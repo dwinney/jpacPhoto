@@ -36,7 +36,8 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
         }
         else
         {
-            result  = scalar_propagator();
+            result  =  - XI;
+            result *= scalar_propagator();
             result *= top_residue();
             result *= bottom_residue();
         }
@@ -317,7 +318,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::pseudoscalar_coupling()
         temp  = _covariants->beam_polarization(mu);
         temp *= METRIC[mu];
         temp *= _covariants->t_momentum(mu) - _covariants->meson_momentum(mu);
-        result += - temp; 
+        result += temp; 
     }
 
     return _gT * result;

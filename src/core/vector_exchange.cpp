@@ -208,12 +208,6 @@ std::complex<double> jpacPhoto::vector_exchange::covariant_amplitude()
         {
             std::complex<double> temp;
             temp  = top_vertex(mu);
-
-            // ---
-            // Debug code to try and reproduce Du et al result in box
-            if (_debug == 50) temp *= METRIC[mu];
-            // ---
-
             temp *= METRIC[mu];
             temp *= vector_propagator(mu, nu);
             temp *= METRIC[nu];
@@ -298,7 +292,7 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
             {
                 for (int gamma = 0; gamma < 4; gamma++)
                 {
-                    std::complex<double> temp = XI;
+                    std::complex<double> temp = - XI;
 
                     temp  = levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < EPS) continue;
@@ -337,7 +331,7 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
         }
     }
 
-    return  - XI * _gGam * result;
+    return  _gGam * result;
 };
 
 std::complex<double> jpacPhoto::vector_exchange::scalar_coupling(int mu)
@@ -409,7 +403,7 @@ std::complex<double> jpacPhoto::vector_exchange::bottom_vertex(int mu)
         }
     }
 
-    return XI * (_gV * vector - _gT * tensor);
+    return - XI * (_gV * vector - _gT * tensor);
 };
 
 // ---------------------------------------------------------------------------
@@ -427,5 +421,5 @@ std::complex<double> jpacPhoto::vector_exchange::vector_propagator(int mu, int n
 
     result /= _t - _mEx2;
 
-    return result;
+    return  result;
 };

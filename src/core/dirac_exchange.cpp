@@ -99,7 +99,8 @@ std::complex<double> jpacPhoto::dirac_exchange::halfplus_coupling(int i)
         result += temp;
     }
 
-    return - XI * _gG * result;
+    if ( _kinematics->is_photon() ) result *= -1.;
+    return XI * _gG * result;
 };
 
 std::complex<double> jpacPhoto::dirac_exchange::halfminus_coupling(int i)
@@ -221,5 +222,5 @@ std::complex<double> jpacPhoto::dirac_exchange::dirac_propagator(int i, int j)
     std::complex<double> result;
     result  = _covariants->slashed_u_momentum(i, j) - std::complex<double>(i == j) * _mEx;
     result /= _u - _mEx2;
-    return result;
+    return - XI * result;
 };
