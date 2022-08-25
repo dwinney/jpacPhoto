@@ -65,12 +65,14 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::func
 
         auto g = [&] (double sp)
         {
+            if (sp < _intermediateThreshold) return XR * 0.;
             return (f(sp) - fs) / (sp - s - IEPS);
         };
 
         std::complex<double> intpiece, logpiece;
-        intpiece = (1. / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _kinematics->sth() + EPS, _xi, 0, 1.E-6, NULL);
-        logpiece = (fs / PI) * (log(_xi - s - 10.*IEPS) - log(_kinematics->sth() + EPS - s - 10.*IEPS));
+        intpiece = (1. / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _intermediateThreshold + EPS, _xi, 0, 1.E-6, NULL);
+
+        logpiece = (fs / PI) * (log(_xi - XR * s) - log(_intermediateThreshold + EPS - XR * s));
 
         std::complex<double> result =  intpiece + logpiece;
     
@@ -80,7 +82,6 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::func
     {
         // To avoid numerical instabilities we take the principle value by explicitly subtracting the f(s) point and doing the residual integral analyitically
         double fs  = f(s);
-        double sth = _kinematics->sth();
 
         auto g = [&] (double sp)
         {
@@ -88,8 +89,8 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::dispersion(std::func
         };
 
         std::complex<double> intpiece, logpiece;
-        intpiece =   ( s / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, sth + EPS, 100., 0, 1.E-6, NULL);
-        logpiece = - (fs / PI) * log(1. - s / sth - IEPS);
+        intpiece =   ( s / PI) * boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, _intermediateThreshold, 100., 0, 1.E-6, NULL);
+        logpiece = - (fs / PI) * log(1. - s / _intermediateThreshold - IEPS);
         
         std::complex<double> result =  _xi * (/* 1. + */ intpiece + logpiece);
 

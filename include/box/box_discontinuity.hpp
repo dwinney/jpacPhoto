@@ -46,11 +46,14 @@ namespace jpacPhoto
         // By default we require no additional parameters
         virtual int  get_nParams() = 0;
         virtual void set_params(std::vector<double> params) { _params.clear(); _params = params; };
+        
+        inline void set_intermediate_threshold(double wth){ _intermediateThreshold = wth*wth; };
 
         protected:
 
         // All kinematic quantities of the overall scattering process
         reaction_kinematics * _kinematics;
+        double _intermediateThreshold;
         std::vector<double> _params;
     };
 

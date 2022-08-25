@@ -74,7 +74,7 @@ namespace jpacPhoto
         };
 
         // Evaluate the dispersion relation and spit out the helicity amplitude
-        void use_cutoff(bool i){ _hardCutoff = i; };
+        inline void use_cutoff(bool i){ _hardCutoff = i; };
 
         // Parameter setting and getting
         int  get_nParams(){ return 2; };
@@ -125,6 +125,7 @@ namespace jpacPhoto
         int    _nAmps;  // Number of helicity amplitudes to import
         double _xi;     // s-channel cut-off in dispersion relation
         double _eta;    // t-channel cut-off in form-factor
+        double _sth;
         bool   _hardCutoff = true;
 
         std::string _prefix = "./";

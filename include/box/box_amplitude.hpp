@@ -62,6 +62,8 @@ namespace jpacPhoto
             _disc->set_params(params);
         };
 
+        inline void set_intermediate_threshold(double wth){ _disc->set_intermediate_threshold(wth); };
+
         // only vector and proton quantum numbers available currently
         inline std::vector<std::array<int,2>> allowed_meson_JP()
         {
