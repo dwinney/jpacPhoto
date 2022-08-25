@@ -1,13 +1,12 @@
 // ---------------------------------------------------------------------------
-// Total photoproduction cross-sections of the Lambda_c D final state
-// Amplitude constructed from considering open-charm exchanges in t and u channels
-// 
+// Photoproduction cross-sections of the Lambda_c D final state
+// Constructed by considering individual s-channel partial wave projections
+//
+// Here we consider up to J = 5/2
+//
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
-// Email:        dwinney@iu.edu
-// ---------------------------------------------------------------------------
-// References:
-// [1] arXiv:2009.08345v1
+// Email:        daniel.winney@gmail.edu
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
@@ -16,7 +15,7 @@
 #include "vector_exchange.hpp"
 #include "dirac_exchange.hpp"
 #include "amplitude_sum.hpp"
-
+#include "projected_amplitude.hpp"
 #include "jpacGraph1D.hpp"
 
 #include <cstring>
@@ -25,7 +24,7 @@
 
 using namespace jpacPhoto;
 
-void gamp_dlam()
+void gamp_dlam_PWE()
 {
     // Form factor parameter
     double eta = 1.;
@@ -39,8 +38,8 @@ void gamp_dlam()
     reaction_kinematics kD (M_D, M_LAMBDAC);
     kD.set_meson_JP(0, -1);
 
-    vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
-    d_dstarEx.set_params({0.134, -4.3, 0.});
+    vector_exchange d_dstarEx (&kD, M_DSTAR, "D^{*} exchange");
+    d_dstarEx.set_params({0.134, -4.2, 0.});
     d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     d_dstarEx.force_covariant(true);
 
@@ -49,7 +48,18 @@ void gamp_dlam()
     d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
     d_lamcEx.force_covariant(true);
 
-    amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Sum");
+    amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Full");
+
+    // ---------------------------------------------------------------------------
+    // PW projection
+    // ---------------------------------------------------------------------------
+    
+    // Take the sum ampitude and pass it to a projected_amplitude
+    projected_amplitude d_sum1(&d_sum, 1, "#it{J} = 1/2");
+    projected_amplitude d_sum3(&d_sum, 3, "#it{J} = 3/2");
+    projected_amplitude d_sum5(&d_sum, 5, "#it{J} = 5/2");
+
+    amplitude_sum d_sum135 (&kD,  {&d_sum1, &d_sum3, &d_sum5}, "PWA Sum");
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -57,12 +67,13 @@ void gamp_dlam()
 
     // which amps to plot
     std::vector<amplitude*> amps;
-
-    amps.push_back(&d_dstarEx);
-    amps.push_back(&d_lamcEx);
+    amps.push_back(&d_sum1);
+    amps.push_back(&d_sum3);
+    amps.push_back(&d_sum5);
+    amps.push_back(&d_sum135);
     amps.push_back(&d_sum);
 
-    int N = 100;
+    int N = 50;
     double PRINT = true;
 
     double xmin = 4.;
@@ -71,8 +82,8 @@ void gamp_dlam()
     double ymin = 0.;
     double ymax = 200.;
 
-    std::string filename  = "gamp.pdf";
-    std::string ylabel    = "#sigma(#gamma #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [nb]";
+    std::string filename  = "gam_dlam_PWE.pdf";
+    std::string ylabel    = "#sigma(#gamma#it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [nb]";
     std::string xlabel    = "#it{W}  [GeV]";
 
     // ---------------------------------------------------------------------------
@@ -95,8 +106,8 @@ void gamp_dlam()
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.2, 0.75);
-    plotter->SetLegendOffset(0.5, 0.1);
+    plotter->SetLegend(0.2, 0.65);
+    plotter->SetLegendOffset(0.5, 0.17);
 
     // Output to file
     plotter->Plot(filename);

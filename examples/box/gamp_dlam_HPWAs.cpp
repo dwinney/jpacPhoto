@@ -24,7 +24,7 @@
 
 using namespace jpacPhoto;
 
-void gamp_dlam_PWA()
+void gamp_dlam_HPWAs()
 {
     // Form factor parameter
     double eta = 1.;
@@ -39,51 +39,39 @@ void gamp_dlam_PWA()
     kD.set_meson_JP(0, -1);
 
     vector_exchange d_dstarEx (&kD, M_DSTAR, "D^{*} exchange");
-    d_dstarEx.set_params({0.134, -13.2, 0.});
+    d_dstarEx.set_params({0.134, -4.3, 0.});
     d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -4.3, 0.});
+    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -13.2, 0.});
     d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
     d_lamcEx.force_covariant(true);
 
-    amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Full Sum");
+    amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Sum");
 
     // ---------------------------------------------------------------------------
     // PW projection
     // ---------------------------------------------------------------------------
     
     // Take the sum ampitude and pass it to a projected_amplitude
-    projected_amplitude d_sum1(&d_sum, 1, "#it{J} = 1/2");
-    projected_amplitude d_sum3(&d_sum, 3, "#it{J} = 3/2");
-    projected_amplitude d_sum5(&d_sum, 5, "#it{J} = 5/2");
-
-    amplitude_sum d_sum135 (&kD,  {&d_sum1, &d_sum3, &d_sum5}, "Sum up to #it{J}_{max} = 5/2");
+    helicity_PWA hpwa(&d_sum, 1, 3);
 
     // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    // which amps to plot
-    std::vector<amplitude*> amps;
-    amps.push_back(&d_sum1);
-    amps.push_back(&d_sum3);
-    amps.push_back(&d_sum5);
-    amps.push_back(&d_sum135);
-    amps.push_back(&d_sum);
-
     int N = 50;
     double PRINT = true;
 
-    double xmin = 4.;
-    double xmax = 6.;
+    double xmin = sqrt(kD.sth()) + 0.01;
+    double xmax = 5.;
 
     double ymin = 0.;
-    double ymax = 1.;
+    double ymax = 1.5;
 
-    std::string filename  = "open_charm.pdf";
-    std::string ylabel    = "#sigma(#gamma #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [#mub]";
+    std::string filename  = "gamp_pwa.pdf";
+    std::string ylabel    = "#it{b}_{#{}{#it{L}}}^{1/2} (#it{s})";
     std::string xlabel    = "#it{W}  [GeV]";
 
     // ---------------------------------------------------------------------------
@@ -94,20 +82,27 @@ void gamp_dlam_PWA()
 
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
-    for (int n = 0; n < amps.size(); n++)
+    auto reF = [&](double w)
     {
-        auto F = [&](double w)
-        {
-            return amps[n]->integrated_xsection(w*w) * 1E-3;
-        };
-
-        plotter->AddEntry(N, F, {xmin, xmax}, amps[n]->get_id(), PRINT);
+        return hpwa.real_part(w*w);
     };
+    auto imF = [&](double w)
+    {
+        return hpwa.imag_part(w*w);
+    };
+
+    hpwa.set_helicities({1, 1, 0, +1});
+    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 + }", PRINT);
+    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+
+    hpwa.set_helicities({1, 1, 0, -1});
+    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 #minus }", PRINT);
+    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.2, 0.65);
-    plotter->SetLegendOffset(0.5, 0.17);
+    plotter->SetLegend(0.2, 0.7);
+    plotter->SetLegendOffset(0.5, 0.1);
 
     // Output to file
     plotter->Plot(filename);

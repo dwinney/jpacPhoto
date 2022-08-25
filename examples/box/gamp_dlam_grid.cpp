@@ -48,11 +48,11 @@ void gamp_dlam_grid()
     kD.set_meson_JP(0, -1);
 
     vector_exchange d_dstarEx (&kD, M_DSTAR, "D^{*} exchange");
-    d_dstarEx.set_params({0.134, -13.2, 0.});
+    d_dstarEx.set_params({0.134, -4.2, 0.});
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -4.3, 0.});
+    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -13.2, 0.});
     d_lamcEx.force_covariant(true);
 
     // Full amplitude sum
