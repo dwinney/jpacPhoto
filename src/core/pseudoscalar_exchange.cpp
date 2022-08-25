@@ -36,8 +36,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::helicity_amplitude(std::a
         }
         else
         {
-            result  =  - XI;
-            result *= scalar_propagator();
+            result  = scalar_propagator();
             result *= top_residue();
             result *= bottom_residue();
         }
@@ -174,7 +173,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::scalar_propagator()
 {
     if (_reggeized == false)
     {
-        return 1. / (_t - _mEx2);
+        return - XI / (_t - _mEx2);
     }
     else
     {
@@ -321,5 +320,5 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::pseudoscalar_coupling()
         result += temp; 
     }
 
-    return _gT * result;
+    return XI * _gT * result;
 };
