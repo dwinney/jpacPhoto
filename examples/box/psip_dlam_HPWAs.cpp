@@ -1,13 +1,12 @@
 // ---------------------------------------------------------------------------
-// Total cross-sections for psi p -> Lambda_c D final state
-// Amplitude constructed from considering open-charm exchanges in t and u channels
-// 
+// Photoproduction cross-sections of the Lambda_c D final state
+// Constructed by considering individual s-channel partial wave projections
+//
+// Here we consider up to J = 5/2
+//
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
-// Email:        dwinney@iu.edu
-// ---------------------------------------------------------------------------
-// References:
-// [1] arXiv:2009.08345v1
+// Email:        daniel.winney@gmail.edu
 // ---------------------------------------------------------------------------
 
 #include "constants.hpp"
@@ -16,7 +15,7 @@
 #include "vector_exchange.hpp"
 #include "dirac_exchange.hpp"
 #include "amplitude_sum.hpp"
-
+#include "projected_amplitude.hpp"
 #include "jpacGraph1D.hpp"
 
 #include <cstring>
@@ -25,9 +24,9 @@
 
 using namespace jpacPhoto;
 
-void psip_dlam()
+void psip_dlam_HPWAs()
 {
-    // Form factor parameter
+     // Form factor parameter
     double eta = 1.;
     double lambdaQCD = 0.25;
 
@@ -63,27 +62,27 @@ void psip_dlam()
     amplitude_sum d_sum (&kD,  {&d_dEx, &d_dstarEx, &d_lamcEx}, "Sum");
 
     // ---------------------------------------------------------------------------
+    // PW projection
+    // ---------------------------------------------------------------------------
+    
+    // Take the sum ampitude and pass it to a projected_amplitude
+    helicity_PWA hpwa(&d_sum, 1, 3);
+
+    // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    // which amps to plot
-    std::vector<amplitude*> amps;
-    amps.push_back(&d_dEx);
-    amps.push_back(&d_dstarEx);
-    amps.push_back(&d_lamcEx);
-    amps.push_back(&d_sum);
-
-    int N = 150;
+    int N = 50;
     double PRINT = true;
 
-    double xmin = 4.;
+    double xmin = sqrt(kD.sth()) + 0.01;
     double xmax = 5.;
 
-    double ymin = 0.;
-    double ymax = 60.;
+    double ymin = -2.5;
+    double ymax = +6.0;
 
-    std::string filename  = "psip_dlam.pdf";
-    std::string ylabel    = "#sigma(#it{J}/#psi #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [#mub]";
+    std::string filename  = "psip__dlam_hpwas.pdf";
+    std::string ylabel    = "#it{c}_{#{}{#it{R}}}^{1/2} (#it{s})";
     std::string xlabel    = "#it{W}  [GeV]";
 
     // ---------------------------------------------------------------------------
@@ -94,20 +93,35 @@ void psip_dlam()
 
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
-    for (int n = 0; n < amps.size(); n++)
+    auto reF = [&](double w)
     {
-        auto F = [&](double w)
-        {
-            return amps[n]->integrated_xsection(w*w) * 1.E-3;
-        };
-
-        plotter->AddEntry(N, F, {xmin, xmax}, amps[n]->get_id(), PRINT);
+        return hpwa.real_part(w*w);
     };
+    auto imF = [&](double w)
+    {
+        return hpwa.imag_part(w*w);
+    };
+
+    hpwa.set_helicities({1, 1, 0, +1});
+    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 + }", PRINT);
+    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+
+    hpwa.set_helicities({1, 1, 0, -1});
+    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 #minus }", PRINT);
+    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+
+    hpwa.set_helicities({0, 1, 0, +1});
+    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ 0 +, 0 + }", PRINT);
+    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+
+    hpwa.set_helicities({0, 1, 0, -1});
+    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ 0 +, 0 #minus }", PRINT);
+    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.2, 0.65);
-    plotter->SetLegendOffset(0.5, 0.16);
+    plotter->SetLegend(0.45, 0.7);
+    plotter->SetLegendOffset(0.5, 0.15);
 
     // Output to file
     plotter->Plot(filename);

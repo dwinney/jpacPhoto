@@ -24,7 +24,7 @@
 
 using namespace jpacPhoto;
 
-void psip_dlam_PWA()
+void psip_dlam_PWE()
 {
     // Form factor parameter
     double eta = 1.;
@@ -32,8 +32,8 @@ void psip_dlam_PWA()
 
     double gPsiDD  = 7.4;
     double gPsiDDs = gPsiDD / sqrt(M_D * M_DSTAR);
-    double gDNL    = -4.3;
-    double gDsNL   = -13.2;
+    double gDNL    = -13.2;
+    double gDsNL   = -4.3;
     double gPsiLL  = -1.4;
 
     // ---------------------------------------------------------------------------
@@ -49,17 +49,17 @@ void psip_dlam_PWA()
     d_dEx.set_formfactor(2, M_D + eta * lambdaQCD);
     d_dEx.force_covariant(true);
 
-    vector_exchange d_dstarEx (&kD, M_DSTAR, "D^{*} exchange");
+    vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
     d_dstarEx.set_params({gPsiDDs, gDsNL, 0.});
     d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), gPsiLL, 0.});
+    d_lamcEx.set_params({gPsiLL, gDNL, 0.});
     d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
     d_lamcEx.force_covariant(true);
 
-    amplitude_sum d_sum (&kD,  {&d_dEx, &d_dstarEx, &d_lamcEx}, "Sum");
+    amplitude_sum d_sum (&kD,  {&d_dEx, &d_dstarEx, &d_lamcEx}, "Full");
 
     // ---------------------------------------------------------------------------
     // PW projection
@@ -70,7 +70,7 @@ void psip_dlam_PWA()
     projected_amplitude d_sum3(&d_sum, 3, "#it{J} = 3/2");
     projected_amplitude d_sum5(&d_sum, 5, "#it{J} = 5/2");
 
-    amplitude_sum d_sum135 (&kD,  {&d_sum1, &d_sum3, &d_sum5}, "Sum up to #it{J}_{max} = 5/2");
+    amplitude_sum d_sum135 (&kD,  {&d_sum1, &d_sum3, &d_sum5}, "PWA Sum");
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -88,13 +88,13 @@ void psip_dlam_PWA()
     double PRINT = true;
 
     double xmin = 4.;
-    double xmax = 6.;
+    double xmax = 5.;
 
     double ymin = 0.;
-    double ymax = 200.;
+    double ymax = 60.;
 
-    std::string filename  = "open_charm.pdf";
-    std::string ylabel    = "#sigma(#psi #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [#mub]";
+    std::string filename  = "psip_dlam_pwe.pdf";
+    std::string ylabel    = "#sigma(#it{J}#psi #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [#mub]";
     std::string xlabel    = "#it{W}  [GeV]";
 
     // ---------------------------------------------------------------------------
