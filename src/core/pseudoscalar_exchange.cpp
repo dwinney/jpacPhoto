@@ -303,8 +303,8 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
             }
         }
     }
-    
     if (!_kinematics->is_photon()) result /= -4.;
+
     return _gT * result;
 };
 

@@ -267,15 +267,45 @@ std::complex<double> jpacPhoto::vector_exchange::vector_coupling(int mu)
 {
     std::complex<double> result = 0.;
 
-    for (int nu = 0; nu < 4; nu++)
+    if (_kinematics->is_photon())
     {
-        std::complex<double> temp = + XI;
-        temp *= _covariants->beam_field_tensor(mu, nu);
-        temp *= METRIC[nu];
-        temp *= _covariants->meson_polarization(nu);
+        for (int nu = 0; nu < 4; nu++)
+        {
+            std::complex<double> temp = + XI;
+            temp *= _covariants->beam_field_tensor(mu, nu);
+            temp *= METRIC[nu];
+            temp *= _covariants->meson_polarization(nu);
 
-        result += temp;
+            result += temp;
+        }        
     }
+    else
+    {
+        std::complex<double> eM_dot_eB = 0., eM_dot_qt = 0., eB_dot_ktqM = 0.;
+        for (int nu = 0; nu < 4; nu++)
+        {
+            std::complex<double> temp;
+            temp  = _covariants->meson_polarization(nu);
+            temp *= METRIC[nu];
+            temp *= _covariants->beam_polarization(nu);
+            eM_dot_eB += temp;
+
+            temp  = _covariants->t_momentum(nu);
+            temp *= METRIC[nu];
+            temp *= _covariants->meson_polarization(nu);
+            eM_dot_qt += temp;
+
+            temp  = _covariants->beam_polarization(nu);
+            temp *= METRIC[nu];
+            temp *= _covariants->t_momentum(nu) - _covariants->meson_momentum(nu);
+            eB_dot_ktqM += temp;
+        }
+
+        result =  eM_dot_eB   * _covariants->meson_momentum(mu)
+                - eM_dot_qt   * _covariants->beam_polarization(mu)
+                - eB_dot_ktqM * _covariants->meson_polarization(mu);
+    };
+
     return _gGam * result;
 };
 
