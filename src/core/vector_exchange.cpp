@@ -269,7 +269,7 @@ std::complex<double> jpacPhoto::vector_exchange::vector_coupling(int mu)
 
     for (int nu = 0; nu < 4; nu++)
     {
-        std::complex<double> temp = -1.;
+        std::complex<double> temp = + XI;
         temp *= _covariants->beam_field_tensor(mu, nu);
         temp *= METRIC[nu];
         temp *= _covariants->meson_polarization(nu);

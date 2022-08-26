@@ -291,7 +291,7 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
                 for (int gamma = 0; gamma < 4; gamma++)
                 {
                     std::complex<double> temp;
-                    temp = - levi_civita(mu, alpha, beta, gamma);
+                    temp = levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < 0.001) continue;
 
                     temp *= _covariants->meson_polarization(mu);
