@@ -16,7 +16,7 @@
 
 using namespace jpacPhoto;
 
-void disc_dlam_grid()
+void disc_dslam_grid()
 {
     // ---------------------------------------------------------------------------
     // Preliminaries 
@@ -26,21 +26,21 @@ void disc_dlam_grid()
     bool verbose = true;
 
     // Need the kinematics of the intermediate reactions to get phases and helicity combinations
-    reaction_kinematics kgamD (M_D, M_LAMBDAC);
-    kgamD.set_meson_JP(0, -1);
-    int nGamD = kgamD.num_amps();
+    reaction_kinematics kgamDs (M_DSTAR, M_LAMBDAC);
+    kgamDs.set_meson_JP(1, -1);
+    int nGamDs = kgamDs.num_amps();
 
     // Set up a vector to hold the nGamD helicity PWA interpoaltions
     std::vector<interpolation_2D*> ampB;
-    for (int i = 0; i < nGamD; i++) ampB.push_back( new interpolation_2D(verbose) );
+    for (int i = 0; i < nGamDs; i++) ampB.push_back( new interpolation_2D(verbose) );
 
-    reaction_kinematics kpsiD (M_JPSI, M_PROTON, M_D, M_LAMBDAC);
-    kpsiD.set_meson_JP(0, -1);
-    int nPsiD = kpsiD.num_amps();
+    reaction_kinematics kpsiDs (M_JPSI, M_PROTON, M_DSTAR, M_LAMBDAC);
+    kpsiDs.set_meson_JP(1, -1);
+    int nPsiDs = kpsiDs.num_amps();
 
     // Also set up containers for the C PWAs
     std::vector<interpolation_2D*> ampC;
-    for (int i = 0; i < nPsiD; i++) ampC.push_back( new interpolation_2D(verbose) );
+    for (int i = 0; i < nPsiDs; i++) ampC.push_back( new interpolation_2D(verbose) );
     
     // path to where the grid files are
     std::string path = "./grid_data/";
@@ -54,13 +54,13 @@ void disc_dlam_grid()
     // Need two-body phase-space function
     auto rho = [&] (double s)
     {
-        if ( s <= kgamD.sth() ) return 0.;
-        double k = kgamD.final_momentum(s);
+        if ( s <= kgamDs.sth() ) return 0.;
+        double k = kgamDs.final_momentum(s);
         return k / (8. * PI * sqrt(s));
     };
 
     //Grid size parameters (same as those used in the consitutent grids but this is not necessary)
-    double Wmin = sqrt(17.2741) + 100.*EPS, Wmax = 6.;
+    double Wmin = sqrt(18.4704) + EPS, Wmax = 6.;
     double etamin = 0., etamax = 1.5;
     int nS = 200, nEta = 20;
 
@@ -79,26 +79,24 @@ void disc_dlam_grid()
         int J = 2*j+1;
 
         // File name prefix
-        std::string gamPrefix = path + "gamD_J_" + std::to_string(J) + "_H_";
-        std::string psiPrefix = path + "psiD_J_" + std::to_string(J) + "_H_";
+        std::string gamPrefix = path + "gamDs_J_" + std::to_string(J) + "_H_";
+        std::string psiPrefix = path + "psiDs_J_" + std::to_string(J) + "_H_";
 
         // Grab the grids (remember we only saved half the amplitudes!)
         // first the B amps 
-        for (int i=0; i < nGamD/2; i++)
+        for (int i=0; i < nGamDs/2; i++)
         {
             std::string filename = gamPrefix + std::to_string(i) + ".dat";
             ampB[i]->import_grid(filename);
         };
 
         // then the C amps
-        for (int i=0; i < nPsiD/2; i++)
+        for (int i=0; i < nPsiDs/2; i++)
         {
             std::string filename = psiPrefix + std::to_string(i) + ".dat";
             ampC[i]->import_grid(filename);
         };
 
-        // Now for each helicity combination in kbox 
-        // we grab the grids of the 4 & 6 combinations of kgamD and kpsiD
         for (int i = 0; i < nBoxAmps/2; i++)
         {
             std::array<int,4> ith_helicities = kbox.helicities(i);
@@ -110,25 +108,21 @@ void disc_dlam_grid()
                 double a = 0.;
                 double b = 0., c = 0.;
 
-                for (int n = 0; n < 2; n++)
+                for (int n = 0; n < 6; n++)
                 {   
 
-                    // if i >= 6 hel[1] flips sign and we add 2 
-                    int b_ind = (i>=6) * 2;
+                    int b_ind = (i>=6) * 6;
                     b = ampB[b_ind + n]->eval(s, eta);
 
-                    // the psi case is symmetric from 0-5 and 6-11
-                    int c_ind = ( (i>=6)*(i-6) + !(i>=6)*i ) * 2;
-
-                    // However we need to incoporate parity phases since we dont have all 12 amplitudes stored
-                    if (c_ind <= 4)
+                    int c_ind = (i - (i>=6)*6) * 6;
+                    if (c_ind <= 12)
                     {
                         c = ampC[c_ind + n]->eval(s, eta);
                     } 
                     else
                     {
                         // with phase the kth amplitude gets replaced by N-1-kth amplitude where N is TOTAL number of amplitudes
-                        c = kpsiD.parity_phase(c_ind + n, S)*ampC[nPsiD -1 - c_ind - n]->eval(s,eta);
+                        c = kpsiDs.parity_phase(c_ind + n, S)*ampC[nPsiDs -1 - c_ind - n]->eval(s,eta);
                     };
 
                     a += rho(s) * b * c;
@@ -138,7 +132,7 @@ void disc_dlam_grid()
             };
 
             // Finish the filename with J and H index values
-            std::string filename = path + "boxD_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
+            std::string filename = path + "boxDs_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
             
             if (verbose)
             {
