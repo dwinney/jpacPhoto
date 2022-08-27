@@ -27,7 +27,7 @@ std::complex<double> jpacPhoto::helicity_PWA::eval(double s)
     // Net helicities
     int lam  = 2 * _helicities[0] - _helicities[1]; // Photon - Target
     int lamp = 2 * _helicities[2] - _helicities[3]; // Meson  - Recoil
-    if ( abs(lamp) > _J || abs(lamp) > _J ) return 0.; 
+    if ( abs(lam) > _J || abs(lamp) > _J ) return 0.; 
 
     // Then just calculate the PWA integral
     auto F = [&](double theta)
