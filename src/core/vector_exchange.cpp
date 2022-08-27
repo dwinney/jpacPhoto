@@ -304,6 +304,7 @@ std::complex<double> jpacPhoto::vector_exchange::vector_coupling(int mu)
         result =  eM_dot_eB   * _covariants->meson_momentum(mu)
                 - eM_dot_qt   * _covariants->beam_polarization(mu)
                 - eB_dot_ktqM * _covariants->meson_polarization(mu);
+        result *= -1.;
     };
 
     return _gGam * result;
@@ -361,7 +362,7 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
         }
     }
 
-    return  _gGam * result;
+    return  XI * _gGam * result;
 };
 
 std::complex<double> jpacPhoto::vector_exchange::scalar_coupling(int mu)
@@ -451,5 +452,5 @@ std::complex<double> jpacPhoto::vector_exchange::vector_propagator(int mu, int n
 
     result /= _t - _mEx2;
 
-    return  result;
+    return -XI * result;
 };
