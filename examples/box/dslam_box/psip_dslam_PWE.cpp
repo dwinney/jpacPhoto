@@ -24,65 +24,78 @@
 
 using namespace jpacPhoto;
 
-void psip_dlam_HPWAs()
+void psip_dslam_PWE()
 {
-     // Form factor parameter
+  // Form factor parameter
     double eta = 1.;
     double lambdaQCD = 0.25;
 
-    double gPsiDD  = 7.4;
-    double gPsiDDs = gPsiDD / sqrt(M_D * M_DSTAR);
-    double gDNL    = -13.2;
-    double gDsNL   = -4.3;
-    double gPsiLL  = -1.4;
+    double gPsiDD   = 7.4;
+    double gPsiDDs  = 3.83766;
+    double gPsiDsDs = 7.999;
+    double gDNL     = -13.2;
+    double gDsNL    = -4.3;
+    double gPsiLL   = -1.4;
 
     // ---------------------------------------------------------------------------
     // psi p -> D Lambda amplitudes
     // ---------------------------------------------------------------------------
 
     // Set up Kinematics for Dbar LambdaC in final state
-    reaction_kinematics kD (M_JPSI, M_PROTON, M_D, M_LAMBDAC);
-    kD.set_meson_JP(0, -1);
+    reaction_kinematics kDs (M_JPSI, M_PROTON, M_DSTAR, M_LAMBDAC);
+    kDs.set_meson_JP(1, -1);
 
-    pseudoscalar_exchange d_dEx (&kD, M_D, "D exchange");
-    d_dEx.set_params({gPsiDD, gDNL});
-    d_dEx.set_formfactor(2, M_D + eta * lambdaQCD);
-    d_dEx.force_covariant(true);
+    pseudoscalar_exchange ds_dEx (&kDs, M_D, "D exchange");
+    ds_dEx.set_params({gPsiDDs, gDNL});
+    ds_dEx.set_formfactor(2, M_D + eta * lambdaQCD);
+    ds_dEx.force_covariant(true);
 
-    vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
-    d_dstarEx.set_params({gPsiDDs, gDsNL, 0.});
-    d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
-    d_dstarEx.force_covariant(true);
+    vector_exchange ds_dstarEx (&kDs, M_DSTAR, "D* exchange");
+    ds_dstarEx.set_params({gPsiDsDs, gDsNL, 0.});
+    ds_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
+    ds_dstarEx.force_covariant(true);
 
-    dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({gPsiLL, gDNL, 0.});
-    d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
-    d_lamcEx.force_covariant(true);
+    dirac_exchange ds_lamcEx (&kDs, M_LAMBDAC, "#Lambda_{c} exchange");
+    ds_lamcEx.set_params({gPsiLL, gDsNL, 0.});
+    ds_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
+    ds_lamcEx.force_covariant(true);
 
-    amplitude_sum d_sum (&kD,  {&d_dEx, &d_dstarEx, &d_lamcEx}, "Sum");
+    amplitude_sum ds_sum (&kDs,  {&ds_dEx, &ds_dstarEx, &ds_lamcEx}, "Sum");
 
     // ---------------------------------------------------------------------------
     // PW projection
     // ---------------------------------------------------------------------------
     
     // Take the sum ampitude and pass it to a projected_amplitude
-    helicity_PWA hpwa(&d_sum, 1, 3);
+    projected_amplitude ds_sum1(&ds_sum, 1, "#it{J} = 1/2");
+    projected_amplitude ds_sum3(&ds_sum, 3, "#it{J} = 3/2");
+    projected_amplitude ds_sum5(&ds_sum, 5, "#it{J} = 5/2");
+
+    amplitude_sum ds_sum135 (&kDs,  {&ds_sum1, &ds_sum3, &ds_sum5}, "PWA Sum");
 
     // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
 
+    // which amps to plot
+    std::vector<amplitude*> amps;
+    amps.push_back(&ds_sum1);
+    amps.push_back(&ds_sum3);
+    amps.push_back(&ds_sum5);
+    amps.push_back(&ds_sum135);
+    amps.push_back(&ds_sum);
+
     int N = 50;
     double PRINT = true;
 
-    double xmin = sqrt(kD.sth()) + 0.01;
+    double xmin = 4.;
     double xmax = 5.;
 
-    double ymin = -2.5;
-    double ymax = +6.0;
+    double ymin = 0.;
+    double ymax = 200.;
 
-    std::string filename  = "psip_dlam_hpwas.pdf";
-    std::string ylabel    = "#it{c}_{#{}{#it{R}}}^{1/2} (#it{s})";
+    std::string filename  = "psip_dslam_pwe.pdf";
+    std::string ylabel    = "#sigma(#it{J}#psi #it{p} #rightarrow #bar{#it{D}}* #Lambda_{c}^{+})   [#mub]";
     std::string xlabel    = "#it{W}  [GeV]";
 
     // ---------------------------------------------------------------------------
@@ -93,35 +106,20 @@ void psip_dlam_HPWAs()
 
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
-    auto reF = [&](double w)
+    for (int n = 0; n < amps.size(); n++)
     {
-        return hpwa.real_part(w*w);
+        auto F = [&](double w)
+        {
+            return amps[n]->integrated_xsection(w*w) * 1E-3;
+        };
+
+        plotter->AddEntry(N, F, {xmin, xmax}, amps[n]->get_id(), PRINT);
     };
-    auto imF = [&](double w)
-    {
-        return hpwa.imag_part(w*w);
-    };
-
-    hpwa.set_helicities({1, 1, 0, +1});
-    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 + }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
-
-    hpwa.set_helicities({1, 1, 0, -1});
-    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 #minus }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
-
-    hpwa.set_helicities({0, 1, 0, +1});
-    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ 0 +, 0 + }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
-
-    hpwa.set_helicities({0, 1, 0, -1});
-    plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ 0 +, 0 #minus }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.45, 0.7);
-    plotter->SetLegendOffset(0.5, 0.15);
+    plotter->SetLegend(0.2, 0.65);
+    plotter->SetLegendOffset(0.5, 0.17);
 
     // Output to file
     plotter->Plot(filename);
