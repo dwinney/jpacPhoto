@@ -33,6 +33,11 @@ namespace jpacPhoto
           _J(0), _helicities(amp->_kinematics->helicities(0))
         {};
 
+        helicity_PWA(amplitude * amp, int J)
+        : _amplitude(amp), _kinematics(amp->_kinematics), 
+          _J(J), _helicities(amp->_kinematics->helicities(0))
+        {};
+
         helicity_PWA(amplitude * amp, int J, int h)
         : _amplitude(amp), _kinematics(amp->_kinematics), 
           _J(J), _helicities(amp->_kinematics->helicities(h))

@@ -176,7 +176,7 @@ std::complex<double> jpacPhoto::dirac_exchange::vector_coupling(int j)
         result += temp;
     }
 
-    return -_gN * result;
+    return _gN * result;
 };
 
 std::complex<double> jpacPhoto::dirac_exchange::pseudoscalar_coupling(int j)
