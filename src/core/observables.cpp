@@ -98,7 +98,10 @@ double jpacPhoto::amplitude::differential_xsection(double s, double t)
     norm /= 64. * PI * s;
     norm /= std::real(pow(_kinematics->initial_momentum(s), 2.));
     norm /= (2.56819E-6); // Convert from GeV^-2 -> nb
-    norm /= 4.; // Average over initial state helicites
+
+    // Average over initial helicities
+    if (_kinematics->is_photon()) norm /= 4.;
+    else                          norm /= 6.;
 
     return norm * sum;
 };
