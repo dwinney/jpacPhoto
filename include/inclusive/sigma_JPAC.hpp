@@ -57,7 +57,7 @@ namespace jpacPhoto
 
         double eval(double s, double q2)
         {
-            double _cutoff = 4.6;
+            double _cutoff = 4.2;
             double x1 = _cutoff;
             double x2 = _cutoff + 1.;
 
