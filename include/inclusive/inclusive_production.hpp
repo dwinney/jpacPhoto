@@ -48,6 +48,9 @@ namespace jpacPhoto
         // See _useTX below
         inline void set_TX(bool opt){ _useTX = opt; };
 
+        // Ability to change the minimum mass
+        inline void set_Mmin(double m){ _kinematics->_minM2 = m*m; };
+
         // Print out the id
         inline std::string get_id(){ return _identifier; };
 
