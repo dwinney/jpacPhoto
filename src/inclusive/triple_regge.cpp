@@ -20,7 +20,7 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         // Axial-vector - photon - psuedoscalar coupling
         _coupling = [&](double t)
         {
-            return  (_g / _kinematics->_mX) * (t - _kinematics->_mX2);
+            return  (_g / _kinematics->_mX) * (t - _kinematics->_mX2) / 2.;
         };
 
         // Default: pi- exchange with the PDG parameterization (no resonances)
@@ -78,7 +78,7 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     double coupling2   = _coupling(t) * _coupling(t);
 
     // Form factor with tprime corresponding to the exclusive limit
-    double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( M_PROTON )));
+    double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( M2_PROTON )));
 
     // The form of the exchange propagators depends on if we want a regge form or not
     double exchange_propagator2;
@@ -104,5 +104,9 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     // Get missing mass to put into the sigma_tot
     double sigma_tot =  _sigma_tot->eval(M2, t);
 
-    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / pow(4. * M_PI, 3.);
+    // debug("sigma", sigma_tot);
+    // debug("coup2", coupling2*formfactor2);
+    // debug("prop2", exchange_propagator2);
+
+    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / (16. * pow(M_PI, 3.));
 };  
