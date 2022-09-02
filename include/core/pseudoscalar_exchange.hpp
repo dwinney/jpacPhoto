@@ -103,21 +103,12 @@ namespace jpacPhoto
             else return { {1, +1} };
         };
 
-
         // Accessor functions for private memebers 
         inline bool if_reggeized(){ return _reggeized; };
         inline double get_mEx2(){ return _mEx2; };
         inline linear_trajectory * get_trajectory(){ return _alpha; };
         inline double get_cutoff(){ return _cutoff; };
         inline double get_coupling(){ return _gT; };
-
-        // return the coupling function for the top vertex
-        // For use with inclusive
-        inline double top_coupling(double t)
-        { 
-            update({0,0,0,0}, 0, t);
-            return std::real(top_residue()); 
-        };
 
         // --------------------------------------------------------------------
 
