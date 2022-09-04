@@ -112,6 +112,13 @@ namespace jpacPhoto
             return r * cos;
         };
 
+        inline double XfromTM2(double t, double M2)
+        {
+            double r   = RfromTM2(t, M2);
+            double cos = COSfromTM2(t, M2);
+            return XfromRCOS(r, cos);
+        }
+
         // ---------------------------------------------------------------------------
         // INVARIANT variables (t, M2)
 
@@ -120,6 +127,19 @@ namespace jpacPhoto
         {
             return sqrt(Kallen(_s, _mX2, M2)) / (2. * sqrt(_s));
         };  
+
+        inline double COSfromTM2(double t, double M2)
+        {
+            double u = _mT2 + _mX2 + M2 - _s - t;
+            double num  = _s * (t - u) - _mT2*(_mX2 - M2);
+ 
+            return num / (4.*_s*qGamma()*pXfromM2(M2));
+        };
+
+        inline double RfromTM2(double t, double M2)
+        {
+            return pXfromM2(M2) / pMax();
+        };
 
         // Jacobian in (t, M2)
         inline double jacobianTM2(double t, double M2)

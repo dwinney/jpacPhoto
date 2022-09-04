@@ -67,6 +67,13 @@ namespace jpacPhoto
         // Alias function to rename d3sigma_d3p to more human name
         inline double invariant_xsection(double s, double t, double mm){ return d3sigma_d3p(s, t, mm); };
 
+        // Doubly differential 
+        double dsigma_dtdM2(double s, double t, double M2);
+        double dsigma_dtdx(double s, double t, double x);
+        double dsigma_dxdy2(double s, double x, double y2);
+        inline double dsigma_dxdy(double s, double x, double y)
+        { return dsigma_dxdy2(s, x, y*y) / (2.*y); };
+
         // Integrated cross-sections
 
         // (t, M2)
