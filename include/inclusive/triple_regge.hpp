@@ -87,14 +87,16 @@ namespace jpacPhoto
 
         // Regge trajectory for the exchange if Reggeized
         regge_trajectory * _trajectory = NULL;
+        double _alpha_prime;
 
         // Else we have a fixed pole-mass
         double _exchange_mass2 = 0.;
         int    _exchange_spin  = 0;
 
         double _s0 = 1.; // scale factor
-        double _b  = 0.; // t-slope parameter in form-factor
         double _g  = 0.; // gamma coupling constant
+        double _b  = 0.; // t-slope parameter in form-factor
+        double _cutoff = 0.;
     };
 };
 

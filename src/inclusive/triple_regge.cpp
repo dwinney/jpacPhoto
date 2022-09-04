@@ -20,13 +20,19 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         // Axial-vector - photon - psuedoscalar coupling
         _coupling = [&](double t)
         {
-            return  (_g / _kinematics->_mX) * (t - _kinematics->_mX2) / 2.;
+            double ff =  exp(_b * (t - _kinematics->TMINfromM2( M2_PROTON )));
+            return  ff * (_g / _kinematics->_mX) * (t - _kinematics->_mX2) / 2.;
         };
 
         // Default: pi- exchange with the PDG parameterization (no resonances)
         _sigma_tot = new PDG_parameterization(M_PION, M_PROTON, {-1., 1., 9.56, 1.767, 18.75});
-
         _exchange_spin = 0;
+
+        if (_useRegge)
+        {
+            _alpha_prime = std::real(_trajectory->slope());
+            _cutoff = exp(1. + _b * _alpha_prime) / _alpha_prime - 0.7;
+        } 
     }
     else 
     {
@@ -56,7 +62,7 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     _kinematics->_s = s;
 
     // Things tend to blow up at exactly x = 1
-    if (_useTX && (abs(mm - 1) < 0.0001)) return 0.;
+    if (_useTX && (abs(mm - 1) < 0.001)) return 0.;
 
     double s_piece, phase_space, M2;
     if (_useTX)
@@ -77,21 +83,17 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     // Coupling squared
     double coupling2   = _coupling(t) * _coupling(t);
 
-    // Form factor with tprime corresponding to the exclusive limit
-    double formfactor2 = exp(2. * _b * (t - _kinematics->TMINfromM2( M2_PROTON )));
-
     // The form of the exchange propagators depends on if we want a regge form or not
     double exchange_propagator2;
     if (_useRegge)
     {
         double alpha      = std::real(_trajectory->eval(t));
-        double alphaPrime = std::real(_trajectory->slope());
 
         // First check t isnt too big to make the gamma function blow up
-        if ( _b + alphaPrime - alphaPrime * log(- alphaPrime * t) < 0.) return 0.;
+        if (std::abs(t) - _cutoff > 0.) return 0.;
 
         std::complex<double> signature_factor = (1. + double(_trajectory->_signature) * exp(- XI * M_PI * alpha)) / 2.; 
-        double t_piece = std::norm(alphaPrime * signature_factor * cgamma(double(_trajectory->_minJ) - alpha));
+        double t_piece = std::norm(_alpha_prime * signature_factor * cgamma(double(_trajectory->_minJ) - alpha));
 
         exchange_propagator2 = t_piece * pow(s_piece, -2. * alpha);
     }
@@ -102,11 +104,7 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
     };
 
     // Get missing mass to put into the sigma_tot
-    double sigma_tot =  _sigma_tot->eval(M2, t);
+    double sigma_tot =  _sigma_tot->eval(M2, t) * 1.E6;
 
-    // debug("sigma", sigma_tot);
-    // debug("coup2", coupling2*formfactor2);
-    // debug("prop2", exchange_propagator2);
-
-    return sigma_tot * coupling2 * formfactor2 * exchange_propagator2 * phase_space / (16. * pow(M_PI, 3.));
+    return sigma_tot * coupling2 * exchange_propagator2 * phase_space / (16. * pow(M_PI, 3.));
 };  

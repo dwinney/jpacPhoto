@@ -65,7 +65,7 @@ double jpacPhoto::inclusive_production::dsigma_dt(double s, double t)
 
     // How we integrate depends on what variables are being used
     double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
 
     // Integrate the differential cross-section
     auto dSigma = [&](double M2)
@@ -90,12 +90,12 @@ double jpacPhoto::inclusive_production::dsigma_dM2(double s, double M2)
 
     // How we integrate depends on what variables are being used
     double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
 
     // integrate over usual t bounds
     auto dSigma = [&](double t)
     {
-        return _kinematics->jacobianTM2(t, M2) * d3sigma_d3p(s, t, M2);
+        return dsigma_dtdM2(s, t, M2);
     };
     ROOT::Math::Functor1D wF(dSigma);
     ig.SetFunction(wF);
@@ -116,7 +116,7 @@ double jpacPhoto::inclusive_production::dsigma_dy2(double s, double y2)
 
     // How we integrate depends on what variables are being used
     double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
 
     // Argument 3 is x and we dont need to convert
     auto dSigma = [&](double x)
@@ -141,9 +141,8 @@ double jpacPhoto::inclusive_production::dsigma_dx(double s, double x)
 
     // How we integrate depends on what variables are being used
     double result = 0.;
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
 
-    // Argument 3 is x and we dont need to convert
     auto dSigma = [&](double y2)
     {
         return dsigma_dxdy2(s, x, y2);
@@ -167,7 +166,7 @@ double jpacPhoto::inclusive_production::integrated_xsection(double s)
 
     double result = 0.;
 
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS61);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
     
     if (_useTX == true)
     {
