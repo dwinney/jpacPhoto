@@ -40,7 +40,7 @@ void Zm_totals()
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZc (&kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#minus}  production");
+    pseudoscalar_exchange excZc (&kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#minus}");
     excZc.set_params({gc_Gamma, g_NN});
     excZc.set_formfactor(true, LamPi);
 
@@ -63,7 +63,7 @@ void Zm_totals()
                           + F_UPSILON3S * gb_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZb (&kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#minus}  production");
+    pseudoscalar_exchange excZb (&kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#minus}");
     excZb.set_params({gb_Gamma, g_NN});
     excZb.set_formfactor(true, LamPi);
 
@@ -86,7 +86,7 @@ void Zm_totals()
                            + F_UPSILON3S * gbp_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZbp (&kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#minus}  production");
+    pseudoscalar_exchange excZbp (&kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#minus}");
     excZbp.set_params({gbp_Gamma, g_NN});
     excZbp.set_formfactor(true, LamPi);
 
@@ -129,7 +129,7 @@ void Zm_totals()
     // Just the inclusive curve
     auto F = [&](double w)
     {
-        return inc[amp]->integrated_xsection(w*w) * 1.E3; // in nb!
+        return inc[amp]->integrated_xsection(w*w); // in nb!
     };
 
     for (int i = 0; i < 3; i++)

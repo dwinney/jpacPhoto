@@ -14,7 +14,7 @@
 
 using namespace jpacPhoto;
 
-void deltapp()
+void b1_deltapp()
 {
     // ---------------------------------------------------------------------------
     // Amplitudes
@@ -84,14 +84,14 @@ void deltapp()
     // Stable delta
     auto F = [&](double w)
     {
-        return excDelta.integrated_xsection(w*w) * 1.E-3; // in mub!
+        return excDelta.integrated_xsection(w*w) * 1E-3; // in mub!
     };
     
     // Sill line-shape
     // Mass and width from 2106.03749
     auto Sill = [&](double w)
     {
-        double width = 90.4E-3;
+        double width = 120.4E-3;
         double mass  = 1236.2E-3;
         double mN = 0.938, mpi = 0.134;
         double sth = (mN + mpi)*(mN+mpi);
@@ -107,7 +107,7 @@ void deltapp()
         {
             
             kDelta.set_recoil_mass(m);
-            return Sill(m)*excDelta.integrated_xsection(w*w) * 1.E-3; // in mub!
+            return Sill(m)*excDelta.integrated_xsection(w*w) * 1E-3; // in mub!
         };
 
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
@@ -120,7 +120,7 @@ void deltapp()
     // Inclusive
     auto G = [&](double w)
     {
-        return incB1.integrated_xsection(w*w); // in mub!
+        return incB1.integrated_xsection(w*w) * 1.E-3; // in mub!
     };  
 
     plotter->AddEntry(N, H, {xmin, xmax},   "#it{b}_{1}^{#minus} (#Delta^{#plus#plus} #rightarrow #pi^{#plus} #it{p}) from BW", 1);

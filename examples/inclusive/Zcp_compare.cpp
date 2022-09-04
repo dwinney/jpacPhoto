@@ -10,7 +10,7 @@
 
 using namespace jpacPhoto;
 
-void Zcm_compare()
+void Zcp_compare()
 {
     // ---------------------------------------------------------------------------
     // Amplitudes
@@ -40,13 +40,14 @@ void Zcm_compare()
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZc (&kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#minus} production");
+    pseudoscalar_exchange excZc (&kZc, M_PION, "exclusive #it{Z}_{#it{c}}(3900)^{#plus}");
     excZc.set_params({gc_Gamma, g_NN});
     excZc.set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     triple_regge incZc (&excZc);
     incZc.set_high_energy_approximation(false);
+    incZc.set_Mmin( M_NEUTRON + M_PION );
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -57,8 +58,8 @@ void Zcm_compare()
     double xmin = 4.8;   
     double xmax = 10.;
 
-    double ymin = 0;
-    double ymax = 45.;
+    double ymin = 1;
+    double ymax = 100.;
 
     std::string filename = "incZminus_compare.pdf";
     std::string ylabel   = "#sigma  [nb]";
@@ -74,7 +75,7 @@ void Zcm_compare()
 
     auto F = [&](double w)
     {
-        return incZc.integrated_xsection(w*w) * 1.E3; // in nb!
+        return incZc.integrated_xsection(w*w); // in nb!
     };
 
     auto G = [&](double w)
@@ -87,17 +88,17 @@ void Zcm_compare()
         return G(w) + F(w); // in nb!
     };
 
-    // Exlclusive only
-    plotter->AddEntry(N, G, {xmin, xmax}, "#it{Z}_{c}(3900)^{#minus} #it{n}", print_to_CMD);
-
-    incZc.set_sigma_total(JPAC_pimp_onlyDelta);
-    plotter->AddEntry(N, F, {xmin, xmax}, "#it{Z}_{c}(3900)^{#minus} (#Delta^{0} #rightarrow #pi^{#minus}#it{p})", print_to_CMD);
-
     incZc.set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, H, {xmin, xmax}, "Total", print_to_CMD);
+    plotter->AddEntry(N, H, {xmin, xmax}, "total #it{Z}_{c}(3900)^{#plus}", print_to_CMD);
 
     incZc.set_sigma_total(JPAC_pimp_onlyDelta);
     plotter->AddDashedEntry(N, H, {xmin, xmax}, print_to_CMD);
+
+    // Exlclusive only
+    plotter->AddEntry(N, G, {xmin, xmax}, "#it{Z}_{c}(3900)^{#plus} #it{n}", print_to_CMD);
+
+    incZc.set_sigma_total(JPAC_pimp_onlyDelta);
+    plotter->AddEntry(N, F, {xmin, xmax}, "#it{Z}_{c}(3900)^{#plus} (#Delta^{0} #rightarrow #pi^{#minus}#it{p})", print_to_CMD);
     
 
     // ---------------------------------------------------------------------------
@@ -106,10 +107,10 @@ void Zcm_compare()
     // Axes options
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
-    // plotter->SetYlogscale(true);
+    plotter->SetYlogscale(true);
 
     // LEgend options
-    plotter->SetLegend(0.23, 0.75);
+    plotter->SetLegend(0.53, 0.20);
     plotter->SetLegendOffset(0.3, 0.15);
 
     // Output to file

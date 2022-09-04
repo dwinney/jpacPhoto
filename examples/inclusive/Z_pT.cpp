@@ -57,11 +57,11 @@ void Z_pT()
     incZc._kinematics->_s = w*w;
     double pmax = incZc._kinematics->pMax();
 
-    double xmin = 0.01;   
-    double xmax = pmax;
+    double xmin = 0.001;   
+    double xmax = 0.4;
 
-    double ymin = 2.E-5;
-    double ymax = 50;
+    double ymin = 9.E-2;
+    double ymax = 300;
 
     std::string filename = "incZ_qT.pdf";
     std::string ylabel   = "d#sigma/d#it{q}_{T}     [nb / GeV]";
@@ -82,7 +82,7 @@ void Z_pT()
     auto F = [&](double pT)
     {
         double y = pT / pmax;
-        return incZc.dsigma_dy(w*w, y) * 1.E3; // in nb!
+        return incZc.dsigma_dy(w*w, y); // in nb!
     };
 
     incZc.set_sigma_total(JPAC_pipp_withResonances);
@@ -98,14 +98,13 @@ void Z_pT()
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
     plotter->SetYlogscale(true);
-    plotter->SetXlogscale(true);
 
     std::ostringstream streamObj;
     streamObj << std::setprecision(4) << "#it{W}_{#gammap} = " << w << " GeV";
     std::string header = streamObj.str();
 
     // LEgend options
-    plotter->SetLegend(0.35, 0.35, header);
+    plotter->SetLegend(0.55, 0.45, header);
     plotter->SetLegendOffset(0.3, 0.12);
 
     // Output to file

@@ -45,7 +45,7 @@ void b1_totals( )
     // // Plotting options
     // // ---------------------------------------------------------------------------
 
-    int N = 50;
+    int N = 10;
 
     double xmin = 2.;   
     double xmax = 5. ;
@@ -67,7 +67,7 @@ void b1_totals( )
     bool addExc;
     auto F = [&](double w)
     {
-        return incB1f.integrated_xsection(w*w) + excB1f.integrated_xsection(w*w) * 1.E-3; // in mub!
+        return (incB1f.integrated_xsection(w*w) + excB1f.integrated_xsection(w*w)) * 1.E-3; // in mub!
     };
     auto G = [&](double w)
     {
@@ -75,10 +75,12 @@ void b1_totals( )
     };
     auto H = [&](double w)
     {
-        return incB1f.integrated_xsection(w*w); // in mub!
+        return incB1f.integrated_xsection(w*w) * 1.E-3; // in mub!
     };
 
     incB1f.set_sigma_total(JPAC_pimp_withResonances);
+    incB1f.set_Mmin( M_NEUTRON + M_PION );
+
     std::array<std::vector<double>, 2> x_fx, x_fx2;
     x_fx  = vec_fill(2*N,   F, xmin, 3, 1);
     x_fx2 = vec_fill(N, F, 3.1, xmax, 1);
@@ -87,7 +89,7 @@ void b1_totals( )
         x_fx[0].push_back(x_fx2[0][i]);
         x_fx[1].push_back(x_fx2[1][i]);
     }
-    plotter->AddEntry(x_fx[0], x_fx[1], "total #it{b}_{1}^{#plus} production");
+    plotter->AddEntry(x_fx[0], x_fx[1], "total #it{b}_{1}(1235)^{#plus}");
     
     // Add the exclusive curve
     x_fx[0].clear(); x_fx[1].clear();
@@ -102,7 +104,9 @@ void b1_totals( )
     plotter->AddDashedEntry(x_fx[0], x_fx[1]);
 
     incB1f.set_sigma_total(JPAC_pipp_withResonances);
-    plotter->AddEntry(N, H, {xmin, xmax}, "total #it{b}_{1}^{#minus} production", 1);
+    incB1f.set_Mmin( M_PROTON + M_PION );
+
+    plotter->AddEntry(N, H, {xmin, xmax}, "total #it{b}_{1}(1235)^{#minus}", 1);
 
     // ---------------------------------------------------------------------------
     // Finally make the plot pretty

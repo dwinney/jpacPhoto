@@ -68,7 +68,7 @@ void b1_average()
 
     auto F = [&](double x)
     {
-        return incB1r.dsigma_dx(s, x) * 1.E3; // in mub!
+        return incB1r.dsigma_dx(s, x) * 1.E-3; // in mub!
     };
 
     auto G = [&](double xmin, double xmax)

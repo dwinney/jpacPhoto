@@ -87,11 +87,11 @@ void b1_differential()
 
     auto F = [&](double x)
     {
-        return incB1r.dsigma_dx(s, x) * 1.E3; // in mub!
+        return incB1r.dsigma_dx(s, x) * 1.E-3; // in mub!
     };
 
     incB1r.set_sigma_total(JPAC_pimp_withResonances);
-    plotter->AddEntry(N, F, {xmin, xmax}, "Inclusive #it{b}_{1}^{#plus}");
+    plotter->AddEntry(N, F, {xmin, xmax}, "Inclusive #it{b}_{1}(1235)^{#plus}");
 
     // Remove resonances
     incB1r.set_sigma_total(PDG_pimp_onlyRegge);

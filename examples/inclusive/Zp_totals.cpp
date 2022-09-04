@@ -40,15 +40,15 @@ void Zp_totals()
     double gc_Gamma = E * F_JPSI * gc_Psi / M_JPSI;
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZc (&kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#plus} production");
+    pseudoscalar_exchange excZc (&kZc, M_PION, "total #it{Z}_{#it{c}}(3900)^{#plus}");
     excZc.set_params({gc_Gamma, g_NN});
     excZc.set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     triple_regge incZc (&excZc);
     incZc.set_high_energy_approximation(false);
-    incZc.set_sigma_total(JPAC_pipp_withResonances);
-    incZc.set_sigma_total_option(5);
+    incZc.set_Mmin( M_NEUTRON + M_PION );
+    incZc.set_sigma_total(JPAC_pimp_withResonances);
 
     // ---------------------------------------------------------------------------
     // Zb(10610)
@@ -64,14 +64,15 @@ void Zp_totals()
                           + F_UPSILON3S * gb_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZb (&kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#plus} production");
+    pseudoscalar_exchange excZb (&kZb, M_PION, "total #it{Z}_{#it{b}}(10610)^{#plus}");
     excZb.set_params({gb_Gamma, g_NN});
     excZb.set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     triple_regge incZb (&excZb);
     incZb.set_high_energy_approximation(false);
-    incZb.set_sigma_total(JPAC_pipp_withResonances);
+    incZb.set_Mmin( M_NEUTRON + M_PION );
+    incZb.set_sigma_total(JPAC_pimp_withResonances);
     
     // ---------------------------------------------------------------------------
     // Zb(10650)
@@ -87,20 +88,21 @@ void Zp_totals()
                            + F_UPSILON3S * gbp_Ups3 / M_UPSILON3S);  
 
     // Exclusive amplitude
-    pseudoscalar_exchange excZbp (&kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#plus} production");
+    pseudoscalar_exchange excZbp (&kZbp, M_PION, "total #it{Z}_{#it{b}}(10650)^{#plus}");
     excZbp.set_params({gbp_Gamma, g_NN});
     excZbp.set_formfactor(true, LamPi);
 
     // We now can pass this to an inclusive amplitude
     triple_regge incZbp (&excZbp);
     incZbp.set_high_energy_approximation(false);
-    incZbp.set_sigma_total(JPAC_pipp_withResonances);
+    incZbp.set_Mmin( M_NEUTRON + M_PION );
+    incZbp.set_sigma_total(JPAC_pimp_withResonances);
 
     // ---------------------------------------------------------------------------
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    int N = 100;
+    int N = 10;
 
     double xmin = 4.8;   
     double xmax = 20.;
@@ -125,7 +127,7 @@ void Zp_totals()
 
     auto F = [&](double w)
     {
-        return inc[amp]->integrated_xsection(w*w) * 1.E3 + inc[amp]->exclusive_xsection(w*w); // in nb!
+        return inc[amp]->integrated_xsection(w*w) + inc[amp]->exclusive_xsection(w*w); // in nb!
     };
 
     auto G = [&](double w)
