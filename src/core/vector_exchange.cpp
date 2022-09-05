@@ -323,7 +323,7 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
             {
                 for (int gamma = 0; gamma < 4; gamma++)
                 {
-                    std::complex<double> temp = - XI;
+                    std::complex<double> temp;
 
                     temp  = levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < EPS) continue;
@@ -346,15 +346,15 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
             {
                 for (int gamma = 0; gamma < 4; gamma++)
                 {
-                    std::complex<double> temp = XI;
+                    std::complex<double> temp;
 
                     temp  = levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < EPS) continue;
 
                     temp *= METRIC[mu];
-                    temp *= _covariants->meson_momentum(alpha);
-                    temp *= _covariants->beam_polarization(beta);
-                    temp *= _covariants->t_momentum(gamma);
+                    temp *= _covariants->beam_polarization(alpha);
+                    temp *= _covariants->t_momentum(beta);
+                    temp *= _covariants->meson_momentum(gamma);
 
                     result += temp;
                 }
@@ -362,7 +362,7 @@ std::complex<double> jpacPhoto::vector_exchange::pseudoscalar_coupling(int mu)
         }
     }
 
-    return  XI * _gGam * result;
+    return XI * _gGam * result;
 };
 
 std::complex<double> jpacPhoto::vector_exchange::scalar_coupling(int mu)
