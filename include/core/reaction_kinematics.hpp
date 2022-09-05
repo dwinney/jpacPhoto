@@ -240,16 +240,14 @@ namespace jpacPhoto
             return result;
         };
 
-
         inline int helicity_index(std::array<int,4> hel){ return find_helicity(hel, _mjp[0], _bjp[0], _photon); };
 
         // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
         // Depends on the channel with respect to which the helicities are defined
-        inline double parity_phase(std::array<int, 4> helicities, helicity_channel channel)
+        inline double intrinsic_parity(helicity_channel channel)
         {
             int s_a, s_b, s_c, s_d;
             int eta_a, eta_b, eta_c, eta_d;
-            int lam, lamp;
 
             // a is always the photon
             s_a = 2; eta_a = 1; // spin multiplied by two because of spin 1/2 baryons
@@ -258,45 +256,65 @@ namespace jpacPhoto
             {
                 case helicity_channel::S :
                 {
-                    s_b =  1;            eta_b = 1;                                  // proton
-                    s_c =  2*_mjp[0];    eta_c = _mjp[1] * pow(-1, _mjp[0]);         // produced meson
-                    s_d =  _bjp[0];      eta_d = _bjp[1] * pow(-1, (_bjp[0]-1)/2);   // recoil baryon
-
-                    lam =  (2 * helicities[0] - helicities[1]);
-                    lamp = (2 * helicities[2] - helicities[3]);
-
+                    s_b =  1;            eta_b = 1;         // proton
+                    s_c =  2*_mjp[0];    eta_c = _mjp[1];   // produced meson
+                    s_d =  _bjp[0];      eta_d = _bjp[1];   // recoil baryon
                     break;
                 }
                 case helicity_channel::T :
                 {
-                    s_b =  2*_mjp[0];   eta_b = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
-                    s_c =  1;           eta_c = 1;                            // proton
-                    s_d =  1;           eta_d = 1;                            // recoil baryon
-
-                    lam =  (2 * (helicities[0] - helicities[2]));
-                    lamp = (helicities[1] - helicities[3]);
-
+                    s_b =  2*_mjp[0];   eta_b = _mjp[1];    // produced meson
+                    s_c =  1;           eta_c = 1;          // proton
+                    s_d =  _bjp[0];     eta_d = _bjp[1];    // recoil baryon
                     break;
                 }
                 case helicity_channel::U :
                 {
-                    s_b =  1;            eta_b = 1;                            // recoil baryon
-                    s_c =  1;            eta_c = 1;                            // proton
-                    s_d =  2*_mjp[0];    eta_d = _mjp[1] * pow(-1, _mjp[0]);   // produced meson
-
-                    lam =  (2 * helicities[0] - helicities[3]);
-                    lamp = (2 * helicities[2] - helicities[1]);
-
+                    s_b =  _bjp[0];      eta_b = _bjp[1];    // recoil baryon
+                    s_c =  1;            eta_c = 1;          // proton
+                    s_d =  2*_mjp[0];    eta_d = _mjp[1];    // produced meson
                     break;
                 }
 
                 default: { return 0.; }
             };
 
-            int eta = eta_a * eta_b * eta_c * eta_d *  pow(-1, (lam - lamp)/2) * pow(-1., (s_c + s_d - s_a - s_b)/2);
-
+            int eta = eta_a * eta_b * eta_c * eta_d * pow(-1., double(s_c + s_d - s_a - s_b)/2.);
+            
             return double(eta);
         };
+
+        inline double parity_phase(std::array<int, 4> helicities, helicity_channel channel)
+        {
+            int lam, lamp;
+            switch (channel)
+            {
+                case helicity_channel::S :
+                {
+                    lam =  (2 * helicities[0] - helicities[1]);
+                    lamp = (2 * helicities[2] - helicities[3]);
+                    break;
+                }
+                case helicity_channel::T :
+                {
+                    lam =  (2 * (helicities[0] - helicities[2]));
+                    lamp = (helicities[1] - helicities[3]);
+                    break;
+                }
+                case helicity_channel::U :
+                {
+                    lam =  (2 * helicities[0] - helicities[3]);
+                    lamp = (2 * helicities[2] - helicities[1]);
+                    break;
+                }
+
+                default: { return 0.; }
+            };
+
+            int eta = intrinsic_parity(channel) *  pow(-1., double(lam - lamp)/2.);
+            return double(eta);
+        };
+
         inline double parity_phase(int i, helicity_channel channel)
         {
             return parity_phase(_helicities[i], channel);
