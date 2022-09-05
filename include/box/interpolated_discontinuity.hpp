@@ -116,6 +116,12 @@ namespace jpacPhoto
         };
         inline void import_data(std::string path){ set_import_prefix(path); import_data(); };
 
+        // Access the saved interpolations directly
+        inline double eval_data(int j, int h, double s, double eta)
+        {
+            return _hpw_projections[(j-1)/2][h]->eval(s, eta);
+        }
+
         private:
 
         int    _jmax;   // Maximal s-channel spin in PWA expansion
