@@ -31,6 +31,11 @@ void gamp_dlam()
     double eta = 1.;
     double lambdaQCD = 0.25;
 
+    double e     = sqrt(4.* PI * ALPHA);
+    double gDDs  = 0.134;
+    double gNDsL = -4.3;
+    double gNDL  = -13.2;
+
     // ---------------------------------------------------------------------------
     // D phototproduction
     // ---------------------------------------------------------------------------
@@ -40,12 +45,12 @@ void gamp_dlam()
     kD.set_meson_JP(0, -1);
 
     vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
-    d_dstarEx.set_params({0.134, -4.3, 0.});
+    d_dstarEx.set_params({gDDs, gNDsL, 0.});
     d_dstarEx.set_formfactor(2, M_DSTAR + eta * lambdaQCD);
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -13.2, 0.});
+    d_lamcEx.set_params({e, gNDL, 0.});
     d_lamcEx.set_formfactor(2, M_LAMBDAC + eta * lambdaQCD);
     d_lamcEx.force_covariant(true);
 
@@ -63,7 +68,7 @@ void gamp_dlam()
     amps.push_back(&d_sum);
 
     int N = 100;
-    double PRINT = true;
+    double PRINT = false;
 
     double xmin = 4.;
     double xmax = 5.;

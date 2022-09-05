@@ -31,8 +31,8 @@ void psip_dlam()
     double eta = 1.;
     double lambdaQCD = 0.25;
 
-    double gPsiDD  = 7.4;
-    double gPsiDDs = gPsiDD / sqrt(M_D * M_DSTAR);
+    double gPsiDD  = 7.44;
+    double gPsiDDs = gPsiDD / sqrt(M_DSTAR * M_D);
     double gDNL    = -13.2;
     double gDsNL   = -4.3;
     double gPsiLL  = -1.4;
@@ -73,14 +73,14 @@ void psip_dlam()
     amps.push_back(&d_lamcEx);
     amps.push_back(&d_sum);
 
-    int N = 150;
+    int N = 50;
     double PRINT = true;
 
     double xmin = 4.;
     double xmax = 5.;
 
     double ymin = 0.;
-    double ymax = 60.;
+    double ymax = 40.;
 
     std::string filename  = "psip_dlam.pdf";
     std::string ylabel    = "#sigma(#it{J}/#psi #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [#mub]";

@@ -91,7 +91,7 @@ void psip_dlam_PWE()
     double xmax = 5.;
 
     double ymin = 0.;
-    double ymax = 60.;
+    double ymax = 40.;
 
     std::string filename  = "psip_dlam_pwe.pdf";
     std::string ylabel    = "#sigma(#it{J}#psi #it{p} #rightarrow #bar{#it{D}} #Lambda_{c}^{+})   [#mub]";

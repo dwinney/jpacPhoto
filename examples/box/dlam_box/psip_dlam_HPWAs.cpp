@@ -26,12 +26,12 @@ using namespace jpacPhoto;
 
 void psip_dlam_HPWAs()
 {
-     // Form factor parameter
+    // Form factor parameter
     double eta = 1.;
     double lambdaQCD = 0.25;
 
     double gPsiDD  = 7.4;
-    double gPsiDDs = gPsiDD / sqrt(M_D * M_DSTAR);
+    double gPsiDDs = gPsiDD / sqrt(M_DSTAR * M_D);
     double gDNL    = -13.2;
     double gDsNL   = -4.3;
     double gPsiLL  = -1.4;
@@ -66,7 +66,7 @@ void psip_dlam_HPWAs()
     // ---------------------------------------------------------------------------
     
     // Take the sum ampitude and pass it to a projected_amplitude
-    helicity_PWA hpwa(&d_sum, 1, 3);
+    helicity_PWA hpwa(&d_sum, 1);
 
     // ---------------------------------------------------------------------------
     // Plotting options
@@ -78,7 +78,7 @@ void psip_dlam_HPWAs()
     double xmin = sqrt(kD.sth()) + 0.01;
     double xmax = 5.;
 
-    double ymin = -2.5;
+    double ymin = -4.;
     double ymax = +6.0;
 
     std::string filename  = "psip_dlam_hpwas.pdf";
@@ -120,7 +120,7 @@ void psip_dlam_HPWAs()
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.45, 0.7);
+    plotter->SetLegend(0.45, 0.74);
     plotter->SetLegendOffset(0.5, 0.15);
 
     // Output to file
