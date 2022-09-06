@@ -21,7 +21,7 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         _coupling = [&](double t)
         {
             double ff =  exp(_b * (t - _kinematics->TMINfromM2( M2_PROTON )));
-            return  ff * (_g / _kinematics->_mX) * (t - _kinematics->_mX2) / 2.;
+            return   ff * (_g / _kinematics->_mX) * (t - _kinematics->_mX2) / 2.;
         };
 
         // Default: pi- exchange with the PDG parameterization (no resonances)
@@ -31,7 +31,7 @@ void jpacPhoto::triple_regge::initialize(std::string amp_name)
         if (_useRegge)
         {
             _alpha_prime = std::real(_trajectory->slope());
-            _cutoff = exp(1. + _b * _alpha_prime) / _alpha_prime - 0.7;
+            _cutoff = exp(_b / _alpha_prime) / _alpha_prime;
         } 
     }
     else 
@@ -105,6 +105,17 @@ double jpacPhoto::triple_regge::d3sigma_d3p(double s, double t, double mm)
 
     // Get missing mass to put into the sigma_tot
     double sigma_tot =  _sigma_tot->eval(M2, t) * 1.E6;
+
+    if (_debug == 1)
+    {
+        debug("s", s);
+        debug("t", t);
+        debug("M2", M2);
+        debug("phase_space", phase_space);
+        debug("coup2", coupling2);
+        debug("prop2", exchange_propagator2);
+        debug("sigma_tot", sigma_tot * 1.E-6);
+    };
 
     return sigma_tot * coupling2 * exchange_propagator2 * phase_space / (16. * pow(M_PI, 3.));
 };  
