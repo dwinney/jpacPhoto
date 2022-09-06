@@ -33,6 +33,11 @@ double jpacPhoto::wigner_leading_coeff(int j, int lam1, int lam2)
 double jpacPhoto::wigner_d_half(int j, int lam1, int lam2, double theta)
 {
     double phase = 1.;
+    if ( j % 2 == 0 || (lam1 + lam2) % 2 != 0 )
+    {
+        std::cout << "Warning! Invalid arguments passed to wigner_d_half. Returning 0. \n";
+        return 0.;
+    };
 
     // If first lam argument is smaller, switch them
     if (abs(lam1) < abs(lam2))
@@ -41,7 +46,7 @@ double jpacPhoto::wigner_d_half(int j, int lam1, int lam2, double theta)
         lam1 = lam2;
         lam2 = temp;
 
-        phase *= pow(-1., double(lam1 - lam2) / 2.);
+        phase *= pow(-1., double((lam1 - lam2)/ 2));
     };
 
     // If first lam is negative, switch them
@@ -50,7 +55,7 @@ double jpacPhoto::wigner_d_half(int j, int lam1, int lam2, double theta)
         lam1 *= -1;
         lam2 *= -1;
 
-        phase *= pow(-1., double(lam1 - lam2) / 2.);
+        phase *= pow(-1., double((lam1 - lam2)/ 2));
     }
 
     double result = 0.;
