@@ -101,12 +101,7 @@ namespace jpacPhoto
             _helicities = get_helicities(J, get_baryon_JP()[0], _photon);
             _nAmps = _helicities.size();
         };
-        inline void set_meson_JP(std::array<int,2> jp)
-        { 
-            _mjp = jp;
-            _helicities = get_helicities(jp[0], get_baryon_JP()[0], _photon);
-            _nAmps = _helicities.size();
-        };
+        inline void set_meson_JP(std::array<int,2> jp){ set_meson_JP(jp[0], jp[1]); };
 
         
         // ---------------------------------------------------------------------------
@@ -121,12 +116,7 @@ namespace jpacPhoto
             _helicities = get_helicities(get_meson_JP()[0], J, _photon);
             _nAmps = _helicities.size();
         };
-        inline void set_baryon_JP(std::array<int,2> jp)
-        { 
-            _bjp = jp;
-            _helicities = get_helicities(get_meson_JP()[0], jp[0], _photon);
-            _nAmps = _helicities.size();
-        };
+        inline void set_baryon_JP(std::array<int,2> jp){ set_baryon_JP(jp[0], jp[1]); };
 
         // ---------------------------------------------------------------------------
         // Accessing the helicity combinations 
@@ -250,13 +240,13 @@ namespace jpacPhoto
             int eta_a, eta_b, eta_c, eta_d;
 
             // a is always the photon
-            s_a = 2; eta_a = 1; // spin multiplied by two because of spin 1/2 baryons
+            s_a = 2; eta_a = -1; // spin multiplied by two because of spin 1/2 baryons
 
             switch (channel)
             {
                 case helicity_channel::S :
                 {
-                    s_b =  1;            eta_b = 1;         // proton
+                    s_b =  1;            eta_b = +1;         // proton
                     s_c =  2*_mjp[0];    eta_c = _mjp[1];   // produced meson
                     s_d =  _bjp[0];      eta_d = _bjp[1];   // recoil baryon
                     break;
@@ -264,14 +254,14 @@ namespace jpacPhoto
                 case helicity_channel::T :
                 {
                     s_b =  2*_mjp[0];   eta_b = _mjp[1];    // produced meson
-                    s_c =  1;           eta_c = 1;          // proton
+                    s_c =  1;           eta_c = +1;          // proton
                     s_d =  _bjp[0];     eta_d = _bjp[1];    // recoil baryon
                     break;
                 }
                 case helicity_channel::U :
                 {
                     s_b =  _bjp[0];      eta_b = _bjp[1];    // recoil baryon
-                    s_c =  1;            eta_c = 1;          // proton
+                    s_c =  1;            eta_c = +1;          // proton
                     s_d =  2*_mjp[0];    eta_d = _mjp[1];    // produced meson
                     break;
                 }
@@ -279,7 +269,7 @@ namespace jpacPhoto
                 default: { return 0.; }
             };
 
-            int eta = eta_a * eta_b * eta_c * eta_d * pow(-1., double(s_c + s_d - s_a - s_b)/2.);
+            int eta = eta_a * eta_b * eta_c * eta_d * pow(-1., double( (s_c + s_d - s_a - s_b)/2 ));
             
             return double(eta);
         };
@@ -311,8 +301,8 @@ namespace jpacPhoto
                 default: { return 0.; }
             };
 
-            int eta = intrinsic_parity(channel) *  pow(-1., double(lam - lamp)/2.);
-            return double(eta);
+            double eta = intrinsic_parity(channel) *  pow(-1., double( (lam - lamp)/2 ));
+            return eta;
         };
 
         inline double parity_phase(int i, helicity_channel channel)

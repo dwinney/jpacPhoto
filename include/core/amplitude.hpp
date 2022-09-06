@@ -134,9 +134,14 @@ namespace jpacPhoto
         virtual helicity_channel helicity_CM_frame() = 0;
 
         // With this phase only half of the helicity amplitudes need to be calculated and cached
-        int parity_phase(std::array<int,4> helicities)
+        double parity_phase(std::array<int,4> helicities)
         {
             return _kinematics->parity_phase(helicities, this->helicity_CM_frame());
+        };
+
+        double parity_phase(int i)
+        {
+            return _kinematics->parity_phase(i, this->helicity_CM_frame());
         };
 
         // ---------------------------------------------------------------------------
