@@ -72,14 +72,14 @@ void psip_dlam_HPWAs()
     // Plotting options
     // ---------------------------------------------------------------------------
 
-    int N = 50;
+    int N = 100;
     double PRINT = true;
 
-    double xmin = sqrt(kD.sth()) + 0.01;
+    double xmin = sqrt(kD.sth()) + 1.E-4;
     double xmax = 5.;
 
-    double ymin = -4.;
-    double ymax = +6.0;
+    double ymin = -5.;
+    double ymax = +6.5;
 
     std::string filename  = "psip_dlam_hpwas.pdf";
     std::string ylabel    = "#it{c}_{#{}{#it{R}}}^{1/2} (#it{s})";
@@ -97,26 +97,27 @@ void psip_dlam_HPWAs()
     {
         return hpwa.real_part(w*w);
     };
-    auto imF = [&](double w)
-    {
-        return hpwa.imag_part(w*w);
-    };
 
     hpwa.set_helicities({1, 1, 0, +1});
     plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 + }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+    hpwa.set_helicities({-1, -1, 0, -1});
+    plotter->AddDashedEntry(N, reF, {xmin, xmax}, PRINT);
 
     hpwa.set_helicities({1, 1, 0, -1});
     plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ + +, 0 #minus }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+    hpwa.set_helicities({-1, -1, 0, 1});
+    plotter->AddDashedEntry(N, reF, {xmin, xmax}, PRINT);
 
     hpwa.set_helicities({0, 1, 0, +1});
     plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ 0 +, 0 + }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+    hpwa.set_helicities({0, -1, 0, -1});
+    plotter->AddDashedEntry(N, reF, {xmin, xmax}, PRINT);
 
     hpwa.set_helicities({0, 1, 0, -1});
     plotter->AddEntry(N, reF, {xmin, xmax}, "#{}{ 0 +, 0 #minus }", PRINT);
-    plotter->AddDashedEntry(N, imF, {xmin, xmax}, PRINT);
+    hpwa.set_helicities({0, -1, 0, 1});
+    plotter->AddDashedEntry(N, reF, {xmin, xmax}, PRINT);
+
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel, ymin, ymax);
