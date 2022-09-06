@@ -49,7 +49,7 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_pwa(int ext
     };
 
     std::complex<double> result = dispersion(F, s);
-    if (phase) result *= _kinematics->parity_phase(hel_index, S);
+    if (phase) result *= _kinematics->intrinsic_parity(S);
 
     return result;
 };
