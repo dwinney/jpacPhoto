@@ -80,7 +80,7 @@ namespace jpacPhoto
         // Evaluate the sum for given set of helicites, energy, and cos
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
 
-                // Covariant quantities define lambda in S-channel
+        // Covariant quantities define lambda in S-channel
         // Analytic ones in the T-channel
         helicity_channel helicity_CM_frame()
         {
