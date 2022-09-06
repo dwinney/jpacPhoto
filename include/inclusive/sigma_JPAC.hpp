@@ -200,17 +200,17 @@ namespace jpacPhoto
                 double alpha = std::real(_alpha->eval(t));
                 std::complex<double> signature_factor = 0.5 * (double(_alpha->_signature) - exp(- XI * M_PI * alpha));
 
-                return _c * exp(_b * t) * signature_factor * pow(nu, alpha) * cgamma(1. - double(_alpha->_minJ) - alpha);
+                return _c * exp(_b * t) * signature_factor * pow(nu, alpha) * cgamma(double(1 - _alpha->_minJ) - alpha);
             };
-
-            private:
 
             // Crossing variable
             inline double crossing_nu(double s, double t)
             {
-                double u = 2.* (M_PROTON + M_PION) - s - t;
+                double u = 2.* (M2_PROTON + M2_PION) - s - t;
                 return (s - u) / (4.* M_PROTON);
             };
+
+            private:
 
             double _b; // t-slope
             double _c; // Overall coupling
@@ -220,9 +220,9 @@ namespace jpacPhoto
         };
 
         // Trajectories for dominant Regge poles: Pomeron, F2, and Rho
-        linear_trajectory alphaPom = linear_trajectory(-1, 0, 1.075, 0.434, "Pomeron");
-        linear_trajectory alphaF   = linear_trajectory(-1, 0, 0.490, 0.943, "f2");
-        linear_trajectory alphaRho = linear_trajectory(+1, 1, 0.490, 0.943, "rho");
+        linear_trajectory alphaPom = linear_trajectory(+1, 0, 1.075, 0.434, "Pomeron");
+        linear_trajectory alphaF   = linear_trajectory(+1, 0, 0.490, 0.943, "f2");
+        linear_trajectory alphaRho = linear_trajectory(-1, 1, 0.490, 0.943, "rho");
 
         // Instances of the poles themselves
         regge_pole _f    = regge_pole( {71.35, 3.18}, &alphaF);
@@ -242,6 +242,7 @@ namespace jpacPhoto
         inline double sigma_regge(double s) 
         {
             double Ap = isoscalar(s, 0.); double Am = isovector(s, 0.);
+
             return 0.389352 * ( Ap - double(_iso) * Am ) / pLab(s);
         };
     };
