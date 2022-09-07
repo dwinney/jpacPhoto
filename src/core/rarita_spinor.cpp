@@ -18,16 +18,13 @@ std::complex<double> jpacPhoto::rarita_spinor::component(int i, int mu, int lamb
     // Double check masses havent changed
     sync_masses();
 
-    double theta_1 = theta + M_PI;
-    double theta_2 = theta;
-
     std::complex<double> v1p, v0, v1m, hp, hm;
-    v1p =    _spin_one->component(mu, +1, s, theta_1);
-    v0  =   -_spin_one->component(mu,  0, s, theta_1); // terms proportional to v0 get relative minus sign from Jacob-Wick phase
-    v1m =    _spin_one->component(mu, -1, s, theta_1);
+    v1p =    _spin_one->component(mu, +1, s, theta);
+    v0  =   -_spin_one->component(mu,  0, s, theta); // terms proportional to v0 get relative minus sign from Jacob-Wick phase
+    v1m =    _spin_one->component(mu, -1, s, theta);
 
-    hp  =    _spin_half->component(  i, +1, s, theta_2);
-    hm  =    _spin_half->component(  i, -1, s, theta_2);
+    hp  =    _spin_half->component(  i, +1, s, theta);
+    hm  =    _spin_half->component(  i, -1, s, theta);
 
     switch(lambda)
     {
@@ -50,16 +47,13 @@ std::complex<double> jpacPhoto::rarita_spinor::adjoint_component(int i, int mu, 
     // Double check masses havent changed
     sync_masses();
 
-    double theta_1 = theta + M_PI;
-    double theta_2 = theta;
-
     std::complex<double> v1p, v0, v1m, hp, hm;
-    v1p =    _spin_one->conjugate_component(mu, +1, s, theta_1);
-    v0  =   -_spin_one->conjugate_component(mu,  0, s, theta_1); // terms proportional to v0 get relative minus sign from Jacob-Wick phase
-    v1m =    _spin_one->conjugate_component(mu, -1, s, theta_1);
+    v1p =    _spin_one->conjugate_component(mu, +1, s, theta);
+    v0  =   -_spin_one->conjugate_component(mu,  0, s, theta); // terms proportional to v0 get relative minus sign from Jacob-Wick phase
+    v1m =    _spin_one->conjugate_component(mu, -1, s, theta);
 
-    hp  =    _spin_half->adjoint_component(  i, +1, s, theta_2);
-    hm  =    _spin_half->adjoint_component(  i, -1, s, theta_2);
+    hp  =    _spin_half->adjoint_component(  i, +1, s, theta);
+    hm  =    _spin_half->adjoint_component(  i, -1, s, theta);
 
     switch(lambda)
     {

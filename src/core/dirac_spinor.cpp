@@ -34,8 +34,6 @@ double jpacPhoto::dirac_spinor::half_angle(int lam, double theta)
 // Assumed to be particle 2 but moving in the -z direction
 std::complex<double> jpacPhoto::dirac_spinor::component(int i, int lambda, double s, double theta)
 {
-    // We add pi because we assume theta is the meson angle from the +z axis
-    theta += M_PI;
 
     if (abs(lambda) != 1)
     {
@@ -43,13 +41,13 @@ std::complex<double> jpacPhoto::dirac_spinor::component(int i, int lambda, doubl
         return 0;
     }
 
-    // theta convention
+    // pi - theta convention
     switch (i)
     {
-        case 0: return                  omega(+1, s) * half_angle( lambda, theta);
-        case 1: return double(lambda) * omega(+1, s) * half_angle(-lambda, theta);
-        case 2: return double(lambda) * omega(-1, s) * half_angle( lambda, theta);
-        case 3: return                  omega(-1, s) * half_angle(-lambda, theta);
+        case 0: return                    omega(+1, s) * half_angle(-lambda, theta);
+        case 1: return - double(lambda) * omega(+1, s) * half_angle( lambda, theta);
+        case 2: return   double(lambda) * omega(-1, s) * half_angle(-lambda, theta);
+        case 3: return -                  omega(-1, s) * half_angle( lambda, theta);
         default : 
         {
             std::cout << "dirac_spinor: Invalid component index " << i << " passed as argument!\n";
