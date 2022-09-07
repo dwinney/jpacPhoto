@@ -41,7 +41,7 @@ void box_dlam_HPWA_re()
 
     interpolated_discontinuity disc(&kBox, jMax);
     disc.import_data("./grid_data/boxD_");
-    disc.set_intermediate_threshold(M_D + M_LAMBDAC + EPS);
+    disc.set_intermediate_threshold(M_D + M_LAMBDAC + 3.E-3);
     disc.set_params( { Wcut(1.), eta } );
 
     // Plotter object
@@ -50,14 +50,14 @@ void box_dlam_HPWA_re()
     double smin = kBox.Wth();
     double smax = Wcut(1.);
 
-    double ymin = -0.07;
-    double ymax =  0.1;
+    double ymin = -0.05;
+    double ymax =  0.06;
 
     bool verbose = true;
     bool PRINT = true;
 
     // ---------------------------------------------------------------------------
-    Print the desired observable for each amplitude
+    // Print the desired observable for each amplitude
     auto F = [&](double w)
     {
         return std::real( disc.helicity_pwa(h, J, w*w) );

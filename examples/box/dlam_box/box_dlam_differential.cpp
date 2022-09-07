@@ -41,7 +41,7 @@ void box_dlam_differential()
     int N =  100;
 
     double  ymin = 0.;
-    double  ymax = 0.12;
+    double  ymax = 0.05;
 
     std::string filename = "box.pdf";
     std::string ylabel  = "d#sigma/d#it{t} (#gamma#it{p} #rightarrow #it{J}/#psi #it{p})  [nb / GeV^{2}]";
@@ -68,7 +68,7 @@ void box_dlam_differential()
         return box1.differential_xsection(s, -mt);
     };  
 
-    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 8.5 GeV", PRINT);      
+    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 9.5 GeV", PRINT);      
     plotter->SetXaxis("#minus#it{t}  [GeV^{2}]", xmin, xmax);
 
     egam = 9.0; W = W_cm(egam); s = W*W;  
@@ -77,7 +77,7 @@ void box_dlam_differential()
 
     egam = 8.5; W = W_cm(egam); s = W*W;  
     xmin = - kBox.t_man(s, 0.); xmax = - kBox.t_man(s, PI);
-    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 9.5 GeV", PRINT);      
+    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 8.5 GeV", PRINT);      
 
     plotter->SetYaxis(ylabel, ymin, ymax);
     

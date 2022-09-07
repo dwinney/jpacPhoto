@@ -39,11 +39,11 @@ void psip_dlam_grid()
     // Form factor parameter
     double lambdaQCD = 0.25;
 
-    double gPsiDD  = 7.4;
-    double gPsiDDs = gPsiDD / sqrt(M_D * M_DSTAR);
+    double gPsiDD  =   7.44;
+    double gPsiDDs =   3.84;
     double gDNL    = -13.2;
-    double gDsNL   = -4.3;
-    double gPsiLL  = -1.4;
+    double gDsNL   = - 4.3;
+    double gPsiLL  = - 1.4;
 
     // ---------------------------------------------------------------------------
     // psi p -> D Lambda amplitudes
@@ -72,7 +72,7 @@ void psip_dlam_grid()
     // ---------------------------------------------------------------------------
 
     // We want partial waves up to 5/2
-    int Jmax = 1;
+    int Jmax = 3;
     
     // Pass the full amplitude to the helicity pwa amplitude
     helicity_PWA hpwa(&d_sum);
@@ -86,9 +86,9 @@ void psip_dlam_grid()
     std::string prefix = "./grid_data/psiD";
 
     //Grid size parameters
-    double Wmin = kD.Wth(), Wmax = 6.;
-    double etamin = 0., etamax = 1.5;
-    int nS = 400, nEta = 20;
+    double Wmin = kD.Wth() + 1.E-4, Wmax = 6.;
+    double etamin = 0.95, etamax = 1.05;
+    int nS = 100, nEta = 3;
 
     // Interpolation object that actually generates the grid
     interpolation_2D interpolator;

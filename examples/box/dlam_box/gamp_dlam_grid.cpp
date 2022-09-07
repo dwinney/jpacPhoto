@@ -39,6 +39,11 @@ void gamp_dlam_grid()
     // Form factor parameter
     double lambdaQCD = 0.25;
 
+    double e     = sqrt(4.* PI * ALPHA);
+    double gDDs  = 0.134;
+    double gNDsL = -4.3;
+    double gNDL  = -13.2;
+
     // ---------------------------------------------------------------------------
     // D phototproduction
     // ---------------------------------------------------------------------------
@@ -48,20 +53,21 @@ void gamp_dlam_grid()
     kD.set_meson_JP(0, -1);
 
     vector_exchange d_dstarEx (&kD, M_DSTAR, "D* exchange");
-    d_dstarEx.set_params({0.134, -4.3, 0.});
+    d_dstarEx.set_params({gDDs, gNDsL, 0.});
     d_dstarEx.force_covariant(true);
 
     dirac_exchange d_lamcEx (&kD, M_LAMBDAC, "#Lambda_{c} exchange");
-    d_lamcEx.set_params({sqrt(4.* PI * ALPHA), -13.2, 0.});
+    d_lamcEx.set_params({e, gNDL, 0.});
     d_lamcEx.force_covariant(true);
 
     amplitude_sum d_sum (&kD,  {&d_dstarEx, &d_lamcEx}, "Sum");
+
     // ---------------------------------------------------------------------------
     // PWA projection 
     // ---------------------------------------------------------------------------
 
     // We want partial waves up to 5/2
-    int Jmax = 1;
+    int Jmax = 3;
     
     // Pass the full amplitude to the helicity pwa amplitude
     helicity_PWA hpwa(&d_sum);
@@ -75,9 +81,9 @@ void gamp_dlam_grid()
     std::string prefix = "./grid_data/gamD";
 
     //Grid size parameters
-    double Wmin = kD.Wth(), Wmax = 6.;
-    double etamin = 0., etamax = 1.5;
-    int nS = 400, nEta = 20;
+    double Wmin = kD.Wth() + 1.E-4, Wmax = 6.;
+    double etamin = 0.95, etamax = 1.05;
+    int nS = 100, nEta = 3;
 
     // Interpolation object that actually generates the grid
     interpolation_2D interpolator;
