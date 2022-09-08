@@ -81,7 +81,8 @@ namespace jpacPhoto
         // Files are assumed to be in the format:
         // XXXJ_%_H_%.dat where XXX is the prefix and includes the directory path
         void set_import_prefix(std::string x){ _prefix = x; };
-
+        void set_debug(int x){ _debug = x; };
+        
         // Clear all the saved data in the grids but keep the pointer instances
         void clear_data()
         {
@@ -129,6 +130,7 @@ namespace jpacPhoto
         double _cutoff = 0.; // s-channel cut-off in dispersion relation
         double _eta;    // t-channel cut-off in form-factor
         double _sth;
+        int _debug = 0;
 
         std::string _prefix = "./";
         bool _dataImported = false;
