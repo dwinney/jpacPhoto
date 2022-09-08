@@ -294,18 +294,19 @@ std::complex<double> jpacPhoto::pseudoscalar_exchange::vector_coupling()
                     temp = levi_civita(mu, alpha, beta, gamma);
                     if (std::abs(temp) < 0.001) continue;
 
-                    temp *= _covariants->meson_polarization(mu);
-                    temp *= _covariants->beam_field_tensor(alpha, beta);
-                    temp *= _covariants->meson_momentum(gamma) - _covariants->t_momentum(gamma);
+                    temp *= _covariants->beam_field_tensor(mu, alpha);
+                    temp *= _covariants->meson_polarization(beta);
+                    temp *= _covariants->meson_momentum(gamma) - _covariants->t_momentum(gamma) ;
 
                     result += temp;
                 }
             }
         }
     }
-    if (!_kinematics->is_photon()) result /= 4.;
 
-    return _gT * result;
+    if (!_kinematics->is_photon()) result /= -4.;
+  
+    return XI * _gT * result;
 };
 
 std::complex<double> jpacPhoto::pseudoscalar_exchange::pseudoscalar_coupling()
