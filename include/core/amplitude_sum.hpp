@@ -76,6 +76,11 @@ namespace jpacPhoto
 
         // TODO: Add a set_params which timesi in one vector and allocates approriaten number of
         // params to each sub amplitude
+        inline void set_params(std::vector<double> x)
+        {
+            std::cout << "Warning! amplitude_sum::set_params() doesnt do anything. Set parameters for each individual amplitude instead!" << std::endl;
+            return;
+        }
 
         // Evaluate the sum for given set of helicites, energy, and cos
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);

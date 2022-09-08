@@ -118,6 +118,8 @@ namespace jpacPhoto
         // nParams error message
         inline void set_nParams(int N){ _nParams = N; };
 
+        virtual void set_params( std::vector<double> x) = 0;
+
         // ---------------------------------------------------------------------------
         // Each amplitude must supply a function which returns a vector of allowed 2-tuples {J, P}
         virtual std::vector<std::array<int,2>> allowed_meson_JP()  = 0;
