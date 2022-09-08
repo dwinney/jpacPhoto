@@ -41,7 +41,6 @@ std::complex<double> jpacPhoto::dirac_spinor::component(int i, int lambda, doubl
         return 0;
     }
 
-    // pi - theta convention
     switch (i)
     {
         case 0: return                    omega(+1, s) * half_angle(-lambda, theta);
@@ -58,8 +57,5 @@ std::complex<double> jpacPhoto::dirac_spinor::component(int i, int lambda, doubl
 
 std::complex<double> jpacPhoto::dirac_spinor::adjoint_component(int i, int lambda, double s, double theta)
 {
-    double phase;
-    (i == 2 || i == 3) ? (phase = -1.) : (phase = 1.);
-
-    return phase * component(i, lambda, s, theta);
+    return double(1 - 2*(i>1)) * std::conj(component(i, lambda, s, theta));
 };
