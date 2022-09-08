@@ -41,7 +41,7 @@ void box_dslam_HPWA_re()
 
     interpolated_discontinuity disc(&kBox, jMax);
     disc.import_data("./grid_data/boxDs_");
-    disc.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-3);
+    disc.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-4);
     disc.set_params( { Wcut(1.), eta } );
 
     // Plotter object
@@ -50,8 +50,8 @@ void box_dslam_HPWA_re()
     double smin = kBox.Wth();
     double smax = Wcut(1.);
 
-    double ymin = -0.07;
-    double ymax =  0.1;
+    double ymin = -0.02;
+    double ymax =  0.05;
 
     bool verbose = true;
     bool PRINT = true;

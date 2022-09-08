@@ -22,7 +22,7 @@ void box_dslam_HPWA_im()
 {
     int h;
     int J = 1;
-    int N = 200;
+    int N = 100;
 
     std::string filename = "boxDs_hpwa_im.pdf";
 
@@ -41,7 +41,7 @@ void box_dslam_HPWA_im()
 
     interpolated_discontinuity disc(&kBox, jMax);
     disc.import_data("./grid_data/boxDs_");
-    disc.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-3);
+    disc.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-4);
     disc.set_params( { Wcut(1.), eta } );
 
     // Plotter object
@@ -50,8 +50,8 @@ void box_dslam_HPWA_im()
     double smin = kBox.Wth();
     double smax = Wcut(1.);
 
-    double ymin = -0.07;
-    double ymax =  0.1;
+    double ymin = -0.02;
+    double ymax =  0.05;
 
     bool verbose = true;
     bool PRINT = true;
@@ -77,7 +77,7 @@ void box_dslam_HPWA_im()
 
     plotter->SetXaxis("#it{W}   [GeV]", smin, smax);
     plotter->SetYaxis("Im #it{a}_{#{}{#lambda}}^{1/2}(s)", ymin, ymax);
-    plotter->SetLegend(0.2, 0.73);
+    plotter->SetLegend(0.25, 0.65);
 
     // Output to file
     plotter->Plot(filename);

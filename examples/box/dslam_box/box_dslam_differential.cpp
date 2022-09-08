@@ -18,7 +18,7 @@
 
 using namespace jpacPhoto;
 
-void box_dslam_integrated()
+void box_dslam_differential()
 {
     reaction_kinematics kBox(M_JPSI, M_PROTON);
     kBox.set_meson_JP( {1, -1} );
@@ -29,47 +29,26 @@ void box_dslam_integrated()
     };
 
     double eta  = 1.;
-
-    interpolated_discontinuity disc1(&kBox, 1);
-    disc1.import_data("./grid_data/boxDs_");
-
-    box_amplitude box1(&kBox, &disc1, "#it{J}_{max} = 1/2");
-    box1.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-4);
-
     interpolated_discontinuity disc3(&kBox, 3);
     disc3.import_data("./grid_data/boxDs_");
 
     box_amplitude box3(&kBox, &disc3, "#it{J}_{max} = 3/2");
     box3.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-4);
-
-    interpolated_discontinuity disc5(&kBox, 5);
-    disc5.import_data("./grid_data/boxDs_");
-
-    box_amplitude box5(&kBox, &disc5, "#it{J}_{max} = 5/2");
-    box5.set_intermediate_threshold(M_DSTAR + M_LAMBDAC + 1.E-4);
+    box3.set_params( {Wcut(1.), eta} );
 
     // ---------------------------------------------------------------------------
     // Plot settings
     // ---------------------------------------------------------------------------
 
-    // which amps to plot
-    std::vector<amplitude*> amps;
-    amps.push_back(&box1);
-    amps.push_back(&box3);
-    amps.push_back(&box5);
-
-
     // Options
-    int N = 50;
-    double  xmin = 8.0;
-    double  xmax = 10.5;
+    int N =  100;
 
     double  ymin = 0.;
-    double  ymax = 0.8;
+    double  ymax = 0.2;
 
-    std::string filename = "sigma.pdf";
-    std::string ylabel  = "#sigma(#gamma#it{p} #rightarrow #it{J}/#psi #it{p})  [nb]";
-    bool PRINT = true;
+    std::string filename = "box.pdf";
+    std::string ylabel  = "d#sigma/d#it{t} (#gamma#it{p} #rightarrow #it{J}/#psi #it{p})  [nb / GeV^{2}]";
+    bool PRINT = false;
 
     // ---------------------------------------------------------------------------
     // You shouldnt need to change anything below this line
@@ -80,26 +59,33 @@ void box_dslam_integrated()
 
     // ---------------------------------------------------------------------------
     // Print the desired observable for each amplitude
-    for (int n = 0; n < amps.size(); n++)
-    {
-        auto F = [&](double x)
-        {
-            double w = W_cm(x);
-            return amps[n]->integrated_xsection(w*w);
-        };  
-        
-        amps[n]->set_params( {Wcut(1.), eta} );
-        plotter->AddEntry(N, F, {xmin,xmax}, amps[n]->get_id(), PRINT);
-        amps[n]->set_params( {Wcut(1.2), eta} );
-        plotter->AddDashedEntry(N, F, {xmin,xmax}, PRINT);
-    }
 
-    plotter->SetXaxis("#it{E}_{#gamma}  [GeV]", xmin, xmax);
+    double egam = 10.;
+    double W = W_cm(egam);
+    double s = W*W;
+    double  xmin = - kBox.t_man(s, 0.);
+    double  xmax = - kBox.t_man(s, PI);
+
+    auto F = [&](double mt)
+    {
+        return box3.differential_xsection(s, -mt);
+    };  
+
+    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 10 GeV", PRINT);      
+    plotter->SetXaxis("#minus#it{t}  [GeV^{2}]", xmin, xmax);
+
+    egam = 9.5; W = W_cm(egam); s = W*W;  
+    xmin = - kBox.t_man(s, 0.); xmax = - kBox.t_man(s, PI);
+    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 9.5 GeV", PRINT);      
+
+    egam = 9.0; W = W_cm(egam); s = W*W;  
+    xmin = - kBox.t_man(s, 0.); xmax = - kBox.t_man(s, PI);
+    plotter->AddEntry(N, F, {xmin,xmax}, "#it{E}_{#gamma} = 9.0 GeV", PRINT);   
 
     plotter->SetYaxis(ylabel, ymin, ymax);
     
-    plotter->SetLegend(0.2, 0.73);
-    plotter->SetLegendOffset(0.5, 0.15);
+    plotter->SetLegend(0.25, 0.77);
+    plotter->SetLegendOffset(0.5, 0.1);
 
     // Output to file
     plotter->Plot(filename);

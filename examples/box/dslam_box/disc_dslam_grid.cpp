@@ -22,7 +22,7 @@ void disc_dslam_grid()
     // Preliminaries 
 
     // How many partial waves to process
-    int  Jmax = 1;
+    int  Jmax = 5;
     bool verbose = true;
 
     // Need the kinematics of the intermediate reactions to get phases and helicity combinations
@@ -43,7 +43,8 @@ void disc_dslam_grid()
     for (int i = 0; i < nPsiDs; i++) ampC.push_back( new interpolation_2D(verbose) );
     
     // path to where the grid files are
-    std::string path = "./grid_data/";
+    std::string outpath = "./grid_data/";
+    std::string inpath = "./grid_data/";
     
     // ---------------------------------------------------------------------------
     // Set up kinematics for the overall process
@@ -60,9 +61,9 @@ void disc_dslam_grid()
     };
 
     //Grid size parameters (same as those used in the consitutent grids but this is not necessary)
-    double Wmin = sqrt(18.4704) + EPS, Wmax = 6.;
-    double etamin = 0., etamax = 1.5;
-    int nS = 200, nEta = 20;
+    double Wmin = kgamDs.Wth() + 2.E-4, Wmax = 6.;
+    double etamin = 0.95, etamax = 1.05;
+    int nS = 200, nEta = 3;
 
     // Interpolation object that actually generates the grid
     interpolation_2D output;
@@ -73,14 +74,32 @@ void disc_dslam_grid()
     // ---------------------------------------------------------------------------
     // Assemble the box PWAS
 
+    auto CB = [&] (int j, int n)
+    {
+        double result;
+        int k = 10*j + n;
+        switch (k)
+        {
+            case 1:  result =   sqrt(2. / 3.); break;
+            case 2:  result = - sqrt(1. / 3.); break;
+            case 3:  result = + sqrt(1. / 3.); break;
+            case 4:  result = - sqrt(2. / 3.); break;
+            case 10: result =              1.; break;
+            case 15: result =             -1.; break;
+            default: return 0.;
+        }
+
+        return result / sqrt(2.);
+    };
+
     // Loop over all desired J values
     for (int j=0; (2*j+1) <= Jmax; j++)
     {   
         int J = 2*j+1;
 
         // File name prefix
-        std::string gamPrefix = path + "gamDs_J_" + std::to_string(J) + "_H_";
-        std::string psiPrefix = path + "psiDs_J_" + std::to_string(J) + "_H_";
+        std::string gamPrefix = inpath + "gamDs_J_" + std::to_string(J) + "_H_";
+        std::string psiPrefix = inpath + "psiDs_J_" + std::to_string(J) + "_H_";
 
         // Grab the grids (remember we only saved half the amplitudes!)
         // first the B amps 
@@ -101,38 +120,68 @@ void disc_dslam_grid()
         {
             std::array<int,4> ith_helicities = kbox.helicities(i);
 
-            // Tricky bit is making sure the correct product of b and c is done 
-            // while summing over intermediate helicities
+            // // Tricky bit is making sure the correct product of b and c is done 
+            // // while summing over intermediate helicities
+            // auto f = [&] (double s, double eta)
+            // {
+            //     double b = 0., c = 0.;
+
+            //     for (int n = 0; n < 6; n++)
+            //     {   
+
+            //         int b_ind = (i>=6) * 6;
+            //         b += CB(j, n) * ampB[b_ind + n]->eval(s, eta);
+
+            //         int c_ind = (i - (i>=6)*6) * 6;
+            //         if (c_ind <= 12)
+            //         {
+            //             c += CB(j, n) * ampC[c_ind + n]->eval(s, eta);
+            //         } 
+            //         else
+            //         {
+            //             // with phase the kth amplitude gets replaced by N-1-kth amplitude where N is TOTAL number of amplitudes
+            //             c += CB(j, n) * kpsiDs.parity_phase(c_ind + n, S)*ampC[nPsiDs -1 - c_ind - n]->eval(s,eta);
+            //         };
+            //     }
+
+            //     return rho(s) * b * c;
+            // };
+
             auto f = [&] (double s, double eta)
             {
                 double a = 0.;
-                double b = 0., c = 0.;
 
                 for (int n = 0; n < 6; n++)
-                {   
+                {
+                    double b, c;
 
+                    // if i >= 6 hel[1] flips sign and we add 2 
                     int b_ind = (i>=6) * 6;
-                    b = ampB[b_ind + n]->eval(s, eta);
+                    b  = ampB[b_ind+n]->eval(s, eta);
 
-                    int c_ind = (i - (i>=6)*6) * 6;
+                    // the psi case is symmetric from 0-5 and 6-11
+                    int c_ind = ( (i>=6)*(i-6) + !(i>=6)*i ) * 6;
+
+                    // However we need to incoporate parity phases since we dont have all 12 amplitudes stored
                     if (c_ind <= 12)
                     {
-                        c = ampC[c_ind + n]->eval(s, eta);
+                        c = ampC[c_ind+n]->eval(s, eta);
                     } 
                     else
                     {
                         // with phase the kth amplitude gets replaced by N-1-kth amplitude where N is TOTAL number of amplitudes
-                        c = kpsiDs.parity_phase(c_ind + n, S)*ampC[nPsiDs -1 - c_ind - n]->eval(s,eta);
-                    };
+                        c = kpsiDs.intrinsic_parity(S)*ampC[nPsiDs-1-(c_ind+n)]->eval(s,eta);
+                    };                    
 
                     a += rho(s) * b * c;
-                }
+                };
 
                 return a;
             };
 
+
             // Finish the filename with J and H index values
-            std::string filename = path + "boxDs_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
+            std::string filename = outpath + "boxDs_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
             
             if (verbose)
             {
