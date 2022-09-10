@@ -51,7 +51,7 @@ double jpacPhoto::inclusive_production::dsigma_dxdy2(double s, double x, double 
     double mx;
     (_useTX) ? (mx = x) : (mx = _kinematics->M2fromXY2(t, x)); 
 
-    return _kinematics->jacobianXY2(t, x) * d3sigma_d3p(s, t, mx);
+    return _kinematics->jacobianXY2(x, y2) * d3sigma_d3p(s, t, mx);
 }
 
 // ---------------------------------------------------------------------------
