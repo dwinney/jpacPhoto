@@ -116,17 +116,15 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // nParams error message
-        inline void set_nParams(int N){ _nParams = N; };
+        inline int  get_nParams(){ return _nParams; };
 
+        // Every amplitude needs to specify how it allocates its parameters
         virtual void set_params( std::vector<double> x) = 0;
 
         // ---------------------------------------------------------------------------
         // Each amplitude must supply a function which returns a vector of allowed 2-tuples {J, P}
         virtual std::vector<std::array<int,2>> allowed_meson_JP()  = 0;
         virtual std::vector<std::array<int,2>> allowed_baryon_JP() = 0;
-        
-        // Small function just to know whether a given instance is a sum 
-        inline bool is_sum(){ return _isSum; };
 
         // Update the cache
         void update_cache(double s, double t);
@@ -148,7 +146,11 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         protected:
+
+        // Only the amplitude can change its nparams internally
+        inline void set_nParams(int N){ _nParams = N; };
         
+        // When accepting a vector check its the correct size
         inline void check_nParams(std::vector<double> params)
         {
             if (params.size() != _nParams)
@@ -193,11 +195,7 @@ namespace jpacPhoto
 
         // Some saveable string by which to identify the amplitude
         std::string _identifier;
-
-        // Bool only to differentiate the amplitude_sum class from everything else. 
-        // This class gets special treatment in the helicity amplitude caching
-        bool _isSum = false;
-
+        
         // Number of parameters this amplitude takes in 
         int _nParams = 0;
 
