@@ -158,6 +158,9 @@ namespace jpacPhoto
         // Minimize chi_2 for give integrated data sets
         double fit_integrated(std::vector<double> starting_guess);
 
+        // Same thing but just for the differential data sets
+        double fit_differential(std::vector<double> starting_guess);
+
         //Utility to change print level in TMinuit, default is to surpress all messages
         void set_error_level(int n){ _nError = n;};
 
@@ -248,26 +251,41 @@ namespace jpacPhoto
         inline void integrated_data_info()
         {
             std::cout << std::left << "Fitting amplitude (\"" << _amplitude->get_id() << "\") to " << _N_int << " integraded xsection data points: \n";
+            new_line();
             for (int k = 0; k < _integrated_data.size(); k++)
             {
-                std::cout << std::left << std::setw(20) << "- " + _integrated_data[k]._id << _integrated_data[k]._s.size() << std::endl;  
+                std::cout << std::left << std::setw(5) << " - " << std::setw(40) << _integrated_data[k]._id << std::setw(10) << _integrated_data[k]._s.size() << std::endl;  
             };
         };
-        inline void variable_info(std::vector<double> starting_guess, bool opt = 0)
+        inline void differential_data_info()
         {
-            std::cout << std::left << std::setw(10) << "N" << std::setw(20) << "PARAMETER" << std::setw(10) << "START VALUE"<< std::endl;
+            std::cout << std::left << "Fitting amplitude (\"" << _amplitude->get_id() << "\") to " << _N_diff << " differential xsection data points: \n";
+            new_line();
+            for (int k = 0; k < _differential_data.size(); k++)
+            {
+                std::cout << std::left << std::setw(5) << " - "<< std::setw(40) << _differential_data[k]._id << std::setw(10) <<  _differential_data[k]._t.size() << std::endl;  
+            };
+        };
+
+        // Print out a little table of the current status of parameters
+        inline void variable_info(std::vector<double> starting_guess, bool opt = 1)
+        {
+            std::string column_3;
+            (opt) ? (column_3 = "FIT VALUE") : (column_3 = "START VALUE");
+
+            std::cout << std::left << std::setw(10) << "N" << std::setw(20) << "PARAMETER" << std::setw(10) << column_3 << std::endl;
             std::cout << std::left << std::setw(10) << "-----" << std::setw(20) << "----------" << std::setw(10) << "------------"<< std::endl;
 
             for (int i = 0; i < _pars.size(); i++)
             {
                 std::string extra = "";
-                if (_pars[i]._custom_limits && !opt)
+                if (_pars[i]._custom_limits && opt)
                 {   
                     std::stringstream ss;
                     ss << std::setprecision(5) << "[" << _pars[i]._lower_limit << "," << _pars[i]._upper_limit << "]";
                     extra = ss.str();
                 };
-                if (_pars[i]._fixed && !opt) extra = "FIXED";
+                if (_pars[i]._fixed && opt) extra = "FIXED";
                 std::cout << std::left << std::setw(10) << i << std::setw(20) << _pars[i]._label << std::setw(20) << starting_guess[i] << std::setw(10) << extra << std::endl;
             };
         };

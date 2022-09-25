@@ -119,7 +119,9 @@ double jpacPhoto::amplitude_fitter::chi2_differential_i(int i, std::vector<doubl
 };
 
 //-----------------------------------------------------------------------
-// Fitting routines!
+// These are the actual fitting routines which call instances of MINUIT and do the fit
+
+// Do a fit to only the saved integrated data_sets
 double jpacPhoto::amplitude_fitter::fit_integrated(std::vector<double> starting_guess)
 {
     if (starting_guess.size() != _pars.size()) 
@@ -154,7 +156,7 @@ double jpacPhoto::amplitude_fitter::fit_integrated(std::vector<double> starting_
 
     new_line(); integrated_data_info();
     new_line(); divider(); 
-    std::cout << std::left << "Fitting " + std::to_string(minuit->NFree()) << " parameters with starting values:\n";   
+    std::cout << std::left << "Fitting " + std::to_string(minuit->NFree()) << " (out of " << std::to_string(minuit->NDim()) << ") parameters:\n";     
     new_line(); variable_info(starting_guess, 1);
     new_line(); divider(); new_line();
 
@@ -166,6 +168,69 @@ double jpacPhoto::amplitude_fitter::fit_integrated(std::vector<double> starting_
     // Fit results
     double chi2    = minuit->MinValue();
     double chi2dof = chi2 / (_N_int - minuit->NFree());
+    std::vector<double> best_params = convert(minuit->X());
+
+    divider();
+    std::cout << std::left << std::setw(10) << "chi2 = " << std::setw(15) << chi2;
+    std::cout << std::left << std::setw(10) << "chi2/dof = "   << std::setw(15) << chi2dof << std::endl;
+    new_line();
+    variable_info(best_params, 0);
+    divider();
+    
+    // At the end update the amplitude parameters to include the fit results
+    _amplitude->set_params(best_params);
+
+    return 0;
+};
+
+
+// Do a fit to only the saved differential data_sets
+double jpacPhoto::amplitude_fitter::fit_differential(std::vector<double> starting_guess)
+{
+    if (starting_guess.size() != _pars.size()) 
+    {
+        std::cout << "amplitude_fitter::fit_differential() : Error! Size of starting vector not the expected size of parameters (" << std::to_string(_pars.size()) <<"). \n";
+        std::cout << "Returning without fit..." << std::endl;
+        return -1.;
+    };
+
+    // MINUIT object from root
+    ROOT::Math::Minimizer* minuit = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
+    minuit->SetMaxFunctionCalls(1E7);
+    minuit->SetTolerance(1.E-6);
+    minuit->SetPrintLevel(_nError);
+
+    ROOT::Math::Functor fcn(this, &amplitude_fitter::chi2_differential, _pars.size());
+    minuit->SetFunction(fcn);
+
+    for (int a = 0; a < _pars.size(); a++)
+    {   
+        minuit->SetVariable(a, _pars[a]._label, starting_guess[a], 0.1);
+
+        if (_pars[a]._custom_limits)
+        {
+            minuit->SetVariableLimits(a, _pars[a]._lower_limit, _pars[a]._upper_limit);
+        }
+        if (_pars[a]._fixed)
+        {
+            minuit->FixVariable(a);
+        }
+    };
+
+    new_line(); differential_data_info();
+    new_line(); divider(); 
+    std::cout << std::left << "Fitting " + std::to_string(minuit->NFree()) << " (out of " << std::to_string(minuit->NDim()) << ") parameters:\n";     
+    new_line(); variable_info(starting_guess, 1);
+    new_line(); divider(); new_line();
+
+    std::cout << "Beginning fit...";
+    minuit->Minimize();
+    std::cout << "done! \n";
+    new_line();
+
+    // Fit results
+    double chi2    = minuit->MinValue();
+    double chi2dof = chi2 / (_N_diff - minuit->NFree());
     std::vector<double> best_params = convert(minuit->X());
 
     divider();
