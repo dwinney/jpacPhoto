@@ -33,6 +33,8 @@ namespace jpacPhoto
             {
                 _pars.push_back(i);
             };
+
+            _minuit = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
         };
 
         // Add vectors corresponding to integrated xsection data sets
@@ -71,7 +73,7 @@ namespace jpacPhoto
             _differential_data.push_back(new_data);
 
             // Add number of points to the running totals
-            _N += n; _N_diff += n;
+            _N += n; _N_dif += n;
         };
 
         inline void set_parameter_labels(std::vector<std::string> labels)
@@ -155,11 +157,8 @@ namespace jpacPhoto
             }
         };
 
-        // Minimize chi_2 for give integrated data sets
-        double fit_integrated(std::vector<double> starting_guess);
-
         // Same thing but just for the differential data sets
-        double fit_differential(std::vector<double> starting_guess);
+        double do_fit(std::vector<double> starting_guess);
 
         //Utility to change print level in TMinuit, default is to surpress all messages
         void set_error_level(int n){ _nError = n;};
@@ -203,7 +202,10 @@ namespace jpacPhoto
             double _lower_limit;
         };
 
-        // minimization function for the integrated data
+        // minimization function
+        inline double chi2(const double *pars){ return chi2_integrated(pars) + chi2_differential(pars); };
+
+        // Chi squared just from the integrated cross-section data
         double chi2_integrated_i(int i, std::vector<double> pars);
         double chi2_integrated(const double *par);
         std::vector<double> _integrated_chi2s;
@@ -218,6 +220,8 @@ namespace jpacPhoto
 
         // MINUIT error code
         int _nError = 0; // Default no messages
+        ROOT::Math::Minimizer * _minuit;
+        ROOT::Math::Functor fcn;
 
         // Parameter handling
         std::vector<parameter> _pars;
@@ -235,7 +239,7 @@ namespace jpacPhoto
 
         // Saved integrated and differential cross-section data
         int _N = 0;
-        int _N_int = 0, _N_diff = 0;
+        int _N_int = 0, _N_dif = 0;
         std::vector<data_set> _integrated_data;
         std::vector<data_set> _differential_data;
 
@@ -248,47 +252,12 @@ namespace jpacPhoto
         {
             std::cout << std::endl;
         };
-        inline void integrated_data_info()
-        {
-            std::cout << std::left << "Fitting amplitude (\"" << _amplitude->get_id() << "\") to " << _N_int << " integraded xsection data points: \n";
-            new_line();
-            for (int k = 0; k < _integrated_data.size(); k++)
-            {
-                std::cout << std::left << std::setw(5) << " - " << std::setw(40) << _integrated_data[k]._id << std::setw(10) << _integrated_data[k]._s.size() << std::endl;  
-            };
-        };
-        inline void differential_data_info()
-        {
-            std::cout << std::left << "Fitting amplitude (\"" << _amplitude->get_id() << "\") to " << _N_diff << " differential xsection data points: \n";
-            new_line();
-            for (int k = 0; k < _differential_data.size(); k++)
-            {
-                std::cout << std::left << std::setw(5) << " - "<< std::setw(40) << _differential_data[k]._id << std::setw(10) <<  _differential_data[k]._t.size() << std::endl;  
-            };
-        };
 
-        // Print out a little table of the current status of parameters
-        inline void variable_info(std::vector<double> starting_guess, bool opt = 1)
-        {
-            std::string column_3;
-            (opt) ? (column_3 = "FIT VALUE") : (column_3 = "START VALUE");
-
-            std::cout << std::left << std::setw(10) << "N" << std::setw(20) << "PARAMETER" << std::setw(10) << column_3 << std::endl;
-            std::cout << std::left << std::setw(10) << "-----" << std::setw(20) << "----------" << std::setw(10) << "------------"<< std::endl;
-
-            for (int i = 0; i < _pars.size(); i++)
-            {
-                std::string extra = "";
-                if (_pars[i]._custom_limits && opt)
-                {   
-                    std::stringstream ss;
-                    ss << std::setprecision(5) << "[" << _pars[i]._lower_limit << "," << _pars[i]._upper_limit << "]";
-                    extra = ss.str();
-                };
-                if (_pars[i]._fixed && opt) extra = "FIXED";
-                std::cout << std::left << std::setw(10) << i << std::setw(20) << _pars[i]._label << std::setw(20) << starting_guess[i] << std::setw(10) << extra << std::endl;
-            };
-        };
+        // Print out a little table of the current status
+        void data_info();
+        void variable_info(std::vector<double> pars, bool opt = 1);
+        void set_up(std::vector<double> starting_guess);
+        void print_results();
     };
 };
 
