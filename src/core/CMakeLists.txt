@@ -10,6 +10,7 @@ ROOT_GENERATE_DICTIONARY(G__jpacPhoto
         primakoff_effect.hpp
         pseudoscalar_exchange.hpp
         vector_exchange.hpp
+        amplitude_fitter.hpp
         LINKDEF jpacPhotoLinkDef.h
         )
 

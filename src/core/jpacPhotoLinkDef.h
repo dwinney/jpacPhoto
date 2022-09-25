@@ -15,5 +15,6 @@
 #pragma link C++ defined_in "reaction_kinematics.hpp";
 #pragma link C++ defined_in "regge_trajectory.hpp";
 #pragma link C++ defined_in "vector_exchange.hpp";
+#pragma link C++ defined_in "amplitude_fitter.hpp";
 
 #endif
