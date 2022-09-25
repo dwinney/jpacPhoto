@@ -320,6 +320,25 @@ namespace jpacPhoto
             return -1;
         }
     };
+
+    // Output a string of a given helicity set in format e.g. {+,+,+,+}
+    // TODO: add support for spin 2 or spin 3/2 
+    inline std::string print_helicities(std::array<int,4> lam)
+    {
+        std::array<std::string,4> lams;
+        for (int i = 0; i < 4; i++)
+        {
+            switch (lam[i])
+            {
+                case  1: lams[i] = "#plus";    break;
+                case  0: lams[i] = "0";        break;
+                case -1: lams[i] = "#minus";   break;
+                default: continue;
+            };
+        };
+        std::string hels = "{" + lams[0] + "," + lams[1] + "," + lams[2] + "," + lams[3] + "}";
+        return hels;  
+    };
 };
 
 #endif
