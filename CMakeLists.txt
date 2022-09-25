@@ -43,6 +43,9 @@ else()
     message(SEND_ERROR "-- Root not found")
 endif()
 
+# option to build the root dictionary to use classes with interactive cling
+option(BUILD_DICTIONARY "Build ROOT Dictionary" "FALSE")
+
 ##-----------------------------------------------------------------------
 ## Check if JPACPHOTO environment variable is set. 
 
