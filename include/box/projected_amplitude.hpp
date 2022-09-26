@@ -26,6 +26,7 @@ namespace jpacPhoto
         : amplitude(amp->_kinematics, "projected_amplitude", id), 
          _amplitude(amp), _J(J)
         {
+            set_nParams(amp->get_nParams());
             check_amplitude(amp);
         };
 
@@ -46,6 +47,9 @@ namespace jpacPhoto
 
         // We assume all helicities are in s channel
         inline helicity_channel helicity_CM_frame(){ return S; };
+
+        // Setting parameters just calls the stored amplitude
+        inline void set_params(std::vector<double> pars){ _amplitude->set_params(pars); };
 
         // ---------------------------------------------------------------------------
         private:
