@@ -23,7 +23,7 @@ std::complex<double> jpacPhoto::interpolated_discontinuity::helicity_amplitude(s
     for (int j = 0; (2*j+1) <= _jmax; j++)
     {
         int J = (2*j+1);
-        if ( abs(lamp) > J || abs(lamp) > J ) continue; 
+        if ( abs(lam) > J || abs(lamp) > J ) continue; 
         sum += double(J+1) * wigner_d_half(J, lam, lamp, theta) * helicity_pwa(helicities, J, s);
     };
 
