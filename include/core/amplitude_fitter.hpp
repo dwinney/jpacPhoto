@@ -157,11 +157,15 @@ namespace jpacPhoto
             }
         };
 
-        // Same thing but just for the differential data sets
+        // Run the main loop to fit to all the stored data
+        // Need an initial guess for all the parameters (even the fixed ones)
         double do_fit(std::vector<double> starting_guess);
 
         //Utility to change print level in TMinuit, default is to surpress all messages
-        void set_error_level(int n){ _nError = n;};
+        inline void set_error_level(int n){ _nError = n;};
+
+        // Supplied energies are in beam energy, Egamma not in s
+        inline void use_beam_energy(bool x = true){ _useEgamma = x; };
 
         // --------------------------------------------------------------------
         private:
@@ -217,6 +221,7 @@ namespace jpacPhoto
 
         // Amplitude being fit
         amplitude * _amplitude;
+        bool _useEgamma = false;
 
         // MINUIT error code
         int _nError = 0; // Default no messages

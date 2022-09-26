@@ -43,17 +43,19 @@ double jpacPhoto::amplitude_fitter::chi2_integrated_i(int i, std::vector<double>
     data_set ith_data_set = _integrated_data[i];
 
     // Individual quantities
-    std::vector<double> s     = ith_data_set._s;
-    std::vector<double> sigma = ith_data_set._sigma;
-    std::vector<double> error = ith_data_set._error;
+    std::vector<double> vs     = ith_data_set._s;
+    std::vector<double> vsigma = ith_data_set._sigma;
+    std::vector<double> verror = ith_data_set._error;
 
     // Calculate chi2
     double chi2 = 0;
-    for (int n = 0; n < s.size(); n++)
+    for (int n = 0; n < vs.size(); n++)
     {   
-        double sigma_th = _amplitude->integrated_xsection(s[n]);
-        double sigma_ex = sigma[n];
-        double err      = error[n];
+        double s;
+        (_useEgamma) ? (s = pow(W_cm(vs[n]), 2.)) : (s = vs[n]);
+        double sigma_th = _amplitude->integrated_xsection(s);
+        double sigma_ex = vsigma[n];
+        double err      = verror[n];
 
         chi2 += pow( (sigma_th - sigma_ex) / err, 2.);
     }; 
@@ -99,7 +101,7 @@ double jpacPhoto::amplitude_fitter::chi2_differential_i(int i, std::vector<doubl
     data_set ith_data_set = _differential_data[i];
 
     // Individual quantities
-    double s                  = ith_data_set._fixed_s;
+    double x                  = ith_data_set._fixed_s;
     std::vector<double> t     = ith_data_set._t;
     std::vector<double> sigma = ith_data_set._dsigma;
     std::vector<double> error = ith_data_set._derror;
@@ -108,6 +110,8 @@ double jpacPhoto::amplitude_fitter::chi2_differential_i(int i, std::vector<doubl
     double chi2 = 0;
     for (int n = 0; n < t.size(); n++)
     {   
+        double s;
+        (_useEgamma) ? (s = pow(W_cm(x), 2.)) : (s = x);
         double sigma_th = _amplitude->differential_xsection(s, t[n]);
         double sigma_ex = sigma[n];
         double err      = error[n];
