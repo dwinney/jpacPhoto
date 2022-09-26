@@ -49,6 +49,8 @@ namespace jpacPhoto
         
         inline void set_intermediate_threshold(double wth){ _intermediateThreshold = wth*wth; };
 
+        virtual inline void set_debug(int x){};
+
         protected:
 
         // All kinematic quantities of the overall scattering process

@@ -84,6 +84,8 @@ namespace jpacPhoto
             return _disc->helicity_amplitude(helicities, s, t);
         };
         
+        inline void set_debug(int i){ _disc->set_debug(i); };
+        
         // ---------------------------------------------------------------------------
         private:        
 
