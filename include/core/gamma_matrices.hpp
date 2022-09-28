@@ -60,6 +60,7 @@ namespace jpacPhoto
 
 	// ---------------------------------------------------------------------------
 	// Four dimensional Levi-Civita symbol
+    // We use the Peskin convention eps^{0123} = 1
 	double levi_civita(int mu, int alpha, int beta, int gamma);
 	
 };

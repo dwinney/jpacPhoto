@@ -33,5 +33,5 @@ double jpacPhoto::levi_civita(int a, int b, int c, int d)
 
     result /= abs(d - c) * abs(d - b) * abs(d - a) * abs(c - b) * abs(c - a) * abs(b - a);
 
-    return result;
+    return - result;
 };
