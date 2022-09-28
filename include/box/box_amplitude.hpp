@@ -63,7 +63,7 @@ namespace jpacPhoto
         };
 
         // Setting utility for free parameters
-        void set_params(std::vector<double> params)
+        virtual void set_params(std::vector<double> params)
         {
             check_nParams(params);
             _disc->set_params(params);
