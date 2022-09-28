@@ -31,6 +31,13 @@ namespace jpacPhoto
         public: 
 
         // Constructor.
+        // Need just the parent reaction kinematics discontinutiy needs to be set later
+        box_amplitude(reaction_kinematics * xkinem, std::string id = "Box Amplitude")
+        : amplitude(xkinem, "box_amplitude", id)
+        {
+            check_JP(xkinem);
+        };
+
         // Need the parent reaction kinematics and pre-set sub-amplitudes
         box_amplitude(reaction_kinematics * xkinem, box_discontinuity * disc, std::string id = "Box Amplitude")
         : amplitude(xkinem, "box_amplitude", id), _disc(disc)
@@ -87,7 +94,10 @@ namespace jpacPhoto
         inline void set_debug(int i){ _disc->set_debug(i); };
         
         // ---------------------------------------------------------------------------
-        private:        
+        protected:
+
+        // Internal function to set the discontinuity after initialization
+        void set_discontinuity(box_discontinuity * disc){ _disc = disc; set_nParams(disc->get_nParams()); };        
 
         // Discontinutity given in terms of the two tree amplitudes
         box_discontinuity * _disc;
