@@ -75,6 +75,8 @@ namespace jpacPhoto
             _open_charm_disc->set_params({W_cut(params[0]), params[1]});
         };
 
+        void set_verbose(bool x){ _verbose = x; };
+
         // ---------------------------------------------------------------------------
 
         protected:
@@ -94,7 +96,7 @@ namespace jpacPhoto
             return sqrt(qmax*qmax + _m*_m) + sqrt(qmax*qmax + M_LAMBDAC*M_LAMBDAC);
         };
 
-        bool _verbose = true;
+        bool _verbose = false;
 
         // The discontinuity comes from pre-generated tables 
         interpolated_discontinuity * _open_charm_disc;
@@ -127,6 +129,7 @@ namespace jpacPhoto
         // Universal couplings
         double _lambdaQCD = 0.25;
         double _gGamDDs   = 0.134;
+        double _gGamDsDs  = 0.641;
         double _gPsiDD    = 7.44;
         double _gPsiDDs   = 3.84;
         double _gPsiDsDs  = 7.99;

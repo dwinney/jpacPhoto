@@ -1,12 +1,12 @@
-// Specific implementation of the open_charm_box amplitude for the D Lambdac intermediate state
+// Specific implementation of the open_charm_box amplitude for the D* Lambdac intermediate state
 //
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef DLAMBDAC_BOX
-#define DLAMBDAC_BOX
+#ifndef DSTARLAMBDAC_BOX
+#define DSTARLAMBDAC_BOX
 
 #include "open_charm_box.hpp"
 #include "pseudoscalar_exchange.hpp"
@@ -16,27 +16,28 @@
 
 namespace jpacPhoto
 {
-    class DLambdac_box : public open_charm_box
+    class DstarLambdac_box : public open_charm_box
     {
         // ---------------------------------------------------------------------------
 
         public:
 
-        DLambdac_box(reaction_kinematics * xkinem, std::string id = "DLambdac_box")
-        : open_charm_box(xkinem, D, id)
+        DstarLambdac_box(reaction_kinematics * xkinem, std::string id = "DLambdac_box")
+        : open_charm_box(xkinem, Dstar, id)
         {
-            // The pseudo-scalar D intermediate state only requires total J = 1/2 
-            // This is because we're dominated by S-wave which is only this spin projection
-            _Jmax = 1;
+            // The vector D* intermediate state only requires total J = 3/2 to fully describe the S-wave
+            _Jmax = 3;
             _open_charm_disc->set_Jmax(_Jmax, _verbose);
 
+            _gam_dEx    = new pseudoscalar_exchange(_kGam, M_D, "D exchange");
             _gam_dsEx   = new vector_exchange(_kGam, M_DSTAR, "D* exchange");
             _gam_lamcEx = new dirac_exchange(_kGam, M_LAMBDAC, "#Lambda_{c} exchange");
 
+            _gam_dEx->force_covariant(true);
             _gam_dsEx->force_covariant(true);
             _gam_lamcEx->force_covariant(true);
 
-            _gam_sum    = new amplitude_sum(_kGam, {_gam_dsEx, _gam_lamcEx}, "Sum");
+            _gam_sum    = new amplitude_sum(_kGam, {_gam_dEx, _gam_dsEx, _gam_lamcEx}, "Sum");
             _gamp_amp   = _gam_sum;
 
             _psi_dEx    = new pseudoscalar_exchange(_kPsi, M_D, "D exchange");
@@ -51,8 +52,9 @@ namespace jpacPhoto
             _psip_amp   = _psi_sum;
         };
 
-        ~DLambdac_box()
+        ~DstarLambdac_box()
         {
+            delete _gam_dEx;
             delete _gam_dsEx;
             delete _gam_lamcEx;
             delete _gam_sum;
@@ -67,15 +69,18 @@ namespace jpacPhoto
         protected:
 
         // Photon amplitudes
+        pseudoscalar_exchange * _gam_dEx;
         vector_exchange       * _gam_dsEx;
         dirac_exchange        * _gam_lamcEx;
         amplitude_sum         * _gam_sum;
 
         void update_gamp(double eta)
         {
-            _gam_dsEx->set_params(   {_gGamDDs, _gDsNL, 0.} );
-            _gam_lamcEx->set_params( { _gGamLL,  _gDNL, 0.} );
+            _gam_dEx->set_params(    {_gGamDDs, _gDNL} );
+            _gam_dsEx->set_params(   {_gGamDsDs, _gDsNL, 0.} );
+            _gam_lamcEx->set_params( { _gGamLL,  _gDsNL} );
 
+            _gam_dEx->set_formfactor(   2, M_D       + eta * _lambdaQCD);
             _gam_dsEx->set_formfactor(  2, M_DSTAR   + eta * _lambdaQCD);
             _gam_lamcEx->set_formfactor(2, M_LAMBDAC + eta * _lambdaQCD);
         };
@@ -88,9 +93,9 @@ namespace jpacPhoto
 
         void update_psip(double eta)
         {
-            _psi_dEx->set_params(    { _gPsiDD, _gDNL     } );
-            _psi_dsEx->set_params(   {_gPsiDDs, _gDsNL, 0.} );
-            _psi_lamcEx->set_params( { _gPsiLL,  _gDNL, 0.} );
+            _psi_dEx->set_params(    { _gPsiDDs, _gDNL     } );
+            _psi_dsEx->set_params(   {_gPsiDsDs, _gDsNL, 0.} );
+            _psi_lamcEx->set_params( { _gPsiLL,  _gDsNL} );
  
             _psi_dEx->set_formfactor(   2, M_D       + eta * _lambdaQCD);
             _psi_dsEx->set_formfactor(  2, M_DSTAR   + eta * _lambdaQCD);
