@@ -105,9 +105,9 @@ void jpacPhoto::interpolation_2D::export_grid(std::string filename)
     output.open(filename.c_str());
 
     // First line contains grid parameters
-    output << std::left;
-    output << std::setw(10) << _xmin << std::setw(10) << _xmax << std::setw(10) << _xN;
-    output << std::setw(10) << _ymin << std::setw(10) << _ymax << std::setw(10) << _yN << std::endl;
+    output << std::left << std::setprecision(10);
+    output << std::setw(20) << _xmin << std::setw(20) << _xmax << std::setw(20) << _xN;
+    output << std::setw(20) << _ymin << std::setw(20) << _ymax << std::setw(20) << _yN << std::endl;
 
     // Sum over the x variable
     for (int i=0; i < _xN; i++)
@@ -121,9 +121,9 @@ void jpacPhoto::interpolation_2D::export_grid(std::string filename)
             double f_ij = _f_values[i][j];
 
             output << std::left;
-            output << std::setw(15) << x_i;
-            output << std::setw(15) << y_ij;
-            output << std::setw(15) << f_ij << std::endl;
+            output << std::setw(20) << x_i;
+            output << std::setw(20) << y_ij;
+            output << std::setw(20) << f_ij << std::endl;
         }
     }
     output.close();
