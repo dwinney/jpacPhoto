@@ -64,11 +64,16 @@ namespace jpacPhoto
         inline void import_grid(std::string path)
         {
             _open_charm_disc->import_data( path + _file_id + "_disc_");
-            _imported = true;
         };
 
         // Else generate a new one
         void generate_grid(double Wmax, std::array<double,2> eta_bounds, std::array<int,2> ns, std::string path = "");
+
+        void set_params(std::vector<double> params)
+        {
+            check_nParams(params);
+            _open_charm_disc->set_params({W_cut(params[0]), params[1]});
+        };
 
         // ---------------------------------------------------------------------------
 
@@ -92,7 +97,6 @@ namespace jpacPhoto
         bool _verbose = true;
 
         // The discontinuity comes from pre-generated tables 
-        bool _imported = false;
         interpolated_discontinuity * _open_charm_disc;
 
         // The sub-process amplitudes

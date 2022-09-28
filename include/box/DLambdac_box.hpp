@@ -29,6 +29,7 @@ namespace jpacPhoto
             // The pseudo-scalar D intermediate state only requires total J = 1/2 
             // This is because we're dominated by S-wave which is only this spin projection
             _Jmax = 1;
+            _open_charm_disc->set_Jmax(_Jmax, _verbose);
 
             _gam_dsEx   = new vector_exchange(_kGam, M_DSTAR, "D* exchange");
             _gam_lamcEx = new dirac_exchange(_kGam, M_LAMBDAC, "#Lambda_{c} exchange");
