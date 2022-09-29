@@ -92,14 +92,15 @@ namespace jpacPhoto
         };
 
         /// Set limits of a parameter specificed by index
-        inline void set_parameter_limit(int i, std::array<double,2> ranges)
+        inline void set_parameter_limits(int i, std::array<double,2> ranges, double step = 0.1)
         {
             _pars[i]._custom_limits = true;
             _pars[i]._lower_limit = ranges[0];
             _pars[i]._upper_limit = ranges[1];
+            _pars[i]._step_size   = step;
         };
         // or specified by label
-        inline void set_parameter_limit(std::string name, std::array<double,2> ranges)
+        inline void set_parameter_limits(std::string name, std::array<double,2> ranges, double step = 0.1)
         {
             for (int i = 0; i < _pars.size(); i++)
             {
@@ -112,6 +113,7 @@ namespace jpacPhoto
                 _pars[i]._custom_limits = true;
                 _pars[i]._lower_limit = ranges[0];
                 _pars[i]._upper_limit = ranges[1];
+                _pars[i]._step_size   = step;
                 break;
             }
         };
@@ -204,6 +206,7 @@ namespace jpacPhoto
             bool _custom_limits = false;
             double _upper_limit;
             double _lower_limit;
+            double _step_size = 0.1;
         };
 
         // minimization function

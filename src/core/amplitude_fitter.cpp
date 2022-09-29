@@ -141,9 +141,9 @@ double jpacPhoto::amplitude_fitter::do_fit(std::vector<double> starting_guess)
     new_line(); variable_info(starting_guess, 0);
     new_line(); divider(); new_line();
 
-    std::cout << "Beginning fit...";    
+    std::cout << "Beginning fit..." << std::flush;    
     _minuit->Minimize();
-    std::cout << "done! \n";
+    std::cout << "Done! \n";
 
     print_results();
 
@@ -173,7 +173,9 @@ void jpacPhoto::amplitude_fitter::data_info()
 
 // Print out a little table of the current status of parameters
 void jpacPhoto::amplitude_fitter::variable_info(std::vector<double> starting_guess, bool opt)
-{
+{  
+    std::cout << std::setprecision(10);
+
     std::string column_3;
     (opt) ? (column_3 = "FIT VALUE") : (column_3 = "START VALUE");
 
@@ -184,13 +186,13 @@ void jpacPhoto::amplitude_fitter::variable_info(std::vector<double> starting_gue
     for (int i = 0; i < _pars.size(); i++)
     {
         std::string extra = "";
-        if (_pars[i]._custom_limits && opt)
+        if (_pars[i]._custom_limits && !opt)
         {   
             std::stringstream ss;
-            ss << std::setprecision(5) << "[" << _pars[i]._lower_limit << "," << _pars[i]._upper_limit << "]";
+            ss << std::setprecision(5) << "[" << _pars[i]._lower_limit << ", " << _pars[i]._upper_limit << "]";
             extra = ss.str();
         };
-        if (_pars[i]._fixed && opt) extra = "FIXED";
+        if (_pars[i]._fixed && !opt) extra = "FIXED";
         std::cout << std::left << std::setw(10) << i << std::setw(20) << _pars[i]._label << std::setw(20) << starting_guess[i] << std::setw(10) << extra << std::endl;
     };
 };
@@ -203,7 +205,7 @@ void jpacPhoto::amplitude_fitter::set_up(std::vector<double> starting_guess)
     
     for (int a = 0; a < _pars.size(); a++)
     {   
-        _minuit->SetVariable(a, _pars[a]._label, starting_guess[a], 0.1);
+        _minuit->SetVariable(a, _pars[a]._label, starting_guess[a], _pars[a]._step_size);
 
         if (_pars[a]._custom_limits)
         {
