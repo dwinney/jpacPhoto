@@ -76,9 +76,9 @@ namespace jpacPhoto
 
         void update_gamp(double eta)
         {
-            _gam_dEx->set_params(    {_gGamDDs, _gDNL} );
-            _gam_dsEx->set_params(   {_gGamDsDs, _gDsNL, 0.} );
-            _gam_lamcEx->set_params( { _gGamLL,  _gDsNL} );
+            _gam_dEx->set_params(    { _gGamDDs,  _gDNL     } );
+            _gam_dsEx->set_params(   { _gGamDsDs, _gDsNL, 0.} );
+            _gam_lamcEx->set_params( { _gGamLL,   _gDsNL    } );
 
             _gam_dEx->set_formfactor(   2, M_D       + eta * _lambdaQCD);
             _gam_dsEx->set_formfactor(  2, M_DSTAR   + eta * _lambdaQCD);
@@ -93,10 +93,10 @@ namespace jpacPhoto
 
         void update_psip(double eta)
         {
-            _psi_dEx->set_params(    { _gPsiDDs, _gDNL     } );
-            _psi_dsEx->set_params(   {_gPsiDsDs, _gDsNL, 0.} );
-            _psi_lamcEx->set_params( { _gPsiLL,  _gDsNL} );
- 
+            _psi_dEx->set_params(    { psi_phase()* _gPsiDDs,  _gDNL     } );
+            _psi_dsEx->set_params(   {              _gPsiDsDs, _gDsNL, 0.} );
+            _psi_lamcEx->set_params( {              _gPsiLL,   _gDsNL    } );
+
             _psi_dEx->set_formfactor(   2, M_D       + eta * _lambdaQCD);
             _psi_dsEx->set_formfactor(  2, M_DSTAR   + eta * _lambdaQCD);
             _psi_lamcEx->set_formfactor(2, M_LAMBDAC + eta * _lambdaQCD);
