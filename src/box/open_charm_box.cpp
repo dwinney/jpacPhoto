@@ -169,7 +169,7 @@ void jpacPhoto::open_charm_box::generate_gamp_grid()
             // Finish the filename with J and H index values
             std::string filename = _path + _file_id + "_gamp_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
             
-            std::cout << "Generating grid for J = " << std::to_string(J) <<" and H = " + print_helicities(ith_helicities) << std::endl;
+            if (_verbose) std::cout << "Generating grid for J = " << std::to_string(J) <<" and H = " + print_helicities(ith_helicities) << std::endl;
 
             // Make grid 
             // (int 1 is to skip interpolation step since we only want to print to file not eval)
@@ -177,7 +177,7 @@ void jpacPhoto::open_charm_box::generate_gamp_grid()
 
             // Save it to file
             interpolator.export_grid(filename);
-            std::cout << std::endl;
+            if (_verbose) std::cout << std::endl;
         };
     };
 };
@@ -211,14 +211,14 @@ void jpacPhoto::open_charm_box::generate_psip_grid()
             auto f = [&](double s, double eta)
             {
                 update_psip(eta);
-                if (_charmedMeson == D) return hpwa.real_part(s);
-                else                    return hpwa.imag_part(s);                
+                if (_charmedMeson == D) return   hpwa.real_part(s);
+                else                    return - hpwa.imag_part(s); // Minus sign because its the imag_part of the complex conjugate!         
             };
             
             // Finish the filename with J and H index values
             std::string filename = _path +  _file_id + "_psip_J_" + std::to_string(J) + "_H_" + std::to_string(i) + ".dat";
             
-            std::cout << "Generating grid for J = " << std::to_string(J) <<" and H = " + print_helicities(ith_helicities) << std::endl;
+            if (_verbose) std::cout << "Generating grid for J = " << std::to_string(J) <<" and H = " + print_helicities(ith_helicities) << std::endl;
 
             // Make grid 
             // (int 1 is to skip interpolation step since we only want to print to file not eval)
@@ -226,7 +226,7 @@ void jpacPhoto::open_charm_box::generate_psip_grid()
 
             // Save it to file
             interpolator.export_grid(filename);
-            std::cout << std::endl;
+            if (_verbose) std::cout << std::endl;
         };
     };
 };

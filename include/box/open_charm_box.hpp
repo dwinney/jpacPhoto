@@ -75,7 +75,11 @@ namespace jpacPhoto
             _open_charm_disc->set_params({W_cut(params[0]), params[1]});
         };
 
+        // Display all the messages with grid/file handling
         void set_verbose(bool x){ _verbose = x; };
+
+        // Whether to use the alternative phase for the psi-opencharm lagrangians
+        void use_alternative_phase(bool x){ _altPhase = x; };
 
         // ---------------------------------------------------------------------------
 
@@ -93,7 +97,7 @@ namespace jpacPhoto
         // Integral cutoff as a function of qmax in GeV
         inline double W_cut(double qmax)
         {
-            return sqrt(qmax*qmax + _m*_m) + sqrt(qmax*qmax + M_LAMBDAC*M_LAMBDAC);
+            return sqrt(qmax*qmax + /* _m*_m */ M_D*M_D) + sqrt(qmax*qmax + M_LAMBDAC*M_LAMBDAC);
         };
 
         bool _verbose = false;
@@ -126,13 +130,16 @@ namespace jpacPhoto
         std::array<double,2> _wbounds, _etabounds;
         std::string          _path;
 
+        bool _altPhase = false;
+        inline double psi_phase(){ return 1. * (!_altPhase) + -1. * (_altPhase); };
+
         // Universal couplings
         double _lambdaQCD = 0.25;
         double _gGamDDs   = 0.134;
         double _gGamDsDs  = 0.641;
-        double _gPsiDD    = 7.44;
-        double _gPsiDDs   = 3.84;
-        double _gPsiDsDs  = 7.99;
+        double _gPsiDD    =  7.44;
+        double _gPsiDDs   =  3.84;
+        double _gPsiDsDs  =  7.99;
         double _gPsiLL    = -1.4;
         double _gGamLL    = E;
         double _gDsNL     = -4.3;
