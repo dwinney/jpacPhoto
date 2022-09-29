@@ -131,7 +131,7 @@ namespace jpacPhoto
         std::string          _path;
 
         bool _altPhase = false;
-        inline double psi_phase(){ return 1. * (!_altPhase) + -1. * (_altPhase); };
+        inline double psi_phase(){ return -1. * (!_altPhase) + 1. * (_altPhase); };
 
         // Universal couplings
         double _lambdaQCD = 0.25;
