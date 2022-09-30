@@ -97,7 +97,6 @@ double jpacPhoto::amplitude_fitter::chi2_differential_i(int i, std::vector<doubl
     data_set ith_data_set = _differential_data[i];
 
     // Individual quantities
-    double x                  = ith_data_set._fixed_s;
     std::vector<double> vt    = ith_data_set._t;
     std::vector<double> sigma = ith_data_set._dsigma;
     std::vector<double> error = ith_data_set._derror;
@@ -106,8 +105,10 @@ double jpacPhoto::amplitude_fitter::chi2_differential_i(int i, std::vector<doubl
     double chi2 = 0;
     for (int n = 0; n < vt.size(); n++)
     {   
-        double s, t;
+        double x;
+        (ith_data_set._if_fixed_s) ? (x = ith_data_set._fixed_s) : (x = ith_data_set._s[n]);
 
+        double s, t;
         (ith_data_set._useEgamma) ? (s = pow(W_cm(x), 2.)) : (s = x);
 
         // Check if momentum transfer is negative (i.e. is what was saves -t or t ?)

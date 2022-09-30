@@ -80,7 +80,26 @@ namespace jpacPhoto
             // Add number of points to the running totals
             _N += n; _N_dif += n;
         };
+        // If each bin in t has an associated avg energy pass a vector
+        inline void add_differential_data(std::vector<double> s, std::vector<double> t, std::vector<double> dsigma, std::vector<double> errors, std::string id = "", bool use_tp = false)
+        {
+            int n = t.size();
+            if (dsigma.size() != n || errors.size() != n || s.size() != n) 
+            {
+                std::cout << "fitter::add_differential_data() : Input vectors are incorrect sizes!" << std::endl;
+                std::cout << "Continuing without adding data set..." << std::endl;
+                return;
+            };
 
+            if ( id == "" ) id = "dxs_data[" + std::to_string(_differential_data.size()) + "]";
+            data_set new_data(s, t, dsigma, errors, id);
+            new_data._useTPrime = use_tp;
+
+            _differential_data.push_back(new_data);
+
+            // Add number of points to the running totals
+            _N += n; _N_dif += n;
+        };
         inline void set_parameter_labels(std::vector<std::string> labels)
         {
             if (labels.size() != _pars.size())
@@ -233,7 +252,11 @@ namespace jpacPhoto
             {};
 
             data_set(double s, std::vector<double> x, std::vector<double> fx, std::vector<double> err, std::string id)
-            : _id(id), _fixed_s(s), _t(x), _dsigma(fx), _derror(err)
+            : _id(id), _fixed_s(s), _t(x), _dsigma(fx), _derror(err), _if_fixed_s(true)
+            {};
+
+            data_set(std::vector<double> s, std::vector<double> x, std::vector<double> fx, std::vector<double> err, std::string id)
+            : _id(id), _s(s), _t(x), _dsigma(fx), _derror(err), _if_fixed_s(false)
             {};
 
             bool _useEgamma = false;
@@ -242,6 +265,7 @@ namespace jpacPhoto
             std::string _id;
             std::vector<double> _s, _sigma, _error;
 
+            bool _if_fixed_s;
             double _fixed_s;
             std::vector<double> _t, _dsigma, _derror;
         };
