@@ -39,6 +39,8 @@ class regge_trajectory
 
     virtual std::complex<double> slope(double s = 0.){return 0.;};
 
+    virtual std::complex<double> intercept(){return 0.;};
+
     virtual void set_params(std::vector<double> pars){};
 
     // These parameters define the trajectory
@@ -78,27 +80,24 @@ class linear_trajectory : public regge_trajectory
         set_minJ(minJ);
     };
 
-    // copy Constructor
-    linear_trajectory(const linear_trajectory & old)
-    : regge_trajectory(old),
-      _a0(old._a0), _aprime(old._aprime)
-    {};
-
     // Setting utility
-    void set_params(double inter, double slope)
+    inline void set_params(std::vector<double> pars){ if (pars.size() == 2) set_params(pars[0], pars[1]); };
+    inline void set_params(double inter, double slope)
     {
         _a0 = inter; _aprime = slope;
     };
 
-    std::complex<double> eval(double s)
+    inline std::complex<double> eval(double s)
     {
         return _a0 + _aprime * s;
     };
 
-    std::complex<double> slope(double s = 0.)
+    inline std::complex<double> slope(double s = 0.)
     {
         return _aprime;
     };
+
+    inline std::complex<double> intercept(){return _a0;};
 };
 
 #endif
