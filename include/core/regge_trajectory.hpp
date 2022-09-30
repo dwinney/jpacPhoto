@@ -11,6 +11,7 @@
 #define _REGGE_TRAJ_
 
 #include <complex>
+#include <vector>
 #include <string>
 
 class regge_trajectory
@@ -31,10 +32,14 @@ class regge_trajectory
     : _parent(old._parent), _signature(old._signature)
     {};
 
+    virtual ~regge_trajectory() = default;
+
     // Only need a function to evaluate the trajectory at some s
     virtual std::complex<double> eval(double s) = 0;
 
     virtual std::complex<double> slope(double s = 0.){return 0.;};
+
+    virtual void set_params(std::vector<double> pars){};
 
     // These parameters define the trajectory
     // name, spin, and mass of the lowest lying resonance on the parent trajectory

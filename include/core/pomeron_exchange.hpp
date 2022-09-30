@@ -32,7 +32,8 @@ namespace jpacPhoto
     {
         public:
 
-        // Constructor
+        // Constructors
+        
         // need a pointer to kinematic object, pointer to trajectory.
         pomeron_exchange(reaction_kinematics * xkinem, regge_trajectory * alpha, int model = 0, std::string name = "pomeron_exchange")
         : amplitude(xkinem, "pomeron_exchange", name), _traj(alpha), _model(model)
@@ -41,12 +42,38 @@ namespace jpacPhoto
             check_JP(xkinem);
         };
 
+        // If theres no trajectory give, create a linear one internally and treat its slope/intercept as free parameters
+        pomeron_exchange(reaction_kinematics * xkinem, int model = 0, std::string name = "pomeron_exchange")
+        : amplitude(xkinem, "pomeron_exchange", name), _traj( new linear_trajectory(+1, +1, 0., 0., "Pomeron trajectory")), _model(model)
+        {
+            set_nParams(2 + 2);
+            check_JP(xkinem);
+            _internalTraj = true;
+        };
+        
+        // If theres no trajectory give, create a linear one internally and treat its slope/intercept as free parameters
+        pomeron_exchange(reaction_kinematics * xkinem, std::string name = "pomeron_exchange")
+        : amplitude(xkinem, "pomeron_exchange", name), _traj( new linear_trajectory(+1, +1, 0., 0., "Pomeron trajectory")), _model(0)
+        {
+            set_nParams(2 + 2); // Treat slope and intercept as free parameters
+            check_JP(xkinem);
+            _internalTraj = true;
+        };
+
+        // Destructor to clear the trajectory if internally constructed
+        ~pomeron_exchange()
+        {
+            if (_internalTraj) delete _traj;
+        };
+
         // Setting utility
         void set_params(std::vector<double> params)
         {
             check_nParams(params);
             _norm = params[0];
-            _b0 = params[1];
+            _b0   = params[1];
+
+            if (_internalTraj) _traj->set_params({params[2], params[3]});
         };
 
         // Helicities are always assumed to be in the s-channel cm frame
@@ -75,6 +102,7 @@ namespace jpacPhoto
 
         double _norm = 0., _b0 = 0.; // Regge factor parameters: normalization and t-slope
         regge_trajectory * _traj;
+        bool _internalTraj = false;
 
         // Photon - Vector - Pomeron vertex
         std::complex<double> top_vertex(int mu);
