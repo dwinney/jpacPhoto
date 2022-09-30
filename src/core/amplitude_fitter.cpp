@@ -39,20 +39,19 @@ double jpacPhoto::amplitude_fitter::chi2_integrated_i(int i, std::vector<double>
     // Pass the parameters to the amplitude
     _amplitude->set_params(pars);
 
-    // Grab the ith data set 
-    data_set ith_data_set = _integrated_data[i];
-
     // Individual quantities
-    std::vector<double> vs     = ith_data_set._s;
-    std::vector<double> vsigma = ith_data_set._sigma;
-    std::vector<double> verror = ith_data_set._error;
+    std::vector<double> vs     = _integrated_data[i]._s;
+    std::vector<double> vsigma = _integrated_data[i]._sigma;
+    std::vector<double> verror = _integrated_data[i]._error;
 
     // Calculate chi2
     double chi2 = 0;
     for (int n = 0; n < vs.size(); n++)
     {   
         double s;
-        (_useEgamma) ? (s = pow(W_cm(vs[n]), 2.)) : (s = vs[n]);
+        
+        (_integrated_data[i]._useEgamma) ? (s = pow(W_cm(vs[n]), 2.)) : (s = vs[n]);
+
         double sigma_th = _amplitude->integrated_xsection(s);
         double sigma_ex = vsigma[n];
         double err      = verror[n];
@@ -70,11 +69,8 @@ double jpacPhoto::amplitude_fitter::chi2_differential(const double *par)
     _differential_chi2s.clear();
 
     // convert double *par to vector
-    std::vector<double> params;
-    for (int n = 0; n < _pars.size(); n++)
-    {
-        params.push_back(par[n]);
-    };
+    std::vector<double> params = convert(par);
+
 
     // Iterate over each set data set
     double chi2 = 0.;
@@ -102,17 +98,26 @@ double jpacPhoto::amplitude_fitter::chi2_differential_i(int i, std::vector<doubl
 
     // Individual quantities
     double x                  = ith_data_set._fixed_s;
-    std::vector<double> t     = ith_data_set._t;
+    std::vector<double> vt    = ith_data_set._t;
     std::vector<double> sigma = ith_data_set._dsigma;
     std::vector<double> error = ith_data_set._derror;
 
     // Calculate chi2
     double chi2 = 0;
-    for (int n = 0; n < t.size(); n++)
+    for (int n = 0; n < vt.size(); n++)
     {   
-        double s;
-        (_useEgamma) ? (s = pow(W_cm(x), 2.)) : (s = x);
-        double sigma_th = _amplitude->differential_xsection(s, t[n]);
+        double s, t;
+
+        (ith_data_set._useEgamma) ? (s = pow(W_cm(x), 2.)) : (s = x);
+
+        // Check if momentum transfer is negative (i.e. is what was saves -t or t ?)
+        double xt = vt[n]; 
+        if (xt > 0) xt *= -1.;
+
+        // Then convert from t' to t if necessary
+        (ith_data_set._useTPrime) ? (t = xt + _amplitude->_kinematics->t_man(s, 0.)) : (t = xt);
+
+        double sigma_th = _amplitude->differential_xsection(s, t);
         double sigma_ex = sigma[n];
         double err      = error[n];
 

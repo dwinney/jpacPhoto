@@ -49,6 +49,7 @@ namespace jpacPhoto
                 return;
             };
 
+            if ( id == "" ) id = "int_data[" + std::to_string(_differential_data.size()) + "]";
             data_set new_data(s, sigma, errors, id);
             _integrated_data.push_back(new_data);
 
@@ -59,7 +60,8 @@ namespace jpacPhoto
         // Add vectors corresponding to differential xsection data sets
         // in addition to vectors for t, dsigma/dt, and errors we require the fixed energy s 
         // String id optional parameter for feeding fit results to a plotter object
-        inline void add_differential_data(double s, std::vector<double> t, std::vector<double> dsigma, std::vector<double> errors, std::string id = "")
+        inline void add_differential_data(double s, std::vector<double> t, std::vector<double> dsigma, std::vector<double> errors, bool use_tp = false){ add_differential_data(s, t, dsigma, errors, "", use_tp); };
+        inline void add_differential_data(double s, std::vector<double> t, std::vector<double> dsigma, std::vector<double> errors, std::string id = "", bool use_tp = false)
         {
             int n = t.size();
             if (dsigma.size() != n || errors.size() != n) 
@@ -69,7 +71,10 @@ namespace jpacPhoto
                 return;
             };
 
+            if ( id == "" ) id = "dxs_data[" + std::to_string(_differential_data.size()) + "]";
             data_set new_data(s, t, dsigma, errors, id);
+            new_data._useTPrime = use_tp;
+
             _differential_data.push_back(new_data);
 
             // Add number of points to the running totals
@@ -166,8 +171,56 @@ namespace jpacPhoto
         //Utility to change print level in TMinuit, default is to surpress all messages
         inline void set_error_level(int n){ _nError = n;};
 
-        // Supplied energies are in beam energy, Egamma not in s
-        inline void use_beam_energy(bool x = true){ _useEgamma = x; };
+        // Supplied energies of a given data set are in Egamma (lab beam energy) not in s
+        // Here we set it globally
+        inline void use_beam_energy(bool x = true)
+        {
+            for (int i = 0; i < _integrated_data.size();   i++) _integrated_data[i]._useEgamma   = x;
+            for (int i = 0; i < _differential_data.size(); i++) _differential_data[i]._useEgamma = x;
+        }
+        // Or for individual data sets
+        inline void use_beam_energy(std::string id, bool x = true)
+        {   
+            bool found = false;
+            // Search for the data set with given id 
+            for (int i = 0; i < _integrated_data.size(); i++)
+            {
+                if (_integrated_data[i]._id != id) continue;
+                found = true;
+                _integrated_data[i]._useEgamma = x;
+            };
+
+            // Search also in the differential data sets
+            for (int i = 0; i < _differential_data.size(); i++)
+            {
+                if (_differential_data[i]._id != id) continue;
+                found = true;
+                _differential_data[i]._useEgamma = x;
+            };
+
+            if (!found)
+            {
+                std::cout << "amplitude_fitter::use_beam_energy() : Data set with id " << id << " not found! Continuing..." << std::endl;
+            }
+        };
+
+        // Whether the supplied t values in the differential xsection is tprime = t - tmin
+        inline void use_tprime(std::string id, bool x = true)
+        {   
+            bool found = false;
+
+            // This function only needs to search through differential data sets
+            for (int i = 0; i < _differential_data.size(); i++)
+            {
+                if (_differential_data[i]._id != id) continue;
+                found = true;
+                _differential_data[i]._useTPrime = x;
+            };
+            if (!found)
+            {
+                std::cout << "amplitude_fitter::use_beam_energy() : Data set with id " << id << " not found! Continuing..." << std::endl;
+            }
+        };
 
         // --------------------------------------------------------------------
         private:
@@ -182,6 +235,9 @@ namespace jpacPhoto
             data_set(double s, std::vector<double> x, std::vector<double> fx, std::vector<double> err, std::string id)
             : _id(id), _fixed_s(s), _t(x), _dsigma(fx), _derror(err)
             {};
+
+            bool _useEgamma = false;
+            bool _useTPrime = false;
 
             std::string _id;
             std::vector<double> _s, _sigma, _error;
@@ -224,7 +280,6 @@ namespace jpacPhoto
 
         // Amplitude being fit
         amplitude * _amplitude;
-        bool _useEgamma = false;
 
         // MINUIT error code
         int _nError = 0; // Default no messages
