@@ -146,8 +146,12 @@ double jpacPhoto::amplitude_fitter::do_fit(std::vector<double> starting_guess)
     new_line(); variable_info(starting_guess, 0);
     new_line(); divider(); new_line();
 
-    std::cout << "Beginning fit..." << std::flush;    
+    std::cout << "Beginning fit..." << std::flush; 
+
+    if (_printLevel != 0) new_line();   
     _minuit->Minimize();
+    if (_printLevel != 0) new_line();   
+
     std::cout << "Done! \n";
 
     print_results();
