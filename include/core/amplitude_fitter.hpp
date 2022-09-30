@@ -169,7 +169,7 @@ namespace jpacPhoto
         double do_fit(std::vector<double> starting_guess);
 
         //Utility to change print level in TMinuit, default is to surpress all messages
-        inline void set_error_level(int n){ _nError = n;};
+        inline void set_print_level(int n){ _printLevel = n; };
 
         // Supplied energies of a given data set are in Egamma (lab beam energy) not in s
         // Here we set it globally
@@ -282,7 +282,8 @@ namespace jpacPhoto
         amplitude * _amplitude;
 
         // MINUIT error code
-        int _nError = 0; // Default no messages
+        int _printLevel = 0;
+        int _maxCalls   = 1E6;
         ROOT::Math::Minimizer * _minuit;
         ROOT::Math::Functor fcn;
 

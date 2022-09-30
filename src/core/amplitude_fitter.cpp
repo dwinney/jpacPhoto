@@ -206,7 +206,8 @@ void jpacPhoto::amplitude_fitter::set_up(std::vector<double> starting_guess)
 {
     _minuit->Clear();
     _minuit->SetTolerance(1.E-6);
-    _minuit->SetPrintLevel(_nError);
+    _minuit->SetPrintLevel(_printLevel);
+    _minuit->SetMaxFunctionCalls(_maxCalls);
     
     for (int a = 0; a < _pars.size(); a++)
     {   
@@ -242,7 +243,8 @@ void jpacPhoto::amplitude_fitter::print_results()
     new_line();
     variable_info(best_params, 1);
     divider();
-        
+    new_line();
+    
     // At the end update the amplitude parameters to include the fit results
     _amplitude->set_params(best_params);
 }
