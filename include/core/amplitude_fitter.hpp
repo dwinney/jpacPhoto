@@ -37,6 +37,21 @@ namespace jpacPhoto
             _minuit = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
         };
 
+        // Constructor requires a reaction_kinematics object
+        // Optional explicit choice of minimization strategy passes to minuit object
+        amplitude_fitter(amplitude * amp, std::string strategy)
+        : _amplitude(amp)
+        {
+            // populate parameters vector of appropriate size
+            for (int i = 0; i < amp->get_nParams(); i++)
+            {
+                _pars.push_back(i);
+            };
+
+            _minuit = ROOT::Math::Factory::CreateMinimizer("Minuit2", strategy);
+        };
+
+
         // Add vectors corresponding to integrated xsection data sets
         // String id optional parameter for feeding fit results to a plotter object
         inline void add_integrated_data(std::vector<double> s, std::vector<double> sigma, std::vector<double> errors, std::string id = "")
