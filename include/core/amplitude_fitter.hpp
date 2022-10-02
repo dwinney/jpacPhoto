@@ -66,6 +66,8 @@ namespace jpacPhoto
 
             if ( id == "" ) id = "int_data[" + std::to_string(_differential_data.size()) + "]";
             data_set new_data(s, sigma, errors, id);
+            new_data._useEgamma = _globaluseEgam;
+
             _integrated_data.push_back(new_data);
 
              // Add number of points to the running totals
@@ -89,6 +91,7 @@ namespace jpacPhoto
             if ( id == "" ) id = "dxs_data[" + std::to_string(_differential_data.size()) + "]";
             data_set new_data(s, t, dsigma, errors, id);
             new_data._useTPrime = use_tp;
+            new_data._useEgamma = _globaluseEgam;
 
             _differential_data.push_back(new_data);
 
@@ -109,6 +112,7 @@ namespace jpacPhoto
             if ( id == "" ) id = "dxs_data[" + std::to_string(_differential_data.size()) + "]";
             data_set new_data(s, t, dsigma, errors, id);
             new_data._useTPrime = use_tp;
+            new_data._useEgamma = _globaluseEgam;
 
             _differential_data.push_back(new_data);
 
@@ -209,6 +213,7 @@ namespace jpacPhoto
         // Here we set it globally
         inline void use_beam_energy(bool x = true)
         {
+            _globaluseEgam = x;
             for (int i = 0; i < _integrated_data.size();   i++) _integrated_data[i]._useEgamma   = x;
             for (int i = 0; i < _differential_data.size(); i++) _differential_data[i]._useEgamma = x;
         }
@@ -319,6 +324,7 @@ namespace jpacPhoto
 
         // Amplitude being fit
         amplitude * _amplitude;
+        bool _globaluseEgam = false;
 
         // MINUIT error code
         int _printLevel = 0;
