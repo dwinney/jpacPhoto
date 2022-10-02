@@ -210,7 +210,7 @@ void jpacPhoto::amplitude_fitter::variable_info(std::vector<double> starting_gue
 void jpacPhoto::amplitude_fitter::set_up(std::vector<double> starting_guess)
 {
     _minuit->Clear();
-    _minuit->SetTolerance(1.E-6);
+    _minuit->SetTolerance(_tolerance);
     _minuit->SetPrintLevel(_printLevel);
     _minuit->SetMaxFunctionCalls(_maxCalls);
     

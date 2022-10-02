@@ -39,8 +39,8 @@ namespace jpacPhoto
 
         // Constructor requires a reaction_kinematics object
         // Optional explicit choice of minimization strategy passes to minuit object
-        amplitude_fitter(amplitude * amp, std::string strategy)
-        : _amplitude(amp)
+        amplitude_fitter(amplitude * amp, std::string strategy, double tolerance = 1.E-6)
+        : _amplitude(amp), _tolerance(tolerance)
         {
             // populate parameters vector of appropriate size
             for (int i = 0; i < amp->get_nParams(); i++)
@@ -329,6 +329,7 @@ namespace jpacPhoto
         // MINUIT error code
         int _printLevel = 0;
         int _maxCalls   = 1E6;
+        double _tolerance = 1.E-6;
         ROOT::Math::Minimizer * _minuit;
         ROOT::Math::Functor fcn;
 
