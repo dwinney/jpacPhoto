@@ -12,6 +12,7 @@
 #include "amplitude.hpp"
 
 #include <sstream> 
+#include <chrono> 
 
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"

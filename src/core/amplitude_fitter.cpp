@@ -147,6 +147,7 @@ double jpacPhoto::amplitude_fitter::do_fit(std::vector<double> starting_guess)
     new_line(); variable_info(starting_guess, 0);
     new_line(); divider(); new_line();
 
+    auto start = std::chrono::high_resolution_clock::now();
     std::cout << "Beginning fit..." << std::flush; 
 
     if (_printLevel != 0) new_line();   
@@ -154,8 +155,12 @@ double jpacPhoto::amplitude_fitter::do_fit(std::vector<double> starting_guess)
     if (_printLevel != 0) new_line();   
 
     std::cout << "Done! \n";
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
+    std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
 
     print_results();
+
 
     return 0;
 };
@@ -213,7 +218,7 @@ void jpacPhoto::amplitude_fitter::set_up(std::vector<double> starting_guess)
     _minuit->SetTolerance(_tolerance);
     _minuit->SetPrintLevel(_printLevel);
     _minuit->SetMaxFunctionCalls(_maxCalls);
-    
+
     for (int a = 0; a < _pars.size(); a++)
     {   
         _minuit->SetVariable(a, _pars[a]._label, starting_guess[a], _pars[a]._step_size);
