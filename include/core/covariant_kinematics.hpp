@@ -135,6 +135,13 @@ namespace jpacPhoto
 
         // -----------------------------------------------------------------
         // momentum transfer 4-vectors
+
+        inline std::complex<double> s_momentum(int mu)
+        {
+            return _initial_state->q(mu, _s, 0.) + _initial_state->p(mu, _s, 0.);
+        };
+
+
         inline std::complex<double> t_momentum(int mu)
         {
             return _initial_state->q(mu, _s, 0.) - _final_state->q(mu, _s, _theta);
@@ -175,6 +182,11 @@ namespace jpacPhoto
             return slash(i, j, [this](int mu){ return meson_polarization(mu); });
         };
         
+        inline std::complex<double> slashed_s_momentum(int i, int j)
+        {
+            return slash(i, j, [this](int mu){ return s_momentum(mu); });
+        };
+
         inline std::complex<double> slashed_u_momentum(int i, int j)
         {
             return slash(i, j, [this](int mu){ return u_momentum(mu); });

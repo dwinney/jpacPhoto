@@ -23,10 +23,23 @@ namespace jpacPhoto
         public:
         
         // constructor
+        // Sets the mass and defaults to a u channel exchange
         dirac_exchange(reaction_kinematics * xkinem, double mass, std::string name = "dirac_exchange")
         : amplitude(xkinem, "dirac_exchange", name),
-            _mEx(mass), _mEx2(mass*mass)
-        {
+            _mEx(mass), _mEx2(mass*mass), _schannel(false)
+        {   
+            if (xkinem->get_meson_JP()[0] == 0)  set_nParams(3);
+            else set_nParams(2);
+
+            check_JP(xkinem);
+        };
+
+        // Constructor that allows to specify whether we're exchanging in the u channel 
+        // or an s-channel resonance
+        dirac_exchange(reaction_kinematics * xkinem, double mass, helicity_channel s_or_u, std::string name = "dirac_exchange")
+        : amplitude(xkinem, "dirac_exchange", name),
+            _mEx(mass), _mEx2(mass*mass), _schannel(s_or_u == S)
+        {   
             if (xkinem->get_meson_JP()[0] == 0)  set_nParams(3);
             else set_nParams(2);
 
@@ -69,9 +82,12 @@ namespace jpacPhoto
         };
 
         protected:
-    
+
+        // Which channel the fermion is exchanged in
+        bool _schannel = false;
+        double _q2; 
+
         // Exchange nucleon mass
-        double _u;
         double _mEx, _mEx2;
 
         // Form factor parameters

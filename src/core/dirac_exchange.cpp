@@ -15,8 +15,8 @@ std::complex<double> jpacPhoto::dirac_exchange::helicity_amplitude(std::array<in
     // Store the invariant energies to avoid having to pass them around 
     update(helicities, s, t);
 
-    // Exchange mass
-    _u = _mB*_mB + _mT*_mT +_mX*_mX + _mR*_mR - _s - _t;
+    // Select which channel we're using
+    (_schannel) ? (_q2 = _s) : (_q2 = _mB*_mB + _mT*_mT +_mX*_mX + _mR*_mR - _s - _t);
 
     // Multiply by form factor (this = 1 if no FF is specified)
     return form_factor() * covariant_amplitude();
@@ -25,24 +25,30 @@ std::complex<double> jpacPhoto::dirac_exchange::helicity_amplitude(std::array<in
 // If we have a form factor this multipled above
 double jpacPhoto::dirac_exchange::form_factor()
 {
+    if ( _schannel && _useFF == 1 )
+    { 
+        std::cout << "Caution! Using exponential form-factor for s-channel exchange! Returning 1." << std::endl;
+        return 1.;
+    };
+
     switch (_useFF)
     {
         // exponential form factor
         case 1: 
-        {
-            return exp((_u - _kinematics->u_man(_s, 0.)) / _cutoff*_cutoff);
+        {  
+            return exp((_q2 - _kinematics->u_man(_s, 0.)) / _cutoff*_cutoff);
         };
 
         // monopole form factor
         case 2:
         {
-            return (_cutoff*_cutoff - _mEx2) / (_cutoff*_cutoff - _u); 
+            return (_cutoff*_cutoff - _mEx2) / (_cutoff*_cutoff - _q2); 
         };
 
-        // Hyperon form factor 
+        // Hyperon-inspired form factor 
         case 3:
         {
-            return pow(_cutoff, 4.) / (pow(_cutoff, 4.) + pow(_u - _mEx2, 2.));
+            return pow(_cutoff, 4.) / (pow(_cutoff, 4.) + pow(_q2 - _mEx2, 2.));
         };
 
         default: { return 1.; };
@@ -54,16 +60,35 @@ double jpacPhoto::dirac_exchange::form_factor()
 std::complex<double> jpacPhoto::dirac_exchange::covariant_amplitude()
 {
     std::complex<double> result = 0.;
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            std::complex<double> temp;
-            temp  = top_vertex(i);
-            temp *= dirac_propagator(i, j);
-            temp *= bottom_vertex(j);
 
-            result += temp;
+    if (_schannel)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                std::complex<double> temp;
+                temp  = bottom_vertex(i);
+                temp *= dirac_propagator(i, j);
+                temp *= top_vertex(j);
+
+                result += temp;
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                std::complex<double> temp;
+                temp  = top_vertex(i);
+                temp *= dirac_propagator(i, j);
+                temp *= bottom_vertex(j);
+
+                result += temp;
+            }
         }
     }
 
@@ -220,7 +245,8 @@ std::complex<double> jpacPhoto::dirac_exchange::pseudoscalar_coupling(int j)
 std::complex<double> jpacPhoto::dirac_exchange::dirac_propagator(int i, int j)
 {
     std::complex<double> result;
-    result  = _covariants->slashed_u_momentum(i, j) - std::complex<double>(i == j) * _mEx;
-    result /= _u - _mEx2;
+    (_schannel) ? ( result = _covariants->slashed_s_momentum(i, j) ) : ( result = _covariants->slashed_u_momentum(i, j) );
+    result -= std::complex<double>(i == j) * _mEx;
+    result /= _q2 - _mEx2;
     return - XI * result;
 };
