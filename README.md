@@ -96,6 +96,7 @@ Incoherent (interfering) sums of amplitudes may be constructed through the [`amp
 
 ## SEMI-INCLUSIVE REACTIONS
 The optional library `jpacInclusive` extends the results of the excluive amplitudes above to consider semi-inclusive production in the Mueller-Regge formalism in the [`triple_regge`](./include/inclusive/triple_regge.hpp) object.
+The code follows formalism and reproduces results of Ref [[3]](https://arxiv.org/abs/2209.05882) below.
 
 <p align="center">
   <img width="500" src="./doc/triple_regge.png">
@@ -148,7 +149,8 @@ box_amplitude myBox (&kBox, &leftAmp, &rightAmp);
 ##  REFERENCES
 + [1] [Double Polarization Observables in Pentaquark Photoproduction](https://arxiv.org/abs/1907.09393)
 + [2] [XYZ spectroscopy at electron-hadron facilities: Exclusive processes](https://arxiv.org/abs/2008.01001)
-+ [3] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
++ [3] [XYZ spectroscopt at electron-hadron facilities II : Semi-inclusive processes with pion exchange](https://arxiv.org/abs/2209.05882)
++ [4] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
 
 <p align="center">
   <img width="275" src="./doc/JPAClogo.png">
