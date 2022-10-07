@@ -30,18 +30,20 @@ namespace jpacPhoto
             _Jmax = 1;
             _open_charm_disc->set_Jmax(_Jmax, _verbose);
 
-            _gam_dsEx   = new vector_exchange(_kGam, M_DSTAR, "D* exchange");
-            _gam_lamcEx = new dirac_exchange(_kGam, M_LAMBDAC, "#Lambda_{c} exchange");
+            _gam_protonEx = new dirac_exchange( _kGam,  M_PROTON,  S, "Proton exchange");
+            _gam_dsEx     = new vector_exchange(_kGam,  M_DSTAR,      "D* exchange");
+            _gam_lamcEx   = new dirac_exchange( _kGam,  M_LAMBDAC, U, "#Lambda_{c} exchange");
 
+            _gam_protonEx->force_covariant(true);
             _gam_dsEx->force_covariant(true);
             _gam_lamcEx->force_covariant(true);
 
-            _gam_sum    = new amplitude_sum(_kGam, {_gam_dsEx, _gam_lamcEx}, "Sum");
+            _gam_sum    = new amplitude_sum(_kGam, {_gam_dsEx, _gam_lamcEx, _gam_protonEx}, "Sum");
             _gamp_amp   = _gam_sum;
 
-            _psi_dEx    = new pseudoscalar_exchange(_kPsi, M_D, "D exchange");
-            _psi_dsEx   = new vector_exchange(_kPsi, M_DSTAR, "D* exchange");
-            _psi_lamcEx = new dirac_exchange(_kPsi, M_LAMBDAC, "#Lambda_{c} exchange");
+            _psi_dEx    = new pseudoscalar_exchange(_kPsi, M_D,          "D exchange");
+            _psi_dsEx   = new vector_exchange(      _kPsi, M_DSTAR,      "D* exchange");
+            _psi_lamcEx = new dirac_exchange(       _kPsi, M_LAMBDAC, U, "#Lambda_{c} exchange");
 
             _psi_dEx->force_covariant(true);
             _psi_dsEx->force_covariant(true);
@@ -54,6 +56,7 @@ namespace jpacPhoto
         ~DLambdac_box()
         {
             delete _gam_dsEx;
+            delete _gam_protonEx;
             delete _gam_lamcEx;
             delete _gam_sum;
             delete _psi_dEx;
@@ -69,15 +72,18 @@ namespace jpacPhoto
         // Photon amplitudes
         vector_exchange       * _gam_dsEx;
         dirac_exchange        * _gam_lamcEx;
+        dirac_exchange        * _gam_protonEx;
         amplitude_sum         * _gam_sum;
 
         void update_gamp(double eta)
         {
-            _gam_dsEx->set_params(   { _gGamDDs, _gDsNL, 0. } );
-            _gam_lamcEx->set_params( { _gGamLL,  _gDNL,  0. } );
+            _gam_protonEx->set_params( { _gGamLL,  _gDNL,  0. } );
+            _gam_dsEx->set_params(     { _gGamDDs, _gDsNL, 0. } );
+            _gam_lamcEx->set_params(   { _gGamLL,  _gDNL,  0. } );
 
-            _gam_dsEx->set_formfactor(  2, M_DSTAR   + eta * _lambdaQCD);
-            _gam_lamcEx->set_formfactor(2, M_LAMBDAC + eta * _lambdaQCD);
+            _gam_protonEx->set_formfactor(  2, M_PROTON  + eta * _lambdaQCD);
+            _gam_dsEx->set_formfactor(      2, M_DSTAR   + eta * _lambdaQCD);
+            _gam_lamcEx->set_formfactor(    2, M_LAMBDAC + eta * _lambdaQCD);
         };
 
         // Psi amplitudes
