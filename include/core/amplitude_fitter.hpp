@@ -262,6 +262,8 @@ namespace jpacPhoto
             }
         };
 
+        inline void set_max_calls(int n){ _maxCalls = n; };
+
         // --------------------------------------------------------------------
         private:
 
