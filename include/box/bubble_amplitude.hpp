@@ -11,6 +11,12 @@
 
 #include "amplitude.hpp"
 
+#include "Math/GSLIntegrator.h"
+#include "Math/IntegrationTypes.h"
+#include "Math/Functor.h"
+
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+
 namespace jpacPhoto
 {
     class bubble_amplitude : public amplitude
@@ -30,7 +36,7 @@ namespace jpacPhoto
         : amplitude(xkinem, "bubble_amplitude", id), _m1(masses[0][0]), _m2(masses[0][1]), _m3(masses[1][0]), _m4(masses[1][1]),
           _twochannel(true)
         {
-            set_nParams(3);
+            set_nParams(4);
             check_JP(xkinem);
         };
 
@@ -40,13 +46,15 @@ namespace jpacPhoto
         {
             check_nParams(params);
             _norm   = params[0];
-            _Gth    = params[1];
+            _eps    = params[1];
+            _n      = params[2];
 
-            if (_twochannel) _r = params[2];
+            if (_twochannel) _r = params[3];
         };
 
         // Scalar bubble integral function
-        std::complex<double> G(double s, double m1, double m2);
+        std::complex<double> G0(double s, double m1, double m2);
+        std::complex<double>  G(double s, double m1, double m2);
       
         // Assemble the helicity amplitude by contracting the lorentz indices for contact interaction
         std::complex<double> helicity_amplitude(std::array<int, 4> helicities, double s, double t);
@@ -78,9 +86,9 @@ namespace jpacPhoto
         double _m3, _m4;
 
         // cutoff and subtraction (two free parameters)
-        double _Gth, _norm;
+        double _norm;
         // If considering two channels simultaneously we have an additional parameter
-        double _r;
+        double _r, _eps, _n, _s0 = 16.;
     };
 };
 

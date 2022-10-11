@@ -34,7 +34,7 @@ std::complex<double> jpacPhoto::bubble_amplitude::helicity_amplitude(std::array<
     };
 
     std::complex<double> loop;
-    loop = _Gth + G(s, _m1, _m2);
+    loop = G(s, _m1, _m2);
     if (_twochannel) loop -= _r * G(s, _m3, _m4);
 
     return _norm  * loop * result;
@@ -63,7 +63,7 @@ std::complex<double> jpacPhoto::bubble_amplitude::baryon_current(int mu)
 
 // Scalar loop function
 // Subtracted at G(th) = 0 
-std::complex<double> jpacPhoto::bubble_amplitude::G(double s, double m1, double m2)
+std::complex<double> jpacPhoto::bubble_amplitude::G0(double s, double m1, double m2)
 {
     std::complex<double> rho, R, xi;
     std::complex<double> result;
@@ -77,4 +77,40 @@ std::complex<double> jpacPhoto::bubble_amplitude::G(double s, double m1, double 
     result = - ( rho*log(R) - xi*(m2-m1)/(m2+m1)*log(m2/m1) ) / PI;
 
     return result;
+};
+
+std::complex<double> jpacPhoto::bubble_amplitude::G(double s, double m1, double m2)
+{
+    if (2.*_n < 0.5) 
+    {
+        std::cout << "bubble_amplitude:: Error! Suppression power n < 0.25! Integral diverges... returning 0." << std::endl;
+        return 0.;
+    };
+
+    double sth     = (m1+m2)*(m1+m2);
+    double stheff  = (m1+m2-_eps)*(m1+m2-_eps);
+
+    auto rho = [&](double x)
+    {
+        return sqrt( x + IEPS - (m1+m2)*(m1+m2))*sqrt( x + IEPS - (m1-m2)*(m1-m2)) / x;
+    };
+
+    auto f   = [&](double sp)
+    {
+        return rho(sp) * pow( (sp - stheff) / _s0 , 1.-2.*_n);
+    };
+
+    std::complex<double> fs;
+    (s > sth) ? (fs = f(s)) : (fs = 0.);
+
+    auto g = [&] (double sp)
+    {
+        std::complex<double> fsp = f(sp);
+        return (fsp - fs) / (sp - s - IEPS) / (sp - stheff);
+    };
+
+    std::complex<double> result;
+    result  = boost::math::quadrature::gauss_kronrod<double, 31>::integrate(g, sth, std::numeric_limits<double>::infinity(), 0, 1.E-6, NULL);
+    if (s > sth) result -= fs  / (s - stheff) * log( ( sth - XR * s - IEPS)/( sth - stheff ) );
+    return result / PI;
 };
