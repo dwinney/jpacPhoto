@@ -88,7 +88,7 @@ namespace jpacPhoto
         // cutoff and subtraction (two free parameters)
         double _norm;
         // If considering two channels simultaneously we have an additional parameter
-        double _r, _eps, _n, _s0 = 16.;
+        double _r, _eps, _n;
     };
 };
 

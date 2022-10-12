@@ -97,7 +97,7 @@ std::complex<double> jpacPhoto::bubble_amplitude::G(double s, double m1, double 
 
     auto f   = [&](double sp)
     {
-        return rho(sp) * pow( (sp - stheff) / _s0 , 1.-2.*_n);
+        return rho(sp) * pow( (sp - stheff), 1.-2.*_n);
     };
 
     std::complex<double> fs;
@@ -106,11 +106,11 @@ std::complex<double> jpacPhoto::bubble_amplitude::G(double s, double m1, double 
     auto g = [&] (double sp)
     {
         std::complex<double> fsp = f(sp);
-        return (fsp - fs) / (sp - s - IEPS) / (sp - stheff);
+        return (fsp - fs) / (sp - s - IEPS) / ((sp - stheff));
     };
 
     std::complex<double> result;
-    result  = boost::math::quadrature::gauss_kronrod<double, 31>::integrate(g, sth, std::numeric_limits<double>::infinity(), 0, 1.E-6, NULL);
+    result  = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, sth, std::numeric_limits<double>::infinity(), 0, 1.E-6, NULL);
     if (s > sth) result -= fs  / (s - stheff) * log( ( sth - XR * s - IEPS)/( sth - stheff ) );
     return result / PI;
 };
