@@ -66,7 +66,14 @@ namespace jpacPhoto
         {
             check_nParams(params);
             _xBR = params[0];
-            _photoR = params[1];
+            if (!_fixedR) _photoR = params[1];
+        };
+
+        void fix_photocoupling_ratio(double x)
+        {
+            _fixedR = true;
+            _photoR = x;
+            set_nParams(1);
         };
 
         // Helicities are always assumed to be in the s-channel cm frame
@@ -105,6 +112,8 @@ namespace jpacPhoto
         // Couplings
         double _xBR; // Hadronic banching fraction to j/psi p
         double _photoR; // Photocoupling ratio
+
+        bool _fixedR = false;
 
         // Initial and final CoM momenta evaluated at resonance energy.
         double _pibar, _pfbar;
