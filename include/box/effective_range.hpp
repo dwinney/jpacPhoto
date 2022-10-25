@@ -21,7 +21,7 @@ namespace jpacPhoto
         effective_range(reaction_kinematics * xkinem, int ellmax, std::string id = "effective_range")
         : amplitude(xkinem, "effective_range", id), _ellMax(ellmax)
         {
-            set_nParams(3);
+            set_nParams(4);
             check_JP(xkinem);
         };
 
@@ -30,14 +30,15 @@ namespace jpacPhoto
         {
             check_nParams(params);
 
-            _N = params[0];
-            _a = params[1];
-            _r = params[2];
+            _N  = params[0];
+            _a  = params[1];
+            _r  = params[2];
+            _s0 = params[3];
 
             _extra_couplings.clear();
             for (int n_th = 0; n_th < _extra_thresholds.size(); n_th++)
             {
-                _extra_couplings.push_back(params[3+n_th]);
+                _extra_couplings.push_back(params[4+n_th]);
             };
         };
 
@@ -68,9 +69,10 @@ namespace jpacPhoto
         int _ellMax = 1;
 
         // Free parameters
-        double _a;         // Scattering length (assumed same for all waves)
-        double _r;         // Effective range (assumed same for all waves)
         double _N;         // Overall normalization
+        double _a;         // Scattering length
+        double _r;         // effective range
+        double _s0;        // Effective scale   
 
         // A vector containing all open thresholds
         std::vector<std::array<double,2>> _extra_thresholds; 
@@ -87,7 +89,12 @@ namespace jpacPhoto
         inline std::complex<double> barrier_factor(int l)
         {         
             std::complex<double> pq = sqrt( Kallen(_s * XR, _mB*_mB * XR, _mT*_mT * XR)*Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / (4.*_s);           
-            return pow( _r* pq * XR, double(l) );
+            return pow( pq / _s0 * XR, double(l) );
+        };
+
+        inline std::complex<double> q2()
+        {
+            return Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) / (4.*_s);
         };
 
         // Phase-space factor, this is defined with respect to a threshold to allow multiple thresholds to be considered
@@ -96,7 +103,7 @@ namespace jpacPhoto
             return PI * sqrt( Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / (4.*_s);
         };
 
-        inline std::complex<double> rho_inel(int i)
+        inline std::complex<double> rho_inelastic(int i)
         {
             if (i > _extra_thresholds.size()) return 0.;
             double m1 = _extra_thresholds[i][0], m2 = _extra_thresholds[i][1];

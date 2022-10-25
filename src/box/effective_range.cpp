@@ -31,6 +31,8 @@ double jpacPhoto::effective_range::P_l(int l, double z)
         case 1: return z;
         case 2: return 0.5*(3.*z*z - 1.);
         case 3: return 0.5*z*(5.*z*z - 3.);
+        case 4: return (35.*z*z*z*z - 30.*z*z + 3.)/8.;
+        case 5: return z*(63.*z*z*z*z - 70.*z*z + 15.*z)/8.;
         default:
         {
             std::cout << "effective_range::Pl() : ell value " + std::to_string(l) + " not implemented! Returning 0." << std::endl;
@@ -43,18 +45,16 @@ double jpacPhoto::effective_range::P_l(int l, double z)
 
 std::complex<double> jpacPhoto::effective_range::f_l(int ell)
 {
-    std::complex<double> K = - 1./_a;
-
-    // Assume inelastic channels only affect the S-wave
-    std::complex<double> rho_inelastic = 0.;
+    std::complex<double> K = (ell==0) ? (-1./_a + _r/2.*q2()) : (-1./_a);
+    std::complex<double> denominator = 1./K - XI * (rho() * barrier_factor(ell));
 
     if ( ell == 0 )
     {
         for (int i = 0; i < _extra_couplings.size(); i++ )
         {
-            rho_inelastic += _extra_couplings[i] * rho_inel(i);
+            denominator -= XI * _extra_couplings[i] * rho_inelastic(i) * _s;
         };
     };
 
-    return barrier_factor(ell) / (1./K - XI * (rho() * barrier_factor(ell) + rho_inelastic) );
+    return barrier_factor(ell) / denominator;
 };
