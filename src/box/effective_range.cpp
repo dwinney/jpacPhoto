@@ -45,16 +45,11 @@ double jpacPhoto::effective_range::P_l(int l, double z)
 
 std::complex<double> jpacPhoto::effective_range::f_l(int ell)
 {
-    std::complex<double> K = (ell==0) ? (-1./_a + _r/2.*q2()) : (-1./_a);
-    std::complex<double> denominator = 1./K - XI * (rho() * barrier_factor(ell));
+    // All waves start with scattering length
+    std::complex<double> K_inv = (ell == 0) ? -1./_a  + _r/2.*q2() : -1./_a;
 
-    if ( ell == 0 )
-    {
-        for (int i = 0; i < _extra_couplings.size(); i++ )
-        {
-            denominator -= XI * _extra_couplings[i] * rho_inelastic(i) * _s;
-        };
-    };
+    // Assume inelastic channels only affect the S-wave
+    std::complex<double> rho_inel = (ell == 0) ? rho_inelastic() : 0.;
 
-    return barrier_factor(ell) / denominator;
+    return barrier_factor(ell) / (K_inv - XI * (rho() * barrier_factor(ell) + rho_inel) );
 };

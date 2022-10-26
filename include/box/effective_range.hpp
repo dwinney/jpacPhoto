@@ -38,7 +38,7 @@ namespace jpacPhoto
             _extra_couplings.clear();
             for (int n_th = 0; n_th < _extra_thresholds.size(); n_th++)
             {
-                _extra_couplings.push_back(params[4+n_th]);
+                _extra_couplings.push_back(params[4+ n_th]);
             };
         };
 
@@ -69,10 +69,10 @@ namespace jpacPhoto
         int _ellMax = 1;
 
         // Free parameters
-        double _N;         // Overall normalization
+        double _N;         // Normalization
         double _a;         // Scattering length
-        double _r;         // effective range
-        double _s0;        // Effective scale   
+        double _r;         // Effective range
+        double _s0;        // Scale parameter   
 
         // A vector containing all open thresholds
         std::vector<std::array<double,2>> _extra_thresholds; 
@@ -100,16 +100,20 @@ namespace jpacPhoto
         // Phase-space factor, this is defined with respect to a threshold to allow multiple thresholds to be considered
         inline std::complex<double> rho()
         {
-            return PI * sqrt( Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / (4.*_s);
+            return sqrt( Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / _s;
         };
 
-        inline std::complex<double> rho_inelastic(int i)
+        inline std::complex<double> rho_inelastic()
         {
-            if (i > _extra_thresholds.size()) return 0.;
-            double m1 = _extra_thresholds[i][0], m2 = _extra_thresholds[i][1];
-            return PI * sqrt( Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / (4.*_s);
+            std::complex<double> result = 0.;
+            for (int i = 0; i < _extra_thresholds.size(); i++)
+            {
+                double m1 = _extra_thresholds[i][0], m2 = _extra_thresholds[i][1];
+                result += _extra_couplings[i] * sqrt( Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / _s;
+            }
+
+            return result;
         };
-        
     };
 };
 
