@@ -17,7 +17,7 @@ std::complex<double> jpacPhoto::scattering_length::helicity_amplitude( std::arra
 
     for (int l = 0; l <= _lmax; l++)
     {
-        sum +=  _N * double(2*l+1)* P_l(l, cos(_theta)) * f_l(l);
+        sum += double(2*l+1)* P_l(l, cos(_theta)) * f_l(l);
     };
 
     return sum / sqrt(6.);
