@@ -5,23 +5,23 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef EFF_RANGE
-#define EFF_RANGE
+#ifndef SCATTERING_LENGTH
+#define SCATTERING_LENGTH
 
 #include "amplitude.hpp"
 
 namespace jpacPhoto
 {
-    class effective_range : public amplitude
+    class scattering_length : public amplitude
     {
         // ---------------------------------------------------------------------------
         
         public:
 
-        effective_range(reaction_kinematics * xkinem, int ellmax, std::string id = "effective_range")
-        : amplitude(xkinem, "effective_range", id), _ellMax(ellmax)
+        scattering_length(reaction_kinematics * xkinem, int ellmax, std::string id = "scattering_length")
+        : amplitude(xkinem, "scattering_length", id), _ellMax(ellmax)
         {
-            set_nParams(4);
+            set_nParams(3);
             check_JP(xkinem);
         };
 
@@ -32,13 +32,12 @@ namespace jpacPhoto
 
             _N  = params[0];
             _a  = params[1];
-            _r  = params[2];
-            _s0 = params[3];
+            _s0 = params[2];
 
             _extra_couplings.clear();
             for (int n_th = 0; n_th < _extra_thresholds.size(); n_th++)
             {
-                _extra_couplings.push_back(params[4+ n_th]);
+                _extra_couplings.push_back(params[3+ n_th]);
             };
         };
 
@@ -71,7 +70,6 @@ namespace jpacPhoto
         // Free parameters
         double _N;         // Normalization
         double _a;         // Scattering length
-        double _r;         // Effective range
         double _s0;        // Scale parameter   
 
         // A vector containing all open thresholds
@@ -82,7 +80,14 @@ namespace jpacPhoto
         double P_l(int l, double z);
 
         // Partial wave amplitude
-        std::complex<double> f_l(int l);
+        std::complex<double> f_l(int ell)
+        {
+            // Assume inelastic channels only affect the S-wave
+            std::complex<double> rho_inel = (ell == 0) ? rho_inelastic() : 0.;
+
+            return barrier_factor(ell) / (-1./_a - XI * (rho() * barrier_factor(ell) + rho_inel) );
+        };
+
         
         // Redefine momenta here instead of using the reaction_kinematics versions
         // so that they can be appropriately analytically continued below threshold
@@ -90,11 +95,6 @@ namespace jpacPhoto
         {         
             std::complex<double> pq = sqrt( Kallen(_s * XR, _mB*_mB * XR, _mT*_mT * XR)*Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / (4.*_s);           
             return pow( pq / _s0 * XR, double(l) );
-        };
-
-        inline std::complex<double> q2()
-        {
-            return Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) / (4.*_s);
         };
 
         // Phase-space factor, this is defined with respect to a threshold to allow multiple thresholds to be considered
@@ -109,7 +109,7 @@ namespace jpacPhoto
             for (int i = 0; i < _extra_thresholds.size(); i++)
             {
                 double m1 = _extra_thresholds[i][0], m2 = _extra_thresholds[i][1];
-                result += _extra_couplings[i] * sqrt( Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / _s;
+                result   += _extra_couplings[i] * sqrt( Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / _s;
             }
 
             return result;
