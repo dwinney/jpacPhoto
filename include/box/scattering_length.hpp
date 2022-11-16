@@ -10,6 +10,12 @@
 
 #include "amplitude.hpp"
 
+#include "Math/GSLIntegrator.h"
+#include "Math/IntegrationTypes.h"
+#include "Math/Functor.h"
+
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+
 namespace jpacPhoto
 {
     class scattering_length : public amplitude
@@ -79,41 +85,25 @@ namespace jpacPhoto
         // Legendre functions
         double P_l(int l, double z);
         inline std::complex<double> q2() { return Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) / (4.*_s); };
-
-        // Partial wave amplitude
-        std::complex<double> f_l(int l)
-        {
-            std::complex<double> K = -1./_a;
-            double norm = _N ;
-
-            return norm * K * barrier_factor(l) / (1. - XI * K * (rho(l) + rho_inelastic(l)) );
-        };
-        
+      
         // Redefine momenta here instead of using the reaction_kinematics versions
         // so that they can be appropriately analytically continued below threshold
-        inline std::complex<double> barrier_factor(int l, double m1, double m2, double szero)
-        {         
-            std::complex<double> pq = sqrt( Kallen(_s * XR, _mB*_mB * XR, _mT*_mT * XR)*Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / (4.*_s);           
-            return pow( pq / szero * XR, l );
-        };
+        std::complex<double> barrier_factor(int l, double m1, double m2, double scale);
         inline std::complex<double> barrier_factor(int l){ return barrier_factor(l, _mX, _mR, _s0); };
 
         // Phase-space factor, this is defined with respect to a threshold to allow multiple thresholds to be considered
-        inline std::complex<double> rho(int l)
+        std::complex<double> rho(int l);
+        std::complex<double> rho_inelastic(int l);
+        
+        // Once-subtracted dispersion relation
+        std::complex<double> chew_mandelstam(double m1, double m2);
+        
+        // Partial wave amplitude
+        inline std::complex<double> f_l(int l)
         {
-            return barrier_factor(l) * sqrt( Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / _s;
-        };
-
-        inline std::complex<double> rho_inelastic(int l)
-        {
-            std::complex<double> result = 0.;
-            for (int i = 0; i < _extra_thresholds.size(); i++)
-            {
-                double m1 = _extra_thresholds[i][0], m2 = _extra_thresholds[i][1];
-                result   += _extra_couplings[i] * barrier_factor(l) * sqrt( Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / _s;
-            }
-
-            return result;
+            std::complex<double> K = -1./_a;
+            
+            return _N * K * barrier_factor(l) / (1. - XI * K * rho(l) );
         };
     };
 };

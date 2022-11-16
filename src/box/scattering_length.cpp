@@ -42,3 +42,57 @@ double jpacPhoto::scattering_length::P_l(int l, double z)
 
     return 0.;
 };
+
+// so that they can be appropriately analytically continued below threshold
+std::complex<double> jpacPhoto::scattering_length::barrier_factor(int l, double m1, double m2, double scale)
+{         
+    std::complex<double> pq = sqrt( Kallen(_s * XR, _mB*_mB * XR, _mT*_mT * XR)*Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / (4.*_s);           
+    return pow( pq / scale  * XR, l );
+};
+
+ std::complex<double> jpacPhoto::scattering_length::rho(int l)
+{
+    return barrier_factor(l) * sqrt( Kallen(_s * XR, _mX*_mX * XR, _mR*_mR * XR) ) / _s;
+};
+
+std::complex<double> jpacPhoto::scattering_length::rho_inelastic(int l)
+{
+    std::complex<double> result = 0.;
+    for (int i = 0; i < _extra_thresholds.size(); i++)
+    {
+        double m1 = _extra_thresholds[i][0], m2 = _extra_thresholds[i][1];
+        result   += _extra_couplings[i] * barrier_factor(l) * sqrt( Kallen(_s * XR, m1*m1 * XR, m2*m2 * XR) ) / _s;
+    }
+
+    return result;
+};
+
+// std::complex<double> jpacPhoto::scattering_length::chew_mandelstam(double m1, double m2)
+// {
+//     double sth     = (m1+m2)*(m1+m2);
+//     double stheff  = (m1+m2-_eps)*(m1+m2-_eps);
+
+//     auto rho = [&](double x)
+//     {
+//         return sqrt( x + IEPS - (m1+m2)*(m1+m2))*sqrt( x + IEPS - (m1-m2)*(m1-m2)) / x;
+//     };
+
+//     auto f   = [&](double sp)
+//     {
+//         return rho(sp) * pow( (sp - stheff), 1.-2.*_n);
+//     };
+
+//     std::complex<double> fs;
+//     (s > sth) ? (fs = f(s)) : (fs = 0.);
+
+//     auto g = [&] (double sp)
+//     {
+//         std::complex<double> fsp = f(sp);
+//         return (fsp - fs) / (sp - s - IEPS) / ((sp - stheff));
+//     };
+
+//     std::complex<double> result;
+//     result  = boost::math::quadrature::gauss_kronrod<double, 15>::integrate(g, sth, std::numeric_limits<double>::infinity(), 0, 1.E-6, NULL);
+//     if (s > sth) result -= fs  / (s - stheff) * log( ( sth - XR * s - IEPS)/( sth - stheff ) );
+//     return result / PI;
+// };
