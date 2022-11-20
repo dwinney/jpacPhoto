@@ -27,7 +27,7 @@ namespace jpacPhoto
         scattering_length(reaction_kinematics * xkinem, int lmax, std::string id = "scattering_length")
         : amplitude(xkinem, "scattering_length", id), _lmax(lmax)
         {
-            set_nParams(NumPars);
+            set_nParams(_sc_pars);
             check_JP(xkinem);
         };
 
@@ -37,25 +37,26 @@ namespace jpacPhoto
             check_nParams(params);
     
             pars.clear();
-            for (int n = 0; n < get_nParams() - _extra_thresholds.size(); n++)
+            for (int n = 0; n < get_nParams(); n++)
             {
                 pars.push_back(params[n]);
             }
-
-            _extra_couplings.clear();
-            for (int n_th = 0; n_th < _extra_thresholds.size(); n_th++)
-            {
-                _extra_couplings.push_back(params[NumPars+n_th]);
-            };
         };
 
         inline void add_threshold(double m1, double m2)
         {
-            // Save the masses of the new threshold
-            _extra_thresholds.push_back({m1, m2});
+            if (_thresholds.size() == 2)
+            {
+                std::cout << "Only two additional thresholds can be added! Returning without change..." << std::endl;
+                return;
+            }
 
-            // and add one to the number of free parameters
-            set_nParams( get_nParams() + 1 );
+            // Save the masses of the new threshold
+            _thresholds.push_back({m1, m2});
+
+            // and add two to the number of free parameters
+            // a_{0i} and r_i
+            // set_nParams( get_nParams() + 2 );
         };  
 
         // Assemble the helicity amplitude by summing with appropriate angular funxtions
@@ -72,6 +73,9 @@ namespace jpacPhoto
 
         protected:
 
+        // Number of parameters in the single-channel amplitude
+        static const int _sc_pars = 9;
+
         // Number of partial-wave terms to consider 
         int _lmax = 1;
 
@@ -79,8 +83,7 @@ namespace jpacPhoto
         std::vector<double> pars;
 
         // A vector containing all open thresholds
-        std::vector<std::array<double,2>> _extra_thresholds; 
-        std::vector<double>               _extra_couplings;
+        std::vector<std::array<double,2>> _thresholds; 
 
         // Legendre functions
         double P_l(int l, double z);
@@ -97,40 +100,55 @@ namespace jpacPhoto
         
         // Once-subtracted dispersion relation
         std::complex<double> rhoCM(double m1, double m2, double s);
+        inline std::complex<double> rhoCM(std::array<double,2> x){ return rhoCM(x[0], x[1], _s); };
         inline std::complex<double> rhoCM(){ return rhoCM(_mX, _mR, _s); };
-
-        std::complex<double> inelastic();
         
-        static const int NumPars = 3;
         // Partial wave amplitude
         inline std::complex<double> f_l(int l)
         {
-            std::complex<double> P, Kinv;
-            std::complex<double> BF = barrier_factor(l);
-
-            double a, b, s0;
-            a  = pars[0];
-            b  = pars[1];
-            s0 = pars[2];
-
-            switch (l)
+            if (l == 0)
             {
-                case 0:
-                {
-                    P =  b;
-                    Kinv = -1./a + inelastic();
-                    break;
-                }
-                default:
-                {
-                    P = b;
-                    Kinv = -pow(s0, l) / a;
-                    break;
-                };
+                _rho0 = rhoCM();
+                _rho1 = rhoCM(_thresholds[0]);
+                _rho2 = rhoCM(_thresholds[1]);
+
+                _a00 = pars[0];
+                _a01 = pars[1];
+                _a02 = pars[2];
+                _a11 = pars[3];
+                _a12 = pars[4];
+                _a22 = pars[5];
+                _b0  = pars[6];
+                _c   = pars[7];
+                _s0  = pars[8];
+
+                // _denominator =  _a02*_a02*_rho1 + _a01*_a01*_rho2 + _a00*_rho1*_rho2 - _rho0*_rho1*_rho2;
+                _denominator = 2.*_a01*_a02*_a12 - _a00*_a12*_a12 - _a01*_a01*_a22 + _a12*_a12*_rho0 - _a11*_a22*_rho0 + _a22*_rho0*_rho1 
+                                + _a02*_a02*(_rho1-_a11) + _a00*(_a11-_rho1)*(_a22-_rho2) + _a01*_a01*_rho2 + _a11*_rho0*_rho2 - _rho0*_rho1*_rho2;
+
+                return (_b0 + _rho0*T00() + _rho1*T10() + _rho2*T20()) ; 
             }
 
-            return BF * P / ( Kinv - BF * rhoCM() );
-        };
+            return barrier_factor(l) / ( _c*pow(_s0, l) - barrier_factor(l)*rhoCM() );
+        };  
+    
+
+        // Scattering length parameters
+        double _a00 = 0., _a01 = 0., _a02 = 0., _a12 = 0., _a11 = 0., _a22 = 0., _b0 = 0., _b1 = 0., _c = 0., _s0 = 0.;
+        double _r1, _r2;
+
+        // Phase-space factors
+        std::complex<double> _rho0, _rho1, _rho2;
+        
+        // Denominator of the T-matrixes
+        std::complex<double> _denominator;
+
+        // I'm going to hardcode the expressions for the three-channel T-matrix 
+        // is there a better way to do this? probably but I'll refactor later
+        inline std::complex<double> T00(){ return (_rho1 * _rho2 - _a11*_rho2 - _a22*_rho1 - _a12*_a12 + _a11*_a22) / _denominator; };
+        inline std::complex<double> T10(){ return  (_a02*_a12 - _a01*_a22 + _a01 * _rho2) / _denominator; };
+        inline std::complex<double> T20(){ return  (_a01*_a12 - _a02*_a11 + _a02 * _rho1) / _denominator; };
+        
     };
 };
 

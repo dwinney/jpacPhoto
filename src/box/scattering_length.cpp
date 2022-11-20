@@ -55,20 +55,6 @@ std::complex<double> jpacPhoto::scattering_length::rho(double m1, double m2, dou
     return sqrt( Kallen(s * XR, m1*m1 * XR, m2*m2 * XR) ) / s;
 };
 
-std::complex<double> jpacPhoto::scattering_length::inelastic()
-{
-    std::complex<double> result = 0.;
-    for (int i = 0; i < _extra_thresholds.size(); i++)
-    {
-        double m1 = _extra_thresholds[i][0];
-        double m2 = _extra_thresholds[i][1];
-
-        result += _extra_couplings[i] * rhoCM(m1, m2, _s);
-    }
-
-    return result;
-};
-
 std::complex<double> jpacPhoto::scattering_length::rhoCM(double m1, double m2, double s)
 {
     std::complex<double> Rho, xi;
