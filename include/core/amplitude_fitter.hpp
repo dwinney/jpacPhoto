@@ -264,6 +264,11 @@ namespace jpacPhoto
 
         inline void set_max_calls(int n){ _maxCalls = n; };
 
+        inline std::vector<double> best_fit()
+        {
+            return convert(_minuit->X());
+        };
+
         // --------------------------------------------------------------------
         private:
 
@@ -370,7 +375,7 @@ namespace jpacPhoto
         void data_info();
         void variable_info(std::vector<double> pars, bool opt = 1);
         void set_up(std::vector<double> starting_guess);
-        void print_results();
+        double print_results();
     };
 };
 

@@ -159,10 +159,9 @@ double jpacPhoto::amplitude_fitter::do_fit(std::vector<double> starting_guess)
     auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
     std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
 
-    print_results();
+    double chi2dof = print_results();
 
-
-    return 0;
+    return chi2dof;
 };
 
 //-----------------------------------------------------------------------
@@ -237,7 +236,7 @@ void jpacPhoto::amplitude_fitter::set_up(std::vector<double> starting_guess)
     _minuit->SetFunction(fcn);
 };
 
-void jpacPhoto::amplitude_fitter::print_results()
+double jpacPhoto::amplitude_fitter::print_results()
 {
     // Fit results
     int dof = _N - _minuit->NFree();
@@ -257,4 +256,6 @@ void jpacPhoto::amplitude_fitter::print_results()
     
     // At the end update the amplitude parameters to include the fit results
     _amplitude->set_params(best_params);
+
+    return chi2dof;
 }
