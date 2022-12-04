@@ -9,39 +9,26 @@
 
 std::complex<double> jpacPhoto::scattering_length::helicity_amplitude( std::array<int,4> helicities, double s, double t)
 {
+    // This amplitude is helicity independent so we arbitrarily pick one helicty projection to make non-zero
+    std::array<int,4> fixed_hels{1, 1, 1, 1};
+    if (helicities != fixed_hels) return 0.;
+
     // Save inputs 
     update(helicities, s, t);
 
     // Sum over the partial-wave sum
     std::complex<double> sum = 0.;
-
     for (int l = 0; l <= _lmax; l++)
     {
-        sum += double(2*l+1)* P_l(l, cos(_theta)) * f_l(l);
+        sum += double(2*l+1)* legendre(l, cos(_theta)) * A_L(l);
     };
 
-    return sum / sqrt(6.);
+    // Normalization here to get rid of helicity dependence in amplitude::probability_distribution
+    // First the 2 removes the factor 1/4 when averaging over initial helicities
+    // the 1/sqrt(2) removes the factor of 2 from the parity relation in amplitude::update_cache
+    return 2. * sum / sqrt(2.);
 };
 
-double jpacPhoto::scattering_length::P_l(int l, double z)
-{
-    switch (l) 
-    {
-        case 0: return 1.;
-        case 1: return z;
-        case 2: return 0.5*(3.*z*z - 1.);
-        case 3: return 0.5*z*(5.*z*z - 3.);
-        case 4: return (35.*z*z*z*z - 30.*z*z + 3.)/8.;
-        case 5: return z*(63.*z*z*z*z - 70.*z*z + 15.)/8.;
-        default:
-        {
-            std::cout << "scattering_length::Pl() : ell value " + std::to_string(l) + " not implemented! Returning 0." << std::endl;
-            return 0.;
-        }
-    };
-
-    return 0.;
-};
 
 // so that they can be appropriately analytically continued below threshold
 std::complex<double> jpacPhoto::scattering_length::barrier_factor(int l, double m1, double m2)
