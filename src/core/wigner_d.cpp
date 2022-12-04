@@ -7,6 +7,26 @@
 
 #include "misc_math.hpp"
 
+double jpacPhoto::legendre(int l, double z)
+{
+    switch (l) 
+    {
+        case 0: return 1.;
+        case 1: return z;
+        case 2: return 0.5*(3.*z*z - 1.);
+        case 3: return 0.5*z*(5.*z*z - 3.);
+        case 4: return (35.*z*z*z*z - 30.*z*z + 3.)/8.;
+        case 5: return z*(63.*z*z*z*z - 70.*z*z + 15.)/8.;
+        default:
+        {
+            std::cout << "scattering_length::Pl() : ell value " + std::to_string(l) + " not implemented! Returning 0." << std::endl;
+            return 0.;
+        }
+    };
+
+    return 0.;
+};
+
 // --------------------------------------------------------------------------
 double jpacPhoto::wigner_leading_coeff(int j, int lam1, int lam2)
 {

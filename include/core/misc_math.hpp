@@ -42,6 +42,9 @@ namespace jpacPhoto
 
     // Wigner d-function for integer spin in terms of the cosine of theta not theta
     std::complex<double> wigner_d_int_cos(int j, int lam1, int lam2, double cos);
+
+    // Legendre function in terms of cosine theta
+    double legendre(int l, double z);
 };
 
 #endif
