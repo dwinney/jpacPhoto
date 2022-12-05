@@ -1,62 +1,38 @@
 // Header file with global phyiscal constants.
 // Everything is in GeV unless explicitly stated otherwise.
 //
+// ---------------------------------------------------------------------------
 // Author:       Daniel Winney (2019)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef _DEBUG_
-#define _DEBUG_
-
-#include <iostream>
-#include <iomanip>
-
-namespace jpacPhoto
-{
-    // little function for printing to screen instead of having to copy this line all the time
-    template<typename T>
-    inline void debug(T x)
-    {
-        std::cout << x << std::endl;
-    };
-
-    template<typename T, typename F>
-    inline void debug(T x, F y)
-    {
-        std::cout << std::left << std::setw(15) << x;
-        std::cout << std::left << std::setw(15) << y << std::endl;
-    };
-
-    template<typename T, typename F, typename G>
-    inline void debug(T x, F y, G z)
-    {
-        std::cout << std::left << std::setw(15) << x;
-        std::cout << std::left << std::setw(15) << y;
-        std::cout << std::left << std::setw(15) << z << std::endl;
-    };
-};
-
-#endif
-
-#ifndef CONSTANT
-#define CONSTANT
+#ifndef CONSTANT_HPP
+#define CONSTANT_HPP
 
 #include <cmath>
 #include <complex>
 
+#include "debug.hpp"
+
 namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
+    // Mathematical constants 
+
+    // We use complex numbers everywhere throughout so I'll define this shortened data type
+    using complex = std::complex<double>;
+
     const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);
     const double EPS      = 1.e-6;
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
 
-    const std::complex<double> XR  (1., 0.);
-    const std::complex<double> XI  (0., 1.);
-    const std::complex<double> IEPS(0., EPS);
+    const complex XR  (1., 0.);
+    const complex XI  (0., 1.);
+    const complex IEPS(0., EPS);
+
 
     // PDG Meson masses in GeV
     const double M_PION      = 0.13957000;
@@ -97,7 +73,7 @@ namespace jpacPhoto
 
     // Baryon masses squared
     const double M2_PROTON    = M_PROTON * M_PROTON;
-    const double M2_LAMBDA   = M_LAMBDA * M_LAMBDA;
+    const double M2_LAMBDA    = M_LAMBDA * M_LAMBDA;
     const double M2_LAMBDAC   = M_LAMBDAC * M_LAMBDAC;
 
     // Decay constants in GeV
@@ -118,13 +94,20 @@ namespace jpacPhoto
         return sqrt(M_PROTON * (2. * egam + M_PROTON));
     };
 
+    // ---------------------------------------------------------------------------
     // Kallen Triangle function
-    template <typename T>
+
+    // Only way to get a double or int Kallen is if all inputs are double/int
+    template<typename T>
     inline T Kallen(T x, T y, T z)
     {
         return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
     };
 
+    // If any of them are complex, return complex
+    inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, XR*a, XR*b); };
+    inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(XR*a, z, XR*b); };
+    inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(XR*a, XR*b, z); };
 
 };
 // ---------------------------------------------------------------------------
