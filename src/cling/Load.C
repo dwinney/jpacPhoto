@@ -16,15 +16,24 @@ void Load()
     // Core physics library
 
     TString JPACPHOTO_DIR  = gSystem->Getenv("JPACPHOTO");
-    TString JPACPHOTO_INC  = JPACPHOTO_DIR;
-            JPACPHOTO_INC += "/include/core";
+
+    TString JPACPHOTO_INCCORE  = JPACPHOTO_DIR;
+            JPACPHOTO_INCCORE += "/src/core";
+    TString JPACPHOTO_INCAMP  = JPACPHOTO_DIR;
+            JPACPHOTO_INCAMP += "/src/amplitudes";
+    TString JPACPHOTO_INCCOV  = JPACPHOTO_DIR;
+            JPACPHOTO_INCCOV += "/src/covariants";
+            
     TString JPACPHOTO_LIB  = JPACPHOTO_DIR;
-            JPACPHOTO_LIB += "/lib/libjpacPhoto.";
+            JPACPHOTO_LIB += "/lib/libJPACPHOTO.";
             JPACPHOTO_LIB += LIB_EXT;
 
     if (!gSystem->AccessPathName(JPACPHOTO_LIB.Data()))
     {
-        gInterpreter->AddIncludePath( JPACPHOTO_INC.Data());
+        gInterpreter->AddIncludePath( JPACPHOTO_INCCORE.Data());
+        gInterpreter->AddIncludePath( JPACPHOTO_INCAMP.Data());
+        gInterpreter->AddIncludePath( JPACPHOTO_INCCOV.Data());
+
         Int_t pholib = gSystem->Load( JPACPHOTO_LIB.Data());
     }
     else
@@ -36,8 +45,10 @@ void Load()
     // Plotting library
 
     TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
+
     TString JPACSTYLE_INC  = JPACSTYLE_DIR;
             JPACSTYLE_INC += "/include/";
+            
     TString JPACSTYLE_LIB  = JPACSTYLE_DIR;
             JPACSTYLE_LIB += "/lib/libjpacStyle.";
             JPACSTYLE_LIB += LIB_EXT;
@@ -53,30 +64,30 @@ void Load()
     }
 
 
-    //----------------------------------------------------------------------
-    // Non-essential libraries
+    // //----------------------------------------------------------------------
+    // // Non-essential libraries
 
-    TString INCLUSIVE_INC  = JPACPHOTO_DIR;
-            INCLUSIVE_INC += "/include/inclusive";
-    TString INCLUSIVE_LIB  = JPACPHOTO_DIR;
-            INCLUSIVE_LIB += "/lib/libjpacInclusive.";
-            INCLUSIVE_LIB += LIB_EXT;
+    // TString INCLUSIVE_INC  = JPACPHOTO_DIR;
+    //         INCLUSIVE_INC += "/include/inclusive";
+    // TString INCLUSIVE_LIB  = JPACPHOTO_DIR;
+    //         INCLUSIVE_LIB += "/lib/libjpacInclusive.";
+    //         INCLUSIVE_LIB += LIB_EXT;
 
-    if (!gSystem->AccessPathName(INCLUSIVE_LIB.Data()))
-    {
-        gInterpreter->AddIncludePath( INCLUSIVE_INC.Data());
-        Int_t inclib = gSystem->Load( INCLUSIVE_LIB.Data());
-    }
+    // if (!gSystem->AccessPathName(INCLUSIVE_LIB.Data()))
+    // {
+    //     gInterpreter->AddIncludePath( INCLUSIVE_INC.Data());
+    //     Int_t inclib = gSystem->Load( INCLUSIVE_LIB.Data());
+    // }
 
-    TString BOX_INC  = JPACPHOTO_DIR;
-            BOX_INC += "/include/box";
-    TString BOX_LIB  = JPACPHOTO_DIR;
-            BOX_LIB += "/lib/libjpacBox.";
-            BOX_LIB += LIB_EXT;
+    // TString BOX_INC  = JPACPHOTO_DIR;
+    //         BOX_INC += "/include/box";
+    // TString BOX_LIB  = JPACPHOTO_DIR;
+    //         BOX_LIB += "/lib/libjpacBox.";
+    //         BOX_LIB += LIB_EXT;
 
-    if (!gSystem->AccessPathName(BOX_LIB.Data()))
-    {
-        gInterpreter->AddIncludePath( BOX_INC.Data());
-        Int_t boxlib = gSystem->Load( BOX_LIB.Data());
-    }
+    // if (!gSystem->AccessPathName(BOX_LIB.Data()))
+    // {
+    //     gInterpreter->AddIncludePath( BOX_INC.Data());
+    //     Int_t boxlib = gSystem->Load( BOX_LIB.Data());
+    // }
 }

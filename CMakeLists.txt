@@ -43,9 +43,6 @@ else()
     message(SEND_ERROR "-- Root not found")
 endif()
 
-# option to build the root dictionary to use classes with interactive cling
-option(BUILD_DICTIONARY "Build ROOT Dictionary" "FALSE")
-
 ##-----------------------------------------------------------------------
 ## Check if JPACPHOTO environment variable is set. 
 
@@ -83,18 +80,21 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Build core library 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/core)
-add_subdirectory(src/core)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/amplitudes)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/covariants)
 
-# Building jpacInclusive
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/inclusive)
-add_subdirectory(src/inclusive)
+add_subdirectory(src)
 
-# Building jpacBox requires BOOST
-if (BUILD_BOX)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/box)
-    add_subdirectory(src/box)
-endif()
+# # Building jpacInclusive
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/inclusive)
+# add_subdirectory(src/inclusive)
+
+# # Building jpacBox requires BOOST
+# if (BUILD_BOX)
+#     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/box)
+#     add_subdirectory(src/box)
+# endif()
 
 # build the plotting executable 
 if (BUILD_CLING)
