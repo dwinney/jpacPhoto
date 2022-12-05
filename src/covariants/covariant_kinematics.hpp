@@ -9,7 +9,7 @@
 #ifndef COVARIANTS
 #define COVARIANTS
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 #include "dirac_spinor.hpp"
 #include "rarita_spinor.hpp"
 #include "two_body_state.hpp"
@@ -25,7 +25,7 @@ namespace jpacPhoto
 
         public: 
 
-        covariant_kinematics(reaction_kinematics * xkinem)
+        covariant_kinematics(kinematics xkinem)
         : _kinematics(xkinem)         
         {
             _initial_state = new two_body_state(xkinem->get_beam_mass(),  xkinem->get_target_mass());
@@ -206,7 +206,7 @@ namespace jpacPhoto
         private:
         
         // Pointer to kinematics object to get masses and things
-        reaction_kinematics * _kinematics;
+        kinematics _kinematics;
 
         // Core member structures
         two_body_state * _initial_state,  * _final_state;

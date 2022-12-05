@@ -14,12 +14,12 @@
 // classes (for s, t, and u- channels but also multiple contibutions in each channel)
 // to be added together and evaluated in observables.
 //
-// Any generic amplitude needs a reaction_kinematics object
+// Any generic amplitude needs a kinematics object
 // and a way to evaluate the helicity amplitude for given set of helicities,
 // CoM energy and scattering angle.
 // ---------------------------------------------------------------------------
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 #include "covariant_kinematics.hpp"
 #include "angular_functions.hpp"
 
@@ -36,7 +36,7 @@ namespace jpacPhoto
     {
         public:
         // Constructor with nParams for backward compatibility (now depricated)
-        amplitude(reaction_kinematics * xkinem, std::string amp_name, std::string id = "", int n = 0)
+        amplitude(kinematics xkinem, std::string amp_name, std::string id = "", int n = 0)
         : _kinematics(xkinem), _identifier(id), _classname(amp_name)
         {
             _covariants = new covariant_kinematics(xkinem);
@@ -49,7 +49,7 @@ namespace jpacPhoto
         }
 
         // Kinematics object for thresholds and etc.
-        reaction_kinematics * _kinematics;
+        kinematics _kinematics;
 
         // Every amplitude gets a covariant_kinematics instance even if they dont use it
         covariant_kinematics * _covariants;
@@ -79,7 +79,7 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Observables
-        // Evaluatable in terms of s and t or an event object (see reaction_kinematics.hpp)
+        // Evaluatable in terms of s and t or an event object (see raw_kinematics.hpp)
 
         // Modulus of the amplitude summed over all helicity combinations
         double probability_distribution(double s, double t);
@@ -161,14 +161,14 @@ namespace jpacPhoto
         };
 
         // Allowed JP error message
-        inline void check_JP(reaction_kinematics * kinem)
+        inline void check_JP(kinematics kinem)
         {
             // Get all the allowed JP's from the amplitude
             std::vector<std::array<int,2>> allowed_meson_JP, allowed_baryon_JP;
             allowed_meson_JP  = this->allowed_meson_JP();
             allowed_baryon_JP = this->allowed_baryon_JP();
 
-            // Grab the requested JPs from the reaction_kinematics
+            // Grab the requested JPs from the raw_kinematics
             std::array<int,2> requested_meson_JP, requested_baryon_JP;
             requested_meson_JP  = kinem->get_meson_JP();
             requested_baryon_JP = kinem->get_baryon_JP();

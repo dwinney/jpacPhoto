@@ -24,14 +24,14 @@ namespace jpacPhoto
         public:
 
         // Empty constructor
-        amplitude_sum(reaction_kinematics * xkinem, std::string identifer = "amplitude_sum")
+        amplitude_sum(kinematics xkinem, std::string identifer = "amplitude_sum")
         : amplitude(xkinem, "amplitude_sum", identifer)
         {
             set_nParams(0);
         };
 
         // Constructor with a vector already set up
-        amplitude_sum(reaction_kinematics * xkinem, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
+        amplitude_sum(kinematics xkinem, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
         : amplitude(xkinem, "amplitude_sum", identifer)
         {
             for (int i = 0; i < vec.size(); i++)

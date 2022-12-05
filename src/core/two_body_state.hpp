@@ -12,7 +12,7 @@
 #include <complex>
 #include <iostream>
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 
 // ---------------------------------------------------------------------------
 // The two_body_state is the base object for defining a reaction in the

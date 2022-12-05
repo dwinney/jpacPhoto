@@ -8,7 +8,7 @@
 #ifndef FITTER
 #define FITTER
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 #include "amplitude.hpp"
 
 #include <sstream> 
@@ -25,7 +25,7 @@ namespace jpacPhoto
         // --------------------------------------------------------------------
         public:
 
-        // Constructor requires a reaction_kinematics object
+        // Constructor requires a raw_kinematics object
         amplitude_fitter(amplitude * amp)
         : _amplitude(amp)
         {
@@ -38,7 +38,7 @@ namespace jpacPhoto
             _minuit = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
         };
 
-        // Constructor requires a reaction_kinematics object
+        // Constructor requires a raw_kinematics object
         // Optional explicit choice of minimization strategy passes to minuit object
         amplitude_fitter(amplitude * amp, std::string strategy, double tolerance = 1.E-6)
         : _amplitude(amp), _tolerance(tolerance)
