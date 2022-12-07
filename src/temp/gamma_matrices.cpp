@@ -23,15 +23,15 @@ std::complex<double> jpacPhoto::sigma(int mu, int nu, int i, int j)
     return result;
 };
 
-// ---------------------------------------------------------------------------
-// Four dimensional Levi-Civita symbol
-double jpacPhoto::levi_civita(int a, int b, int c, int d)
-{
-    int result = (d - c) * (d - b) * (d - a) * (c - b) * (c - a) * (b - a);
+// // ---------------------------------------------------------------------------
+// // Four dimensional Levi-Civita symbol
+// double jpacPhoto::levi_civita(int a, int b, int c, int d)
+// {
+//     int result = (d - c) * (d - b) * (d - a) * (c - b) * (c - a) * (b - a);
 
-    if (result == 0) return 0.;
+//     if (result == 0) return 0.;
 
-    result /= abs(d - c) * abs(d - b) * abs(d - a) * abs(c - b) * abs(c - a) * abs(b - a);
+//     result /= abs(d - c) * abs(d - b) * abs(d - a) * abs(c - b) * abs(c - a) * abs(b - a);
 
-    return - result;
-};
+//     return - result;
+// };

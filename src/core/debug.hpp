@@ -73,7 +73,7 @@ namespace jpacPhoto
 
     // ---------------------------------------------------------------------------
     // ERROR Messages
-
+    
     // Throw an error message then quits code 
     inline void fatal()
     {

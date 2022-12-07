@@ -1,74 +1,37 @@
 // Container class for covariant quantities!
 // Since not all amplitudes need these they're seperated for convience
 //
+// ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC)
 // Email:        dwinney@iu.edu
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 #ifndef COVARIANT_HPP
 #define COVARIANT_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
+#include "lorentz.hpp"
 // #include "dirac_spinor.hpp"
 // #include "rarita_spinor.hpp"
-// #include "two_body_state.hpp"
 // #include "polarization_vector.hpp"
 // #include "gamma_matrices.hpp"
-#include <functional>
-#include <initializer_list>
 
 namespace jpacPhoto
 {   
-    // We dont actually need most properties of lorentz vectors since we will always work in the s-channel CM frame
-    // we just need a basic vector class to differentiate it from spinor structures and define contractions
-    class lorentz_vector
-    {
-        public: 
-        lorentz_vector(){};
-
-        lorentz_vector(std::array<complex,4> v)
-        : _components(v)
-        {};
-
-        complex operator[](lorentz_index mu);
-
-        inline complex operator[](int mu)
-        { return operator[](static_cast<lorentz_index>(mu)); };
-
-        lorentz_vector operator-();
-        lorentz_vector operator+(lorentz_vector const & p);
-        lorentz_vector operator=(lorentz_vector const & p);
-        
-        private:
-        std::array<complex,4> _components = {};
-    };
-    
-    // Interactions of Lorentz vectors and constants
-    lorentz_vector operator*(complex c, lorentz_vector p);
-    inline lorentz_vector operator*(lorentz_vector p, complex c){ return c *p; };
-    inline lorentz_vector operator/(lorentz_vector p, complex c){ return (1./c) * p; };
-
-    // Contractions between vectors
-    complex contract(lorentz_vector x, lorentz_vector y);
-    double  square(lorentz_vector x);
-
     // Now the covariants class assembles all relavant kinematic quantities and outputs 
     // them in the form they can be assembled in to amplitudes with Feynman rules
     class covariant
     {
         // ---------------------------------------------------------------------------
-
         public: 
 
         covariant(kinematics xkinem)
-        : _cache(xkinem)
+        : _kinematics(xkinem)
         {};
 
-        // ---------------------------------------------------------------------------
         // Just like the amplitudes here we can save s, t, and helicities to avoid carrying them around
-
         inline void update(std::array<int,4> helicities, double s, double t)
         {
             // Save the helicities to avoid having to carry them around
@@ -78,7 +41,7 @@ namespace jpacPhoto
             _lamR = helicities[3];
 
             // Recalculate our cache if things have changed
-            _cache.check(s, t);            
+            check_cache(s, t);            
         };  
 
         // ---------------------------------------------------------------------------
@@ -88,10 +51,14 @@ namespace jpacPhoto
         // FOUR MOMENTA 
         // q Always refers to mesons, p always baryons
 
-        lorentz_vector q();       // Beam momentum 
-        lorentz_vector q_prime(); // Meson momentum 
-        lorentz_vector p();       // Target momentum 
-        lorentz_vector p_prime(); // Recoil momentum 
+        lorentz_vector q();         // Beam momentum 
+        lorentz_vector q_prime();   // Meson momentum 
+        lorentz_vector p();         // Target momentum 
+        lorentz_vector p_prime();   // Recoil momentum 
+
+        // Polarization vectors
+        lorentz_vector eps();       // Beam (incoming) polarization
+        lorentz_vector eps_prime(); // Meson (outgoing) polarization
 
         // // ---------------------------------------------------------------------------
         // // Aliases for stuff!
@@ -244,39 +211,32 @@ namespace jpacPhoto
         // Save helicities current helicities so they dont need to be passed around
         int _lamB, _lamT, _lamX, _lamR; 
 
-        struct cache
-        {
-            cache(kinematics xkinem)
-            : _kinematics(xkinem)
-            {};
+        // External helicities saved internally so they dont need to be specified as arguments
+        kinematics _kinematics;
 
-            kinematics _kinematics;
+        void check_cache(double s, double t);
+        void recalculate(double s);
 
-            void check(double s, double t);
-            void recalculate(double s);
+        // Caching tolerance
+        constexpr static double _tolerance = 1.E-5;
+        inline bool unsynced(double x, double y)
+        { return ( abs(x - y) < _tolerance ) ? false : true; };
 
-            // Caching tolerance
-            constexpr static double _tolerance = 1.E-5;
-            inline bool unsynced(double x, double y)
-            { return ( abs(x - y) < _tolerance ) ? false : true; };
+        // Primary energy and angular variables
+        double _s, _theta;
 
-            // Primary energy and angular variables
-            double _s, _theta;
+        // Masses 
+        double _mB, _mT, _mX, _mR;
 
-            // Masses 
-            double _mB, _mT, _mX, _mR;
+        // Energy of all three particles
+        complex _EB, _ET, _EX, _ER;
 
-            // Energy of all three particles
-            complex _EB, _ET, _EX, _ER;
+        // 3-momenta of initial and final states
+        complex _qi, _qf;
 
-            // 3-momenta of initial and final states
-            complex _qi, _qf;
-
-            // cos(theta) and sin(theta) of s-channel scattering angle
-            double _cos, _sin;
-        };
-
-        cache _cache;
+        // cos(theta) and sin(theta) of s-channel scattering angle
+        double _cos, _sin;
+        double _coshalf, _sinhalf;
     };
 };
 

@@ -55,10 +55,10 @@ namespace jpacPhoto
 	// Rank two gamma tensor
 	std::complex<double> sigma(int mu, int nu, int i, int j);
 
-	// ---------------------------------------------------------------------------
-	// Four dimensional Levi-Civita symbol
-    // We use the Peskin convention eps^{0123} = 1
-	double levi_civita(int mu, int alpha, int beta, int gamma);
+	// // ---------------------------------------------------------------------------
+	// // Four dimensional Levi-Civita symbol
+    // // We use the Peskin convention eps^{0123} = 1
+	// double levi_civita(int mu, int alpha, int beta, int gamma);
 	
 };
 
