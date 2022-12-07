@@ -12,16 +12,39 @@
 
 #include <cmath>
 #include <complex>
+#include <limits>
 
 #include "debug.hpp"
 
 namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
-    // Mathematical constants 
-
     // We use complex numbers everywhere throughout so I'll define this shortened data type
     using complex = std::complex<double>;
+
+    // Additionally the complex type is a liitle dim in c++ so we need to define int & bool multiplication
+    inline complex operator*(const int& c, const complex& rhs)
+    {
+        return complex(c*rhs.real(), c*rhs.imag());
+    };
+
+    inline complex operator*(const complex& lhs, const int& c)
+    {
+        return complex(c*lhs.real(), c*lhs.imag());
+    };
+
+    inline complex operator*(const bool& c, const complex& rhs)
+    {
+        return (c) ? rhs : 0.;
+    };
+
+    inline complex operator*(const complex& lhs, const bool& c)
+    {
+        return (c) ? lhs : 0.;
+    };
+
+    // ---------------------------------------------------------------------------
+    // Mathematical constants 
 
     const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);
@@ -82,6 +105,22 @@ namespace jpacPhoto
     const double F_UPSILON2S = 0.16563;
     const double F_UPSILON3S = 0.1431;
 
+    // // NaN's for throwing errors technically a constant I guess
+    template<typename T>
+    inline T NaN()
+    {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    template<>
+    inline complex NaN()
+    {
+        return complex(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Frame conversion methods (specifically for photoproduction)
+
     // Photon lab energy
     inline double E_beam(double W)
     {
@@ -133,24 +172,14 @@ namespace jpacPhoto
     // -----------------------------------------------------------------------
     // Vectors of indicies which can be summed over
     
-    // This makes looping over lorentz indices more transparent
-    enum class lorentz_index: int {t = 0, x = 1, y = 2, z = 3};
-    const std::array<lorentz_index,4> LORENTZ_INDICES = {lorentz_index::t, lorentz_index::x, lorentz_index::y, lorentz_index::z};
-
-    inline const double metric(lorentz_index mu)
-    {
-        return (mu == lorentz_index::t) ? 1. : -1.;
-    };
     // Same with dirac spin indices
     // naming here is p,m for +- energy solutions and u,d for up/down projection
     enum dirac_index  {pu = 0, pd = 1, mu = 2, md = 3};
     const dirac_index DIRAC_INDICES[] = {pu, pd, mu, md};
 
-    // Convert lorentz_index and dirac_index to ints
-    template <typename E>
-    constexpr typename std::underlying_type<E>::type to_underlying(E e) noexcept 
+    inline constexpr unsigned operator+(dirac_index x)
     {
-        return static_cast<typename std::underlying_type<E>::type>(e);
+        return static_cast<unsigned>(x);
     };
 };
 // ---------------------------------------------------------------------------
