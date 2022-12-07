@@ -16,10 +16,7 @@
 std::complex<double> jpacPhoto::polarization_vector::component(int i, int lambda, double s, double theta)
 {
     // Check for massless photon
-    if (lambda == 0 && _state->if_photon())
-    {   
-        return 0.;
-    }
+    if (lambda == 0 && _state->if_photon()) return 0.;
 
     int id = 10 * abs(lambda) + i;
     switch (id)
@@ -38,14 +35,8 @@ std::complex<double> jpacPhoto::polarization_vector::component(int i, int lambda
 
         default: 
         {
-            std::cout << "polarization_vector: Invalid helicity! Quitting... \n";
-            return 0.; 
+            error("polarization_vector", "Invalid helicity! " + std::to_string(lambda) + "!", 0.)
         }
     };
 
-};
-
-std::complex<double> jpacPhoto::polarization_vector::conjugate_component(int i, int lambda, double s, double theta)
-{
-    return conj(component(i, lambda, s, theta));
 };

@@ -20,7 +20,7 @@
 // ---------------------------------------------------------------------------
 
 #include "kinematics.hpp"
-#include "covariant_kinematics.hpp"
+#include "covariants.hpp"
 #include "angular_functions.hpp"
 
 #include "Math/GSLIntegrator.h"

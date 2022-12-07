@@ -37,12 +37,12 @@ namespace jpacPhoto
 
     double raw_kinematics::initial_momentum(double s)
     {
-        return sqrt( Kallen(s, _masses._mB2, _masses._mT2)) / (2. * sqrt(s));
+        return sqrt(Kallen(s, _masses._mB2, _masses._mT2)) / sqrt(4.*s);
     };
 
     double raw_kinematics::final_momentum(double s)
     {
-        return sqrt( Kallen(s, _masses._mR2, _masses._mX2)) / (2. * sqrt(s));
+        return sqrt(Kallen(s, _masses._mR2, _masses._mX2)) / sqrt(4.*s);
     };
 
     // ------------------------------------------------------------------------------
@@ -50,22 +50,22 @@ namespace jpacPhoto
 
     double raw_kinematics::beam_energy(double s)
     {
-        return (s - _masses._mT2 + _masses._mB2) / sqrt(4. * s);
+        return (s - _masses._mT2 + _masses._mB2) / sqrt(4.*s);
     };
 
     double raw_kinematics::target_energy(double s)
     {
-        return (s + _masses._mT2 - _masses._mB2) / sqrt(4. * s);
+        return (s + _masses._mT2 - _masses._mB2) / sqrt(4.*s);
     };
 
     double raw_kinematics::meson_energy(double s)
     {
-        return (s - _masses._mR2 + _masses._mX2) / sqrt(4. * s);
+        return (s - _masses._mR2 + _masses._mX2) / sqrt(4.*s);
     };
 
     double raw_kinematics::recoil_energy(double s)
     {
-        return (s + _masses._mR2 - _masses._mX2) / sqrt(4. * s);
+        return (s + _masses._mR2 - _masses._mX2) / sqrt(4.*s);
     };
 
     // ---------------------------------------------------------------------------

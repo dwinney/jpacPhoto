@@ -6,8 +6,8 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#ifndef HELIC_COMBO
-#define HELIC_COMBO
+#ifndef HELICITIES_HPP
+#define HELICITIES_HPP
 
 #include <algorithm>
 #include <iostream>
@@ -203,7 +203,6 @@ namespace jpacPhoto
         { -1,  1, -1,  3}, // 47
     };
 
-
     // ---------------------------------------------------------------------------
     // If we allow massive "beam"
     const std::vector< std::array<int, 4> > MASSIVE_SPIN_ZERO_HELICITIES =
@@ -279,9 +278,10 @@ namespace jpacPhoto
             case (  1): return MASSIVE_SPIN_ZERO_HELICITIES;
             default: 
             {
-                std::cout << "Fatal error! Can't find helicities for meson spin J = " << mJ << " and baryon spin " << bJ << "/2 not yet implemented.\n";
-                std::cout << "Quitting...\n";
-                exit(1);
+                return error("get_helicities()", 
+                             "Cannot find helicities for meson spin-" + std::to_string(mJ) 
+                                                + " and baryon spin-" + std::to_string(bJ) + "/2.", 
+                             std::vector<std::array<int, 4>>{}); 
             }
         }
     };
@@ -297,28 +297,12 @@ namespace jpacPhoto
             case (  3): return {THREE_ZERO_POS_ITERS, THREE_ZERO_POS_ITERS};
             default:
             {
-                std::cout << "Fatal error! Can't find iters for meson spin J = " << mJ << " and baryon spin " << bJ << "/2 not yet implemented.\n";
-                std::cout << "Quitting...\n";
-                exit(1);
+                return error("get_helicities()", 
+                             "Cannot find helicities for meson spin-" + std::to_string(mJ) 
+                                                + " and baryon spin-" + std::to_string(bJ) + "/2.",
+                             std::array<std::vector<int>,2>{}); 
             }
         };
-    };
-
-    inline int find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless = true)
-    {
-        std::vector<std::array<int,4>> hels = get_helicities(mj, bj, is_massless);
-
-        auto iterator = std::find(hels.begin(), hels.end(), helicities);
-        
-        if (iterator != hels.end())
-        {
-            return iterator - hels.begin();
-        }
-        else
-        {
-            std::cout << "Error cannot find helicities! Returning -1... \n";  
-            return -1;
-        }
     };
 
     // Output a string of a given helicity set in format e.g. {+,+,+,+}
@@ -338,6 +322,20 @@ namespace jpacPhoto
         };
         std::string hels = "{" + lams[0] + "," + lams[1] + "," + lams[2] + "," + lams[3] + "}";
         return hels;  
+    };
+
+    inline int find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless = true)
+    {
+        std::vector<std::array<int,4>> hels = get_helicities(mj, bj, is_massless);
+
+        auto iterator = std::find(hels.begin(), hels.end(), helicities);
+        
+        if (iterator != hels.end())
+        {
+            return iterator - hels.begin();
+        }
+        
+        return error("find_helicity", "Cannot find helicities: " + print_helicities(helicities) + "!", -1);
     };
 };
 

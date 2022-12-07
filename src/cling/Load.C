@@ -21,8 +21,6 @@ void Load()
             JPACPHOTO_INCCORE += "/src/core";
     TString JPACPHOTO_INCAMP  = JPACPHOTO_DIR;
             JPACPHOTO_INCAMP += "/src/amplitudes";
-    TString JPACPHOTO_INCCOV  = JPACPHOTO_DIR;
-            JPACPHOTO_INCCOV += "/src/covariants";
             
     TString JPACPHOTO_LIB  = JPACPHOTO_DIR;
             JPACPHOTO_LIB += "/lib/libJPACPHOTO.";
@@ -31,8 +29,7 @@ void Load()
     if (!gSystem->AccessPathName(JPACPHOTO_LIB.Data()))
     {
         gInterpreter->AddIncludePath( JPACPHOTO_INCCORE.Data());
-        gInterpreter->AddIncludePath( JPACPHOTO_INCAMP.Data());
-        gInterpreter->AddIncludePath( JPACPHOTO_INCCOV.Data());
+        // gInterpreter->AddIncludePath( JPACPHOTO_INCAMP.Data());
 
         Int_t pholib = gSystem->Load( JPACPHOTO_LIB.Data());
     }

@@ -15,6 +15,12 @@
 namespace jpacPhoto
 {
     // -----------------------------------------------------------------------
+    
+    // Output an empty line to the terminal
+    inline void line()
+    {
+        std::cout << std::endl;
+    };
 
     // Default spacing value
     const int DEBUG_SPACING = 15;

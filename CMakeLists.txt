@@ -81,8 +81,7 @@ endif()
 ##-----------------------------------------------------------------------
 # Build core library 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/amplitudes)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/covariants)
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/amplitudes)
 
 add_subdirectory(src)
 
@@ -95,8 +94,3 @@ add_subdirectory(src)
 #     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/box)
 #     add_subdirectory(src/box)
 # endif()
-
-# build the plotting executable 
-if (BUILD_CLING)
-    add_subdirectory(src/cling)
-endif()

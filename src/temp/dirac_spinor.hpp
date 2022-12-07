@@ -13,7 +13,7 @@
 
 #include "constants.hpp"
 #include "gamma_matrices.hpp"
-#include "two_body_state.hpp"
+#include "four_momenta.hpp"
 
 // ---------------------------------------------------------------------------
 // The dirac_spinor object is exactly as it sounds. :)

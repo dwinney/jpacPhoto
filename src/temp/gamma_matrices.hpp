@@ -17,9 +17,6 @@
 
 namespace jpacPhoto
 {
-    // Mostly minus metric
-    const double METRIC[4] = {1., -1., -1., -1.};
-
 	// Gamma matrix vector in Dirac basis
 	const std::complex<double> GAMMA[4][4][4] =
 	{

@@ -25,7 +25,7 @@ namespace jpacPhoto
 
     const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);
-    const double EPS      = 1.e-6;
+    const double EPS      = 1.e-7;
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
 
@@ -109,6 +109,49 @@ namespace jpacPhoto
     inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(XR*a, z, XR*b); };
     inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(XR*a, XR*b, z); };
 
+    // ---------------------------------------------------------------------------
+    // Function for easier comparison of doubles using the EPS value defined above
+    // be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate
+
+    inline bool are_equal(double a, double b)
+    {
+        return ( std::abs(a - b) < EPS );
+    }
+
+    // Same thing for comparing complex doubles
+    inline bool are_equal(complex a, complex b)
+    {
+        return (are_equal(real(a), real(b)) && are_equal(imag(a), imag(b)));
+    };
+
+    // Aliases for special cases of the above
+    inline bool is_zero(double a)
+    {
+        return (abs(a) < EPS);
+    };
+
+    // -----------------------------------------------------------------------
+    // Vectors of indicies which can be summed over
+    
+    // This makes looping over lorentz indices more transparent
+    enum class lorentz_index: int {t = 0, x = 1, y = 2, z = 3};
+    const std::array<lorentz_index,4> LORENTZ_INDICES = {lorentz_index::t, lorentz_index::x, lorentz_index::y, lorentz_index::z};
+
+    inline const double metric(lorentz_index mu)
+    {
+        return (mu == lorentz_index::t) ? 1. : -1.;
+    };
+    // Same with dirac spin indices
+    // naming here is p,m for +- energy solutions and u,d for up/down projection
+    enum dirac_index  {pu = 0, pd = 1, mu = 2, md = 3};
+    const dirac_index DIRAC_INDICES[] = {pu, pd, mu, md};
+
+    // Convert lorentz_index and dirac_index to ints
+    template <typename E>
+    constexpr typename std::underlying_type<E>::type to_underlying(E e) noexcept 
+    {
+        return static_cast<typename std::underlying_type<E>::type>(e);
+    };
 };
 // ---------------------------------------------------------------------------
 
