@@ -66,9 +66,13 @@ namespace jpacPhoto
         inline complex operator[](int mu)
         { return operator[](static_cast<lorentz_index>(mu)); };
 
-        lorentz_vector operator-();
-        lorentz_vector operator+(lorentz_vector const & p);
-        lorentz_vector operator=(lorentz_vector const & p);
+        lorentz_vector & operator*=(complex c);
+        lorentz_vector & operator/=(complex c);
+        lorentz_vector & operator+=(lorentz_vector p);
+        lorentz_vector & operator-=(lorentz_vector p);
+        
+        lorentz_vector & operator-();
+        lorentz_vector & operator=(lorentz_vector const & p);
         lorentz_vector conj();
         
         private:
@@ -79,7 +83,11 @@ namespace jpacPhoto
     
     // -----------------------------------------------------------------------
     // Interactions of Lorentz vectors and constants
-    
+
+    // Add and subtract
+    lorentz_vector operator+(lorentz_vector lhs, lorentz_vector rhs);
+    lorentz_vector operator-(lorentz_vector lhs, lorentz_vector rhs);
+
     // Multiply/divide by constant
     lorentz_vector operator*(complex c, lorentz_vector p);
     inline lorentz_vector operator*(lorentz_vector p, complex c){ return c *p; };
@@ -103,62 +111,74 @@ namespace jpacPhoto
     // Contract three indices leaving the first index open
     lorentz_vector levi_civita(lorentz_vector a, lorentz_vector b, lorentz_vector c);
 
-    // -----------------------------------------------------------------------
-    // Now, we can think of objects with more than one index.
-    // In most useful contexts, these come from outer products of vectors 
-    // This class describes an arbitrary rank tensor created iteratively 
-    class lorentz_tensor 
-    {
-        public: 
+    // // -----------------------------------------------------------------------
+    // // Now, we can think of objects with more than one index.
+    // // In most useful contexts, these come from outer products of vectors 
+    // // This class describes an arbitrary rank tensor created iteratively 
+    // class lorentz_tensor 
+    // {
+    //     public: 
 
-        complex operator[](std::vector<lorentz_index> vals);
+    //     // Accessor function for elements 
+    //     complex operator[](std::vector<lorentz_index> vals);
 
-        inline int rank(){ return _rank; };;
+    //     // Get the rank of the tensor (number of open indicies)
+    //     inline int rank(){ return _rank; };
 
-        private:
+    //     // Re-assignment
+    //     lorentz_tensor & operator=(lorentz_tensor const & T);
 
-        // Make outer a friend so it can serve as the real "constructor"
-        // This makes it clear that our tensors are explicitly outer products of vectors
-        friend lorentz_tensor outer(std::vector<lorentz_vector>);
-        friend lorentz_tensor outer(std::vector<lorentz_tensor>);
+    //     // Multiply and divide by a constant
+    //     lorentz_tensor & operator*=(complex c);
+    //     lorentz_tensor & operator/=(complex c);
+    //     lorentz_tensor & operator+=(lorentz_tensor const & T);
 
-        lorentz_tensor(std::vector<lorentz_vector> list)
-        : _rank(list.size())
-        {
-            for (auto index : list)
-            {
-                _indices.push_back(index);
-            };
+    //     private:
 
-            if (_indices.size() != _rank) fatal("lorentz_tensor", "Failed to initialize with correct size!");
-        };
+    //     // Check if an outside tensor is compatable to be added with this one
+    //     bool is_compatible(lorentz_tensor T)
+    //     {
+    //         return (T.rank() == rank());
+    //     };
 
-        // Make the outer product class a friend which can access the _indices
-        // This makes it clear that although lorentz_tensor is  generic class
-        // Currently its implementation only fully allows those tensors decomposable as
-        // tensor products of spin-1 subspaces
-        friend lorentz_tensor outer(std::vector<lorentz_vector>);
+    //     lorentz_tensor(std::vector<lorentz_vector> list)
+    //     : _rank(list.size())
+    //     {
+    //         for (auto index : list)
+    //         {
+    //             _indices.push_back(index);
+    //         };
 
-        int _rank = 0;
-        std::vector<lorentz_vector> _indices;
-    };
+    //         if (_indices.size() != _rank) fatal("lorentz_tensor", "Failed to initialize with correct size!");
+    //     };
 
-    // Outer product of any number of lorentz_vectors produces a tensor
-    inline lorentz_tensor outer(std::vector<lorentz_vector> xs)
-    {   
-        return lorentz_tensor(xs); 
-    };
+    //     // Make the outer product class a friend which can access the _indices
+    //     // This makes it clear that although lorentz_tensor is  generic class
+    //     // Currently its implementation only fully allows those tensors decomposable as
+    //     // tensor products of spin-1 subspaces
+    //     friend lorentz_tensor outer(std::vector<lorentz_vector>);
+    //     friend lorentz_tensor outer(std::vector<lorentz_tensor>);
 
-    // Multiple tensors may also be combined in order they are listed from left to right
-    inline lorentz_tensor outer(std::vector<lorentz_tensor> list)
-    {
-        std::vector<lorentz_vector> aggregate = {};
-        for (auto t : list)
-        {
-            aggregate.insert( aggregate.end(), std::make_move_iterator(t._indices.begin()), std::make_move_iterator(t._indices.end()));
-        };
-        return lorentz_tensor(aggregate);
-    };
+    //     int _rank = 0;
+    //     std::vector<lorentz_vector> _indices;
+    // };
+
+    // // Outer product of any number of lorentz_vectors produces a tensor
+    // inline lorentz_tensor outer(std::vector<lorentz_vector> xs)
+    // {   
+    //     return lorentz_tensor(xs); 
+    // };
+
+    // // Multiple tensors may also be combined in order they are listed from left to right
+    // inline lorentz_tensor outer(std::vector<lorentz_tensor> list)
+    // {
+    //     std::vector<lorentz_vector> aggregate = {};
+    //     for (auto t : list)
+    //     {
+    //         aggregate.insert( aggregate.end(), std::make_move_iterator(t._indices.begin()), std::make_move_iterator(t._indices.end()));
+    //     };
+    //     return lorentz_tensor(aggregate);
+    // };
 };
 
 #endif 

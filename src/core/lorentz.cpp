@@ -22,32 +22,48 @@ namespace jpacPhoto
         return _components[+mu]; 
     };
 
-    // Negate a 4-vector
-    lorentz_vector lorentz_vector::operator-()
+    lorentz_vector & lorentz_vector::operator+=(lorentz_vector p)
     {
-        lorentz_vector result;
         for (auto mu : LORENTZ_INDICES)
         {
-            result._components[+mu] = - _components[+mu];
+            _components[+mu] += p[mu];
         };
-        return result;
+        return *this;
     };
 
-    // Add two four-vectors together
-    lorentz_vector lorentz_vector::operator+(lorentz_vector const & p)
+    lorentz_vector & lorentz_vector::operator-=(lorentz_vector p)
     {
-        lorentz_vector result;
-        for (auto mu : LORENTZ_INDICES)
+        *this += (-p);
+        return *this;
+    };
+
+    lorentz_vector & lorentz_vector::operator*=(complex c)
+    {
+        for (int i = 0; i < 4; i++)
         {
-            result._components[+mu] = _components[+mu] + p._components[+mu];
+            _components[i] *= c;
         };
-        return result;
+        return *this;
+    };
+
+    lorentz_vector & lorentz_vector::operator/=(complex c)
+    {
+        *this *= (1./c);
+        return *this;
+    };
+
+    // Negate a 4-vector
+    lorentz_vector & lorentz_vector::operator-()
+    {
+        *this *= -1.;
+        return *this;
     };
 
     // Define new vectors from old ones
-    lorentz_vector lorentz_vector::operator=(lorentz_vector const & p)
+    lorentz_vector & lorentz_vector::operator=(lorentz_vector const & p)
     {
-        return lorentz_vector(p._components);
+        _components = p._components;
+        return *this;
     };
 
     // Return complex conjugate of a vector
@@ -63,6 +79,22 @@ namespace jpacPhoto
 
     // ---------------------------------------------------------------------------
     // Non-class methods related to lorentz_vector
+
+    // Add two four-vectors together
+    lorentz_vector operator+(lorentz_vector lhs, lorentz_vector rhs)
+    {
+        std::array<complex,4> result;
+        for (auto mu : LORENTZ_INDICES)
+        {
+            result[+mu] = lhs[mu] + rhs[mu];
+        };
+        return lorentz_vector(result);
+    };
+
+    lorentz_vector operator-(lorentz_vector lhs, lorentz_vector rhs)
+    {
+        return lhs + (-rhs);
+    };
 
     // Multiply a vector by a scalar
     lorentz_vector operator*(complex c, lorentz_vector p)
@@ -149,17 +181,57 @@ namespace jpacPhoto
         return lorentz_vector({t, x, y, z});
     };
 
-    // -----------------------------------------------------------------------
-    // Intrinsic methods for lorentz_tensors
+    // // -----------------------------------------------------------------------
+    // // Intrinsic methods for lorentz_tensors
 
-    complex lorentz_tensor::operator[](std::vector<lorentz_index> vals)
-    {
-        if (vals.size() != _rank ) return error("lorentz_tensor[]", "Incorrect number of indices passed.", NaN<complex>());
-        complex product = 1.;
-        for (int i = 0; i < _rank; i++)
-        {
-            product *= _indices[i][vals[i]];
-        };
-        return product;
-    };
+    // complex lorentz_tensor::operator[](std::vector<lorentz_index> vals)
+    // {
+    //     if (vals.size() != _rank ) return error("lorentz_tensor[]", "Incorrect number of indices passed.", NaN<complex>());
+    //     complex product = 1.;
+    //     for (int i = 0; i < _rank; i++)
+    //     {
+    //         product *= _indices[i][vals[i]];
+    //     };
+    //     return product;
+    // };
+
+    // // Assignment operator
+    // lorentz_tensor & lorentz_tensor::operator=(lorentz_tensor const & p)
+    // {
+    //     _indices.clear();
+    //     _indices = p._indices;
+    //     _rank = p._rank;
+    //     return *this;
+    // };
+
+    // // Multiply be a constant
+    // lorentz_tensor & lorentz_tensor::operator*=(complex c)
+    // {
+    //     // Apply the constant to the first index simply
+    //     _indices[0] *= c;
+    //     return *this;
+    // };
+
+    // // Same but divide
+    // lorentz_tensor & lorentz_tensor::operator/=(complex c)
+    // {
+    //     *this *= (1./c);
+    //     return *this;
+    // };
+
+    // // Add two tensors together
+    // lorentz_tensor & lorentz_tensor::operator+=(lorentz_tensor const & T)
+    // {
+    //     if (!is_compatible(T))
+    //     {
+    //         warning("lorentz_tensor::+=", "Tried adding uncompatible tensors!");
+    //         return *this;
+    //     };
+
+    //     for (int i = 0; i < _rank; i++)
+    //     {
+    //         _indices[i] += T._indices[i];
+    //     };
+    //     return *this;
+    // }; 
 };
