@@ -9,7 +9,7 @@
 // Email:        dwinney@iu.edu
 // ------------------------------------------------------------------------------
 
-#include "lorentz.hpp"
+#include "lorentz_vector.hpp"
 
 namespace jpacPhoto
 {
@@ -180,58 +180,4 @@ namespace jpacPhoto
         complex z = levi_civita(lorentz_vector({0.,0.,0.,1.}), a , b, c);
         return lorentz_vector({t, x, y, z});
     };
-
-    // // -----------------------------------------------------------------------
-    // // Intrinsic methods for lorentz_tensors
-
-    // complex lorentz_tensor::operator[](std::vector<lorentz_index> vals)
-    // {
-    //     if (vals.size() != _rank ) return error("lorentz_tensor[]", "Incorrect number of indices passed.", NaN<complex>());
-    //     complex product = 1.;
-    //     for (int i = 0; i < _rank; i++)
-    //     {
-    //         product *= _indices[i][vals[i]];
-    //     };
-    //     return product;
-    // };
-
-    // // Assignment operator
-    // lorentz_tensor & lorentz_tensor::operator=(lorentz_tensor const & p)
-    // {
-    //     _indices.clear();
-    //     _indices = p._indices;
-    //     _rank = p._rank;
-    //     return *this;
-    // };
-
-    // // Multiply be a constant
-    // lorentz_tensor & lorentz_tensor::operator*=(complex c)
-    // {
-    //     // Apply the constant to the first index simply
-    //     _indices[0] *= c;
-    //     return *this;
-    // };
-
-    // // Same but divide
-    // lorentz_tensor & lorentz_tensor::operator/=(complex c)
-    // {
-    //     *this *= (1./c);
-    //     return *this;
-    // };
-
-    // // Add two tensors together
-    // lorentz_tensor & lorentz_tensor::operator+=(lorentz_tensor const & T)
-    // {
-    //     if (!is_compatible(T))
-    //     {
-    //         warning("lorentz_tensor::+=", "Tried adding uncompatible tensors!");
-    //         return *this;
-    //     };
-
-    //     for (int i = 0; i < _rank; i++)
-    //     {
-    //         _indices[i] += T._indices[i];
-    //     };
-    //     return *this;
-    // }; 
 };
