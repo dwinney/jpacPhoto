@@ -104,7 +104,7 @@ namespace jpacPhoto
         bool transverse = ( abs(_lamB) == 1 );
         bool massive    = !_kinematics->is_photon();
         
-        if ( transverse ) return - lorentz_vector({ 0., _lamB, XI,  0.}) / sqrt(2.);
+        if ( transverse ) return - lorentz_vector({ 0., _lamB,  I,  0.}) / sqrt(2.);
         if ( massive )    return   lorentz_vector({_qi,    0., 0., _EB}) / _mB;
         else              return   lorentz_vector();
     };
@@ -121,7 +121,7 @@ namespace jpacPhoto
         // Check cases:
         bool transverse = ( abs(_lamB) == 1 );
     
-        if ( transverse ) return - lorentz_vector({ 0., _lamB*_cos, XI,    -_sin}) / sqrt(2.);
+        if ( transverse ) return - lorentz_vector({ 0., _lamB*_cos,  I,    -_sin}) / sqrt(2.);
         else              return   lorentz_vector({_qf,   _EX*_sin, 0., _EX*_cos}) / _mX;
     };
 };

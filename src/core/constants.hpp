@@ -53,7 +53,7 @@ namespace jpacPhoto
     const double E        = sqrt(4. * PI * ALPHA);
 
     const complex XR  (1., 0.);
-    const complex XI  (0., 1.);
+    const complex I   (0., 1.);
     const complex IEPS(0., EPS);
 
 
@@ -167,19 +167,6 @@ namespace jpacPhoto
     inline bool is_zero(double a)
     {
         return (abs(a) < EPS);
-    };
-
-    // -----------------------------------------------------------------------
-    // Vectors of indicies which can be summed over
-    
-    // Same with dirac spin indices
-    // naming here is p,m for +- energy solutions and u,d for up/down projection
-    enum dirac_index  {pu = 0, pd = 1, mu = 2, md = 3};
-    const dirac_index DIRAC_INDICES[] = {pu, pd, mu, md};
-
-    inline constexpr unsigned operator+(dirac_index x)
-    {
-        return static_cast<unsigned>(x);
     };
 };
 // ---------------------------------------------------------------------------

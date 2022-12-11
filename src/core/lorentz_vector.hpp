@@ -18,25 +18,16 @@
 
 namespace jpacPhoto
 {
-    template<int Rank>
-    class lorentz_tensor;
+    // ---------------------------------------------------------------------------
+    // Lorentz index handling
 
-    // This makes looping over lorentz indices more transparent
+    // Enclosing lorentz indices in an enum makes summing over them more transparent
+    // Also has the benefit of not needing to check type or scope of a given index
     enum class lorentz_index: int {t = 0, x = 1, y = 2, z = 3};
     const std::array<lorentz_index,4> LORENTZ_INDICES = {lorentz_index::t, lorentz_index::x, lorentz_index::y, lorentz_index::z};
 
-    inline const double metric(lorentz_index mu)
-    {
-        return (mu == lorentz_index::t) ? 1. : -1.;
-    };
-
-    inline const double metric(lorentz_index mu, lorentz_index nu)
-    {
-        if (mu != nu) return 0;
-        return (mu == lorentz_index::t) ? 1 : -1;
-    };
-
-    // Convert lorentz_index and dirac_index to ints
+    // Convert lorentz_index can be converted to int
+    // e.g. int x = +lorentz_index(mu);
     inline constexpr unsigned operator+(lorentz_index x)
     {
         return static_cast<unsigned>(x);
@@ -50,6 +41,11 @@ namespace jpacPhoto
 
     // ---------------------------------------------------------------------------
     // Basic object, with one lorentz index
+
+    // Forward declaration of tensor object.
+    // Necessary only to define the rank-1 tensor->vector conversion
+    template<int Rank>
+    class lorentz_tensor;
 
     class lorentz_vector
     {
@@ -73,18 +69,25 @@ namespace jpacPhoto
         : _components(T._indices[0]._components)
         {};  
 
+        // Element accessor
         complex operator[](lorentz_index mu);
         inline complex operator[](int mu)
         { return operator[](static_cast<lorentz_index>(mu)); };
 
+        // Operations with constants
         lorentz_vector & operator*=(complex c);
         lorentz_vector & operator/=(complex c);
+
+        // Operations with other vectors
+        lorentz_vector & operator=(lorentz_vector const & p);
         lorentz_vector & operator+=(lorentz_vector p);
         lorentz_vector & operator-=(lorentz_vector p);
         
-        lorentz_vector & operator-();
-        lorentz_vector & operator=(lorentz_vector const & p);
-        lorentz_vector conj();
+        // Negation
+        lorentz_vector operator-();
+        
+        // Complex conjugation
+        lorentz_vector conjugate();
         
         private:
 
@@ -109,6 +112,21 @@ namespace jpacPhoto
     
     // Contraction with itself
     double  square(lorentz_vector x);
+
+    // -----------------------------------------------------------------------
+    // Minkowski (mostly-minus) metric in function form.
+    // See lorentz_tensor.hpp for the tensor form
+
+    inline const double metric(lorentz_index mu)
+    {
+        return (mu == lorentz_index::t) ? 1. : -1.;
+    };
+
+    inline const double metric(lorentz_index mu, lorentz_index nu)
+    {
+        if (mu != nu) return 0;
+        return (mu == lorentz_index::t) ? 1 : -1;
+    };
 
     // -----------------------------------------------------------------------
     // Methods involving the LeviCivita symbol

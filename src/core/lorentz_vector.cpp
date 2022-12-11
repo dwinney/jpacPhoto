@@ -53,10 +53,11 @@ namespace jpacPhoto
     };
 
     // Negate a 4-vector
-    lorentz_vector & lorentz_vector::operator-()
+    lorentz_vector lorentz_vector::operator-()
     {
-        *this *= -1.;
-        return *this;
+        lorentz_vector negative(_components);
+        negative *= -1;
+        return negative;
     };
 
     // Define new vectors from old ones
@@ -67,7 +68,7 @@ namespace jpacPhoto
     };
 
     // Return complex conjugate of a vector
-    lorentz_vector lorentz_vector::conj()
+    lorentz_vector lorentz_vector::conjugate()
     {
         lorentz_vector result;
         for (auto mu : LORENTZ_INDICES)
@@ -121,12 +122,7 @@ namespace jpacPhoto
     // Contract a 4-vector with its conjugate
     double square(lorentz_vector x)
     {
-        double sum = 0.;
-        for (auto mu : LORENTZ_INDICES)
-        {
-            sum += std::norm(x[mu]) * metric(mu);
-        };
-        return sum;
+        return std::real(contract(x, x.conjugate()));
     };  
 
     // ---------------------------------------------------------------------------

@@ -1,31 +1,17 @@
-// Custom implementation of Lorentz tensors.
-// These are assembled by the outer/tensor products of vectors
+// The contract() function assembles different tensors into other structures
+// At present these different interacitons must all be specified individually
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2022)
-// Affiliation:  Joint Physics Analysis Center (JPAC)
-// Email:        dwinney@iu.edu
+// Affiliation:  Joint Physics Analysis Center (JPAC),
+//               South China Normal Univeristy (SCNU)
+// Email:        dwinney@iu.alumni.edu
 // ------------------------------------------------------------------------------
 
-#include "lorentz_tensor.hpp"
+#include "contract.hpp"
 
 namespace jpacPhoto
 {
-    // ---------------------------------------------------------------------------
-    // Non-member (and non-template) methods
-
-    // Rank-0 tensors can be reconverted into scalars
-    complex flatten(lorentz_tensor<0> T)
-    {
-        return T._N;
-    };
-    
-    // While rank-1 can be converted into lorentz_tensors
-    lorentz_vector flatten(lorentz_tensor<1> T)
-    {
-        return T._N*T._indices[0];
-    };
-
     // ---------------------------------------------------------------------------
     // Contractions between tensors 
 
