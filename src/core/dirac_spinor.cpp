@@ -239,7 +239,7 @@ namespace jpacPhoto
             complex sum = 0.;
             for (auto j : DIRAC_INDICES)
             {
-                sum += ubar[j] * M[{j,i}]
+                sum += ubar[j] * M[{j,i}];
             };
             entries[+i] = sum;
         };
