@@ -11,20 +11,50 @@
 #ifndef CONTRACT_HPP
 #define CONTRACT_HPP
 
-#include "lorentz_vector.hpp"
 #include "lorentz_tensor.hpp"
 #include "dirac_spinor.hpp"
+#include "dirac_matrix.hpp"
 
 namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
-    // Contractions between tensors
+    // Define contract between the lorentz-scalar types first
 
-    // Contractions of multiple tensors into scalars
-    complex contract(lorentz_tensor<0> left, lorentz_tensor<0> right);
-    complex contract(lorentz_tensor<1> left, lorentz_tensor<1> right);
-    complex contract(lorentz_tensor<1> bra,  lorentz_tensor<2> T, lorentz_tensor<1> ket);
+    // For complex and dirac_matrix this is just the product
+    template<class Type>
+    inline Type contract(Type left, Type right)
+    {
+        return left * right;
+    };
 
+    // However for dirac_spinors it acts more like a dot product
+    complex contract(dirac_spinor left, dirac_spinor right);
+
+    // ---------------------------------------------------------------------------
+    // Function to return a vector of all permutations of N indices
+    
+    std::vector<std::vector<lorentz_index>> permutations(unsigned N);
+    
+    // Single function to produce the metric along the diagonal
+    int metric(lorentz_index mu);
+
+    // Or given a set of permutations gives the product of arbitrary number of individual metrics
+    int metric(std::vector<lorentz_index> permutations);
+
+    // ---------------------------------------------------------------------------
+    // Contractions between tensors of sametype
+
+    // Two vectors contracted 
+    template<class LType, class RType, int R>
+    inline auto contract(lorentz_tensor<LType,R> left, lorentz_tensor<RType,R> right)
+    {
+        auto sum = 0 * identity<LType>() * identity<RType>();
+        for (auto perm : permutations(R))
+        {
+            sum += metric(perm) * contract(left(perm), right(perm));
+        };
+        return sum;
+    };
 };
 
 #endif

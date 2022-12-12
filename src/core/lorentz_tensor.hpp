@@ -28,6 +28,7 @@ namespace jpacPhoto
     // Also has the benefit of not needing to check type or scope of a given index
     enum class lorentz_index: int {t = 0, x = 1, y = 2, z = 3};
     const std::array<lorentz_index,4> LORENTZ_INDICES = {lorentz_index::t, lorentz_index::x, lorentz_index::y, lorentz_index::z};
+    
     // e.g. int x = +lorentz_index(mu);
     inline constexpr unsigned operator+(lorentz_index x)
     {
@@ -39,12 +40,6 @@ namespace jpacPhoto
     { 
         return os << +mu;
     };
-
-    // Single function to produce the metric along the diagonal
-    inline complex metric(lorentz_index mu)
-    {
-        return (mu == lorentz_index::t) ? 1 : -1;
-    }; 
 
     // ---------------------------------------------------------------------------
     // Define identity function for each type that can go inside a tensor

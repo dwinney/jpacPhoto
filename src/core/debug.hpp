@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 namespace jpacPhoto
 {
@@ -69,6 +70,17 @@ namespace jpacPhoto
         std::cout << std::left << std::setw(DEBUG_SPACING) << z;
         std::cout << std::left << std::setw(DEBUG_SPACING) << a;
         std::cout << std::left << std::setw(DEBUG_SPACING) << b << std::endl;
+    };
+
+    template<typename T>
+    inline void debug(std::vector<T> v)
+    {
+        std::cout << std::boolalpha; 
+        for (auto vi : v)
+        {
+            std::cout << std::left << std::setw(DEBUG_SPACING) << vi;
+        };
+        std::cout << std::endl;
     };
 
     // ---------------------------------------------------------------------------
