@@ -12,6 +12,7 @@
 // ------------------------------------------------------------------------------
 
 #include "dirac_spinor.hpp"
+#include "dirac_matrix.hpp"
 
 namespace jpacPhoto
 {
@@ -40,6 +41,24 @@ namespace jpacPhoto
         {
             _entries[+i] /= c;
         }
+        return *this;
+    };
+
+    dirac_spinor & dirac_spinor::operator+=(dirac_spinor u)
+    {
+        for (auto i : DIRAC_INDICES)
+        {
+            _entries[+i] += u(i);
+        };
+        return *this;
+    };
+
+    dirac_spinor & dirac_spinor::operator*=(dirac_spinor u)
+    {
+        for (auto i : DIRAC_INDICES)
+        {
+            _entries[+i] *= u(i);
+        };
         return *this;
     };
 
@@ -106,6 +125,17 @@ namespace jpacPhoto
     dirac_spinor operator/(dirac_spinor lhs, complex c)
     {
         return (1./c) * lhs;
+    };
+    
+    // Element-wise multiplication
+    dirac_spinor operator*(dirac_spinor lhs, dirac_spinor rhs)
+    {
+        std::array<complex,4> entries;
+        for (auto i : DIRAC_INDICES)
+        {
+            entries[+i] = lhs(i) * rhs(i);
+        };
+        return dirac_spinor(entries);
     };
     
     // ---------------------------------------------------------------------------

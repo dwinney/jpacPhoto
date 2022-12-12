@@ -44,6 +44,8 @@ namespace jpacPhoto
         // Operations with constants
         dirac_spinor & operator*=(complex c);
         dirac_spinor & operator/=(complex c);
+        dirac_spinor & operator+=(dirac_spinor u);
+        dirac_spinor & operator*=(dirac_spinor u);
 
         // Negate
         dirac_spinor operator-();

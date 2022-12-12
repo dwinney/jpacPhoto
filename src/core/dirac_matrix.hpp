@@ -53,6 +53,8 @@ namespace jpacPhoto
         dirac_matrix & operator=(dirac_matrix const & G);
         dirac_matrix & operator*=(complex c);
         dirac_matrix & operator/=(complex c);
+        dirac_matrix & operator+=(dirac_matrix G);
+        dirac_matrix & operator*=(dirac_matrix G);
 
         // Negation
         dirac_matrix operator-();

@@ -59,6 +59,22 @@ namespace jpacPhoto
     template<>
     inline dirac_spinor identity() { return dirac_spinor({1, 1, 1, 1}); };
 
+    template<class C>
+    C zero();
+
+    template<>
+    inline double       zero() { return 0; };
+
+    template<>
+    inline complex      zero() { return 0; };
+
+    template<>
+    inline dirac_matrix zero() { return 0*identity_matrix(); };
+
+    template<>
+    inline dirac_spinor zero() { return dirac_spinor({0, 0, 0, 0}); };
+
+
     // -----------------------------------------------------------------------
     // In most useful contexts, these come from outer products of vectors 
     // This class describes an arbitrary rank tensor created iteratively 
@@ -86,7 +102,7 @@ namespace jpacPhoto
         // Copy constructor
         lorentz_tensor<Type,Rank>(lorentz_tensor<Type,Rank> const & old)
         : _entries(old._entries), _subtensors(old._subtensors),
-          _N(old._N), _conj(old._conj)
+          _lhsN(old._lhsN), _rhsN(old._rhsN), _conj(old._conj)
         {};
 
         // Vector accessor (rank 1)
@@ -94,7 +110,7 @@ namespace jpacPhoto
         {
             if (Rank != 1) return error("lorentz_tensor[]", "Incorrect number of indices passed!", NaN<Type>());
             
-            Type result = _N * _entries[0][+mu];
+            Type result = _lhsN * _entries[0][+mu] * _rhsN;
             return (_conj) ? conj(result) : result; 
         };
 
@@ -103,7 +119,7 @@ namespace jpacPhoto
         {
             if (Rank != 2) return error("lorentz_tensor[]", "Incorrect number of indices passed!", NaN<Type>());
             
-            Type result = _N * _entries[+mu][+nu];
+            Type result = _lhsN * _entries[+mu][+nu] * _rhsN;
             return (_conj) ? conj(result) : result; 
         };
 
@@ -116,12 +132,12 @@ namespace jpacPhoto
 
             if (_is_sum)
             {
-                Type sum = 0.;
+                Type sum = zero<Type>();
                 for (auto T : _to_sum)
                 {
                     sum += T(indices);
                 }
-                return _N*sum;
+                return _lhsN*sum*_rhsN;
             };
 
             auto running_index = indices.begin();
@@ -138,7 +154,7 @@ namespace jpacPhoto
                 running_index += subrank;
             };
      
-            return _N*prod;
+            return _lhsN*prod*_rhsN;
         };
 
         // Get the rank of the tensor (number of open indicies)
@@ -148,7 +164,8 @@ namespace jpacPhoto
         inline lorentz_tensor<Type,Rank> & operator=(lorentz_tensor<Type,Rank> const & T)
         {
             _entries        = T._entires;
-            _N              = T._N;
+            _lhsN           = T._lhsN;
+            _rhsN           = T._rhsN;
             _conj           = T._conj;
             return *this;
         };
@@ -157,13 +174,13 @@ namespace jpacPhoto
         inline lorentz_tensor<Type,Rank> & operator*=(Type c)
         {
             // Apply the constant to the first index simply
-            _N = c * _N;
+            _rhsN *= c;
             return *this;
         };
 
         inline lorentz_tensor<Type,Rank> & operator/=(complex c)
         {
-            _N *= (1./c);
+            _lhsN *= (1./c);
             return *this;
         };
 
@@ -232,8 +249,13 @@ namespace jpacPhoto
         friend lorentz_tensor<T,      1> lorentz_vector(std::array<T,4>);
         friend lorentz_tensor<complex,2> metric_tensor();
 
-        template<class DiracType, int R>
-        friend lorentz_tensor<DiracType,R> operator*(DiracType c, lorentz_tensor<complex,R> rhs);
+        // "Capture" constructors
+        
+        template<class LType>
+        friend lorentz_tensor<LType,2> operator*(LType c, lorentz_tensor<complex,2> rhs);
+
+        template<class RType>
+        friend lorentz_tensor<RType,2> operator*(lorentz_tensor<complex,2> rhs, RType c);
 
         // IF we end up with a rank-0 object, return the scalar piece
         template<class T>
@@ -250,7 +272,7 @@ namespace jpacPhoto
 
         // If the tensor is a metric, it may still be multiplied by a constant.
         // This however may be generalized depending on the substructure inside the tensor
-        Type _N = identity<Type>();
+        Type _lhsN = identity<Type>(), _rhsN = identity<Type>();
 
         // If not, we the tensor serves as a store of constituent other tensors 
         // which are summed element wise instead
@@ -330,35 +352,71 @@ namespace jpacPhoto
         return lorentz_tensor<complex,2>(gmunu);
     };
 
-    template<class DiracType>
-    inline lorentz_tensor<DiracType,1> operator*(DiracType c, lorentz_tensor<complex,1> rhs)
+    // ---------------------------------------------------------------------------
+    // Scalar tensors "capture" dirac data types they get multipled by
+
+    template<class LType>
+    inline lorentz_tensor<LType,1> operator*(LType c, lorentz_tensor<complex,1> rhs)
     {
-        std::array<DiracType,4> new_entries;
+        LType id = identity<LType>();
+        std::array<LType,4> new_entries = {id, id, id, id};
         for (auto mu : LORENTZ_INDICES)
         {  
-            complex old_entry = rhs._entries[0][+mu];
-            new_entries[+mu] = c * old_entry; 
+            complex old_entry = rhs(mu);
+            new_entries[+mu]  = c * old_entry; 
         };
 
-        return lorentz_vector<DiracType>(new_entries);
+        return lorentz_vector<LType>(new_entries);
     };
 
-    template<class DiracType>
-    inline lorentz_tensor<DiracType,2> operator*(DiracType c, lorentz_tensor<complex,2> rhs)
+    template<class RType>
+    inline lorentz_tensor<RType,1> operator*(lorentz_tensor<complex,1> lhs, RType c)
     {
-        std::vector<std::array<DiracType,4>> new_entries;
+        RType id = identity<RType>();
+        std::array<RType,4> new_entries = {id, id, id, id};
         for (auto mu : LORENTZ_INDICES)
         {  
-            std::array<DiracType,4> new_column;
-            for (auto nu : LORENTZ_INDICES)
-            {
-                complex old_entry = rhs._entries[+mu][+nu];
-                new_column[+mu] = c * old_entry; 
-            };
-            new_entries.push_back((new_column));
+            complex old_entry = lhs(mu);
+            new_entries[+mu]  = old_entry * c; 
         };
 
-        return lorentz_tensor<DiracType,2>(new_entries);
+        return lorentz_vector<RType>(new_entries);
+    };
+
+    template<class LType>
+    inline lorentz_tensor<LType,2> operator*(LType c, lorentz_tensor<complex,2> rhs)
+    {
+        LType id = identity<LType>();
+        std::vector<std::array<LType,4>> new_entries = {};
+        for (auto mu : LORENTZ_INDICES)
+        {  
+            std::array<LType,4> new_column = {id, id, id, id};
+            for (auto nu : LORENTZ_INDICES)
+            {
+                complex old_entry = rhs(mu, nu);
+                new_column[+nu]   = c * old_entry; 
+            };
+            new_entries.push_back((new_column));
+        };        
+        return lorentz_tensor<LType,2>(new_entries);
+    };
+
+    template<class RType>
+    inline lorentz_tensor<RType,2> operator*(lorentz_tensor<complex,2> lhs, RType c)
+    {
+        RType id = identity<RType>();
+        std::vector<std::array<RType,4>> new_entries = {};
+        for (auto mu : LORENTZ_INDICES)
+        {  
+            std::array<RType,4> new_column = {id, id, id, id};
+            for (auto nu : LORENTZ_INDICES)
+            {
+                complex old_entry = lhs(mu, nu);
+                new_column[+nu]   = old_entry * c; 
+            };
+            new_entries.push_back((new_column));
+        };        
+        return lorentz_tensor<RType,2>(new_entries);
     };
 
     // ---------------------------------------------------------------------------
@@ -407,29 +465,6 @@ namespace jpacPhoto
         };
         return lorentz_tensor<T,2>(sum);
     };
-
-    // Be able to multiply a tensor by a constant from the right
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator*(complex c, lorentz_tensor<T,R> K)
-    {
-        lorentz_tensor<T,R> Kp(K);
-        Kp *= c;
-        return Kp;
-    };
-
-    // Multiplication by a constant from the left
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> K, complex c)
-    {
-        return c*K;
-    };
-
-    // Divide by a constant
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator/(lorentz_tensor<T,R> K, complex c)
-    {
-        return (1./c)*K;
-    };    
 
     // Flatten a rank-0 tensor to its underlying type
     template<class T>

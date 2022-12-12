@@ -36,6 +36,40 @@ namespace jpacPhoto
         return *this;  
     };
 
+    dirac_matrix & dirac_matrix::operator+=(dirac_matrix G)
+    {
+        for (auto i : DIRAC_INDICES)
+        {
+            for (auto j : DIRAC_INDICES)
+            {
+                _entries[+i][j] += G(i,j);
+            };
+        };
+        return *this;  
+    };
+
+    
+    // Multiply two matrices together
+    dirac_matrix & dirac_matrix::operator*=(dirac_matrix rhs)
+    {
+        std::array<std::array<complex,4>,4> old_entries = _entries;
+
+        for (auto i : DIRAC_INDICES)
+        {
+            for (auto j : DIRAC_INDICES)
+            {
+                complex sum = 0.;
+                for (auto k : DIRAC_INDICES)
+                {
+                    sum += old_entries[+i][+k]*rhs(k,j);
+                }
+                _entries[+i][+j] = sum;
+            };
+        };
+
+        return *this;
+    };
+
     // Negation
     dirac_matrix dirac_matrix::operator-()
     {
