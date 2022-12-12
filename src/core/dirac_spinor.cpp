@@ -16,164 +16,10 @@
 namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
-    // Intrinsic operators of dirac_matrices
-
-    // Assignment and scaled re-assignment 
-
-    dirac_matrix & dirac_matrix::operator=(dirac_matrix const & G)
-    {
-        _N       = G._N;
-        _entries = G._entries;
-        return *this;
-    };
-
-    dirac_matrix & dirac_matrix::operator*=(complex c)
-    {
-        _N *= c;
-        return *this;  
-    };
-
-    dirac_matrix & dirac_matrix::operator/=(complex c)
-    {
-        _N /= c;
-        return *this;  
-    };
-
-    // Negation
-    dirac_matrix dirac_matrix::operator-()
-    {
-        dirac_matrix neg = *this;
-        neg *= -1;
-        return neg;
-    }; 
-    
-    // Return the hermitian adjoint of operator;
-    dirac_matrix dirac_matrix::adjoint()
-    {
-        std::array<std::array<complex,4>,4> entries;
-
-        for (auto i : DIRAC_INDICES)
-        {
-            for (auto j : DIRAC_INDICES)
-            {
-                entries[+i][+j] = std::conj(_entries[+j][+i]);
-            };
-        };
-
-        return dirac_matrix(entries);
-    };
-
-    // ---------------------------------------------------------------------------
-    // Dirac-space matrices
-
-    dirac_matrix identity()
-    {
-        // Note need to use triple brace initialization here annoyingly
-        return dirac_matrix({{ { 1,  0,  0,  0},
-                               { 0,  1,  0,  0},
-                               { 0,  0,  1,  0},
-                               { 0,  0,  0,  1}  }});
-    };
-
-    dirac_matrix gamma_0()
-    {
-        return dirac_matrix({{ { 1,  0,   0,   0},
-                               { 0,  1,   0,   0},
-                               { 0,  0,  -1,   0},
-                               { 0,  0,   0,  -1}  }});
-    };
-
-    dirac_matrix gamma_1()
-    {
-        return dirac_matrix({{ { 0,  0,   0,   1},
-                               { 0,  0,   1,   0},
-                               { 0, -1,   0,   0},
-                               {-1,  0,   0,   0}  }});
-    };
-
-    dirac_matrix gamma_2()
-    {
-        return dirac_matrix({{ { 0,  0,   0,   I},
-                               { 0,  0,   I,   0},
-                               { 0, -I,   0,   0},
-                               {-I,  0,   0,   0}  }});
-    };
-
-    dirac_matrix gamma_3()
-    {
-        return dirac_matrix({{ { 0,  0,   1,   0},
-                               { 0,  0,   0,  -1},
-                               {-1,  0,   0,   0},
-                               { 0,  1,   0,   0}  }});
-    };
-
-    dirac_matrix gamma_5()
-    {
-        return dirac_matrix({{ { 0,  0,   1,   0},
-                               { 0,  0,   0,   1},
-                               { 1,  0,   0,   0},
-                               { 0,  1,   0,   0}  }});
-    };
-
-    // ---------------------------------------------------------------------------
-    // Linear combination operators to build arbitrarty dirac operator
-
-    // Add two matrices together
-    dirac_matrix operator+(dirac_matrix lhs, dirac_matrix rhs)
-    {
-        std::array<std::array<complex,4>,4> entries;
-
-        for (auto i : DIRAC_INDICES)
-        {
-            for (auto j : DIRAC_INDICES)
-            {
-                entries[i][j] = lhs[{i,j}] + rhs[{i,j}];
-            };
-        };
-
-        return dirac_matrix(entries);
-    };
-
-    // Subtract two matrices
-    dirac_matrix operator-(dirac_matrix lhs, dirac_matrix rhs)
-    {
-        return lhs + (-rhs);
-    };
-
-    // Multiply be a constant
-    dirac_matrix operator*(complex c, dirac_matrix T)
-    {
-        dirac_matrix cT = T;
-        cT._N *= c;
-        return cT;
-    };
-
-    // Multiply two matrices together
-    dirac_matrix operator*(dirac_matrix lhs, dirac_matrix rhs)
-    {
-        std::array<std::array<complex,4>,4> entries;
-
-        for (auto i : DIRAC_INDICES)
-        {
-            for (auto j : DIRAC_INDICES)
-            {
-                complex sum = 0.;
-                for (auto k : DIRAC_INDICES)
-                {
-                    sum += lhs[{i,k}]*rhs[{k,j}];
-                }
-                entries[+i][+j] = sum;
-            };
-        };
-
-        return dirac_matrix(entries);
-    };
-
-    // ---------------------------------------------------------------------------
     // Intrinsic properties of dirac_spinors
 
     // Access elements
-    complex dirac_spinor::operator[](dirac_index a)
+    complex dirac_spinor::operator()(dirac_index a)
     {
         return _entries[+a];
     };
@@ -208,7 +54,21 @@ namespace jpacPhoto
         return neg;
     };
 
-    // Return the adjoint
+    // Return the adjoint of a spinor
+    // Because we dont actually keep track of the orientation of the vector
+    // i.e. row vs column vector
+    // Its assumed the used will keep track of this in the elements
+    // This simply takes the conjugate and multiplies by gamma0
+    dirac_spinor dirac_spinor::adjoint()
+    {
+        dirac_spinor conj = *this;
+        for (auto x : conj._entries)
+        {
+            x = std::conj(x);
+        };
+        
+        return conj * gamma_0();
+    };
 
     // ---------------------------------------------------------------------------
     // Non-member operations of dirac_spinors
@@ -219,7 +79,7 @@ namespace jpacPhoto
         std::array<complex,4> entries;
         for (auto i : DIRAC_INDICES)
         {
-            entries[+i] = lhs[i] + rhs[i];
+            entries[+i] = lhs(i) + rhs(i);
         };
         return dirac_spinor(entries);
     };
@@ -230,7 +90,28 @@ namespace jpacPhoto
         return lhs + (-rhs);
     };
 
-    // Multiply on the right by a dirac_matrix
+    // Multiply by a constant
+    dirac_spinor operator*(complex c, dirac_spinor rhs)
+    {
+        dirac_spinor copy = rhs;
+        copy *= c;
+        return copy;
+    };
+
+    dirac_spinor operator*(dirac_spinor lhs, complex c)
+    {
+        return c * lhs;
+    };
+
+    dirac_spinor operator/(dirac_spinor lhs, complex c)
+    {
+        return (1./c) * lhs;
+    };
+    
+    // ---------------------------------------------------------------------------
+    // Interactions with spinors
+    
+     // Multiply on the right by a dirac_matrix
     dirac_spinor operator*(dirac_spinor ubar, dirac_matrix M)
     {
         std::array<complex,4> entries;
@@ -239,7 +120,7 @@ namespace jpacPhoto
             complex sum = 0.;
             for (auto j : DIRAC_INDICES)
             {
-                sum += ubar[j] * M[{j,i}];
+                sum += ubar(j) * M(j,i);
             };
             entries[+i] = sum;
         };
@@ -256,13 +137,11 @@ namespace jpacPhoto
             complex sum = 0.;
             for (auto j : DIRAC_INDICES)
             {
-                sum += M[{i,j}] * u[j];
+                sum += M(i,j) * u(j);
             };
             entries[+i] = sum;
         };
 
         return dirac_spinor(entries);
     };
-
-
 };

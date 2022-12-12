@@ -166,7 +166,7 @@ namespace jpacPhoto
     // Aliases for special cases of the above
     inline bool is_zero(double a)
     {
-        return (abs(a) < EPS);
+        return (std::abs(a) < EPS);
     };
 };
 // ---------------------------------------------------------------------------
