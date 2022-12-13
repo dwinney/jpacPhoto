@@ -97,12 +97,6 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // "Constructor" functions for Dirac matrices
 
-    dirac_matrix identity_matrix()
-    {
-        // Note need to use triple brace initialization here annoyingly
-        return dirac_matrix(1);
-    };
-
     dirac_matrix gamma_0()
     {
         return dirac_matrix({{ { 1,  0,   0,   0},

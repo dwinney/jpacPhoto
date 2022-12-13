@@ -118,6 +118,18 @@ namespace jpacPhoto
         return complex(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
     }
 
+    template<typename T>
+    T zero();
+
+    template<>
+    inline complex zero() { return 0; };
+
+    template<typename T> 
+    T identity();
+
+    template<>
+    inline complex identity() { return 1; };
+
     // ---------------------------------------------------------------------------
     // Frame conversion methods (specifically for photoproduction)
 

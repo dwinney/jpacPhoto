@@ -43,6 +43,10 @@ namespace jpacPhoto
     {
         public: 
 
+        //Default constructor is just empty
+        dirac_matrix()
+        {};
+
         // Access a single element
         inline complex operator()(dirac_index i, dirac_index j)
         {
@@ -72,11 +76,14 @@ namespace jpacPhoto
         {};
 
         dirac_matrix(complex const & c)
-        : _entries(_identity), _N(c)
+        : _N(c)
         {};
 
         // These are the fundamental dirac_matrices
-        friend dirac_matrix identity_matrix();
+        friend dirac_matrix identity<dirac_matrix>();
+        friend dirac_matrix zero<dirac_matrix>();
+        friend dirac_matrix NaN<dirac_matrix>();
+
         friend dirac_matrix gamma_0();
         friend dirac_matrix gamma_1();
         friend dirac_matrix gamma_2();
@@ -92,36 +99,37 @@ namespace jpacPhoto
         friend dirac_matrix operator-(dirac_matrix, complex);
 
         // These always have fixed size (4x4)
-        std::array<std::array<complex,4>,4> _entries;
+        std::array<std::array<complex,4>,4> _entries = {{ { 1,  0,  0,  0},
+                                                          { 0,  1,  0,  0},
+                                                          { 0,  0,  1,  0},
+                                                          { 0,  0,  0,  1}  }};
 
         // Store normalization seperately to avoid unnecessary calculation
         complex _N = 1;
-
-        static constexpr std::array<std::array<complex,4>,4>  _identity = {{ { 1,  0,  0,  0},
-                                                                             { 0,  1,  0,  0},
-                                                                             { 0,  0,  1,  0},
-                                                                             { 0,  0,  0,  1}  }};
     };
 
     // ---------------------------------------------------------------------------
     // "Constructor" functions
-
-    // 4x4 identity_matrix matrix
-    dirac_matrix identity_matrix();
     
+    template<>
+    inline dirac_matrix identity() { return dirac_matrix(1); };
+
+    template<>
+    inline dirac_matrix zero() { return dirac_matrix(0); };
+
+    // Dirac_matrix filled with NaN's for error throwing
+    template<>
+    inline dirac_matrix NaN<dirac_matrix>()
+    {
+        return dirac_matrix(NaN<complex>());
+    };
+
     // Gamma matrices
     dirac_matrix gamma_0();
     dirac_matrix gamma_1();
     dirac_matrix gamma_2();
     dirac_matrix gamma_3();
     dirac_matrix gamma_5();
-
-    // Dirac_matrix filled with NaN's for error throwing
-    template<>
-    inline dirac_matrix NaN()
-    {
-        return NaN<complex>() * identity_matrix();
-    };
 
     // ---------------------------------------------------------------------------
     // Interactions between matrices
@@ -134,9 +142,9 @@ namespace jpacPhoto
     dirac_matrix operator-(dirac_matrix lhs, dirac_matrix rhs);
 
     // Add a constant automatically multiplies by the identity_matrix matrix
-    inline dirac_matrix operator+(dirac_matrix lhs, complex rhs){ return lhs + rhs*identity_matrix(); };
-    inline dirac_matrix operator+(complex lhs, dirac_matrix rhs){ return lhs*identity_matrix() + rhs; };
-    inline dirac_matrix operator-(dirac_matrix lhs, complex rhs){ return lhs - rhs*identity_matrix(); };
+    inline dirac_matrix operator+(dirac_matrix lhs, complex rhs){ return lhs + rhs*identity<dirac_matrix>(); };
+    inline dirac_matrix operator+(complex lhs, dirac_matrix rhs){ return lhs*identity<dirac_matrix>() + rhs; };
+    inline dirac_matrix operator-(dirac_matrix lhs, complex rhs){ return lhs - rhs*identity<dirac_matrix>(); };
 
     // Multiply by constant 
     dirac_matrix operator*(complex c, dirac_matrix p);

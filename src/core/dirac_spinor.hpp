@@ -76,6 +76,13 @@ namespace jpacPhoto
     inline dirac_spinor NaN<dirac_spinor>()
     { return NaN<complex>() * dirac_spinor({1, 1, 1, 1}); }
 
+    template<>
+    inline dirac_spinor identity() { return dirac_spinor({1, 1, 1, 1}); };
+
+    template<>
+    inline dirac_spinor zero() { return dirac_spinor({0, 0, 0, 0}); };
+
+
     // Multiplication of spinor objects element-wise
     // This is kind of weird, but required to make lorentz_tensors<dirac_spinors> work 
     // as they should. 
