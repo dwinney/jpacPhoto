@@ -80,8 +80,8 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Build core library 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/amplitudes/analytic)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/amplitudes)
 
 add_subdirectory(src)
 
