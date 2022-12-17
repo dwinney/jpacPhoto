@@ -164,7 +164,7 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Accessing the helicity combinations 
-        inline int num_amps(){ return _nAmps; };
+        inline int N_amps(){ return _nAmps; };
         inline int helicity_index(std::array<int,4> hel){ return find_helicity(hel, _mjp[0], _bjp[0], _photon); };
         std::array<int, 4> helicities(int i);
 
@@ -192,9 +192,19 @@ namespace jpacPhoto
         double t_man(double s, double theta);
         double u_man(double s, double theta);
 
+        // Bound of cross-variables
+        double t_min(double s){ return t_man(s, 0.); };
+        double t_max(double s){ return t_man(s, PI); };
+        double u_min(double s){ return u_man(s, PI); };
+        double u_max(double s){ return u_man(s, 0.); };
+
         // Scattering angles in t and u channel frames
         complex z_t(double s, double theta);
         complex z_u(double s, double theta);
+
+        // modulous of 3-momenta in t-channel frame
+        complex initial_momentum_tframe(double t);
+        complex final_momentum_tframe(double t);
        
         // Intrisnic parity obeyed by helicity amplitude 
         // This depends on which scattering chan we look at and quantum numbers of all particles

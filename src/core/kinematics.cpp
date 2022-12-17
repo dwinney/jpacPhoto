@@ -111,7 +111,7 @@ namespace jpacPhoto
 
         complex result;
         result  = t * (s - u) + (_masses._mB2 - _masses._mX2) * (_masses._mT2 - _masses._mR2);
-        result /=  sqrt(XR * Kallen(t, _masses._mX2, _masses._mB2)) * sqrt(XR * Kallen(t, _masses._mT2, _masses._mR2));
+        result /=  csqrt(Kallen(t, _masses._mX2, _masses._mB2)) * sqrt(XR * Kallen(t, _masses._mT2, _masses._mR2));
 
         return result;
     };
@@ -128,9 +128,22 @@ namespace jpacPhoto
 
         complex result;
         result  = u * (t - s) + (_masses._mB2 - _masses._mR2) * (_masses._mT2 - _masses._mX2);
-        result /=  sqrt(XR * Kallen(u, _masses._mR2, _masses._mB2)) * sqrt(XR * Kallen(u, _masses._mT2, _masses._mX2));
+        result /=  csqrt(Kallen(u, _masses._mR2, _masses._mB2)) * sqrt(XR * Kallen(u, _masses._mT2, _masses._mX2));
 
         return result;
+    };
+
+    // ------------------------------------------------------------------------------
+    // Momenta in the t-channel center-of-mass frame
+    
+    complex raw_kinematics::initial_momentum_tframe(double t)
+    {
+        return csqrt(Kallen(t, _masses._mB2, _masses._mX2)/(4.*t) );
+    };
+
+    complex raw_kinematics::final_momentum_tframe(double t)
+    {
+        return csqrt( Kallen(t, _masses._mR2, _masses._mT2)/(4.*t) );
     };
 
     // ------------------------------------------------------------------------------

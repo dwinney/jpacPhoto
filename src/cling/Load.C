@@ -20,7 +20,7 @@ void Load()
     TString JPACPHOTO_INCCORE  = JPACPHOTO_DIR;
             JPACPHOTO_INCCORE += "/src/core";
     TString JPACPHOTO_INCAMP  = JPACPHOTO_DIR;
-            JPACPHOTO_INCAMP += "/src/amplitudes";
+            JPACPHOTO_INCAMP += "/amplitudes";
             
     TString JPACPHOTO_LIB  = JPACPHOTO_DIR;
             JPACPHOTO_LIB += "/lib/libJPACPHOTO.";
@@ -29,7 +29,7 @@ void Load()
     if (!gSystem->AccessPathName(JPACPHOTO_LIB.Data()))
     {
         gInterpreter->AddIncludePath( JPACPHOTO_INCCORE.Data());
-        // gInterpreter->AddIncludePath( JPACPHOTO_INCAMP.Data());
+        gInterpreter->AddIncludePath( JPACPHOTO_INCAMP.Data());
 
         Int_t pholib = gSystem->Load( JPACPHOTO_LIB.Data());
     }

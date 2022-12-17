@@ -1,12 +1,18 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp" #[[ "amplitudes/*.cpp" ]]) 
-file(GLOB INC "core/*.hpp" #[[ "amplitudes/*.hpp" ]]) 
+file(GLOB SRC "core/*.cpp") 
+file(GLOB INC "core/*.hpp") 
 
 include_directories(core)
-# include_directories(amplitudes)
-# include_directories(covariants)
 
-add_library(JPACPHOTO SHARED ${SRC})
+ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
+    amplitude.hpp
+    kinematics.hpp
+    dirac_spinor.hpp
+    dirac_matrix.hpp
+    lorentz_tensor.hpp
+    LINKDEF JPACPHOTOLinkDef.h
+)
+add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )
 
 target_link_libraries( JPACPHOTO ROOT::Core ROOT::MathMore )
 
@@ -14,6 +20,8 @@ install(TARGETS JPACPHOTO
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
 
+install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libJPACPHOTO_rdict.pcm    
+         DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Build the executable to integrate with root cling
 add_executable( jpacPhoto "cling/jpacPhoto.cpp" )
