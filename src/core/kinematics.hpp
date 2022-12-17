@@ -167,6 +167,7 @@ namespace jpacPhoto
         inline int N_amps(){ return _nAmps; };
         inline int helicity_index(std::array<int,4> hel){ return find_helicity(hel, _mjp[0], _bjp[0], _photon); };
         std::array<int, 4> helicities(int i);
+        inline std::vector<std::array<int,4>> helicities(){ return _helicities; };
 
         //--------------------------------------------------------------------------
         // Other quantities

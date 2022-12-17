@@ -17,6 +17,7 @@
 #include "constants.hpp"
 #include "helicities.hpp"
 #include "kinematics.hpp"
+#include "angular_functions.hpp"
 #include "amplitude_options.hpp"
 
 #include "Math/GSLIntegrator.h"
@@ -139,10 +140,11 @@ namespace jpacPhoto
         virtual complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
         {
             complex sum = 0;
-            for (auto amp : _subamplitudes)
+            for (amplitude amp : _subamplitudes)
             {
                 sum += amp->helicity_amplitude(helicities, s, t);
             }
+
             return sum;
         };
         
@@ -160,27 +162,6 @@ namespace jpacPhoto
         // they can accomodate
         virtual std::vector<std::array<int,2>> allowed_meson_JP(){  return _subamplitudes[0]->allowed_meson_JP(); };
         virtual std::vector<std::array<int,2>> allowed_baryon_JP(){ return _subamplitudes[0]->allowed_baryon_JP(); };
-        
-        // Given a vector of double of appropriate length, allocate free parameters to model
-        // By default we feed the total parameters into the subamplitudes 
-        virtual void set_parameters( std::vector<double> x )
-        {
-            if (!correct_size(x))
-            {
-                pars_error(x.size());
-                return;
-            };
-
-            // For each subamplitude grab a subvector of its parameters
-            auto running_iter = x.begin();
-            for (auto amp : _subamplitudes)
-            {
-                auto sub_pars = std::vector<double>(running_iter, running_iter + amp->N_pars());
-                amp->set_parameters(sub_pars);
-
-                running_iter += amp->N_pars();
-            };
-        };
 
         // If an amplitude_option is passed, make appropriate changes.
         // By default this does nothing except save _option
@@ -250,9 +231,27 @@ namespace jpacPhoto
         // Number of free parameters
         inline int N_pars(){ return _N_pars; };
 
+        // This function is what a user actually calls
+        // It wraps the protected vitual method allocate_parameters() with checks of correct size and caching
+        inline void set_parameters( std::vector<double> x )
+        {
+            // Check the size is alright
+            if (!correct_size(x))
+            {
+                pars_error(x.size());
+                return;
+            };
+
+            // Allocate them (amplitude specific)
+            allocate_parameters(x);
+
+            // Notify our cache that changes have been made
+            _parameters_changed = true;
+        };
+
         // ---------------------------------------------------------------------------
         protected:
-
+        
         // String identifier
         std::string _id = "amplitude";
 
@@ -274,8 +273,26 @@ namespace jpacPhoto
         // ---------------------------------------------------------------------------
         // Parameter handling 
 
+        // Given a vector of double of appropriate length, allocate free parameters to model
+        // By default we feed the total parameters into the subamplitudes 
+        virtual void allocate_parameters( std::vector<double> x )
+        {
+            // For each subamplitude grab a subvector of its parameters
+            auto running_iter = x.begin();
+            for (amplitude amp : _subamplitudes)
+            {
+                auto sub_pars = std::vector<double>(running_iter, running_iter + amp->N_pars());
+                amp->set_parameters(sub_pars);
+
+                running_iter += amp->N_pars();
+            };
+        };
+
         // Number of parameters to expect
-        int _N_pars = 0;
+        int  _N_pars = 0;
+
+        // Whether parameters have changed since the last caching
+        bool _parameters_changed = false;
 
         // Ability to change number of expected parameters from inside a class
         void set_N_pars(int N);

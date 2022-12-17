@@ -76,14 +76,8 @@ namespace jpacPhoto
             // [0] Top (beam-exchange-meson) coupling
             // [1] Bottom (target-exchange-recoil) coupling
             // [2] Form-factor cutoff
-            inline void set_parameters(std::vector<double> x)
+            inline void allocate_parameters(std::vector<double> x)
             {
-                if (!correct_size(x))
-                {
-                    pars_error(x.size()); 
-                    return;
-                }
-
                 _gTop     = x[0];
                 _gBot     = x[1];
                 _ffCutoff = x[2];
