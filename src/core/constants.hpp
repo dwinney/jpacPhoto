@@ -22,6 +22,10 @@ namespace jpacPhoto
     // We use complex numbers everywhere throughout so I'll define this shortened data type
     using complex = std::complex<double>;
 
+    // Unit complex numbers
+    const complex XR  (1., 0.);
+    const complex I   (0., 1.);
+
     // Additionally the complex type is a liitle dim in c++ so we need to define int & bool multiplication
     inline complex operator*(const int& c, const complex& rhs)
     {
@@ -43,6 +47,15 @@ namespace jpacPhoto
         return (c) ? lhs : 0.;
     };
 
+    inline complex operator/(const complex&c, const int& i)
+    {
+        return (1./i)*c;
+    };
+
+    // This makes it so we always default to complex regardless of whether the input is an int or double
+    template<typename T>
+    complex csqrt(T x){ return sqrt(x * XR); };
+
     // ---------------------------------------------------------------------------
     // Mathematical constants 
 
@@ -52,10 +65,7 @@ namespace jpacPhoto
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
 
-    const complex XR  (1., 0.);
-    const complex I   (0., 1.);
     const complex IEPS(0., EPS);
-
 
     // PDG Meson masses in GeV
     const double M_PION      = 0.13957000;
@@ -105,7 +115,22 @@ namespace jpacPhoto
     const double F_UPSILON2S = 0.16563;
     const double F_UPSILON3S = 0.1431;
 
-    // // NaN's for throwing errors technically a constant I guess
+    // ------------------------------------------------------------------------------
+    // Quantum number combinations
+
+    // Mesons
+    const std::array<int,2> SCALAR       = {0, +1};
+    const std::array<int,2> PSUEDOSCALAR = {0, -1};
+    const std::array<int,2> VECTOR       = {1, -1};
+    const std::array<int,2> AXIALVECTOR  = {1, +1};
+
+    // Baryons
+    const std::array<int,2> HALFPLUS  = {1, +1};
+    const std::array<int,2> HALFMINUS = {1, -1};
+
+    // ------------------------------------------------------------------------------
+    // // NaN's, 0, and 1 for throwing errors with custom data types
+
     template<typename T>
     inline T NaN()
     {
@@ -169,16 +194,33 @@ namespace jpacPhoto
         return ( std::abs(a - b) < EPS );
     }
 
+    inline bool are_equal(double a, double b, double tol)
+    {
+        return ( std::abs(a - b) < tol );
+    }
+
     // Same thing for comparing complex doubles
     inline bool are_equal(complex a, complex b)
     {
         return (are_equal(real(a), real(b)) && are_equal(imag(a), imag(b)));
     };
 
+    // Same thing for comparing complex doubles
+    inline bool are_equal(complex a, complex b, double tol)
+    {
+        return (are_equal(real(a), real(b), tol) && are_equal(imag(a), imag(b), tol));
+    };
+
     // Aliases for special cases of the above
     inline bool is_zero(double a)
     {
         return (std::abs(a) < EPS);
+    };
+
+    // Aliases for special cases of the above
+    inline bool is_zero(double a, double tol)
+    {
+        return (std::abs(a) < tol);
     };
 };
 // ---------------------------------------------------------------------------

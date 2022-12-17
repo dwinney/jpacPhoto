@@ -40,6 +40,9 @@ namespace jpacPhoto
         amplitude_key()
         {};
 
+        // The only functions that can create new amplitudes
+        // are these friend functions
+
         template<class A>
         friend amplitude new_amplitude(kinematics, std::string);
 
@@ -51,6 +54,8 @@ namespace jpacPhoto
 
         template<class A>
         friend amplitude new_amplitude(kinematics, double, amplitude_option, std::string);
+
+        friend amplitude operator+(amplitude a, amplitude b);
     };
 
     // This function serves as our "constructor"
@@ -87,6 +92,17 @@ namespace jpacPhoto
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
+    // ---------------------------------------------------------------------------
+    // Opreations to sum amplitudes together
+
+    // Check if two amplitudes are compatible
+    bool are_compatible(amplitude a, amplitude b);
+
+    // "Constructor" for a sum of amplituders
+    amplitude operator+(amplitude a, amplitude b);
+
+    // Shortcut to add to an existing sum
+    void operator+=(amplitude a, amplitude b);
 
     // ---------------------------------------------------------------------------
     // The underlying class, which defines all our observables, etc
@@ -101,31 +117,70 @@ namespace jpacPhoto
         // new_amplitude
         raw_amplitude(amplitude_key key, kinematics xkinem, std::string name, std::string id)
         : _kinematics(xkinem), _id(id), _name(name)
-        {};
+        {};        
+
+        // Sum constructor 
+        raw_amplitude(amplitude_key key, std::vector<amplitude> subamps, std::string id)
+        : _id(id), _name("amplitude_sum")
+        {
+            add(subamps);
+        };
 
         // Access to the kinematics object we have stored
-        kinematics _kinematics;
+        kinematics _kinematics = nullptr;
 
         // ---------------------------------------------------------------------------
         // Virtual functions which must be defined by a given model
 
         // Given set of helicities, com invariant mass, and momentum transfer calculate the
         // given helicitiy amplitude
-        virtual complex helicity_amplitude(std::array<int,4> helicities, double s, double t) = 0;
+        // By default we assume theres is a sum of amplitudes where the total helicity amplitude
+        // is the sum of individual amplitudes at fixed helicities
+        virtual complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
+        {
+            complex sum = 0;
+            for (auto amp : _subamplitudes)
+            {
+                sum += amp->helicity_amplitude(helicities, s, t);
+            }
+            return sum;
+        };
         
         // Each amplitude must be able to specify what channel it expects its helicities to be
         // defined with respect to (s, t, or u channel CoM frame)
-        virtual helicity_channel native_helicity_frame() = 0;
+        // By default all subamplitudes are assumed to have the same native frame (else it doesnt make sense
+        // to sum them) thus we return the first in the vector.
+        virtual helicity_channel native_helicity_frame()
+        {
+            return _subamplitudes[0]->native_helicity_frame();
+        };
 
         // Additionally, given a kinematics with arbitrary final state quantum numbers
         // Amplitudes should be able to specify which spin-parity combinations 
         // they can accomodate
-        virtual std::vector<std::array<int,2>> allowed_meson_JP(){  return {}; };
-        virtual std::vector<std::array<int,2>> allowed_baryon_JP(){ return {}; };
+        virtual std::vector<std::array<int,2>> allowed_meson_JP(){  return _subamplitudes[0]->allowed_meson_JP(); };
+        virtual std::vector<std::array<int,2>> allowed_baryon_JP(){ return _subamplitudes[0]->allowed_baryon_JP(); };
         
         // Given a vector of double of appropriate length, allocate free parameters to model
-        // By default this does nothing
-        virtual void set_parameters( std::vector<double> x ){};
+        // By default we feed the total parameters into the subamplitudes 
+        virtual void set_parameters( std::vector<double> x )
+        {
+            if (!correct_size(x))
+            {
+                pars_error(x.size());
+                return;
+            };
+
+            // For each subamplitude grab a subvector of its parameters
+            auto running_iter = x.begin();
+            for (auto amp : _subamplitudes)
+            {
+                auto sub_pars = std::vector<double>(running_iter, running_iter + amp->N_pars());
+                amp->set_parameters(sub_pars);
+
+                running_iter += amp->N_pars();
+            };
+        };
 
         // If an amplitude_option is passed, make appropriate changes.
         // By default this does nothing except save _option
@@ -192,11 +247,14 @@ namespace jpacPhoto
             return this->_name;
         };
 
+        // Number of free parameters
+        inline int N_pars(){ return _N_pars; };
+
         // ---------------------------------------------------------------------------
         protected:
 
         // String identifier
-        std::string _id = "";
+        std::string _id = "amplitude";
 
         // Name for the class itself used for error messages
         std::string _name = "amplitude";
@@ -207,7 +265,11 @@ namespace jpacPhoto
         // Each amplitude may have different options for evaluating their amplitude
         // they may be differenticated with this variable
         amplitude_option _option;
-        inline void option_error(){warning(name()+"::set_option", "Unexpected option passed. Continuing without change..."); };
+        inline void option_error()
+        {
+            warning(name()+"::set_option", 
+                    "Unexpected option passed. Continuing without change..."); 
+        };
 
         // ---------------------------------------------------------------------------
         // Parameter handling 
@@ -220,7 +282,11 @@ namespace jpacPhoto
 
         // Simple check that a given vector is of the expected size
         bool correct_size(std::vector<double> pars);
-        inline void pars_error(int x){warning(name()+"::set_parameters", "Unexpected number of parameters passed. Expected "+std::to_string(_N_pars)+" but recieved "+std::to_string(x)+")."); };
+        inline void pars_error(int x)
+        {
+            warning(name()+"::set_parameters", 
+                    "Unexpected number of parameters passed. Expected "+std::to_string(_N_pars)+" but recieved "+std::to_string(x)+").");
+        };
 
         // ---------------------------------------------------------------------------
         // Check different compatibilites
@@ -257,6 +323,30 @@ namespace jpacPhoto
         
         // Saved copies of amplitudes
         std::vector<complex> _cached_helicity_amplitudes;
+
+        // ---------------------------------------------------------------------------
+        // Methods and data related to summing amplitudes together
+        // These are private because we dont want any derived classes to act like sums
+
+        private:
+
+        // If the current pointer is a sum or not
+        inline bool is_sum() { return (_subamplitudes.size() > 0); };
+
+        // If it is we call this vector of amplitudes to calculate helicity amplitudes
+        std::vector<amplitude> _subamplitudes;
+
+        // Check if a given amplitude is compatible to sum with *this
+        bool is_compatible(amplitude new_amp);
+
+        // add a new amplitude to the list in a sum
+        void add(amplitude new_amp);
+
+        // or add a whole vector worth of new amplitudes
+        void add(std::vector<amplitude> new_amps);
+
+        // Friend to allow this operator to acess add()
+        friend void operator+=(amplitude a, amplitude b);
     };
 };
 

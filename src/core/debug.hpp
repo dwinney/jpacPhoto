@@ -109,9 +109,17 @@ namespace jpacPhoto
     };
 
     // Warning message with additional location
-    inline void warning(std::string location, std::string message = "")
+    inline void warning(std::string location, std::string message)
     {
         std::cout << std::left << "WARNING! " + location + ": " + message << std::endl;
+    };
+
+        // Throw an error message without location and return a value
+    template<typename T> 
+    inline T error(std::string message, T return_value )
+    {
+        warning(message);
+        return return_value;
     };
 
     // Throw an error message and return a value

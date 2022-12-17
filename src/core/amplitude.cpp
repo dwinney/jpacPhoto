@@ -11,10 +11,132 @@
 #include "amplitude.hpp"
 #include "constants.hpp"
 #include "kinematics.hpp"
+#include <cstddef>
 #include <string>
 
 namespace jpacPhoto
 {
+    // ------------------------------------------------------------------------------
+    // External methods for amplitude sums
+
+    bool are_compatible(amplitude a, amplitude b)
+    {
+        // Two amplitudes are compatible if they point to the same
+        // kinematics object (i.e. are synced together)
+        bool same_kinem= (a->_kinematics == b->_kinematics);
+
+        // But also they must have helicites defined in the same frame
+        // TODO: add helicity crossing relations so this is not a necessity
+        bool same_frame   = (a->native_helicity_frame() == b->native_helicity_frame());
+
+        
+        std::string error_msg = "Attempted to add incompatible amplitudes: " + a->id() + " and " + b->id() + "!";
+        if (!same_frame) 
+        {
+            return error(error_msg + " (Helicites defined in different frames!)", false);
+        };
+
+        if (!same_kinem)
+        {
+            return error(error_msg + " (Contain different kinematics objects!)", false);
+        };
+
+        return true;
+    };
+    
+    // Sum two amplitudes into a new amplitude 
+    amplitude operator+(amplitude a, amplitude b)
+    {
+        if (!are_compatible(a,b)) return nullptr;
+        
+        // New id will be the "sum" of the individual id's
+        std::string id = a->id() + " + " + b->id(); 
+
+        // vector of subamps
+        std::vector<amplitude> amps = {a, b};
+        
+        // Initialize and return a new amplitude
+        return std::make_shared<raw_amplitude>(amplitude_key(), amps, id);
+    };
+
+    // Take an existing sum and add a new amplitude
+    void operator +=(amplitude a, amplitude b)
+    {
+        if ( !a->is_sum() )
+        {
+            warning("amplitude::operator+= ", 
+                    "Attempting to sum two non-sums! \nPlease initialize a sum of amplitudes with = first (auto c = a + b;) then use the += operator (c += d;)!");
+            return;
+        };  
+
+        a->add(b);
+    };
+
+    // ------------------------------------------------------------------------------
+    // Internal methods for amplitude sums
+
+    // Check if a given amplitude is compatible to be summed with *this
+    bool raw_amplitude::is_compatible(amplitude new_amp)
+    {
+        // Two amplitudes are compatible if they point to the same
+        // kinematics object (i.e. are synced together)
+        bool same_kinem = (new_amp->_kinematics == _kinematics);
+
+        // But also they must have helicites defined in the same frame
+        // TODO: add helicity crossing relations so this is not a necessity
+        bool same_frame   = (new_amp->native_helicity_frame() == native_helicity_frame());
+
+        
+        std::string error_msg = "Attempted to add incompatible amplitudes: " + id() + " and " + new_amp->id() + "!";
+        if (!same_frame) 
+        {
+            return error(error_msg + " (Helicites defined in different frames!)", false);
+        };
+
+        if (!same_kinem)
+        {
+            return error(error_msg + " (Contain different kinematics objects!)", false);
+        };
+        return true;
+    };
+
+    // Add a new amplitude to the list
+    void raw_amplitude::add(amplitude new_amp)
+    {
+        // If our list is empty, capture the first entry we encounter
+        if (_subamplitudes.size() == 0)
+        {
+            _kinematics = new_amp->_kinematics;
+            _subamplitudes.push_back(new_amp);
+            return;
+        };
+
+        // Each subsequent entry gets compared to the first
+        if (is_compatible(new_amp))
+        {
+            // If new_amp is itself a sum of amps,
+            // reach in and pull out the components 
+            if (new_amp->is_sum())
+            {
+                add(new_amp->_subamplitudes);
+                return;
+            };
+
+            _subamplitudes.push_back(new_amp);
+            _N_pars += new_amp->N_pars();
+            return;
+        };
+    };
+
+    // Add a whole vector, this just loops over each entry
+    void raw_amplitude::add(std::vector<amplitude> new_amps)
+    {
+        for (auto amp : new_amps)
+        {
+            add(amp);
+        };
+    };
+
     // ------------------------------------------------------------------------------
     // Updators for the different caches we have
 
