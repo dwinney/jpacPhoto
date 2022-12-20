@@ -31,7 +31,7 @@ namespace jpacPhoto
 
     // We only ever want to work with amplitudes as pointers on the heap.
     // This will allow our amplitudes to be added / passes around without issue
-    using amplitude = std::shared_ptr<raw_amplitude>;
+    using amplitude    = std::shared_ptr<raw_amplitude>;
 
     // We require this private class to allow only the new_amplitude function from
     // Creating amplitude objects
@@ -54,9 +54,14 @@ namespace jpacPhoto
         friend amplitude new_amplitude(kinematics, amplitude_option, std::string);
 
         template<class A>
+        friend amplitude new_amplitude(kinematics, int, std::string);
+
+        template<class A>
         friend amplitude new_amplitude(kinematics, double, amplitude_option, std::string);
 
         friend amplitude operator+(amplitude a, amplitude b);
+
+        friend amplitude project(int, amplitude, std::string);
     };
 
     // This function serves as our "constructor"
@@ -91,6 +96,14 @@ namespace jpacPhoto
         auto amp = std::make_shared<A>(amplitude_key(), xkinem, mass, id);
         amp->set_option(opt);
         return std::static_pointer_cast<raw_amplitude>(amp);
+    };
+
+    // Or a version of the new_amplitude<A> function that allows a fixed spin J
+    template<class A>
+    inline amplitude new_amplitude(kinematics xkinem, int J, std::string id)
+    {
+        amplitude amp_ptr = std::make_shared<A>(amplitude_key(), xkinem, J, id);
+        return amp_ptr;
     };
 
     // ---------------------------------------------------------------------------

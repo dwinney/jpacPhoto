@@ -52,6 +52,26 @@ namespace jpacPhoto
         return (1./i)*c;
     };
 
+    inline complex operator+(const complex&c, const int& i)
+    {
+        return c + XR*i;
+    };
+
+    inline complex operator+(const int& i, const complex & c)
+    {
+        return XR*i + c;
+    };
+
+    inline complex operator-(const complex&c, const int& i)
+    {
+        return c - XR*i;
+    };
+
+    inline complex operator-(const int& i, const complex & c)
+    {
+        return XR*i - c;
+    };
+
     // This makes it so we always default to complex regardless of whether the input is an int or double
     template<typename T>
     complex csqrt(T x){ return sqrt(x * XR); };

@@ -24,8 +24,7 @@ namespace jpacPhoto
         {
             public:
 
-
-            // Constructor only requires 
+            // Constructor
             scalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id)
             : raw_amplitude(key, xkinem, "scalar_exchange", id),
               _mEx(exchange_mass)
@@ -72,21 +71,6 @@ namespace jpacPhoto
                 return { HALFPLUS, HALFMINUS };
             };
 
-            // Have three free parameters: 
-            // [0] Top (beam-exchange-meson) coupling
-            // [1] Bottom (target-exchange-recoil) coupling
-            // [2] Form-factor cutoff
-            inline void allocate_parameters(std::vector<double> x)
-            {
-                _gTop     = x[0];
-                _gBot     = x[1];
-                _ffCutoff = x[2];
-
-                // Pass cutoff to FF as well
-                _FF->set_cutoff(_ffCutoff);
-                return;
-            };
-
             // The options here are the type of form_factor used
             inline void set_option( amplitude_option opt )
             {
@@ -120,6 +104,21 @@ namespace jpacPhoto
             // Internal data members 
 
             protected:
+
+            // Have three free parameters: 
+            // [0] Top (beam-exchange-meson) coupling
+            // [1] Bottom (target-exchange-recoil) coupling
+            // [2] Form-factor cutoff
+            inline void allocate_parameters(std::vector<double> x)
+            {
+                _gTop     = x[0];
+                _gBot     = x[1];
+                _ffCutoff = x[2];
+
+                // Pass cutoff to FF as well
+                _FF->set_cutoff(_ffCutoff);
+                return;
+            };
 
             // Exchange mass
             double _mEx;
