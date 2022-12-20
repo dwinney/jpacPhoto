@@ -12,6 +12,7 @@
 #ifndef LORENTZ_TENSOR_HPP
 #define LORENTZ_TENSOR_HPP
 
+#include <cstddef>
 #include <vector>
 #include <memory>
 
@@ -263,7 +264,11 @@ namespace jpacPhoto
         // Both type and rank has to be the same to add
         void add_tensor(lorentz_tensor<Type,Rank> T)
         {
-            if (!_is_sum) return error("add_tensor()", "Cannot add tensor to pre-initialized one. Initilize a new tensor as the sum!");
+            if (!_is_sum)
+            {
+                warning("add_tensor()", "Cannot add tensor to pre-initialized one. Initilize a new tensor as the sum!");
+                return;
+            };
             _to_sum.push_back(T); 
         };
     };

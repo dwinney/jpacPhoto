@@ -7,6 +7,7 @@
 // ---------------------------------------------------------------------------
 
 #include "covariant.hpp"
+#include "dirac_spinor.hpp"
 
 namespace jpacPhoto
 {
@@ -65,63 +66,86 @@ namespace jpacPhoto
 
     // Beam momentum
     // Aligned with the positive z-hat axis
-    lorentz_vector covariant::q()
+    lorentz_tensor<complex,1> covariant::q()
     {   
-        return lorentz_vector( {_EB, 0., 0., _qi} );
+        return lorentz_vector<complex>( {{_EB, 0., 0., _qi}} );
     };
 
     // Target momentum
     // 3-momenta opposite q in the -z-hat direction
-    lorentz_vector covariant::p()
+    lorentz_tensor<complex,1> covariant::p()
     {   
-        return lorentz_vector( {_ET, 0., 0., -_qi} );
+        return lorentz_vector<complex>( {{_ET, 0., 0., -_qi}} );
     };
 
     // Produced meson momentum
     // In x-z plane with axis angle _theta from the +z
-    lorentz_vector covariant::q_prime()
+    lorentz_tensor<complex,1> covariant::q_prime()
     {
-        return lorentz_vector( {_EX, _qf*_sin, 0., _qf*_cos} );
+        return lorentz_vector<complex>( {{_EX, _qf*_sin, 0., _qf*_cos}} );
     };
 
     // Recoil baryon momentum
     // In x-z plane with axis angle _theta from the -z
-    lorentz_vector covariant::p_prime()
+    lorentz_tensor<complex,1> covariant::p_prime()
     {
-        return lorentz_vector( {_ER, -_qf*_sin, 0., -_qf*_cos} );
+        return lorentz_vector<complex>( {{_ER, -_qf*_sin, 0., -_qf*_cos}} );
     };
 
     // ---------------------------------------------------------------------------
     // POLARIZATION VECTORS
     
     // Incoming, beam polarization vector
-    lorentz_vector covariant::eps()
+    lorentz_tensor<complex,1> covariant::eps()
     {
         // If helicity out of bounds return zero vector
-        if (abs(_lamB) > 1) return error("eps", "Invalid helicity passed!", lorentz_vector());
+        if (abs(_lamB) > 1) return error("eps", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
 
         // Check cases:
         bool transverse = ( abs(_lamB) == 1 );
         bool massive    = !_kinematics->is_photon();
         
-        if ( transverse ) return - lorentz_vector({ 0., _lamB,  I,  0.}) / sqrt(2.);
-        if ( massive )    return   lorentz_vector({_qi,    0., 0., _EB}) / _mB;
-        else              return   lorentz_vector();
+        if ( transverse ) return - lorentz_vector<complex>({{  0, _lamB,  I,   0}}) / sqrt(2);
+        if ( massive )    return   lorentz_vector<complex>({{_qi,     0,  0, _EB}}) / _mB;
+        else              return   lorentz_vector<complex>({{  0,     0,  0,   0}});
     };
 
-    // Incoming, beam polarization vector
-    lorentz_vector covariant::eps_prime()
+    // Outgoing, meson polarization vector
+    lorentz_tensor<complex,1> covariant::eps_prime()
     {
         // If helicity out of bounds return zero vector
-        if (abs(_lamX) > 1) return error("eps_prime", "Invalid helicity passed!", lorentz_vector());
+        if (abs(_lamX) > 1) return error("eps_prime", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
 
         // Currently doubly massless particles (compton scattering) is not available 
-        if ( is_zero(_mX) ) return error("eps_prime", "Massless final state boson not supported yet!", lorentz_vector());
+        if ( is_zero(_mX) ) return error("eps_prime", "Massless final state boson not supported yet!", lorentz_vector<complex>({{0,0,0,0}}));
         
         // Check cases:
         bool transverse = ( abs(_lamB) == 1 );
     
-        if ( transverse ) return - lorentz_vector({ 0., _lamB*_cos,  I,    -_sin}) / sqrt(2.);
-        else              return   lorentz_vector({_qf,   _EX*_sin, 0., _EX*_cos}) / _mX;
+        if ( transverse ) return - lorentz_vector<complex>({{  0, _lamB*_cos,  I,    -_sin}}) / sqrt(2);
+        else              return   lorentz_vector<complex>({{_qf,   _EX*_sin,  0, _EX*_cos}}) / _mX;
+    };
+
+    // ---------------------------------------------------------------------------
+    // DIRAC SPINORS
+
+    // incoming (target) spinor
+    dirac_spinor covariant::u()
+    {
+        double wp = sqrt(_ET + _mT), wm = sqrt(_ET - _mT);
+
+        if (_lamT == 1) return - dirac_spinor({{0, wp,  0, wm}});
+        else            return   dirac_spinor({{wp, 0, -wm, 0}});
+    };
+
+    // outgoing (recoil) spinor
+    dirac_spinor covariant::ubar()
+    {
+        double wp = sqrt(_ER + _mR), wm = sqrt(_ER - _mR);
+
+        dirac_spinor u = (_lamR == 1) ? dirac_spinor({{wp*_sinhalf, -wp*_coshalf,  wp*_sinhalf, -wm*_coshalf}}) 
+                                      : dirac_spinor({{wp*_coshalf,  wp*_sinhalf, -wm*_coshalf, -wm*_sinhalf}});
+
+        return u.adjoint();
     };
 };
