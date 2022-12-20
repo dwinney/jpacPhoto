@@ -23,6 +23,12 @@ namespace jpacPhoto
         std::cout << std::endl;
     };
 
+    // Print out a horizontal line
+    inline void divider()
+    {
+        std::cout << "--------------------------------------------------------------" << std::endl;
+    };
+
     // Default spacing value
     const int DEBUG_SPACING = 15;
 

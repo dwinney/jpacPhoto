@@ -1,20 +1,23 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp") 
-file(GLOB INC "core/*.hpp") 
+file(GLOB SRC "core/*.cpp" "fitter/*.cpp") 
 
 include_directories(core)
+include_directories(fitter)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp
+    partial_wave.hpp
     kinematics.hpp
     dirac_spinor.hpp
     dirac_matrix.hpp
     lorentz_tensor.hpp
+    fitter.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )
 
 target_link_libraries( JPACPHOTO ROOT::Core ROOT::MathMore )
+target_link_libraries( JPACPHOTO Boost::boost)
 
 install(TARGETS JPACPHOTO
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -28,11 +31,3 @@ add_executable( jpacPhoto "cling/jpacPhoto.cpp" )
 target_link_libraries( jpacPhoto ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
 target_link_libraries( jpacPhoto JPACPHOTO )
 target_link_libraries( jpacPhoto ${JSTYLELIB})
-
-# if (BUILD_INCLUSIVE)
-#     target_link_libraries( ${exename} jpacInclusive)
-# endif()
-
-# if (BUILD_BOX)
-#     target_link_libraries( ${exename} jpacBox)
-# endif()

@@ -10,32 +10,28 @@
 
 void Load()
 {
-    TString LIB_EXT = gSystem->GetSoExt();
+    TString lib_ext = gSystem->GetSoExt();
 
     //----------------------------------------------------------------------
     // Core physics library
 
-    TString JPACPHOTO_DIR  = gSystem->Getenv("JPACPHOTO");
+    TString main_dir  = gSystem->Getenv("JPACPHOTO");
 
-    TString JPACPHOTO_INCCORE  = JPACPHOTO_DIR;
-            JPACPHOTO_INCCORE += "/src/core";
-    TString JPACPHOTO_INCAMP  = JPACPHOTO_DIR;
-            JPACPHOTO_INCAMP += "/amplitudes";
-            
-    TString JPACPHOTO_LIB  = JPACPHOTO_DIR;
-            JPACPHOTO_LIB += "/lib/libJPACPHOTO.";
-            JPACPHOTO_LIB += LIB_EXT;
+    TString core        = main_dir + "/src/core";
+    TString fitter      = main_dir + "/src/fitter";
+    TString amplitudes  = main_dir + "/amplitudes";
+    TString main_lib    = main_dir + "/lib/libJPACPHOTO." + lib_ext;
 
-    if (!gSystem->AccessPathName(JPACPHOTO_LIB.Data()))
+    if (!gSystem->AccessPathName(main_lib.Data()))
     {
-        gInterpreter->AddIncludePath( JPACPHOTO_INCCORE.Data());
-        gInterpreter->AddIncludePath( JPACPHOTO_INCAMP.Data());
-
-        Int_t pholib = gSystem->Load( JPACPHOTO_LIB.Data());
+        gInterpreter->AddIncludePath( core.Data());
+        gInterpreter->AddIncludePath( fitter.Data());
+        gInterpreter->AddIncludePath( amplitudes.Data());
+        Int_t pholib = gSystem->Load( main_lib.Data());
     }
     else
     {
-        Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", JPACPHOTO_LIB.Data());
+        Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
     }
 
     //----------------------------------------------------------------------
@@ -48,7 +44,7 @@ void Load()
             
     TString JPACSTYLE_LIB  = JPACSTYLE_DIR;
             JPACSTYLE_LIB += "/lib/libjpacStyle.";
-            JPACSTYLE_LIB += LIB_EXT;
+            JPACSTYLE_LIB += lib_ext;
 
     if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
     {

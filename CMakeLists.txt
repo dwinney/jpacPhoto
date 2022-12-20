@@ -59,7 +59,7 @@ set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 if (Boost_FOUND)
     option(BUILD_BOX "" ON)
-    message("-- Building jpacBox")
+    message("-- BOOST found! (${Boost})")
 else()
     message("-- BOOST not found! jpacBox will not be available")
 endif()
@@ -80,8 +80,6 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Build core library 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/amplitudes/analytic)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
 
 add_subdirectory(src)
 
