@@ -99,6 +99,12 @@ namespace jpacPhoto
                 // Before leaving make sure the new FF gets the last saved cutoff
                 _FF->set_cutoff(_ffCutoff);
             };
+
+            // Parameter names
+            inline std::vector<std::string> parameter_labels()
+            {
+                return { "gPhoton", "gNucleon", "Cutoff" };
+            };
             
             // -----------------------------------------------------------------------
             // Internal data members 

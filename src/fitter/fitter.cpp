@@ -44,6 +44,7 @@ namespace jpacPhoto
         {
             _pars.push_back(i);
         };
+        set_parameter_labels(_amplitude->parameter_labels());
     };
 
     // Give each parameter a label beyond their default par[i] name
@@ -214,6 +215,37 @@ namespace jpacPhoto
         _minuit->SetFunction(fcn);
     };
 
+    double fitter::do_fit(std::vector<double> starting_guess)
+    {
+        if (starting_guess.size() != _pars.size()) 
+        {
+            return error("fitter::do_fit", "Starting guess not the correct size!", -1);
+        };
+
+        set_up(starting_guess);
+
+        line(); data_info();
+        line(); divider(); 
+        line(); parameter_info(starting_guess, true);
+        line(); divider(); line();
+
+        auto start = std::chrono::high_resolution_clock::now();
+        std::cout << "Beginning fit..." << std::flush; 
+
+        if (_print_level != 0) line();   
+        _minuit->Minimize();
+        if (_print_level != 0) line();   
+
+        std::cout << "Done! \n";
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
+        std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
+
+        double chi2dof = print_results();
+
+        return chi2dof;
+    };
+
     // ---------------------------------------------------------------------------
     // Status messages printed to command line
 
@@ -223,18 +255,20 @@ namespace jpacPhoto
         using std::cout; 
         using std::left;
         using std::setw;
+        using std::endl;
 
-        cout << left << "Fitting amplitude (\"" << _amplitude->id() << "\") to " << _N << " data points: \n";
+        cout << left;
+        cout << "Fitting amplitude (\"" << _amplitude->id() << "\") to " << _N << " data points:" << endl;
         line();
-        cout << left << setw(30) << "DATA SET"         << setw(20) << "OBSERVABLE"     << setw(10) << "POINTS\n";
-        cout << left << setw(30) << "----------------" << setw(20) << "--------------" << setw(10) << "-------\n";
+        cout << setw(30) << "DATA SET"         << setw(20) << "OBSERVABLE"     << setw(10) << "POINTS" << endl;
+        cout << setw(30) << "----------------" << setw(20) << "--------------" << setw(10) << "-------" << endl;
         for (auto data : _int_data)
         {
-            cout << left << setw(30) << data._id  << setw(20)  << "integrated xs"   << setw(10) << data._w.size()  << "\n";  
+            cout << setw(30) << data._id  << setw(20)  << "integrated xs"   << setw(10) << data._w.size()  << endl;  
         };
         for (auto data : _dif_data)
         {   
-            cout << left << setw(30) << data._id << setw(20) << "differential xs" << setw(10) << data._t.size() << "\n";  
+            cout << setw(30) << data._id  << setw(20) << "differential xs" << setw(10) << data._t.size() << endl;  
         };
     };
 
@@ -244,15 +278,18 @@ namespace jpacPhoto
         using std::cout; 
         using std::left;
         using std::setw;
+        using std::endl;
+
         cout << std::setprecision(10);
+        cout << left;
 
         // Print message at the beginning of the fit
-        if (start)  cout << left << "Fitting " + std::to_string(_minuit->NFree()) << " (out of " << std::to_string(_minuit->NDim()) << ") parameters:\n\n"; 
-
+        if (start)  cout << "Fitting " + std::to_string(_minuit->NFree()) << " (out of " << std::to_string(_minuit->NDim()) << ") parameters:" << endl; 
+        line();
         std::string column_3;
-        (start) ? (column_3 = "START VALUE\n") : (column_3 = "FIT VALUE\n");
-        cout << left << setw(10) << "N"     << setw(20) << "PARAMETER"  << setw(10) << column_3;
-        cout << left << setw(10) << "-----" << setw(20) << "----------" << setw(10) << "------------\n";
+        (start) ? (column_3 = "START VALUE") : (column_3 = "FIT VALUE");
+        cout << setw(10) << "N"     << setw(20) << "PARAMETER"  << setw(10) << column_3       << endl;
+        cout << setw(10) << "-----" << setw(20) << "----------" << setw(10) << "------------" << endl;
 
         for (int i = 0; i < _pars.size(); i++)
         {
@@ -262,14 +299,14 @@ namespace jpacPhoto
             if (_pars[i]._custom_limits && start)
             {   
                 std::stringstream ss;
-                ss << std::setprecision(5) << "[" << _pars[i]._lower << ", " << _pars[i]._upper << "]\n";
+                ss << std::setprecision(5) << "[" << _pars[i]._lower << ", " << _pars[i]._upper << "]";
                 extra = ss.str();
             };
             // Or is fixed
-            if (_pars[i]._fixed && start) extra = "FIXED\n";
+            if (_pars[i]._fixed && start) extra = "FIXED";
 
 
-            cout << left << setw(10) << i << setw(20) << _pars[i]._label << setw(20) << starting_guess[i] << setw(10) << extra;
+            cout << left << setw(10) << i << setw(20) << _pars[i]._label << setw(20) << starting_guess[i] << setw(10) << extra << endl;
         };
     };
 

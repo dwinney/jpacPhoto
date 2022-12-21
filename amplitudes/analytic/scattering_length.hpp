@@ -62,20 +62,29 @@ namespace jpacPhoto
                 return { HALFPLUS, HALFMINUS };
             };
 
+            // Parameter names are a[J] and b[J] for scattering length and normalization respectively
+            inline std::vector<std::string> parameter_labels()
+            {
+                std::string J = std::to_string(_J);
+                return{ "a[" + J + "]", "b[" + J + "]" };
+            };
+
+            // PW is the unitarized K-matrix form
             inline complex evaluate(std::array<int,4> helicities, double s)
             {
                 complex K = pow(q2(), _J) * _a;
+                complex B = pow(pq(), _J) * _b;
                 complex T = K / (1 - rhoCM()*K);
 
-                return pow(pq(), _J) * _b * (1 - rhoCM()*T);
+                return B * (1 + rhoCM()*T);
             };
 
             protected:
 
             inline void allocate_parameters(std::vector<double> pars)
             {
-                pars[0] = _a;
-                pars[1] = _b;
+                _a = pars[0];
+                _b = pars[1];
                 return;
             };
 
@@ -91,20 +100,20 @@ namespace jpacPhoto
                 complex rho, xi;
                 complex result;
 
-                rho = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
-                xi  = 1 - (m1+m2)*(m1+m2)/_s;
+                rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
+                xi     = 1 - (m1+m2)*(m1+m2)/_s;
                 result = ( rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1) ) / PI;
                 return result;
             };
             inline complex rhoCM(){ return rhoCM(_mX, _mR); };
 
-            // Barrier factor for the photoproduction process
+            // Product of momenta for the photoproduction process
             inline complex pq()
             {
                 return _kinematics->initial_momentum(_s) * _kinematics->final_momentum(_s);
             };
             
-            // Barrier factor of the hadronic rescattering process
+            // Product of momenta of the hadronic rescattering process
             inline complex q2()
             {
                 return pow(_kinematics->final_momentum(_s), 2);

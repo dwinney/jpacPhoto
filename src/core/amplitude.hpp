@@ -180,6 +180,23 @@ namespace jpacPhoto
         // By default this does nothing except save _option
         virtual void set_option(amplitude_option x){ _option = x; };
 
+        
+        // Give each parameter a name if you'd like
+        // By default we assume this is a sum and we grab labels from each subamplitude
+        virtual std::vector<std::string> parameter_labels()
+        {
+            std::vector<std::string> labels;
+            for (auto amp : _subamplitudes)
+            {
+                std::vector<std::string> sublabels = amp->parameter_labels();
+                labels.insert(
+                    labels.end(), sublabels.begin(), sublabels.end()
+                );
+            };
+
+            return labels;
+        };
+
         // ---------------------------------------------------------------------------
         // Crossing properties of helicity amplitudes can be accessed here
 
@@ -377,6 +394,24 @@ namespace jpacPhoto
 
         // Friend to allow this operator to acess add()
         friend void operator+=(amplitude a, amplitude b);
+        friend std::vector<amplitude> extract_subamplitudes(amplitude amp);
+    };
+
+    // Given an amplitude, check if its a sum of amplitudes
+    // if so, return vector of constituent subamplitudes
+    // if not, return amplitude vector with only itself
+    inline std::vector<amplitude> extract_subamplitudes(amplitude amp)
+    {        
+        if (!amp->is_sum()) return {amp};
+        return amp->_subamplitudes;
+    };
+
+    // Extracts sub_amplitudes but addtionally appends the sum to the vector
+    inline std::vector<amplitude> expand(amplitude amp)
+    {
+        std::vector<amplitude> expanded = extract_subamplitudes(amp);
+        if (expanded.size() > 1) expanded.push_back(amp);
+        return expanded;
     };
 };
 
