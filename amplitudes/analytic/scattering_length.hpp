@@ -42,11 +42,11 @@ namespace jpacPhoto
 
                 // Save inputes
                 store(helicities, s, t);
-
+                
                 // Normalization here to get rid of helicity dependence in amplitude::probability_distribution
                 // First a 2 removes the factor 1/4 when averaging over initial helicities
                 // then a 1/sqrt(2) removes the factor of 2 from the parity relation in amplitude::update_cache
-                return sqrt(2) * legendre(_J, cos(_theta)) * evaluate(helicities, s);
+                return sqrt(2) * (2*_J+1) * legendre(_J, cos(_theta)) * evaluate(helicities, s);
             };
 
             // We can have any quantum numbers
@@ -74,9 +74,9 @@ namespace jpacPhoto
             {
                 complex K = pow(q2(), _J) * _a;
                 complex B = pow(pq(), _J) * _b;
-                complex T = K / (1 - rhoCM()*K);
+                complex T = K / (1 - G()*K);
 
-                return B * (1 + rhoCM()*T);
+                return B * (1 + G()*T);
             };
 
             protected:
@@ -95,17 +95,17 @@ namespace jpacPhoto
             double _a = 0, _b = 0; 
 
             // Chew-Mandelstam phase-space
-            inline complex rhoCM(double m1, double m2)
+            inline complex G(double m1, double m2)
             {
                 complex rho, xi;
                 complex result;
 
                 rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
                 xi     = 1 - (m1+m2)*(m1+m2)/_s;
-                result = ( rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1) ) / PI;
+                result = - (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
                 return result;
             };
-            inline complex rhoCM(){ return rhoCM(_mX, _mR); };
+            inline complex G(){ return G(_mX, _mR); };
 
             // Product of momenta for the photoproduction process
             inline complex pq()
