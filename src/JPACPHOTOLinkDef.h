@@ -13,5 +13,6 @@
 #pragma link C++ defined_in "dirac_matrix.hpp";
 #pragma link C++ defined_in "dirac_spinor.hpp";
 #pragma link C++ defined_in "fitter.hpp";
+#pragma link C++ defined_in "data_set.hpp";
 
 #endif

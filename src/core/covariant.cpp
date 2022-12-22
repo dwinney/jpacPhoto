@@ -132,19 +132,19 @@ namespace jpacPhoto
     // incoming (target) spinor
     dirac_spinor covariant::u()
     {
-        double wp = sqrt(_ET + _mT), wm = sqrt(_ET - _mT);
+        complex wp = csqrt(_ET + _mT), wm = csqrt(_ET - _mT);
 
-        if (_lamT == 1) return - dirac_spinor({{0, wp,  0, wm}});
-        else            return   dirac_spinor({{wp, 0, -wm, 0}});
+        if (_lamT == 1) return - dirac_spinor({{{0, wp,  0, wm}}});
+        else            return   dirac_spinor({{{wp, 0, -wm, 0}}});
     };
 
     // outgoing (recoil) spinor
     dirac_spinor covariant::ubar()
     {
-        double wp = sqrt(_ER + _mR), wm = sqrt(_ER - _mR);
-
-        dirac_spinor u = (_lamR == 1) ? dirac_spinor({{wp*_sinhalf, -wp*_coshalf,  wp*_sinhalf, -wm*_coshalf}}) 
-                                      : dirac_spinor({{wp*_coshalf,  wp*_sinhalf, -wm*_coshalf, -wm*_sinhalf}});
+        complex wp = csqrt(_ER + _mR), wm = csqrt(_ER - _mR);
+    
+        dirac_spinor u = (_lamR == 1) ? dirac_spinor({{{wp*_sinhalf, -wp*_coshalf,  wp*_sinhalf, -wm*_coshalf}}}) 
+                                      : dirac_spinor({{{wp*_coshalf,  wp*_sinhalf, -wm*_coshalf, -wm*_sinhalf}}});
 
         return u.adjoint();
     };

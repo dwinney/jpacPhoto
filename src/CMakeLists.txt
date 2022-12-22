@@ -2,7 +2,6 @@
 file(GLOB SRC "core/*.cpp" "fitter/*.cpp") 
 
 include_directories(core)
-include_directories(fitter)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp
@@ -12,6 +11,7 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     dirac_matrix.hpp
     lorentz_tensor.hpp
     fitter.hpp
+    data_set.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )

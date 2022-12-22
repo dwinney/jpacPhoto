@@ -11,7 +11,6 @@
 #define DATA_SET_HPP
 
 #include "constants.hpp"
-#include "fitter.hpp"
 
 #include <fstream>
 #include <sstream>

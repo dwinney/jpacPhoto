@@ -18,8 +18,7 @@ void Load()
     TString main_dir  = gSystem->Getenv("JPACPHOTO");
 
     // Load the main library files
-    TString core        = main_dir + "/src/core";
-    TString fitter      = main_dir + "/src/fitter";
+    TString core        = main_dir + "/src/core"; 
     TString main_lib    = main_dir + "/lib/libJPACPHOTO." + lib_ext;
 
     // Supplementary header files 
@@ -30,7 +29,6 @@ void Load()
     {
         Int_t pholib = gSystem->Load( main_lib.Data());
         gInterpreter->AddIncludePath( core.Data());
-        gInterpreter->AddIncludePath( fitter.Data());
         gInterpreter->AddIncludePath( amplitudes.Data());
         gInterpreter->AddIncludePath( data.Data());
     }

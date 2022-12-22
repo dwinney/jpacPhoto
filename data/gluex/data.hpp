@@ -21,7 +21,11 @@ namespace jpacPhoto
 
         data_set wrapped(reduced, "GlueX 2022");
 
+        // energy values are lab frame energies 
         wrapped._lab  = true;
+
+        // combine the bin-sizes to calculate the error bars
+        wrapped._werr = (raw[5] - raw[4]) / 2;
 
         return wrapped;
     };
@@ -36,6 +40,9 @@ namespace jpacPhoto
         wrapped._lab   = true;
         wrapped._negt  = true;
         wrapped._avg_s = 8.92877;
+
+        // Bin widths 
+        wrapped._terr = (raw[5] - raw[4]) / 2;
 
         return wrapped;
     };
