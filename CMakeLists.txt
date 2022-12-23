@@ -57,26 +57,6 @@ endif()
 
 set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
-if (Boost_FOUND)
-    option(BUILD_BOX "" ON)
-    message("-- BOOST found! (${Boost})")
-else()
-    message("-- BOOST not found! jpacBox will not be available")
-endif()
-
-##-----------------------------------------------------------------------
-## Look for jpacStyle to build the cling executable 
-
-# Find the jpacStyle library
-find_library(JSTYLELIB NAMES jpacStyle libjpacStyle 
-                       HINTS "$ENV{JPACSTYLE}/lib")
-if (JSTYLELIB)
-    option(BUILD_CLING "" ON)
-    message("-- jpacStyle found! (${JSTYLELIB})")
-    message("-- Building plotting executables")
-else()
-    message("-- jpacStyle not found! Plotting executables will not be available")
-endif()
 
 ##-----------------------------------------------------------------------
 # Build core library 

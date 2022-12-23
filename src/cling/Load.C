@@ -37,29 +37,6 @@ void Load()
         Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
     }
 
-    //----------------------------------------------------------------------
-    // Plotting library
-
-    TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
-
-    TString JPACSTYLE_INC  = JPACSTYLE_DIR;
-            JPACSTYLE_INC += "/include/";
-            
-    TString JPACSTYLE_LIB  = JPACSTYLE_DIR;
-            JPACSTYLE_LIB += "/lib/libjpacStyle.";
-            JPACSTYLE_LIB += lib_ext;
-
-    if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
-    {
-        gInterpreter->AddIncludePath( JPACSTYLE_INC.Data());
-        Int_t stylib = gSystem->Load( JPACSTYLE_LIB.Data());
-    }
-    else
-    {
-        Warning("jpacPhoto::Load", "jpacStyle library not found! Path given: %s", JPACSTYLE_LIB.Data());
-    }
-
-
     // //----------------------------------------------------------------------
     // // Non-essential libraries
 

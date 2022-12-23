@@ -30,4 +30,3 @@ install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libJPACPHOTO_rdict.pcm
 add_executable( jpacPhoto "cling/jpacPhoto.cpp" )
 target_link_libraries( jpacPhoto ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
 target_link_libraries( jpacPhoto JPACPHOTO )
-target_link_libraries( jpacPhoto ${JSTYLELIB})

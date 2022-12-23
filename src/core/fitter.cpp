@@ -156,8 +156,8 @@ namespace jpacPhoto
             double s = W*W;
 
             double sigma_th = _amplitude->integrated_xsection(s);
-            double sigma_ex = data._sigma[i];
-            double error    = data._error[i];
+            double sigma_ex = data._obs[i];
+            double error    = data._obserr[1][i] + data._obserr[0][i];
 
             chi2 += pow((sigma_th - sigma_ex)/error, 2);
         };
@@ -178,8 +178,8 @@ namespace jpacPhoto
             if (data._tprime) t + _amplitude->_kinematics->t_min(s);
 
             double sigma_th = _amplitude->differential_xsection(s, t);
-            double sigma_ex = data._sigma[i];
-            double error    = data._error[i];
+            double sigma_ex = data._obs[i];
+            double error    = data._obserr[1][i] + data._obserr[0][i];
 
             chi2 += pow((sigma_th - sigma_ex)/error, 2);
         };

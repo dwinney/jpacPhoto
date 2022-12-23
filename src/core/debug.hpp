@@ -9,6 +9,7 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
+#include <ios>
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -30,61 +31,30 @@ namespace jpacPhoto
     };
 
     // Default spacing value
-    const int DEBUG_SPACING = 15;
-
-    // Functions for printing to screen instead of having to copy this line all the time
-    template<typename T>
-    inline void debug(T x)
-    {
-        std::cout << std::boolalpha; 
-        std::cout << x << std::endl;
-    };
-
-    template<typename T, typename F>
-    inline void debug(T x, F y)
-    {
-        std::cout << std::boolalpha; 
-        std::cout << std::left << std::setw(DEBUG_SPACING) << x;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << y << std::endl;
-    };
-
-    template<typename T, typename F, typename G>
-    inline void debug(T x, F y, G z)
-    {
-        std::cout << std::boolalpha; 
-        std::cout << std::left << std::setw(DEBUG_SPACING) << x;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << y;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << z << std::endl;
-    };
-
-    template<typename T, typename F, typename G, typename H>
-    inline void debug(T x, F y, G z, H a)
-    {
-        std::cout << std::boolalpha; 
-        std::cout << std::left << std::setw(DEBUG_SPACING) << x;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << y;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << z;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << a << std::endl;
-    };
-
-    template<typename T, typename F, typename G, typename H, typename I>
-    inline void debug(T x, F y, G z, H a, I b)
-    {
-        std::cout << std::boolalpha; 
-        std::cout << std::left << std::setw(DEBUG_SPACING) << x;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << y;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << z;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << a;
-        std::cout << std::left << std::setw(DEBUG_SPACING) << b << std::endl;
-    };
+    const int PRINT_SPACING = 15;
 
     template<typename T>
-    inline void debug(std::vector<T> v)
+    inline void print(T x)
+    {
+        std::cout << std::boolalpha << std::left;  
+        std::cout << std::setw(PRINT_SPACING) << x << std::endl;
+    };
+
+    template <typename First, typename... Rest>
+    inline void print(First first, Rest... rest)
+    {
+        std::cout << std::boolalpha << std::left; 
+        std::cout << std::setw(PRINT_SPACING) << first;
+        print(rest...);
+    } 
+
+    template<typename T>
+    inline void print(std::vector<T> v)
     {
         std::cout << std::boolalpha; 
         for (auto vi : v)
         {
-            std::cout << std::left << std::setw(DEBUG_SPACING) << vi;
+            std::cout << std::left << std::setw(PRINT_SPACING) << vi;
         };
         std::cout << std::endl;
     };

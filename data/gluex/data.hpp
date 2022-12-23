@@ -16,64 +16,113 @@ namespace jpacPhoto
 {
     inline data_set gluex_integrated2022()
     {
-        auto raw      = import_data<6>("/data/gluex/gluex2022_int.tsv");
-        auto reduced  = reshape_data<6,3>(raw, {1,2,3});
+        std::string id = "GlueX 2022";
 
-        data_set wrapped(reduced, "GlueX 2022");
+        auto raw  = import_data<6>("/data/gluex/gluex2022_int.tsv");
+        int  N    = check<6>(raw, id);
+    
+        data_set wrapped;
+        wrapped._id   = id;
+        wrapped._N    = N;
+        wrapped._lab  = true;
+        wrapped._type = integrated_data;
 
         // energy values are lab frame energies 
-        wrapped._lab  = true;
+        wrapped._w       = raw[1];
+        wrapped._werr[0] = raw[1] - raw[4];
+        wrapped._werr[1] = raw[5] - raw[1];
 
-        // combine the bin-sizes to calculate the error bars
-        wrapped._werr = (raw[5] - raw[4]) / 2;
+        // cross section is column 2
+        // column 3 is the error
+        // compute symmetric upper and lower error bars
+        wrapped._obs       = raw[2];
+        wrapped._obserr[0] = raw[3]/2; 
+        wrapped._obserr[1] = raw[3]/2; 
 
         return wrapped;
     };
 
     inline data_set gluex_slice0()
     {
-        auto raw     = import_data<7>("/data/gluex/gluex2022_diff_E0893.tsv");
-        auto reduced = reshape_data<7,4>(raw, {6,1,2,3});
+        std::string id = "GlueX (E = 8.93 GeV)";
 
-        data_set wrapped(reduced, "GlueX (E = 8.93 GeV)");
+        auto raw  = import_data<7>("/data/gluex/gluex2022_diff_E0893.tsv");
+        int  N    = check<7>(raw, id);
 
+        data_set wrapped;
+        wrapped._id    = id;
+        wrapped._N     = N;
+        wrapped._type  = differential_data;
         wrapped._lab   = true;
         wrapped._negt  = true;
-        wrapped._avg_s = 8.92877;
+        wrapped._avg_w = 8.92877;
 
         // Bin widths 
-        wrapped._terr = (raw[5] - raw[4]) / 2;
+        wrapped._w         = raw[6];
+        wrapped._t         = raw[1];
+        wrapped._terr[0]   = raw[1] - raw[4];
+        wrapped._terr[1]   = raw[5] - raw[1];
+        wrapped._obs       = raw[2];
+        wrapped._obserr[0] = raw[3]/2;
+        wrapped._obserr[1] = raw[3]/2;
 
         return wrapped;
     };
 
     inline data_set gluex_slice1()
     {
-        auto raw     = import_data<7>("/data/gluex/gluex2022_diff_E0985.tsv");
-        auto reduced = reshape_data<7,4>(raw, {6,1,2,3});
+        std::string id = "GlueX (E = 9.85 GeV)";
 
-        data_set wrapped(reduced, "Gluex (E = 9.85 GeV)");
+        auto raw  = import_data<7>("/data/gluex/gluex2022_diff_E0985.tsv");
+        int  N    = check<7>(raw, id);
 
+        data_set wrapped;
+        wrapped._id    = id;
+        wrapped._N     = N;
+        wrapped._type  = differential_data;
         wrapped._lab   = true;
         wrapped._negt  = true;
-        wrapped._avg_s = 9.8583;
+        wrapped._avg_w = 9.8583;
+
+        // Bin widths 
+        wrapped._w         = raw[6];
+        wrapped._t         = raw[1];
+        wrapped._terr[0]   = raw[1] - raw[4];
+        wrapped._terr[1]   = raw[5] - raw[1];
+        wrapped._obs       = raw[2];
+        wrapped._obserr[0] = raw[3]/2;
+        wrapped._obserr[1] = raw[3]/2;
 
         return wrapped;
     };
 
     inline data_set gluex_slice2()
     {
-        auto raw     = import_data<7>("/data/gluex/gluex2022_diff_E1082.tsv");
-        auto reduced = reshape_data<7,4>(raw, {6,1,2,3});
+        std::string id = "GlueX (E = 10.82 GeV)";
 
-        data_set wrapped(reduced, "GlueX (E = 10.82 GeV)");
+        auto raw  = import_data<7>("/data/gluex/gluex2022_diff_E1082.tsv");
+        int  N    = check<7>(raw, id);
 
+        data_set wrapped;
+        wrapped._id    = id;
+        wrapped._N     = N;
+        wrapped._type  = differential_data;
         wrapped._lab   = true;
         wrapped._negt  = true;
-        wrapped._avg_s = 10.82;
+        wrapped._avg_w = 10.8205;
+
+        // Bin widths 
+        wrapped._w         = raw[6];
+        wrapped._t         = raw[1];
+        wrapped._terr[0]   = raw[1] - raw[4];
+        wrapped._terr[1]   = raw[5] - raw[1];
+        wrapped._obs       = raw[2];
+        wrapped._obserr[0] = raw[3]/2;
+        wrapped._obserr[1] = raw[3]/2;
 
         return wrapped;
     };
+
 };
 
 #endif

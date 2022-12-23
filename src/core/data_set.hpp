@@ -142,47 +142,43 @@ namespace jpacPhoto
         return result;
     };
 
-    class data_set
+    // Make sure all the vectors are the correct size
+    template<int S>
+    inline int check(std::array<std::vector<double>,S> data, std::string id)
     {
-        public:
-
-        // Empty constructor
-        data_set()
-        {};
-
-        // Constructor with two columns for integrated data without error bars
-        data_set(std::array<std::vector<double>,2> data, std::string id = "data_set")
-        : _id(id),
-          _w(data[0]), _sigma(data[1])
+        // Grab the size of the first entry
+        int N = data[0].size();
+        
+        // And compare to the rest
+        for (auto column : data)
         {
-            check<2>(data);
+            if (column.size() != N)
+            {
+                warning("data_set", "Input vectors of " + id + " have mismatching sizes!");
+                return 0;
+            };
         };
 
-        // Constructor with three columns for integrated data with error bars
-        data_set(std::array<std::vector<double>,3> data, std::string id = "data_set")
-        : _id(id),
-          _w(data[0]), _sigma(data[1]), _error(data[2])
-        {
-            check<3>(data);
-        };
+        return N;
+    };
 
-        // Constructor with four columns for differential data
-        data_set(std::array<std::vector<double>,4> data, std::string id = "data_set")
-        : _id(id),
-          _w(data[0]), _t(data[1]), _sigma(data[2]), _error(data[3])
-        { 
-            check<4>(data);
-        };
+    // Define different archetypes of data
+    enum data_type { integrated_data, differential_data};
 
+    struct data_set
+    {
+        // Number of data points
         int _N = 0;
+
         std::string _id = "data_set";
 
-        // Vectors to store energy and momentum transfer variables.
-        // Observable and its error
-        std::vector<double> _w, _t, _sigma, _error;
+        data_type _type;
+        
+        // Vectors to store energy and momentum transfer variables and observable
+        std::vector<double> _w, _t, _obs;
 
         // Other possible vectors to store things like bin sizes, etc
-        std::vector<double> _werr, _terr;
+        std::array<std::vector<double>,2> _werr, _terr, _obserr;
 
         // Whether the values stored in _w correspond to invariant energy W = sqrt(s) (false)
         // or lab frame energy Egamma (true)
@@ -197,38 +193,7 @@ namespace jpacPhoto
         bool _negt   = false;
 
         // For a differential set it may be useful to have an average s 
-        double _avg_s = 0;
-
-        private: 
-
-        // Make sure all the vectors are the correct size
-        template<int S>
-        inline void check(std::array<std::vector<double>,S> data)
-        {
-            // Grab the size of the first entry
-            int N = data[0].size();
-            
-            // And compare to the rest
-            for (auto column : data)
-            {
-                if (column.size() != N)
-                {
-                    warning("data_set", "Input vectors of " + _id + " have mismatching sizes!");
-                    clear();
-                    return;
-                };
-            };
-
-            // If they all pass, save everything
-            _N = N;
-        };
-
-        // Delete all data stored
-        inline void clear()
-        {
-            _N = 0; 
-            _w.clear(); _t.clear(), _sigma.clear(), _error.clear();
-        };
+        double _avg_w = 0;
     };
 };
 
