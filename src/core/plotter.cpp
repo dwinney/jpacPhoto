@@ -91,4 +91,66 @@ namespace jpacPhoto
         _style->SetTextFont( kjpacFont);
         _style->SetLegendFont(kjpacFont);
     };
+
+    void plotter::combine(std::array<int,2> dims, std::vector<plot> plots, std::string filename)
+    {
+        // Make it the global default style
+        gROOT->SetStyle("jpacStyle");
+
+        // Get dimensions of the parition we're making
+        int xdim = dims[0], ydim = dims[1];
+        int Nmax = xdim * ydim; // Max number of plots we can accomodate
+
+        if (plots.size() > Nmax)
+        {
+            warning("plotter::combine", "Number of plots recieved is larger than slots in given dimensions!");
+            return;
+        };
+
+        TCanvas *canvas = new TCanvas(filename.c_str(), filename.c_str(), 600*xdim, 600*ydim);
+        
+        canvas->Divide(xdim, ydim, 1E-11, 1E-11);
+
+        // // If we have a lot of plots, adjust the linewidth so its readible
+        // // This formula is entirely made up but results are aesthetically fine
+        double scale = pow(0.85, std::max(xdim,ydim));
+
+        // Iterate over the plots, drawing each 
+        int index = 1; 
+        for (auto plot : plots)
+        {
+            // Move to sub-canvas
+            canvas->cd(index);
+            
+            // Apply global settings to the pad
+            gPad->UseCurrentStyle();
+            gPad->SetFixedAspectRatio();
+            gPad->SetTopMargin(0.05);
+            gPad->SetRightMargin(0.03);
+            gPad->SetLeftMargin(0.16);
+            gPad->SetBottomMargin(0.12);
+
+            // Apply logscale settings
+            gPad->SetLogx(plot._xlog);
+            gPad->SetLogy(plot._ylog);
+
+            // Apply the linewidth 
+            plot.scale_linewidth(scale);
+            plot.draw();
+            index++;
+        };
+
+        // Draw the canvas
+        canvas->cd();
+        canvas->Draw();
+
+        // and print to file
+        canvas->Print(filename.c_str());
+
+        // Reset the changes we made to our plots
+        for (auto plot : plots)
+        {
+            plot.reset_linewidth();
+        };
+    };
 };

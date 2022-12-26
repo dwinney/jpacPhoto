@@ -25,7 +25,19 @@ namespace jpacPhoto
         
         // Logscale settings are global canvas settings so do that first
         _canvas->SetLogx(_xlog); _canvas->SetLogy(_ylog);
+        
+        // Call all the graph methods and draw them onto canvas
+        draw();
 
+        // Draw the canvas
+        _canvas->Draw();
+
+        // and print to file
+        _canvas->Print(_filename.c_str());
+    };
+
+    void plot::draw()
+    {
         TMultiGraph * mg = new TMultiGraph("mg", "mg");
 
         // Set up the axes by grabbing them from the first entry
@@ -73,12 +85,6 @@ namespace jpacPhoto
             mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
             mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
         };
-
-        // Draw the canvas
-        _canvas->Draw();
-
-        // and print to file
-        _canvas->Print(_filename.c_str());
     };
 
     // ---------------------------------------------------------------------------
@@ -298,5 +304,4 @@ namespace jpacPhoto
         };
         return;
     };
-
 };

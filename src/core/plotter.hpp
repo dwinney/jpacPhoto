@@ -42,7 +42,7 @@ namespace jpacPhoto
         };
 
         // Create a new plot!
-        plot new_plot(std::string file)
+        plot new_plot(std::string file = "")
         {
             // Make it the global default style
             gROOT->SetStyle("jpacStyle");
@@ -58,9 +58,14 @@ namespace jpacPhoto
             canvas->SetBottomMargin(0.12);
             canvas->SetFixedAspectRatio();
 
+            // if no filename is passes, choose a default one
+            if (file == "") file += "plot" + std::to_string(_Nplots) + ".pdf";
+            
             // Pass this to the plot which will populate it with everything else
             return plot(canvas, file);
         };
+
+        static void combine(std::array<int,2> dims, std::vector<plot> plots, std::string filename);
 
         private:
 

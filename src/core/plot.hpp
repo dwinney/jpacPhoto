@@ -81,7 +81,9 @@ namespace jpacPhoto
         // Apply relevant settings from _style to _graph
         inline void apply_style()
         {
-            _graph->SetLineWidth(_linewidth);
+            if (_isdata) _graph->SetLineWidth(_default_markerwidth);
+            else         _graph->SetLineWidth(_default_linewidth);
+            
             _graph->SetLineColor(+_style._color);
             _graph->SetLineStyle(_style._style);
             _graph->SetMarkerColor(+_style._color);
@@ -89,7 +91,8 @@ namespace jpacPhoto
         };
 
         // Default line-width
-        static const int _linewidth = 3;
+        static constexpr double _default_linewidth   = 3;
+        static constexpr double _default_markerwidth = 2;
     };  
 
     // This class contains the entries, data, and options of producing a single plot/file
@@ -198,6 +201,25 @@ namespace jpacPhoto
 
         friend class plotter;
 
+        // Change linewidth and propagate it to all the curves in the plot
+        inline void scale_linewidth(double x)
+        {
+            for (auto entry : _entries)
+            {
+                if (entry._isdata) entry._graph->SetLineWidth(plot_entry::_default_markerwidth * x);
+                else               entry._graph->SetLineWidth(plot_entry::_default_linewidth   * x);
+            };
+        };
+
+        inline void reset_linewidth()
+        {
+            for (auto entry : _entries)
+            {
+                if (entry._isdata) entry._graph->SetLineWidth(plot_entry::_default_markerwidth);
+                else               entry._graph->SetLineWidth(plot_entry::_default_linewidth);
+            };
+        };
+
         // Canvas that the plot actually gets drawn on
         TCanvas* _canvas;
 
@@ -219,6 +241,9 @@ namespace jpacPhoto
             logo->SetTextAlign(32);
             logo->Draw();
         };
+
+        // Load all the settings into the graphs and draw them
+        void draw();
 
         // -----------------------------------------------------------------------
         // AXIS SETUP 
@@ -260,7 +285,6 @@ namespace jpacPhoto
         // List of all entries (theoretical curves) to be plotted
         std::vector<plot_entry> _entries;
     };
-
 };
 
 #endif
