@@ -26,25 +26,11 @@ namespace jpacPhoto
         // Logscale settings are global canvas settings so do that first
         _canvas->SetLogx(_xlog); _canvas->SetLogy(_ylog);
 
+        TMultiGraph * mg = new TMultiGraph("mg", "mg");
+
         // Set up the axes by grabbing them from the first entry
-        auto first = _entries[0]._graph;
-        first->SetTitle("");
-
-        TAxis *xaxis = first->GetXaxis();
-        xaxis->SetTitle(_xlabel.c_str());
-        xaxis->CenterTitle(true);
-
-        TAxis *yaxis = first->GetYaxis();
-        yaxis->SetTitle(_ylabel.c_str());
-        yaxis->CenterTitle(true);
-        if (_customranges)
-        {
-            xaxis->SetLimits(   _xbounds[0], _xbounds[1]);
-            yaxis->SetRangeUser(_ybounds[0], _ybounds[1]);
-        };
-        
-        if (_entries[0]._isdata) { first->Draw("AP"); }
-        else                     { first->Draw("AP"); };
+        std::string labels = ";" + _xlabel + ";" + _ylabel;
+        mg->SetTitle(labels.c_str());
 
         // Draw the first entry
         // need to parse if its a curve or data points
@@ -52,7 +38,7 @@ namespace jpacPhoto
         // Set up legend
         _legendxoffset  = 0.3;
         _legendyoffset  = 0.036*(_Nlegend + _addheader);
-        auto legend = new TLegend(_legendxcord, _legendycord, 
+        auto legend = new TLegend(_legendxcord,  _legendycord, 
                                   _legendxcord + _legendxoffset, 
                                   _legendycord + _legendyoffset);
         legend->SetFillStyle(0); // Make legend transparent
@@ -62,9 +48,9 @@ namespace jpacPhoto
 
         for (auto entry : _entries)
         {
-            std::string legend_option;
-            if (entry._isdata) { entry._graph->Draw("P");    legend_option = "P"; }
-            else               { entry._graph->Draw("same"); legend_option = "L"; };
+            std::string legend_option = (entry._isdata) ? "P" : "L";
+
+            mg->Add(entry._graph, legend_option.c_str());
 
             if (entry._style._add_to_legend)
             {
@@ -72,9 +58,21 @@ namespace jpacPhoto
             };
         };
 
+        mg->Draw("ALP");
+
         add_logo();
 
         if (_addlegend) legend->Draw();
+
+        mg->GetXaxis()->CenterTitle(true);
+        mg->GetYaxis()->CenterTitle(true);
+        _canvas->Modified();
+
+        if (_customranges)
+        {
+            mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
+            mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
+        };
 
         // Draw the canvas
         _canvas->Draw();
@@ -164,6 +162,7 @@ namespace jpacPhoto
 
     void plot::add_curve(int N, std::array<double,2> bounds, std::function<double(double)> F, std::string id)
     {
+        _Ncurve++;
         entry_style style;
         style._color = JPACCOLORS[_Ncurve];
         style._style = kSolid;
@@ -200,4 +199,104 @@ namespace jpacPhoto
 
         add_dashed(x, fx);
     };
+
+    // -----------------------------------------------------------------------
+    // Add curve methods which take in an amplitude directly
+    void plot::add_curve(curve_type opt, amplitude to_plot, std::array<double,2> bounds)
+    {
+        switch (opt)
+        {
+            case sigma_s: 
+            {
+                auto G = [&](double s)
+                {  
+                    return to_plot->integrated_xsection(s);
+                };
+
+                add_curve(_Npoints, bounds, G, to_plot->id());
+                return;
+            }
+            case sigma_w: 
+            {
+                auto G = [&](double w)
+                {  
+                    return to_plot->integrated_xsection(w*w);
+                };
+
+                add_curve(_Npoints, bounds, G, to_plot->id());
+                return;
+            };
+            case sigma_Egam: 
+            {
+                auto G = [&](double E)
+                {  
+                    double w = W_cm(E);
+                    return to_plot->integrated_xsection(w*w);
+                };
+
+                add_curve(_Npoints, bounds, G, to_plot->id());
+                return;
+            };
+            default:
+            {
+                warning("plot::add_curve", "Invalid curve_type passed as argument!");
+                return;
+            }
+        };
+        return;
+    };
+
+    void plot::add_curve(curve_type opt, amplitude to_plot, double fixed, std::array<double,2> bounds)
+    {
+        switch (opt)
+        {
+            case dsigmadt_s: 
+            {
+                // Fixed variable is an s value
+                // Bounds are (-t)-values
+                auto G = [&](double mt)
+                {  
+                    double s = fixed;
+                    return to_plot->differential_xsection(s, -mt);
+                };
+
+                add_curve(_Npoints, bounds, G, to_plot->id());
+                return;
+            }
+            case dsigmadt_w: 
+            {
+                // Fixed variable is an w value
+                // Bounds are (-t)-values
+                auto G = [&](double mt)
+                {  
+                    double s = fixed*fixed;
+                    return to_plot->differential_xsection(s, -mt);
+                };
+
+                add_curve(_Npoints, bounds, G, to_plot->id());
+                return;
+            };
+            case dsigmadt_Egam: 
+            {
+                // Fixed variable is an Egam value
+                // Bounds are (-t)-values
+                auto G = [&](double mt)
+                {  
+                    double w = W_cm(fixed);
+                    double s = w*w;
+                    return to_plot->differential_xsection(s, -mt);
+                };
+
+                add_curve(_Npoints, bounds, G, to_plot->id());
+                return;
+            };
+            default:
+            {
+                warning("plot::add_curve", "Invalid curve_type passed as argument!");
+                return;
+            }
+        };
+        return;
+    };
+
 };

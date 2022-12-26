@@ -21,6 +21,7 @@
 #include <TCanvas.h>
 #include <TAxis.h>
 #include <TGraph.h>
+#include <TMultiGraph.h>
 #include <TLegend.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
@@ -41,6 +42,11 @@ namespace jpacPhoto
         bool _add_to_legend = true;                 // Whether to add this curve to the legend
         std::string _label  = "";                   // Label to add to Legend
     };
+
+    enum curve_type { 
+                      sigma_s,      sigma_w,      sigma_Egam,       // Integrated cross-sections as functions of s, W, and Egam
+                      dsigmadt_s,   dsigmadt_w,   dsigmadt_Egam,    // Differential x-sections as function of t at fixed s, W, Egam
+                    };
 
     // Each entry represents a curve to draw as a TGraph
     struct plot_entry 
@@ -118,7 +124,7 @@ namespace jpacPhoto
         };
 
         // -----------------------------------------------------------------------
-        // Methods to add curves from amplitudes to your plot
+        // Methods to add curves to your plot
 
         // Basic function which uses the raw vectors and a string id
         void add_curve(std::vector<double> x, std::vector<double> fx, entry_style style);
@@ -132,6 +138,31 @@ namespace jpacPhoto
         // colors of the "full" curves
         void add_dashed(std::vector<double> x, std::vector<double> fx);
         void add_dashed(int N, std::array<double,2> bounds, std::function<double(double)> F);
+
+        // -----------------------------------------------------------------------
+        // Add curve directly from an amplitude
+
+        inline void set_curve_points(int N){ _Npoints = N; };
+
+        // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
+        void add_curve(curve_type opt, amplitude to_plot, std::array<double,2> bounds);
+        inline void add_curve(curve_type opt, std::vector<amplitude> to_plot, std::array<double,2> bounds)
+        {
+            for (auto amp : to_plot)
+            {
+                add_curve(opt, amp, bounds);
+            }
+        };
+
+        // Plot differential observable which requires one fixed variable
+        void add_curve(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
+        inline void add_curve(curve_type opt, std::vector<amplitude> to_plot, double fixed_val, std::array<double,2> bounds)
+        {
+            for (auto amp : to_plot)
+            {
+                add_curve(opt, amp, fixed_val, bounds);
+            }
+        };
 
         // -----------------------------------------------------------------------
         // OPTION SETTERS
@@ -222,6 +253,9 @@ namespace jpacPhoto
         // Number of entries which are data and which are curves
         // Count used for choosing colors, etc
         int _Ndata = 0, _Ncurve = -1; 
+
+        // When generating curves from amplitudes, evaluate this many points
+        int _Npoints = 100;
 
         // List of all entries (theoretical curves) to be plotted
         std::vector<plot_entry> _entries;
