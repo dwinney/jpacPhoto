@@ -134,13 +134,13 @@ namespace jpacPhoto
         void add_curve(std::vector<double> x, std::vector<double> fx, std::string id = "");
         
         // Take in a lambda an evaluation range to get the vectors
-        void add_curve(int N, std::array<double,2> bounds, std::function<double(double)> F, entry_style style);
-        void add_curve(int N, std::array<double,2> bounds, std::function<double(double)> F, std::string id = "");
+        void add_curve(std::array<double,2> bounds, std::function<double(double)> F, entry_style style);
+        void add_curve(std::array<double,2> bounds, std::function<double(double)> F, std::string id = "");
 
         // Curves added by these functions appear as dashed, not on the legend, and synced with the
         // colors of the "full" curves
         void add_dashed(std::vector<double> x, std::vector<double> fx);
-        void add_dashed(int N, std::array<double,2> bounds, std::function<double(double)> F);
+        void add_dashed(std::array<double,2> bounds, std::function<double(double)> F);
 
         // -----------------------------------------------------------------------
         // Add curve directly from an amplitude

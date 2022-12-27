@@ -14,7 +14,7 @@
 
 namespace jpacPhoto
 {
-    inline data_set gluex_integrated2022()
+    inline data_set gluex_integrated()
     {
         std::string id = "GlueX 2022";
 
@@ -42,23 +42,52 @@ namespace jpacPhoto
         return wrapped;
     };
 
-    inline data_set gluex_slice0()
+    inline data_set gluex_slice(int sliceid)
     {
-        std::string id = "GlueX (E = 8.93 GeV)";
+        
+        std::string id;
+        std::string filename;
+        double Eavg;
 
-        auto raw  = import_data<7>("/data/gluex/gluex2022_diff_E0893.tsv");
+        switch (sliceid)
+        {
+            case 0: 
+            {
+                id = "GlueX (E = 8.93 GeV)";
+                filename = "/data/gluex/gluex2022_diff_E0893.tsv";
+                Eavg = 8.92877;
+                break;
+            }
+            case 1:
+            {
+                id = "GlueX (E = 9.85 GeV)";
+                filename = "/data/gluex/gluex2022_diff_E0985.tsv";
+                Eavg = 9.8583;
+                break;
+            }
+            case 2:
+            {
+                id = "GlueX (E = 10.82 GeV)";
+                filename = "/data/gluex/gluex2022_diff_E1082.tsv";
+                Eavg = 10.8205;
+                break;
+            }
+            default: return data_set();
+        };
+        
+
+        auto raw  = import_data<7>(filename);
         int  N    = check<7>(raw, id);
 
         data_set wrapped;
         wrapped._id    = id;
-        wrapped._N     = N;
         wrapped._type  = differential_data;
+        wrapped._N     = N;
         wrapped._lab   = true;
         wrapped._negt  = true;
-        wrapped._avg_w = 8.92877;
+        wrapped._avg_w = Eavg;
 
-        // Bin widths 
-        wrapped._w         = raw[6];
+        wrapped._w         = raw[6]; 
         wrapped._t         = raw[1];
         wrapped._terr[0]   = raw[1] - raw[4];
         wrapped._terr[1]   = raw[5] - raw[1];
@@ -68,61 +97,6 @@ namespace jpacPhoto
 
         return wrapped;
     };
-
-    inline data_set gluex_slice1()
-    {
-        std::string id = "GlueX (E = 9.85 GeV)";
-
-        auto raw  = import_data<7>("/data/gluex/gluex2022_diff_E0985.tsv");
-        int  N    = check<7>(raw, id);
-
-        data_set wrapped;
-        wrapped._id    = id;
-        wrapped._N     = N;
-        wrapped._type  = differential_data;
-        wrapped._lab   = true;
-        wrapped._negt  = true;
-        wrapped._avg_w = 9.8583;
-
-        // Bin widths 
-        wrapped._w         = raw[6];
-        wrapped._t         = raw[1];
-        wrapped._terr[0]   = raw[1] - raw[4];
-        wrapped._terr[1]   = raw[5] - raw[1];
-        wrapped._obs       = raw[2];
-        wrapped._obserr[0] = raw[3]/2;
-        wrapped._obserr[1] = raw[3]/2;
-
-        return wrapped;
-    };
-
-    inline data_set gluex_slice2()
-    {
-        std::string id = "GlueX (E = 10.82 GeV)";
-
-        auto raw  = import_data<7>("/data/gluex/gluex2022_diff_E1082.tsv");
-        int  N    = check<7>(raw, id);
-
-        data_set wrapped;
-        wrapped._id    = id;
-        wrapped._N     = N;
-        wrapped._type  = differential_data;
-        wrapped._lab   = true;
-        wrapped._negt  = true;
-        wrapped._avg_w = 10.8205;
-
-        // Bin widths 
-        wrapped._w         = raw[6];
-        wrapped._t         = raw[1];
-        wrapped._terr[0]   = raw[1] - raw[4];
-        wrapped._terr[1]   = raw[5] - raw[1];
-        wrapped._obs       = raw[2];
-        wrapped._obserr[0] = raw[3]/2;
-        wrapped._obserr[1] = raw[3]/2;
-
-        return wrapped;
-    };
-
 };
 
 #endif

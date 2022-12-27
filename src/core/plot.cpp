@@ -149,14 +149,14 @@ namespace jpacPhoto
     };
 
     // Take in a lambda an evaluation range to get the vectors
-    void plot::add_curve(int N, std::array<double,2> bounds, std::function<double(double)> F, entry_style style)
+    void plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, entry_style style)
     {
-        double step = (bounds[1] - bounds[0]) / double(N);
+        double step = (bounds[1] - bounds[0]) / double(_Npoints);
 
         std::vector<double> x, fx;
-        for (int n = 0; n < N; n++)
+        for (int n = 0; n < _Npoints; n++)
         {
-            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(N-1);
+            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
             double fxs = F(xs);
 
             x.push_back(xs);
@@ -166,7 +166,7 @@ namespace jpacPhoto
         add_curve(x, fx, style);
     };
 
-    void plot::add_curve(int N, std::array<double,2> bounds, std::function<double(double)> F, std::string id)
+    void plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, std::string id)
     {
         _Ncurve++;
         entry_style style;
@@ -175,7 +175,7 @@ namespace jpacPhoto
         style._label = id;
         style._add_to_legend = true;
 
-        add_curve(N, bounds, F, style);
+        add_curve(bounds, F, style);
     };
     
     void plot::add_dashed(std::vector<double> x, std::vector<double> fx)
@@ -189,14 +189,14 @@ namespace jpacPhoto
         _entries.push_back(plot_entry(g, style, false));
     };
 
-    void plot::add_dashed(int N, std::array<double,2> bounds, std::function<double(double)> F)
+    void plot::add_dashed(std::array<double,2> bounds, std::function<double(double)> F)
     {
-        double step = (bounds[1] - bounds[0]) / double(N);
+        double step = (bounds[1] - bounds[0]) / double(_Npoints);
 
         std::vector<double> x, fx;
-        for (int n = 0; n < N; n++)
+        for (int n = 0; n < _Npoints; n++)
         {
-            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(N-1);
+            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
             double fxs = F(xs);
 
             x.push_back(xs);
@@ -219,7 +219,7 @@ namespace jpacPhoto
                     return to_plot->integrated_xsection(s);
                 };
 
-                add_curve(_Npoints, bounds, G, to_plot->id());
+                add_curve(bounds, G, to_plot->id());
                 return;
             }
             case sigma_w: 
@@ -229,7 +229,7 @@ namespace jpacPhoto
                     return to_plot->integrated_xsection(w*w);
                 };
 
-                add_curve(_Npoints, bounds, G, to_plot->id());
+                add_curve(bounds, G, to_plot->id());
                 return;
             };
             case sigma_Egam: 
@@ -240,7 +240,7 @@ namespace jpacPhoto
                     return to_plot->integrated_xsection(w*w);
                 };
 
-                add_curve(_Npoints, bounds, G, to_plot->id());
+                add_curve(bounds, G, to_plot->id());
                 return;
             };
             default:
@@ -266,7 +266,7 @@ namespace jpacPhoto
                     return to_plot->differential_xsection(s, -mt);
                 };
 
-                add_curve(_Npoints, bounds, G, to_plot->id());
+                add_curve(bounds, G, to_plot->id());
                 return;
             }
             case dsigmadt_w: 
@@ -279,7 +279,7 @@ namespace jpacPhoto
                     return to_plot->differential_xsection(s, -mt);
                 };
 
-                add_curve(_Npoints, bounds, G, to_plot->id());
+                add_curve(bounds, G, to_plot->id());
                 return;
             };
             case dsigmadt_Egam: 
@@ -293,7 +293,7 @@ namespace jpacPhoto
                     return to_plot->differential_xsection(s, -mt);
                 };
 
-                add_curve(_Npoints, bounds, G, to_plot->id());
+                add_curve(bounds, G, to_plot->id());
                 return;
             };
             default:

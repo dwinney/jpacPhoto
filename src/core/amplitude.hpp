@@ -57,6 +57,9 @@ namespace jpacPhoto
         friend amplitude new_amplitude(kinematics, int, std::string);
 
         template<class A>
+        friend amplitude new_amplitude(kinematics, int, std::array<double,2>, std::string);
+
+        template<class A>
         friend amplitude new_amplitude(kinematics, double, amplitude_option, std::string);
 
         friend amplitude operator+(amplitude a, amplitude b);
@@ -103,6 +106,14 @@ namespace jpacPhoto
     inline amplitude new_amplitude(kinematics xkinem, int J, std::string id)
     {
         amplitude amp_ptr = std::make_shared<A>(amplitude_key(), xkinem, J, id);
+        return amp_ptr;
+    };
+    
+    // Or a version of the new_amplitude<A> function that allows a fixed spin J
+    template<class A>
+    inline amplitude new_amplitude(kinematics xkinem, int J, std::array<double,2> params, std::string id)
+    {
+        amplitude amp_ptr = std::make_shared<A>(amplitude_key(), xkinem, J, params, id);
         return amp_ptr;
     };
 
@@ -179,7 +190,6 @@ namespace jpacPhoto
         // If an amplitude_option is passed, make appropriate changes.
         // By default this does nothing except save _option
         virtual void set_option(amplitude_option x){ _option = x; };
-
         
         // Give each parameter a name if you'd like
         // By default we assume this is a sum and we grab labels from each subamplitude
@@ -394,6 +404,7 @@ namespace jpacPhoto
 
         // Friend to allow this operator to acess add()
         friend void operator+=(amplitude a, amplitude b);
+        friend amplitude operator+(amplitude a, amplitude b);
         friend std::vector<amplitude> extract_subamplitudes(amplitude amp);
     };
 

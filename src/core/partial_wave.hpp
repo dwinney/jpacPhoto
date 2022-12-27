@@ -73,6 +73,8 @@ namespace jpacPhoto
         // By default we calculate the partial-wave projection integral numerically from 
         // the saved amplitude 
         virtual complex evaluate(std::array<int,4> helicities, double s);
+        virtual complex evaluate(){ return 0; };
+
         
         // Output the J quantum number
         inline int J(){ return _J; };

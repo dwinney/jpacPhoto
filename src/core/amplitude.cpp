@@ -52,11 +52,14 @@ namespace jpacPhoto
         // New id will be the "sum" of the individual id's
         std::string id = a->id() + " + " + b->id(); 
 
-        // vector of subamps
-        std::vector<amplitude> amps = {a, b};
-        
+        // Extract the sub amplitudes from each vector being summed
+        // This allows the saved pointers to all ways be "base" level amplitudes in stead of other sums
+        std::vector<amplitude> from_a = (a->is_sum()) ? a->_subamplitudes : std::vector<amplitude>{{a}};
+        std::vector<amplitude> from_b = (b->is_sum()) ? b->_subamplitudes : std::vector<amplitude>{{b}};
+        from_a.insert(from_a.end(), from_b.begin(), from_b.end());
+
         // Initialize and return a new amplitude
-        return std::make_shared<raw_amplitude>(amplitude_key(), amps, id);
+        return std::make_shared<raw_amplitude>(amplitude_key(), from_a, id);
     };
 
     // Take an existing sum and add a new amplitude
