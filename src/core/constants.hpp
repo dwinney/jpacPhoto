@@ -14,6 +14,7 @@
 #include <complex>
 #include <limits>
 
+#include "print.hpp"
 #include "debug.hpp"
 
 namespace jpacPhoto

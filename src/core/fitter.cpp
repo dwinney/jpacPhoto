@@ -8,21 +8,26 @@
 // ------------------------------------------------------------------------------
 
 #include "fitter.hpp"
+#include "data_set.hpp"
 
 namespace jpacPhoto
 {
     // -----------------------------------------------------------------------
     // Methods for managing data
 
-    void fitter::add_integrated_data(data_set data)
+    void fitter::add_data(data_set data)
     {
-        _int_data.push_back(data);
-        _N += data._N;
-    };
+        switch (data._type)
+        {
+            case integrated_data:   _int_data.push_back(data); break;
+            case differential_data: _dif_data.push_back(data); break;
+            default:
+            {
+                warning("fitter::add_data", "data_set " + data._id + " of unsupported type!");
+                return;
+            }
+        }
 
-    void fitter::add_differential_data(data_set data)
-    {
-        _dif_data.push_back(data);
         _N += data._N;
     };
 
@@ -122,7 +127,7 @@ namespace jpacPhoto
 
     // Total chi2, this combines all data sets and is the function that gets called 
     // by the minimizer
-    double fitter::chi2(const double * cpars)
+    double fitter::fit_chi2(const double * cpars)
     {
         // First convert the C string to a C++ vector
         std::vector<double> pars = convert(cpars);
@@ -157,7 +162,7 @@ namespace jpacPhoto
 
             double sigma_th = _amplitude->integrated_xsection(s);
             double sigma_ex = data._obs[i];
-            double error    = data._obserr[1][i] + data._obserr[0][i];
+            double error    = data._obserr[i];
 
             chi2 += pow((sigma_th - sigma_ex)/error, 2);
         };
@@ -175,11 +180,11 @@ namespace jpacPhoto
             double s = W*W;
 
             double t = (data._negt) ? -data._t[i] : data._t[i];
-            if (data._tprime) t + _amplitude->_kinematics->t_min(s);
+            if (data._tprime) t += _amplitude->_kinematics->t_min(s);
 
             double sigma_th = _amplitude->differential_xsection(s, t);
             double sigma_ex = data._obs[i];
-            double error    = data._obserr[1][i] + data._obserr[0][i];
+            double error    = data._obserr[i];
 
             chi2 += pow((sigma_th - sigma_ex)/error, 2);
         };
@@ -211,20 +216,23 @@ namespace jpacPhoto
             }
         };
 
-        fcn = ROOT::Math::Functor(this, &fitter::chi2, _pars.size());
+        fcn = ROOT::Math::Functor(this, &fitter::fit_chi2, _pars.size());
         _minuit->SetFunction(fcn);
     };
 
-    double fitter::do_fit(std::vector<double> starting_guess)
+    // Actually do the fit given a vector of size amp->N_pars() as starting values
+    // Prints results to command line and sets best fit parameters into _amplitude
+    void fitter::do_fit(std::vector<double> starting_guess, bool show_data)
     {
         if (starting_guess.size() != _pars.size()) 
         {
-            return error("fitter::do_fit", "Starting guess not the correct size!", -1);
+            warning("fitter::do_fit", "Starting guess not the correct size!");
+            return;
         };
 
         set_up(starting_guess);
 
-        line(); data_info();
+        if (show_data) { line(); data_info(); };
         line(); divider(); 
         line(); parameter_info(starting_guess, true);
         line(); divider(); line();
@@ -240,10 +248,52 @@ namespace jpacPhoto
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
         std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
+        line();
+        print_results();
+    };
 
-        double chi2dof = print_results();
+    // Repeat do_fit N times and find the best fit
+    // Parameters are randomly initialized each time on the interval [-5, 5] unless custom limits are set
+    void fitter::do_fit(int N)
+    {
+        // Initial guess
+        std::vector<double> guess;
 
-        return chi2dof;
+        for (int i = 1; i <= N; i++)
+        {
+            guess.clear();
+
+            // Whether this is the first iteration
+            bool first_fit =  !(i-1);
+            
+            // Initialize the guess for each parameter
+            for (auto par : _pars)
+            {
+                if (par._custom_limits)
+                { guess.push_back(_guesser->Uniform(par._lower, par._upper)); }
+                else                    
+                { guess.push_back(_guesser->Uniform(-5., 5));}
+            };
+
+            // Do out fit with this random guess
+            std::cout << std::left << "Fit #" + std::to_string(i) << std::endl;
+            do_fit(guess, first_fit);
+
+            // Compare with previous best and update
+            if ( first_fit || chi2dof() < _best_chi2dof)
+            {
+                _best_chi2dof = _minuit->MinValue() / (_N - _minuit->NFree());
+                _best_chi2    = _minuit->MinValue();
+                _best_pars    = convert(_minuit->X());
+            };
+        };
+
+        // After looping, set the best_pars to the amplitude
+        _amplitude->set_parameters(_best_pars);
+
+        // And set the global saved pars to the best_fit
+        std::cout << std::left << "Best fit found after N = " + std::to_string(N) + " iterations" << std::endl;
+        print_results(false);
     };
 
     // ---------------------------------------------------------------------------
@@ -311,25 +361,29 @@ namespace jpacPhoto
     };
 
     // At the end of a fit, print out a table sumarizing the fit results
-    double fitter::print_results()
+    void fitter::print_results(bool last_fit)
     {
-        line();
-        int dof = _N - _minuit->NFree();
-        double chi2    = _minuit->MinValue();
-        double chi2dof = chi2 / double(dof) ;
-        std::vector<double> best_params = convert(_minuit->X());
+        int dof        = _N - _minuit->NFree();
+        double chi2    = (last_fit) ?  _minuit->MinValue() : _best_chi2;
+        double chi2dof = (last_fit) ? _minuit->MinValue() / double(dof) : _best_chi2dof;
+        std::vector<double> pars = (last_fit) ? convert(_minuit->X()): _best_pars;
 
         divider();
         std::cout << std::left << std::setw(10) << "chi2 = "      << std::setw(15) << chi2;
         std::cout << std::left << std::setw(10) << "chi2/dof = "  << std::setw(15) << chi2dof << "\n";
         line();
-        parameter_info(best_params, false);
+        parameter_info(pars, false);
         divider();
         line();
         
         // At the end update the amplitude parameters to include the fit results
-        _amplitude->set_parameters(best_params);
+        _amplitude->set_parameters(pars);
 
-        return chi2dof;
+        _chi2     = chi2;
+        _chi2dof  = chi2dof;
+        _fit_pars = pars;
+
+        // Let rest of the fitter that a fit result has been saved
+        _fit = true;
     }
 };

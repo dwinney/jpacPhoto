@@ -11,6 +11,7 @@
 #define DATA_SET_HPP
 
 #include "constants.hpp"
+#include "elementwise.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -84,64 +85,6 @@ namespace jpacPhoto
         return result;
     };
 
-    // ---------------------------------------------------------------------------
-    // Element-wise operations on data vectors
-
-    inline std::vector<double>operator+(std::vector<double> lhs, std::vector<double> rhs)
-    {
-        if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
-
-        std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( lhs[i] + rhs[i] );
-        };
-        return result;
-    };
-
-    inline std::vector<double>operator-(std::vector<double> lhs, std::vector<double> rhs)
-    {
-        if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
-
-        std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( lhs[i] - rhs[i] );
-        };
-        return result;
-    };
-
-    // Given two vector<double>s of the same size, calculate the average element wise
-    inline std::vector<double>operator*( std::vector<double> lhs, double c)
-    {
-        std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( lhs[i]*c );
-        };
-        return result;
-    };
-
-    inline std::vector<double>operator*(double c, std::vector<double> rhs)
-    {
-        std::vector<double> result;
-        for (int i = 0; i < rhs.size(); i++)
-        {
-            result.push_back( c*rhs[i] );
-        };
-        return result;
-    };
-
-    inline std::vector<double>operator/( std::vector<double> lhs, double c)
-    {
-        std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( lhs[i]/c );
-        };
-        return result;
-    };
-
     // Make sure all the vectors are the correct size
     template<int S>
     inline int check(std::array<std::vector<double>,S> data, std::string id)
@@ -175,10 +118,10 @@ namespace jpacPhoto
         data_type _type;
         
         // Vectors to store energy and momentum transfer variables and observable
-        std::vector<double> _w, _t, _obs;
+        std::vector<double> _w, _t, _obs, _obserr;
 
         // Other possible vectors to store things like bin sizes, etc
-        std::array<std::vector<double>,2> _werr, _terr, _obserr;
+        std::array<std::vector<double>,2> _werr, _terr;
 
         // Whether the values stored in _w correspond to invariant energy W = sqrt(s) (false)
         // or lab frame energy Egamma (true)

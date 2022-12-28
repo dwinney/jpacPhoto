@@ -16,49 +16,6 @@
 
 namespace jpacPhoto
 {
-    // -----------------------------------------------------------------------
-    
-    // Output an empty line to the terminal
-    inline void line()
-    {
-        std::cout << std::endl;
-    };
-
-    // Print out a horizontal line
-    inline void divider()
-    {
-        std::cout << "--------------------------------------------------------------" << std::endl;
-    };
-
-    // Default spacing value
-    const int PRINT_SPACING = 15;
-
-    template<typename T>
-    inline void print(T x)
-    {
-        std::cout << std::boolalpha << std::left;  
-        std::cout << std::setw(PRINT_SPACING) << x << std::endl;
-    };
-
-    template <typename First, typename... Rest>
-    inline void print(First first, Rest... rest)
-    {
-        std::cout << std::boolalpha << std::left; 
-        std::cout << std::setw(PRINT_SPACING) << first;
-        print(rest...);
-    } 
-
-    template<typename T>
-    inline void print(std::vector<T> v)
-    {
-        std::cout << std::boolalpha; 
-        for (auto vi : v)
-        {
-            std::cout << std::left << std::setw(PRINT_SPACING) << vi;
-        };
-        std::cout << std::endl;
-    };
-
     // ---------------------------------------------------------------------------
     // ERROR Messages
     

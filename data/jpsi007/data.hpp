@@ -14,69 +14,74 @@
 
 namespace jpacPhoto
 {
-    inline data_set jpsi007_all()
+    namespace jpsi007
     {
-        auto raw     = import_data<15>("data/jpsi007/jpsi007_all.tsv");
-        auto reduced = reshape_data<15,4>(raw, {8, 10, 11, 14});
+        // Filter the data set by the E_idx setting 
+        // which gives slices in energy variable 
+        inline data_set slice(int Eidx)
+        {
+            // Import data and check theres no missing entries
+            auto raw  = import_data<15>("data/jpsi007/jpsi007_electron.tsv");
+            int  Ntot = check<15>(raw, "J/psi-007 all"); 
 
-        data_set wrapped(reduced, "J/psi-007");
+            // Destination for the reduced data set after filtering
+            int N = 0;
+            
+            // Calcualte arithmetic mean of the energy values in E-bin
+            double Eavg = 0;
 
-        wrapped._lab  = true;
-        wrapped._negt = true;
+            // Target location for 
+            std::array<std::vector<double>,6> reduced;
+            for (int i = 0; i < Ntot; i++)
+            {
+                if (raw[2][i] != Eidx) continue;
 
-        return wrapped;
-    };
+                // Begin summin # of points and energies to calc average
+                N++;
+                Eavg += raw[8][i];
 
-    inline data_set jpsi007_setting1()
-    {
-        auto raw     = import_data<15>("data/jpsi007/jpsi007_setting1.tsv");
-        auto reduced = reshape_data<15,4>(raw, {8, 10, 11, 14});
+                // Populate vectors
+                reduced[0].push_back(raw[8][i]);
+                reduced[1].push_back(raw[9][i]);
+                reduced[2].push_back(raw[9][i] - raw[6][i]);
+                reduced[3].push_back(raw[7][i] - raw[9][i]);
+                reduced[4].push_back(raw[11][i]);
+                reduced[5].push_back(raw[14][i]);
+            };
 
-        data_set wrapped(reduced, "J/psi-007 (Setting 1)");
+            // Calculate average energy of this slice
+            Eavg /= double(N);
 
-        wrapped._lab  = true;
-        wrapped._negt = true;
-        
-        return wrapped;
-    };
+            // Wrap the vectors above in a data_set object
+            data_set wrapped;
 
-    inline data_set jpsi007_setting2()
-    {
-        auto raw     = import_data<15>("data/jpsi007/jpsi007_setting2.tsv");
-        auto reduced = reshape_data<15,4>(raw, {8, 10, 11, 14});
+            wrapped._id        = "J/psi-007 (" + var_def("E", Eavg, "GeV") + ")";
+            wrapped._N         = N;
+            wrapped._type      = differential_data;
+            wrapped._lab       = true;
+            wrapped._negt      = true;
+            wrapped._tprime    = true;
+            wrapped._avg_w     = Eavg;
+            wrapped._w         = reduced[0];
+            wrapped._t         = reduced[1];
+            wrapped._terr[0]   = reduced[2];
+            wrapped._terr[1]   = reduced[3];
+            wrapped._obs       = reduced[4];
+            wrapped._obserr    = reduced[5];
 
-        data_set wrapped(reduced, "J/psi-007 (Setting 2)");
+            return wrapped;
+        };
 
-        wrapped._lab  = true;
-        wrapped._negt = true;
-        
-        return wrapped;
-    };
-
-    inline data_set jpsi007_setting3()
-    {
-        auto raw     = import_data<15>("data/jpsi007/jpsi007_setting3.tsv");
-        auto reduced = reshape_data<15,4>(raw, {8, 10, 11, 14});
-
-        data_set wrapped(reduced, "J/psi-007 (Setting 3)");
-
-        wrapped._lab  = true;
-        wrapped._negt = true;
-        
-        return wrapped;
-    };
-
-    inline data_set jpsi007_setting4()
-    {
-        auto raw     = import_data<15>("data/jpsi007/jpsi007_setting4.tsv");
-        auto reduced = reshape_data<15,4>(raw, {8, 10, 11, 14});
-
-        data_set wrapped(reduced, "J/psi-007 (Setting 4)");
-
-        wrapped._lab  = true;
-        wrapped._negt = true;
-        
-        return wrapped;
+        // Produces a vector containing all slices for the J/psi-007 data set
+        inline std::vector<data_set> all()
+        {
+            std::vector<data_set> result;
+            for (int i = 1; i <= 12; i++)
+            {
+                result.push_back( jpsi007::slice(i) );
+            };
+            return result;
+        };
     };
 };
 

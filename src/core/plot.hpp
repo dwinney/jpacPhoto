@@ -105,6 +105,9 @@ namespace jpacPhoto
         // Outputting function, generates plot and saves it to file
         void save(); 
 
+        // Adding an optional string will override the saved filename and then save
+        inline void save(std::string filename){ _filename = filename; save(); };
+
         // Add a plot entry
         inline void add_entry(plot_entry curve)
         {
@@ -195,7 +198,7 @@ namespace jpacPhoto
         private: 
         
         // Constructor is private, only creatable through plotter
-        plot(TCanvas* canvas, std::string file)
+        plot(TCanvas* canvas, std::string file = "")
         : _canvas(canvas), _filename(file)
         {};
 

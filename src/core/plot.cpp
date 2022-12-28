@@ -97,16 +97,16 @@ namespace jpacPhoto
         {
             case integrated_data: 
             {
-                x  = &(data._w[0]);         y  = &(data._obs[0]);
-                xl = &(data._werr[0][0]);   xh = &(data._werr[1][0]);
-                yl = &(data._obserr[0][0]); yh = &(data._obserr[1][0]);
+                x  = &(data._w[0]);        y  = &(data._obs[0]);
+                xl = &(data._werr[0][0]);  xh = &(data._werr[1][0]);
+                yl = &(data._obserr[0]);   yh = &(data._obserr[0]);
                 break;
             };
             case differential_data: 
             {
-                x  = &(data._t[0]);         y  = &(data._obs[0]);
-                xl = &(data._terr[0][0]);   xh = &(data._terr[1][0]);
-                yl = &(data._obserr[0][0]); yh = &(data._obserr[1][0]);
+                x  = &(data._t[0]);        y  = &(data._obs[0]);
+                xl = &(data._terr[0][0]);  xh = &(data._terr[1][0]);
+                yl = &(data._obserr[0]);   yh = &(data._obserr[0]);
                 break;
             };
             default: return;

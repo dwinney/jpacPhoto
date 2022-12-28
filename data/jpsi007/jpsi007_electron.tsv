@@ -1,4 +1,4 @@
-# Jpsi-007 2022 2D cross-section data
+# Jpsi-007 2022 2D cross-section data in the J/\psi -> e+e- channel
 # setting	idx	E_idx	t_idx	E_low	E_high	abs_t_tmin_low	abst_t_tmin_high	avg_E	avg_abs_t_tmin	avg_abs_t	dsdt_nb	stat_error	sys_error	tot_error
 1	0	8	0	9.85	10	0	0.1	9.92	0.05	0.63	0.724	0.167	0.051	0.175
 1	1	8	1	9.85	10	0.1	0.2	9.93	0.15	0.73	0.349	0.162	0.05	0.169
