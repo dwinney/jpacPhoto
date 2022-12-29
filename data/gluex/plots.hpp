@@ -29,7 +29,7 @@ namespace jpacPhoto
             plot pint = p.new_plot();
             pint.add_data( inte );
             pint.set_logscale(false, true);
-            pint.set_legend(0.6, 0.3);
+            pint.set_legend(0.4, 0.2);
             pint.set_ranges({8, 12}, {1E-2, 10});
             pint.set_labels("#it{E}_{#gamma}  [GeV]", 
                             "#sigma(#gamma #it{p} #rightarrow #it{J}/#psi #it{p})  [nb]");
@@ -49,7 +49,7 @@ namespace jpacPhoto
             plot pdif = p.new_plot();
             pdif.add_data(slice);
             pdif.set_logscale(false, true);
-            pdif.set_legend(0.55, 0.7);
+            pdif.set_legend(0.55, 0.65);
             pdif.set_ranges({0, tmax + 0.2}, {1E-3, 6});
             pdif.add_header("#it{E}_{#gamma} =", slice._avg_w, "GeV");
             pdif.set_labels("#minus#it{t}  [GeV^{2}]", "#it{d}#sigma/#it{dt}  [nb / GeV^{2}]");

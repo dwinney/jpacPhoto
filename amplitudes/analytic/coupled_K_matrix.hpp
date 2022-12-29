@@ -8,23 +8,22 @@
 // Email:        dwinney@iu.alumni.edu
 // ------------------------------------------------------------------------------
 
-#ifndef TWO_CHANNEL_HPP
-#define TWO_CHANNEL_HPP
+#ifndef COUPLED_K_MATRIX_HPP
+#define COUPLED_K_MATRIX_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
-#include "scattering_length.hpp"
 
 namespace jpacPhoto
 {
     namespace analytic
     {
-        class two_channel : public raw_partial_wave
+        class coupled_K_matrix : public raw_partial_wave
         {
             public: 
 
-            two_channel(amplitude_key key, kinematics xkinem, int J, std::array<double,2> masses, std::string id = "scattering_length")
-            : raw_partial_wave(key, xkinem, J, "scattering_length", id),
+            coupled_K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<double,2> masses, std::string id = "coupled_K_matrix")
+            : raw_partial_wave(key, xkinem, J, "coupled_K_matrix", id),
               _m1(masses[0]), _m2(masses[1])
             {
                 // 3 K-matrix parameters and 2 normalizations
@@ -60,9 +59,35 @@ namespace jpacPhoto
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()
             {
-                std::string J = std::to_string(_J);
-                return{ "a00[" + J + "]", "a01[" + J + "]", "a11[" + J + "]",
-                        "b00[" + J + "]", "b01[" + J + "]"                    };
+                switch (_option)
+                {
+                    case Default:         return {J_label("a00"), J_label("a01"), J_label("a11"), J_label("b0"), J_label("b1") };
+                    case EffectiveRange:  return {J_label("a00"), J_label("a01"), J_label("a11"), J_label("r00"), J_label("r11"), J_label("b0"), J_label("b1") };
+                    default: return {{}};
+                };
+            };
+
+            // The amplitude_option to choose a limiting case of parameters
+            // or Default to reset to the most general parameterization
+            inline void set_option(amplitude_option x)
+            {
+                switch (x)
+                {
+                    case Default:
+                    {
+                        set_N_pars(5);
+                        _r00 = 0; _r11 = 0;
+                        break;
+                    };
+                    case EffectiveRange:   
+                    { 
+                        set_N_pars(7); 
+                        break;
+                    };
+                    default: option_error(); return;
+                };
+
+                _option = x;
             };
 
             // PW is the unitarized K-matrix form
@@ -81,9 +106,9 @@ namespace jpacPhoto
                 _B[1] = pow(pq(1), _J) * _b1;
 
                 // K-matrices
-                _K00 = pow(q2(0,0), _J) * _a00;
+                _K00 = pow(q2(0,0), _J) * (_a00 + _r00*q2(0,0)/2);
                 _K01 = pow(q2(0,1), _J) * _a01;
-                _K11 = pow(q2(1,1), _J) * _a11;
+                _K11 = pow(q2(1,1), _J) * (_a11 + _r11*q2(1,1)/2);
 
                 // The A-matrices all share the same denominator
                 _D    = (1-_G[0]*_K00)*(1-_G[1]*_K11) - _G[0]*_G[1]*_K01*_K01;
@@ -102,25 +127,44 @@ namespace jpacPhoto
 
             inline void allocate_parameters(std::vector<double> pars)
             {
-                _a00 = pars[0];
-                _a01 = pars[1];
-                _a11 = pars[2];
-                _b0  = pars[3];
-                _b1  = pars[4];
-                return;
+                switch (_option)
+                {
+                    case Default: 
+                    {
+                        _a00 = pars[0];
+                        _a01 = pars[1];
+                        _a11 = pars[2];
+                        _b0  = pars[3];
+                        _b1  = pars[4];
+                        break;
+                    }
+                    case EffectiveRange: 
+                    {
+                        _a00 = pars[0];
+                        _a01 = pars[1];
+                        _a11 = pars[2];
+                        _r00 = pars[3];
+                        _r11 = pars[4];
+                        _b0  = pars[5];
+                        _b1  = pars[6];
+                        break;
+                    }
+                    default: return;
+                }
             };
 
             // -----------------------------------------------------------------------
             private:
 
             // Mass of the second open channel
-            double _m1 = 0, _m2 = 0;
+            double _m1 = 0,  _m2 = 0;
             
             // K-matrix parameters
             double _a00 = 0, _a01 = 0, _a11 = 0;
+            double _r00 = 0, _r11 = 0;
             
             // Production amplitude parameters
-            double _b0 = 0, _b1 = 0; 
+            double _b0 = 0,  _b1 = 0; 
 
             // Internal variables for the K and A amplitudes
             complex _K00, _K01, _K11, _A00, _A01, _A11, _D, _delK;
@@ -142,7 +186,7 @@ namespace jpacPhoto
             inline complex pq(unsigned i){ return _kinematics->initial_momentum(_s) * _q[i]; };
             
             // Product of momenta of the hadronic rescattering process
-            inline complex q2(int i, int j){ return _q[i] * _q[j]; };
+            inline complex q2(unsigned i, unsigned j){ return _q[i] * _q[j]; };
         };
     };
 };

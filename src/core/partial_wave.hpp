@@ -81,6 +81,9 @@ namespace jpacPhoto
         
         protected:
 
+        // Produce a string of a parameter name which appends the J quantum number to it, i.e. "name[J]"
+        inline std::string J_label(std::string name){ return name + "[" + std::to_string(_J) + "]"; };
+
         virtual inline void allocate_parameters(int x)
         {
             warning("partial_wave::allocate_parameters", 

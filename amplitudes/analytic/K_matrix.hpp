@@ -7,8 +7,8 @@
 // Email:        dwinney@iu.alumni.edu
 // ------------------------------------------------------------------------------
 
-#ifndef SCATTERING_LENGTH_HPP
-#define SCATTERING_LENGTH_HPP
+#ifndef K_MATRIX_HPP
+#define K_MATRIX_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
@@ -19,12 +19,12 @@ namespace jpacPhoto
 {
     namespace analytic
     {
-        class scattering_length : public raw_partial_wave
+        class K_matrix : public raw_partial_wave
         {
             public: 
 
-            scattering_length(amplitude_key key, kinematics xkinem, int J, std::string id = "scattering_length")
-            : raw_partial_wave(key, xkinem, J, "scattering_length", id)
+            K_matrix(amplitude_key key, kinematics xkinem, int J, std::string id = "K_matrix")
+            : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
                 set_N_pars(2);
                 check_QNs(xkinem);
@@ -58,14 +58,39 @@ namespace jpacPhoto
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()
             {
-                std::string J = std::to_string(_J);
-                return{ "a[" + J + "]", "b[" + J + "]" };
+                std::vector<std::string> labels = { J_label("a"), J_label("b") };
+                if (_option == EffectiveRange) labels.push_back(  J_label("r") );
+                return labels;
+            };
+            
+            // The amplitude_option allows each partial wave to switch
+            // between the effective range and scattering range approximations
+            inline void set_option(amplitude_option x)
+            {
+                switch (x)
+                {
+                    case ScatteringLength: 
+                    {
+                        set_N_pars(2); 
+                        _r = 0;
+                        break;
+                    };
+                    case EffectiveRange:   
+                    { 
+                        set_N_pars(3); 
+                        _r = 0;
+                        break;
+                    };
+                    default: option_error(); return;
+                };
+
+                _option = x;
             };
 
             // PW is the unitarized K-matrix form
             inline complex evaluate()
             {
-                complex K = pow(q2(), _J) * _a;
+                complex K = pow(q2(), _J) * (_a + _r*q2()/2);
                 complex B = pow(pq(), _J) * _b;
                 complex T = K / (1 - G()*K);
 
@@ -76,8 +101,12 @@ namespace jpacPhoto
 
             inline void allocate_parameters(std::vector<double> pars)
             {
+                // Two parameters by default
                 _a = pars[0];
                 _b = pars[1];
+
+                // But set the third effective range if the option is set
+                if (_option == EffectiveRange) _r = pars[2];
                 return;
             };
 
@@ -85,7 +114,7 @@ namespace jpacPhoto
             private:
 
             // couplings are the overall normalization (b) and scattering length (a)
-            double _a = 0, _b = 0; 
+            double _a = 0, _b = 0, _r = 0; 
 
             // Chew-Mandelstam phase-space
             inline complex G(double m1, double m2)
@@ -95,7 +124,7 @@ namespace jpacPhoto
 
                 rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
                 xi     = 1 - (m1+m2)*(m1+m2)/_s;
-                result = - (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
+                result = (rho*log((xi - rho) / (xi + rho)) + xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
                 return result;
             };
             inline complex G(){ return G(_mX, _mR); };

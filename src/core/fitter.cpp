@@ -44,6 +44,8 @@ namespace jpacPhoto
     void fitter::reset_parameters()
     {
         _pars.clear();
+        _Nfree = _amplitude->N_pars();
+
         // populate parameters vector of appropriate size
         for (int i = 0; i < _amplitude->N_pars(); i++)
         {
@@ -75,7 +77,7 @@ namespace jpacPhoto
             if (par._label == label) return par._i;
         };
 
-        return error("fitter::find_parameter", "Cannot find parameter labeled " + label + "!", NaN<int>());
+        return error("fitter::find_parameter", "Cannot find parameter labeled " + label + "!", -1);
     };
 
     // Set limits and/or a custom stepsize
@@ -89,36 +91,70 @@ namespace jpacPhoto
 
     void fitter::set_parameter_limits(std::string label, std::array<double,2> bounds, double step)
     {
-        return set_parameter_limits(find_parameter(label), bounds, step);
+        int index = find_parameter(label);
+        if (index == -1) return;
+        return set_parameter_limits(index, bounds, step);
     }
 
-    void fitter::fix_parameter(int i)
+    void fitter::fix_parameter(int i, double val)
     {
-        _pars[i]._fixed = true;
+        // If parameter is already fixed, just update the fixed val
+        // otherwise flip the fixed flag and update the number of free pars
+        if (!_pars[i]._fixed)
+        {
+            _pars[i]._fixed = true;
+            _Nfree--;
+            _fit = false;
+        }
+        _pars[i]._fixed_value = val;
     };
 
-    void fitter::fix_parameter(std::string label)
+    void fitter::fix_parameter(std::string label, double val)
     {
-        return fix_parameter(find_parameter(label));
+        int index = find_parameter(label);
+        if (index == -1) return;
+        return fix_parameter(index, val);
     };
 
     void fitter::free_parameter(int i)
     {
+        // if not fixed, this does nothing
+        if (!_pars[i]._fixed) return;
+
         _pars[i]._fixed = false;
+        _Nfree++;
+        _fit = false;
     };
 
     void fitter::free_parameter(std::string label)
     {
-        return free_parameter(find_parameter(label));
+        int index = find_parameter(label);
+        if (index == -1) return;
+        return free_parameter(index);
     };
 
-    std::vector<double> fitter::convert(const double * pars)
+    // Given a C-style array of size _Nfree
+    // Convert to a C++ style std::vector and populate
+    // fixed value parameters in the expected order
+    std::vector<double> fitter::convert(const double * cpars)
     {
         std::vector<double> result;
-        for (int i = 0; i < _pars.size(); i++)
+
+        // Move along the pars index when a parameter is not fixed
+        int i = 0;
+        for (auto par : _pars)
         {
-            result.push_back(pars[i]);
+            if (par._fixed)
+            {
+                result.push_back(par._fixed_value);
+            }
+            else 
+            {
+                result.push_back(cpars[i]);
+                i++;
+            }
         };
+
         return result;
     };
 
@@ -202,21 +238,21 @@ namespace jpacPhoto
         _minuit->SetPrintLevel(_print_level);
         _minuit->SetMaxFunctionCalls(_max_calls);
 
-        for (int a = 0; a < _pars.size(); a++)
+        // Iterate over each _par but also keep track of the index in starting_guess
+        int i = 0;
+        for ( auto par : _pars)
         {   
-            _minuit->SetVariable(a, _pars[a]._label, starting_guess[a], _pars[a]._step);
+            if (par._fixed) continue;
+            
+            _minuit->SetVariable(i, par._label, starting_guess[i], par._step);
 
-            if (_pars[a]._custom_limits)
-            {
-                _minuit->SetVariableLimits(a, _pars[a]._lower, _pars[a]._upper);
-            }
-            if (_pars[a]._fixed)
-            {
-                _minuit->FixVariable(a);
-            }
+            if (par._custom_limits) _minuit->SetVariableLimits(i, par._lower, par._upper);
+
+            // If we've made it this far, this par isnt fixed, and we move to the next index 
+            i++;
         };
 
-        fcn = ROOT::Math::Functor(this, &fitter::fit_chi2, _pars.size());
+        fcn = ROOT::Math::Functor(this, &fitter::fit_chi2, _Nfree);
         _minuit->SetFunction(fcn);
     };
 
@@ -224,18 +260,17 @@ namespace jpacPhoto
     // Prints results to command line and sets best fit parameters into _amplitude
     void fitter::do_fit(std::vector<double> starting_guess, bool show_data)
     {
-        if (starting_guess.size() != _pars.size()) 
+        if (starting_guess.size() != _Nfree) 
         {
-            warning("fitter::do_fit", "Starting guess not the correct size!");
+            warning("fitter::do_fit", "Starting guess not the correct size! Expected " + std::to_string(_Nfree) + " parameters!");
             return;
         };
 
         set_up(starting_guess);
 
         if (show_data) { line(); data_info(); };
-        line(); divider(); 
-        line(); parameter_info(starting_guess, true);
-        line(); divider(); line();
+        parameter_info(starting_guess);
+
 
         auto start = std::chrono::high_resolution_clock::now();
         std::cout << "Beginning fit..." << std::flush; 
@@ -245,9 +280,12 @@ namespace jpacPhoto
         if (_print_level != 0) line();   
 
         std::cout << "Done! \n";
-        auto stop = std::chrono::high_resolution_clock::now();
+
+        // Timing info
+        auto stop     = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
         std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
+
         line();
         print_results();
     };
@@ -269,14 +307,14 @@ namespace jpacPhoto
             // Initialize the guess for each parameter
             for (auto par : _pars)
             {
-                if (par._custom_limits)
-                { guess.push_back(_guesser->Uniform(par._lower, par._upper)); }
-                else                    
-                { guess.push_back(_guesser->Uniform(-5., 5));}
+                if (par._fixed) continue;
+
+                if (par._custom_limits) guess.push_back(_guesser->Uniform(par._lower, par._upper)); 
+                else                    guess.push_back(_guesser->Uniform(_guess_range[0], _guess_range[1]));
             };
 
             // Do out fit with this random guess
-            std::cout << std::left << "Fit #" + std::to_string(i) << std::endl;
+            if (!first_fit) std::cout << std::left << "Fit (" + std::to_string(i) + "/" + std::to_string(N) + ")" << std::endl;
             do_fit(guess, first_fit);
 
             // Compare with previous best and update
@@ -285,6 +323,7 @@ namespace jpacPhoto
                 _best_chi2dof = _minuit->MinValue() / (_N - _minuit->NFree());
                 _best_chi2    = _minuit->MinValue();
                 _best_pars    = convert(_minuit->X());
+                _best_errs    = convert(_minuit->Errors());
             };
         };
 
@@ -293,6 +332,7 @@ namespace jpacPhoto
 
         // And set the global saved pars to the best_fit
         std::cout << std::left << "Best fit found after N = " + std::to_string(N) + " iterations" << std::endl;
+        line();
         print_results(false);
     };
 
@@ -308,6 +348,7 @@ namespace jpacPhoto
         using std::endl;
 
         cout << left;
+        divider();
         cout << "Fitting amplitude (\"" << _amplitude->id() << "\") to " << _N << " data points:" << endl;
         line();
         cout << setw(30) << "DATA SET"         << setw(20) << "OBSERVABLE"     << setw(10) << "POINTS" << endl;
@@ -322,59 +363,109 @@ namespace jpacPhoto
         };
     };
 
-    // Print out a little table of the current status of parameters
-    void fitter::parameter_info(std::vector<double> starting_guess, bool start)
+    // Print out a little table of the starting values of all the parameters and other set options
+    // Here starting_guess should be of size _Nfree!
+    void fitter::parameter_info(std::vector<double> starting_guess)
     {  
         using std::cout; 
         using std::left;
         using std::setw;
         using std::endl;
 
-        cout << std::setprecision(10);
+        cout << std::setprecision(8);
         cout << left;
 
+        line(); divider();
         // Print message at the beginning of the fit
-        if (start)  cout << "Fitting " + std::to_string(_minuit->NFree()) << " (out of " << std::to_string(_minuit->NDim()) << ") parameters:" << endl; 
+        cout << "Fitting " + std::to_string(_minuit->NFree()) << " (out of " << std::to_string(_pars.size()) << ") parameters:" << endl; 
         line();
-        std::string column_3;
-        (start) ? (column_3 = "START VALUE") : (column_3 = "FIT VALUE");
-        cout << setw(10) << "N"     << setw(20) << "PARAMETER"  << setw(10) << column_3       << endl;
-        cout << setw(10) << "-----" << setw(20) << "----------" << setw(10) << "------------" << endl;
 
-        for (int i = 0; i < _pars.size(); i++)
+        cout << left << setw(10) << "N"     << setw(17) << "PARAMETER"  << setw(20) << "START VALUE"  << endl;
+        cout << left << setw(10) << "-----" << setw(17) << "----------" << setw(20) << "------------" << endl;
+
+        // Moving index from the guess vector
+        int i = 0;
+        for (auto par : _pars)
         {
             // Parse whether a parameter has extra options 
             // such as custom limits
             std::string extra = "";
-            if (_pars[i]._custom_limits && start)
+            if (par._custom_limits)
             {   
                 std::stringstream ss;
-                ss << std::setprecision(5) << "[" << _pars[i]._lower << ", " << _pars[i]._upper << "]";
+                ss << std::setprecision(5) << "[" << par._lower << ", " << par._upper << "]";
                 extra = ss.str();
             };
+
             // Or is fixed
-            if (_pars[i]._fixed && start) extra = "FIXED";
+            double par_val;
+            if (par._fixed)
+            {
+                par_val = par._fixed_value;
+                extra   = "FIXED";
+            }
+            else
+            {
+                par_val = starting_guess[i];
+                i++;
+            }
 
-
-            cout << left << setw(10) << i << setw(20) << _pars[i]._label << setw(20) << starting_guess[i] << setw(10) << extra << endl;
+            cout << left << setw(10) << par._i << setw(17) << par._label << setw(20) << par_val << setw(20) << extra << endl;
         };
+        line(); divider(); line();
     };
 
     // At the end of a fit, print out a table sumarizing the fit results
+    // if last_fit == true, we grab the results from the most recent fit in _minuit
+    // else we print out the ones saved in _best_fit
     void fitter::print_results(bool last_fit)
     {
-        int dof        = _N - _minuit->NFree();
-        double chi2    = (last_fit) ?  _minuit->MinValue() : _best_chi2;
-        double chi2dof = (last_fit) ? _minuit->MinValue() / double(dof) : _best_chi2dof;
-        std::vector<double> pars = (last_fit) ? convert(_minuit->X()): _best_pars;
+        using std::cout; 
+        using std::left;
+        using std::setw;
+        using std::endl;
+
+        cout << std::setprecision(8);
+        cout << left;
+
+        int dof                  = _N - _minuit->NFree();
+        double chi2              = (last_fit) ? _minuit->MinValue()               : _best_chi2;
+        double chi2dof           = (last_fit) ? _minuit->MinValue() / double(dof) : _best_chi2dof;
+        std::vector<double> pars = (last_fit) ? convert(_minuit->X())             : _best_pars;
+        std::vector<double> errs = (last_fit) ? convert(_minuit->Errors())        : _best_errs;
 
         divider();
         std::cout << std::left << std::setw(10) << "chi2 = "      << std::setw(15) << chi2;
         std::cout << std::left << std::setw(10) << "chi2/dof = "  << std::setw(15) << chi2dof << "\n";
+
         line();
-        parameter_info(pars, false);
-        divider();
-        line();
+
+        cout << left << setw(10) << "N"     << setw(16) << "PARAMETER"  << setw(18) << "FIT VALUE"    << setw(18) << "ERROR"        << endl;
+        cout << left << setw(10) << "-----" << setw(16) << "----------" << setw(18) << "------------" << setw(18) << "------------" << endl;
+
+        // Moving index from the guess vector
+        for (auto par : _pars)
+        {
+            double val;
+            std::string err;
+            std::stringstream ss;
+            ss << std::setprecision(8);
+
+            if (par._fixed)
+            {
+                val = par._fixed_value;
+                err = "FIXED";
+            }
+            else
+            {
+                val = pars[par._i];
+                ss << errs[par._i];
+                err = ss.str();
+            }
+
+            cout << left << setw(10) << par._i << setw(16) << par._label << setw(18) << val << setw(18) << err << endl;
+        };
+        line(); divider(); line();
         
         // At the end update the amplitude parameters to include the fit results
         _amplitude->set_parameters(pars);

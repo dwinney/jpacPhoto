@@ -56,7 +56,7 @@ namespace jpacPhoto
         legend->SetFillStyle(0); // Make legend transparent
 
         // IF theres a custom header add it
-        if (_addheader) legend->SetHeader(("    " + _header).c_str());
+        if (_addheader) legend->SetHeader(("  " + _header).c_str(), "L");
 
         for (auto entry : _entries)
         {

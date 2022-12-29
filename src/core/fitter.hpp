@@ -46,6 +46,7 @@ namespace jpacPhoto
         std::string _label;
 
         bool   _fixed         = false;
+        double _fixed_value   = 0;
         bool   _custom_limits = false;
         double _upper         = 0;
         double _lower         = 0;
@@ -117,9 +118,9 @@ namespace jpacPhoto
         void set_parameter_limits(int i, std::array<double,2> bounds, double step = 0.1);
         void set_parameter_limits(std::string label, std::array<double,2> bounds, double step = 0.1);
 
-        // Indicate a parameter should be fixed to its initial guess value
-        void fix_parameter(int i);
-        void fix_parameter(std::string label);
+        // Indicate a parameter should be fixed to its initial guess value or a fixed val
+        void fix_parameter(int i, double val = 0);
+        void fix_parameter(std::string label, double val = 0);
 
         // Unfix a parameter
         void free_parameter(int i);
@@ -136,6 +137,9 @@ namespace jpacPhoto
 
         // Change tolerance
         inline void set_tolerance(double tol){ _tolerance = tol; };
+
+        // Change the guess range for initializing parameters
+        inline void set_guess_range(std::array<double,2> bounds){ _guess_range = bounds; };
 
         // Actually do the fit given a vector of size amp->N_pars() as starting values
         // Prints results to command line but also returns the best-fit chi2 value
@@ -200,17 +204,23 @@ namespace jpacPhoto
         // Save of the last fit run
         bool _fit = false;          // Whether a fit has already been done or not yet
         double _chi2dof, _chi2;     // Last saved chi2/dof
-        std::vector<double> _fit_pars;
+        std::vector<double> _fit_pars, _errors;
 
         // Save of the best fits found if running multiple times
         double _best_chi2, _best_chi2dof;
-        std::vector<double> _best_pars;
+        std::vector<double> _best_pars, _best_errs;
 
         // -----------------------------------------------------------------------
         // Parameter handling
 
         // Store of parameter info
         std::vector<parameter> _pars;
+
+        // Number of free parameters
+        int _Nfree = 0;
+
+        // Default guess_range to initalize parameters
+        std::array<double,2> _guess_range = {-5, 5};
 
         // Return the index given a label
         int find_parameter(std::string label);
@@ -232,7 +242,7 @@ namespace jpacPhoto
         // Display alongside a vector of current parameter values
         // bool start is whether this is the starting guess vector or the 
         // best fit results
-        void parameter_info(std::vector<double> pars, bool start);
+        void parameter_info(std::vector<double> guess);
 
         // After a fit return a summary of fit results
         void print_results(bool last_fit = true);

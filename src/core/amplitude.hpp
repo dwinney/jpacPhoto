@@ -31,7 +31,7 @@ namespace jpacPhoto
 
     // We only ever want to work with amplitudes as pointers on the heap.
     // This will allow our amplitudes to be added / passes around without issue
-    using amplitude    = std::shared_ptr<raw_amplitude>;
+    using amplitude  = std::shared_ptr<raw_amplitude>;
 
     // We require this private class to allow only the new_amplitude function from
     // Creating amplitude objects
@@ -44,23 +44,17 @@ namespace jpacPhoto
         // The only functions that can create new amplitudes
         // are these friend functions
 
+        // Constructor with no free parameters, only kinematics and id
         template<class A>
         friend amplitude new_amplitude(kinematics, std::string);
 
-        template<class A>
-        friend amplitude new_amplitude(kinematics, double, std::string);
+        // One additional parameter
+        template<class A, typename B>
+        friend amplitude new_amplitude(kinematics, B, std::string);
 
-        template<class A>
-        friend amplitude new_amplitude(kinematics, amplitude_option, std::string);
-
-        template<class A>
-        friend amplitude new_amplitude(kinematics, int, std::string);
-
-        template<class A>
-        friend amplitude new_amplitude(kinematics, int, std::array<double,2>, std::string);
-
-        template<class A>
-        friend amplitude new_amplitude(kinematics, double, amplitude_option, std::string);
+        // Two additional parameters
+        template<class A, typename B, typename C>
+        friend amplitude new_amplitude(kinematics, B, C, std::string);
 
         friend amplitude operator+(amplitude a, amplitude b);
 
@@ -75,46 +69,20 @@ namespace jpacPhoto
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
-    // Same as above but allows to specify an 'amplitude_option' as well
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, std::string id)
+    // "constructor" specifying an extra parameter
+    template<class A, typename B>
+    inline amplitude new_amplitude(kinematics xkinem, B extra, std::string id)
     {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem, id);
-        amp->set_option(opt);
+        auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-
-    // "constructor" specifying a mass
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, double mass, std::string id)
-    {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem, mass, id);
-        return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-
-    // Again, same as above but with an additional option parameter piped in
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, double mass, amplitude_option opt, std::string id)
-    {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem, mass, id);
-        amp->set_option(opt);
-        return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-
-    // Or a version of the new_amplitude<A> function that allows a fixed spin J
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, int J, std::string id)
-    {
-        amplitude amp_ptr = std::make_shared<A>(amplitude_key(), xkinem, J, id);
-        return amp_ptr;
     };
     
-    // Or a version of the new_amplitude<A> function that allows a fixed spin J
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, int J, std::array<double,2> params, std::string id)
+    // "constructor" specifying two extra parameters
+    template<class A, typename B, typename C>
+    inline amplitude new_amplitude(kinematics xkinem, B extra1, C extra2, std::string id)
     {
-        amplitude amp_ptr = std::make_shared<A>(amplitude_key(), xkinem, J, params, id);
-        return amp_ptr;
+        auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra1, extra2, id);
+        return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
     // ---------------------------------------------------------------------------
