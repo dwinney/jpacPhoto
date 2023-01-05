@@ -271,7 +271,7 @@ namespace jpacPhoto
 
         // Each amplitude may have different options for evaluating their amplitude
         // they may be differenticated with this variable
-        amplitude_option _option;
+        amplitude_option _option = Default;
         inline void option_error()
         {
             warning(name()+"::set_option", 

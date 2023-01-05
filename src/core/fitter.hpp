@@ -35,9 +35,16 @@ namespace jpacPhoto
     {
         private:
 
+        // Default initialized
+        // This initializes a fixed parameter for normalizations
         parameter()
+        : _is_norm(true),
+          _fixed(true), _value(1.), 
+          _label("norm"), _i(-1),
+          _lower(0), _upper(5)
         {};
         
+        // Constructor for amplitude variables
         parameter(int i)
         : _i(i), _label(default_label(i))
         {};
@@ -45,8 +52,9 @@ namespace jpacPhoto
         int         _i;
         std::string _label;
 
+        bool   _is_norm       = false;
         bool   _fixed         = false;
-        double _fixed_value   = 0;
+        double _value         = 0;
         bool   _custom_limits = false;
         double _upper         = 0;
         double _lower         = 0;
@@ -115,15 +123,15 @@ namespace jpacPhoto
         void set_parameter_labels(std::vector<std::string> labels);
 
         // Set limits and/or a custom stepsize
-        void set_parameter_limits(int i, std::array<double,2> bounds, double step = 0.1);
+        void set_parameter_limits(parameter& par, std::array<double,2> bounds, double step = 0.1);
         void set_parameter_limits(std::string label, std::array<double,2> bounds, double step = 0.1);
 
         // Indicate a parameter should be fixed to its initial guess value or a fixed val
-        void fix_parameter(int i, double val = 0);
+        void fix_parameter(parameter& par, double val = 0);
         void fix_parameter(std::string label, double val = 0);
 
         // Unfix a parameter
-        void free_parameter(int i);
+        void free_parameter(parameter& par);
         void free_parameter(std::string label);
 
         // -----------------------------------------------------------------------
@@ -155,6 +163,9 @@ namespace jpacPhoto
         // Return a vector of best-fit parameters from last fit
         inline double chi2()   { return (_fit) ? _chi2    : -1; };
         inline double chi2dof(){ return (_fit) ? _chi2dof : -1; };
+
+        // Return the best fit normalization
+        inline double norm()   { return (_fit && !_norm._fixed) ? _best_norm : 1; }
 
         // Return the pointer to the amp being fit
         inline amplitude fit_amplitude(){ return _amplitude; };
@@ -207,13 +218,14 @@ namespace jpacPhoto
         std::vector<double> _fit_pars, _errors;
 
         // Save of the best fits found if running multiple times
-        double _best_chi2, _best_chi2dof;
+        double _best_chi2, _best_chi2dof, _best_norm = 1, _best_norm_err;
         std::vector<double> _best_pars, _best_errs;
 
         // -----------------------------------------------------------------------
         // Parameter handling
 
         // Store of parameter info
+        parameter _norm;
         std::vector<parameter> _pars;
 
         // Number of free parameters

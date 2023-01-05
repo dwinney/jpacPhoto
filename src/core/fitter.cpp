@@ -77,60 +77,63 @@ namespace jpacPhoto
             if (par._label == label) return par._i;
         };
 
-        return error("fitter::find_parameter", "Cannot find parameter labeled " + label + "!", -1);
+        if (label == "normalization" || label == "norm") return -1;
+
+        return error("fitter::find_parameter", "Cannot find parameter labeled " + label + "!", -2);
     };
 
     // Set limits and/or a custom stepsize
-    void fitter::set_parameter_limits(int i, std::array<double,2> bounds, double step)
+    void fitter::set_parameter_limits(parameter& par, std::array<double,2> bounds, double step)
     {
-        _pars[i]._custom_limits = true;
-        _pars[i]._lower         = bounds[0];
-        _pars[i]._upper         = bounds[1];
-        _pars[i]._step          = step;
+        par._custom_limits = true;
+        par._lower         = bounds[0];
+        par._upper         = bounds[1];
+        par._step          = step;
     };
 
     void fitter::set_parameter_limits(std::string label, std::array<double,2> bounds, double step)
     {
         int index = find_parameter(label);
-        if (index == -1) return;
-        return set_parameter_limits(index, bounds, step);
+        if (index == -2) return;
+        if (index == -1) return set_parameter_limits(_norm, bounds, step);
+        return set_parameter_limits(_pars[index], bounds, step);
     }
 
-    void fitter::fix_parameter(int i, double val)
+    void fitter::fix_parameter(parameter& par, double val)
     {
         // If parameter is already fixed, just update the fixed val
         // otherwise flip the fixed flag and update the number of free pars
-        if (!_pars[i]._fixed)
-        {
-            _pars[i]._fixed = true;
-            _Nfree--;
-            _fit = false;
-        }
-        _pars[i]._fixed_value = val;
+        if (!par._fixed && !par._is_norm) _Nfree--;
+
+        par._fixed = true;
+        par._value = val;
+        _fit = false;
     };
 
     void fitter::fix_parameter(std::string label, double val)
     {
         int index = find_parameter(label);
-        if (index == -1) return;
-        return fix_parameter(index, val);
+        if (index == -2) return;
+        if (index == -1) return fix_parameter(_norm, val);
+        return fix_parameter(_pars[index], val);
     };
 
-    void fitter::free_parameter(int i)
+    void fitter::free_parameter(parameter& par)
     {
         // if not fixed, this does nothing
-        if (!_pars[i]._fixed) return;
+        if (!par._fixed) return;
 
-        _pars[i]._fixed = false;
-        _Nfree++;
+        par._fixed = false;
         _fit = false;
+
+        if (!par._is_norm) _Nfree++;
     };
 
     void fitter::free_parameter(std::string label)
     {
         int index = find_parameter(label);
-        if (index == -1) return;
-        return free_parameter(index);
+        if (index == -1) return free_parameter(_norm);
+        return free_parameter(_pars[index]);
     };
 
     // Given a C-style array of size _Nfree
@@ -146,7 +149,7 @@ namespace jpacPhoto
         {
             if (par._fixed)
             {
-                result.push_back(par._fixed_value);
+                result.push_back(par._value);
             }
             else 
             {
@@ -165,12 +168,14 @@ namespace jpacPhoto
     // by the minimizer
     double fitter::fit_chi2(const double * cpars)
     {
+        // IF the norm is being fit, we'll use the 
+        if (!_norm._fixed) _norm._value = cpars[_Nfree];
+
         // First convert the C string to a C++ vector
         std::vector<double> pars = convert(cpars);
 
         // Pass parameters to the amplitude
         _amplitude->set_parameters(pars);
-
 
         // Then sum over all data sets and observables
         double chi2 = 0;
@@ -196,7 +201,7 @@ namespace jpacPhoto
             double W = (data._lab) ? W_cm(data._w[i]) : data._w[i];
             double s = W*W;
 
-            double sigma_th = _amplitude->integrated_xsection(s);
+            double sigma_th = pow(_norm._value, 2) * _amplitude->integrated_xsection(s);
             double sigma_ex = data._obs[i];
             double error    = data._obserr[i];
 
@@ -218,7 +223,7 @@ namespace jpacPhoto
             double t = (data._negt) ? -data._t[i] : data._t[i];
             if (data._tprime) t += _amplitude->_kinematics->t_min(s);
 
-            double sigma_th = _amplitude->differential_xsection(s, t);
+            double sigma_th = pow(_norm._value, 2) * _amplitude->differential_xsection(s, t);
             double sigma_ex = data._obs[i];
             double error    = data._obserr[i];
 
@@ -252,7 +257,14 @@ namespace jpacPhoto
             i++;
         };
 
-        fcn = ROOT::Math::Functor(this, &fitter::fit_chi2, _Nfree);
+        // AT the end add the normalization if this has not been fixed
+        // If normalization is being fixed, always initialize it at starting value = 1
+        if (!_norm._fixed) 
+        {
+            _minuit->SetLowerLimitedVariable(_Nfree, "norm", 1., _norm._step, 0.);
+        };
+    
+        fcn = ROOT::Math::Functor(this, &fitter::fit_chi2, _Nfree + !_norm._fixed);
         _minuit->SetFunction(fcn);
     };
 
@@ -294,6 +306,9 @@ namespace jpacPhoto
     // Parameters are randomly initialized each time on the interval [-5, 5] unless custom limits are set
     void fitter::do_fit(int N)
     {
+        divider();
+        std::cout << std::left << "Commencing N = " + std::to_string(N) + " fit iterations." << std::endl;
+
         // Initial guess
         std::vector<double> guess;
 
@@ -324,6 +339,12 @@ namespace jpacPhoto
                 _best_chi2    = _minuit->MinValue();
                 _best_pars    = convert(_minuit->X());
                 _best_errs    = convert(_minuit->Errors());
+
+                if (!_norm._fixed)
+                {
+                    _best_norm = _minuit->X()[_Nfree];
+                    _best_norm_err = _minuit->Errors()[_Nfree];
+                };
             };
         };
 
@@ -377,11 +398,20 @@ namespace jpacPhoto
 
         line(); divider();
         // Print message at the beginning of the fit
-        cout << "Fitting " + std::to_string(_minuit->NFree()) << " (out of " << std::to_string(_pars.size()) << ") parameters:" << endl; 
+        cout << "Fitting " + std::to_string(_Nfree) << " (of " << std::to_string(_pars.size()) << ") parameters";
+
+        if (!_norm._fixed) cout << " and an overall normalization: " << endl; 
+        else               cout << ":" << endl;
+
         line();
 
         cout << left << setw(10) << "N"     << setw(17) << "PARAMETER"  << setw(20) << "START VALUE"  << endl;
         cout << left << setw(10) << "-----" << setw(17) << "----------" << setw(20) << "------------" << endl;
+
+        if (!_norm._fixed)
+        {
+            cout << left << setw(10) << "-"     << setw(17) << "Norm."  << setw(20) << "1"  << endl;
+        };
 
         // Moving index from the guess vector
         int i = 0;
@@ -401,8 +431,8 @@ namespace jpacPhoto
             double par_val;
             if (par._fixed)
             {
-                par_val = par._fixed_value;
-                extra   = "FIXED";
+                par_val = par._value;
+                extra   = "[FIXED]";
             }
             else
             {
@@ -434,6 +464,7 @@ namespace jpacPhoto
         std::vector<double> pars = (last_fit) ? convert(_minuit->X())             : _best_pars;
         std::vector<double> errs = (last_fit) ? convert(_minuit->Errors())        : _best_errs;
 
+
         divider();
         std::cout << std::left << std::setw(10) << "chi2 = "      << std::setw(15) << chi2;
         std::cout << std::left << std::setw(10) << "chi2/dof = "  << std::setw(15) << chi2dof << "\n";
@@ -443,7 +474,13 @@ namespace jpacPhoto
         cout << left << setw(10) << "N"     << setw(16) << "PARAMETER"  << setw(18) << "FIT VALUE"    << setw(18) << "ERROR"        << endl;
         cout << left << setw(10) << "-----" << setw(16) << "----------" << setw(18) << "------------" << setw(18) << "------------" << endl;
 
-        // Moving index from the guess vector
+        if (!_norm._fixed) 
+        {
+            double norm     = (last_fit) ? _minuit->X()[_Nfree]      : _best_norm;
+            double norm_err = (last_fit) ? _minuit->Errors()[_Nfree] : _best_norm_err; 
+            cout << left << setw(10) << "-"     << setw(16) << "Norm."  << setw(18) << norm << setw(18) << norm_err << endl;
+        };
+
         for (auto par : _pars)
         {
             double val;
@@ -453,8 +490,8 @@ namespace jpacPhoto
 
             if (par._fixed)
             {
-                val = par._fixed_value;
-                err = "FIXED";
+                val = par._value;
+                err = "[FIXED]";
             }
             else
             {
