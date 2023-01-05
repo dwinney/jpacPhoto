@@ -58,8 +58,8 @@ namespace jpacPhoto
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()
             {
-                std::vector<std::string> labels = { J_label("a"), J_label("b") };
-                if (_option == EffectiveRange) labels.push_back(  J_label("r") );
+                std::vector<std::string> labels = { J_label("N"), J_label("A") };
+                if (_option == EffectiveRange) labels.push_back(  J_label("B") );
                 return labels;
             };
             
