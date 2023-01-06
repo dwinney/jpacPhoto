@@ -158,6 +158,7 @@ namespace jpacPhoto
             }
         };
 
+        if (i != _Nfree) warning("fitter::convert", "Something went wrong in converting parameter vector.");
         return result;
     };
 
@@ -342,7 +343,7 @@ namespace jpacPhoto
 
                 if (!_norm._fixed)
                 {
-                    _best_norm = _minuit->X()[_Nfree];
+                    _best_norm     = _minuit->X()[_Nfree];
                     _best_norm_err = _minuit->Errors()[_Nfree];
                 };
             };

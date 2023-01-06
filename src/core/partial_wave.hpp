@@ -60,7 +60,7 @@ namespace jpacPhoto
         // These are always assumed to be s-channel helicities so this is fixed
         helicity_channel native_helicity_frame()
         {
-            return helicity_channel::S;
+            return helicity_channel::S_CHANNEL;
         };
 
         virtual std::vector<std::array<int,2>> allowed_meson_JP(){  return _amplitude->allowed_meson_JP(); };

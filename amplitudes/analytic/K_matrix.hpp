@@ -72,13 +72,13 @@ namespace jpacPhoto
                     case ScatteringLength: 
                     {
                         set_N_pars(2); 
-                        _r = 0;
+                        _B = 0;
                         break;
                     };
                     case EffectiveRange:   
                     { 
                         set_N_pars(3); 
-                        _r = 0;
+                        _B = 0;
                         break;
                     };
                     default: option_error(); return;
@@ -90,11 +90,11 @@ namespace jpacPhoto
             // PW is the unitarized K-matrix form
             inline complex evaluate()
             {
-                complex K = pow(q2(), _J) * (_a + _r*q2()/2);
-                complex B = pow(pq(), _J) * _b;
-                complex T = K / (1 - G()*K);
+                complex K = pow(q2(), _J) * (_A + _B*q2());
+                complex M = K / (1 + G()*K);
+                complex N = pow(pq(), _J) * _N;
 
-                return B * (1 + G()*T);
+                return N * (1 - G()*M);
             };
 
             protected:
@@ -102,19 +102,19 @@ namespace jpacPhoto
             inline void allocate_parameters(std::vector<double> pars)
             {
                 // Two parameters by default
-                _a = pars[0];
-                _b = pars[1];
+                _N = pars[0];
+                _A = pars[1];
 
                 // But set the third effective range if the option is set
-                if (_option == EffectiveRange) _r = pars[2];
+                if (_option == EffectiveRange) _B = pars[2];
                 return;
             };
 
             // -----------------------------------------------------------------------
             private:
 
-            // couplings are the overall normalization (b) and scattering length (a)
-            double _a = 0, _b = 0, _r = 0; 
+            // Free parameters N_L, A_L, and B_L
+            double _N = 0, _A = 0, _B = 0; 
 
             // Chew-Mandelstam phase-space
             inline complex G(double m1, double m2)
@@ -124,7 +124,7 @@ namespace jpacPhoto
 
                 rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
                 xi     = 1 - (m1+m2)*(m1+m2)/_s;
-                result = (rho*log((xi - rho) / (xi + rho)) + xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
+                result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
                 return result;
             };
             inline complex G(){ return G(_mX, _mR); };

@@ -499,9 +499,9 @@ namespace jpacPhoto
         
         switch (frame)
         {
-            case S: return SDME(alpha, lam, lamp, s, t);
-            case T: return rotated_SDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
-            case U: 
+            case S_CHANNEL: return SDME(alpha, lam, lamp, s, t);
+            case T_CHANNEL: return rotated_SDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
+            case U_CHANNEL: 
             {
                 return error("SDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", 0);
             };
@@ -517,9 +517,9 @@ namespace jpacPhoto
 
         switch (frame)
         {
-            case S: return rotated_SDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
-            case T: return SDME(alpha, lam, lamp, s, t);
-            case U: 
+            case S_CHANNEL: return rotated_SDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
+            case T_CHANNEL: return SDME(alpha, lam, lamp, s, t);
+            case U_CHANNEL: 
             {
                 return error("SDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", 0);
             };

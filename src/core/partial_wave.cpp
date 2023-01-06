@@ -26,7 +26,7 @@ namespace jpacPhoto
 
     amplitude project(int J, amplitude to_project, std::string id)
     {
-        if (to_project->native_helicity_frame() != helicity_channel::S)
+        if (to_project->native_helicity_frame() != helicity_channel::S_CHANNEL)
         {
             return error("project", 
                          "Amplitude " + to_project->id() + " not an s-channel helicity amplitude!", 

@@ -161,21 +161,21 @@ namespace jpacPhoto
 
         switch (channel)
         {
-            case helicity_channel::S :
+            case helicity_channel::S_CHANNEL :
             {
                 s_b =  1;            eta_b = +1;         // proton
                 s_c =  2*_mjp[0];    eta_c = _mjp[1];   // produced meson
                 s_d =  _bjp[0];      eta_d = _bjp[1];   // recoil baryon
                 break;
             }
-            case helicity_channel::T :
+            case helicity_channel::T_CHANNEL :
             {
                 s_b =  2*_mjp[0];   eta_b = _mjp[1];    // produced meson
                 s_c =  1;           eta_c = +1;          // proton
                 s_d =  _bjp[0];     eta_d = _bjp[1];    // recoil baryon
                 break;
             }
-            case helicity_channel::U :
+            case helicity_channel::U_CHANNEL :
             {
                 s_b =  _bjp[0];      eta_b = _bjp[1];    // recoil baryon
                 s_c =  1;            eta_c = +1;          // proton
@@ -198,19 +198,19 @@ namespace jpacPhoto
         int lam, lamp;
         switch (channel)
         {
-            case helicity_channel::S :
+            case helicity_channel::S_CHANNEL :
             {
                 lam =  (2 * helicities[0] - helicities[1]);
                 lamp = (2 * helicities[2] - helicities[3]);
                 break;
             }
-            case helicity_channel::T :
+            case helicity_channel::T_CHANNEL :
             {
                 lam =  (2 * (helicities[0] - helicities[2]));
                 lamp = (helicities[1] - helicities[3]);
                 break;
             }
-            case helicity_channel::U :
+            case helicity_channel::U_CHANNEL :
             {
                 lam =  (2 * helicities[0] - helicities[3]);
                 lamp = (2 * helicities[2] - helicities[1]);
