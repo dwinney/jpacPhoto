@@ -59,11 +59,17 @@ namespace jpacPhoto
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()
             {
+                std::vector<std::string> labels = { J_label("N0"), J_label("N1"), J_label("A00"), J_label("A01"), J_label("A11") };
                 switch (_option)
                 {
-                    case Default:         return {J_label("a00"), J_label("a01"), J_label("a11"), J_label("b0"), J_label("b1") };
-                    case EffectiveRange:  return {J_label("a00"), J_label("a01"), J_label("a11"), J_label("r00"), J_label("r11"), J_label("b0"), J_label("b1") };
-                    default: return {{}};
+                    case Default: return labels;
+                    case EffectiveRange:  
+                    {
+                        labels.push_back( J_label("B00") );
+                        labels.push_back( J_label("B11") );
+                        return labels;
+                    }
+                    default:  return {{}};
                 };
             };
 
@@ -76,7 +82,7 @@ namespace jpacPhoto
                     case Default:
                     {
                         set_N_pars(5);
-                        _r00 = 0; _r11 = 0;
+                        _B00 = 0; _B11 = 0;
                         break;
                     };
                     case EffectiveRange:   
@@ -102,25 +108,46 @@ namespace jpacPhoto
                 _G[1] = G(_m1, _m2);
 
                 // Production amplitude pieces
-                _B[0] = pow(pq(0), _J) * _b0;
-                _B[1] = pow(pq(1), _J) * _b1;
+                _N[0] = pow(pq(0), _J) * _N0;
+                _N[1] = pow(pq(1), _J) * _N1;
 
                 // K-matrices
-                _K00 = pow(q2(0,0), _J) * (_a00 + _r00*q2(0,0)/2);
-                _K01 = pow(q2(0,1), _J) * _a01;
-                _K11 = pow(q2(1,1), _J) * (_a11 + _r11*q2(1,1)/2);
+                _K00 = pow(q2(0,0), _J) * (_A00 + _B00*q2(0,0));
+                _K01 = pow(q2(0,1), _J) *  _A01;
+                _K11 = pow(q2(1,1), _J) * (_A11 + _B11*q2(1,1));
 
                 // The A-matrices all share the same denominator
-                _D    = (1-_G[0]*_K00)*(1-_G[1]*_K11) - _G[0]*_G[1]*_K01*_K01;
+                _D    = (1+_G[0]*_K00)*(1+_G[1]*_K11) - _G[0]*_G[1]*_K01*_K01;
 
                 // Determinant of K-matrix
                 _delK = _K00*_K11 - _K01*_K01;
 
                 // Then all we need are the numerators
-                _A00 = (_K00 - _G[1]*_delK) / _D;
-                _A01 = _K01 / _D;
+                _M00 = (_K00 + _G[1]*_delK) / _D;
+                _M01 = _K01 / _D;
 
-                return _B[0] * (1 + _G[0]*_A00) + _B[1]*_G[1]*_A01;
+                complex T = _N[0] * (1 - _G[0]*_M00) - _N[1]*_G[1]*_M01;
+
+                if (_debug == 1)
+                {
+                    print("q0 =", real(_q[0]));
+                    print("q1 =", real(_q[1]));
+
+                    line(); print("Loop functions:");
+                    print("G0 =", _G[0]);
+                    print("G1 =", _G[1]);
+
+                    line(); print("Amplitudes:");
+                    print("K00 =", _K00);
+                    print("K01 =", _K01);
+                    print("K11 =", _K11);
+                    print("M00 =", _M00);
+                    print("M01", _M01);
+                    print("T =", T);
+                    line();
+                }
+
+                return T;
             };
 
             protected:
@@ -131,22 +158,22 @@ namespace jpacPhoto
                 {
                     case Default: 
                     {
-                        _a00 = pars[0];
-                        _a01 = pars[1];
-                        _a11 = pars[2];
-                        _b0  = pars[3];
-                        _b1  = pars[4];
+                        _N0   = pars[0];
+                        _N1   = pars[1];
+                        _A00  = pars[2];
+                        _A01  = pars[3];
+                        _A11  = pars[4];
                         break;
                     }
                     case EffectiveRange: 
                     {
-                        _a00 = pars[0];
-                        _a01 = pars[1];
-                        _a11 = pars[2];
-                        _r00 = pars[3];
-                        _r11 = pars[4];
-                        _b0  = pars[5];
-                        _b1  = pars[6];
+                        _N0   = pars[0];
+                        _N1   = pars[1];
+                        _A00  = pars[2];
+                        _A01  = pars[3];
+                        _A11  = pars[4];
+                        _B00  = pars[5];
+                        _B11  = pars[6];
                         break;
                     }
                     default: return;
@@ -160,15 +187,15 @@ namespace jpacPhoto
             double _m1 = 0,  _m2 = 0;
             
             // K-matrix parameters
-            double _a00 = 0, _a01 = 0, _a11 = 0;
-            double _r00 = 0, _r11 = 0;
+            double _A00 = 0, _A01 = 0, _A11 = 0;
+            double _B00 = 0, _B01 = 0, _B11 = 0;
             
             // Production amplitude parameters
-            double _b0 = 0,  _b1 = 0; 
+            double _N0 = 0,  _N1 = 0; 
 
-            // Internal variables for the K and A amplitudes
-            complex _K00, _K01, _K11, _A00, _A01, _A11, _D, _delK;
-            std::array<complex,2> _q, _G, _B;
+            // Internal variables for the K and M amplitudes
+            complex _K00, _K01, _K11, _M00, _M01, _M11, _D, _delK;
+            std::array<complex,2> _q, _G, _N;
 
             // Chew-Mandelstam phase-space
             inline complex G(double m1, double m2)
@@ -178,7 +205,7 @@ namespace jpacPhoto
 
                 rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
                 xi     = 1 - (m1+m2)*(m1+m2)/_s;
-                result = - (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
+                result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
                 return result;
             };
 
