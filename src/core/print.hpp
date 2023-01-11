@@ -33,19 +33,20 @@ namespace jpacPhoto
     };
 
     // Default spacing value
-    const int PRINT_SPACING = 15;
+    const int PRINT_SPACING   = 15;
+    const int PRINT_PRECISION = 9;
 
     template<typename T>
     inline void print(T x)
     {
-        std::cout << std::boolalpha << std::left;  
+        std::cout << std::boolalpha << std::left << std::setprecision(9);  
         std::cout << std::setw(PRINT_SPACING) << x << std::endl;
     };
 
     template <typename First, typename... Rest>
     inline void print(First first, Rest... rest)
     {
-        std::cout << std::boolalpha << std::left; 
+        std::cout << std::boolalpha << std::left << std::setprecision(9);  
         std::cout << std::setw(PRINT_SPACING) << first;
         print(rest...);
     } 
@@ -53,7 +54,7 @@ namespace jpacPhoto
     template<typename T>
     inline void print(std::vector<T> v)
     {
-        std::cout << std::boolalpha; 
+        std::cout << std::boolalpha << std::setprecision(9);  
         for (auto vi : v)
         {
             std::cout << std::left << std::setw(PRINT_SPACING) << vi;
