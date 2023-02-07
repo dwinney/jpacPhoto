@@ -56,6 +56,26 @@ namespace jpacPhoto
 
             return pdif;
         };
+
+        // Plot the differential 
+        inline plot plot_forward_slice(plotter& p, int i)
+        {
+            data_set slice = gluex::forward_slice(i); 
+            slice._id = "GlueX"; 
+
+            // Grab the position of upper edge of last t-bin
+            double tmax = slice._t.back() + slice._terr[1].back();
+
+            plot pdif = p.new_plot();
+            pdif.add_data(slice);
+            pdif.set_logscale(false, true);
+            pdif.set_legend(0.55, 0.65);
+            pdif.set_ranges({0, tmax + 0.2}, {1E-3, 6});
+            pdif.add_header("#it{E}_{#gamma} =", slice._avg_w, "GeV");
+            pdif.set_labels("#minus#it{t}  [GeV^{2}]", "#it{d}#sigma/#it{dt}  [nb / GeV^{2}]");
+
+            return pdif;
+        };
     };
 };
 
