@@ -34,7 +34,7 @@ namespace jpacPhoto
     // Methods to make partial_Waves from existing amplitudes
 
     // "Constructor" function which projects an existing amplitude
-    amplitude project(int J, amplitude to_project, std::string id = "");
+    amplitude project(int J, bool half_int, amplitude to_project, std::string id = "");
 
     // ---------------------------------------------------------------------------
     // Raw_amplitude class
@@ -50,9 +50,9 @@ namespace jpacPhoto
         {};
 
         // This constructor is specifically for use with the project() function
-        raw_partial_wave(amplitude_key key, int J, amplitude to_project, std::string id)
+        raw_partial_wave(amplitude_key key, int J, amplitude to_project, bool if_halfint, std::string id)
         : raw_amplitude(key, to_project->_kinematics, "partial_wave", id), 
-          _J(J), _amplitude(to_project)
+          _J(J), _halfinteger(if_halfint), _amplitude(to_project)
         {
             set_N_pars(0);
         };
@@ -98,6 +98,7 @@ namespace jpacPhoto
         // This may either be the whole-spin orbital angular momentum L
         // or half-integer total spin J
         int _J    = 0;
+        bool _halfinteger = false;
     };
 };
 

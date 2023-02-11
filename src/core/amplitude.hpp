@@ -58,7 +58,7 @@ namespace jpacPhoto
 
         friend amplitude operator+(amplitude a, amplitude b);
 
-        friend amplitude project(int, amplitude, std::string);
+        friend amplitude project(int, bool, amplitude, std::string);
     };
 
     // This function serves as our "constructor"
