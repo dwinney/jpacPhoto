@@ -111,7 +111,7 @@ namespace jpacPhoto
                 _N[0] = pow(pq(0), _J) * _N0;
                 _N[1] = pow(pq(1), _J) * _N1;
 
-                // K-matrices
+                // K-matrices elements
                 _K00 = pow(q2(0,0), _J) * (_A00 + _B00*q2(0,0));
                 _K01 = pow(q2(0,1), _J) *  _A01;
                 _K11 = pow(q2(1,1), _J) * (_A11 + _B11*q2(1,1));
@@ -127,25 +127,6 @@ namespace jpacPhoto
                 _M01 = _K01 / _D;
 
                 complex T = _N[0] * (1 - _G[0]*_M00) - _N[1]*_G[1]*_M01;
-
-                if (_debug == 1)
-                {
-                    print("q0 =", real(_q[0]));
-                    print("q1 =", real(_q[1]));
-
-                    line(); print("Loop functions:");
-                    print("G0 =", _G[0]);
-                    print("G1 =", _G[1]);
-
-                    line(); print("Amplitudes:");
-                    print("K00 =", _K00);
-                    print("K01 =", _K01);
-                    print("K11 =", _K11);
-                    print("M00 =", _M00);
-                    print("M01", _M01);
-                    print("T =", T);
-                    line();
-                }
 
                 return T;
             };

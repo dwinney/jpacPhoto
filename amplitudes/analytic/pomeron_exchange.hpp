@@ -48,7 +48,7 @@ namespace jpacPhoto
                 // Normalization here to get rid of helicity dependence in amplitude::probability_distribution
                 // First a 2 removes the factor 1/4 when averaging over initial helicities
                 // then a 1/sqrt(2) removes the factor of 2 from the parity relation in amplitude::update_cache
-                return sqrt(2) * _A * exp(_b0 * t_prime) * pow(s - _kinematics->sth(), alpha);
+                return sqrt(2) * _A * exp(_b0 * t_prime) * pow((s - _kinematics->sth()) / _s0, alpha);
             };
 
             // Explicitly require t-channel helicities
