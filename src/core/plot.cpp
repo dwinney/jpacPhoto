@@ -304,4 +304,103 @@ namespace jpacPhoto
         };
         return;
     };
+
+    // -----------------------------------------------------------------------
+    // same as the add curve methods above but for dashed entries
+    void plot::add_dashed(curve_type opt, amplitude to_plot, std::array<double,2> bounds)
+    {
+        switch (opt)
+        {
+            case sigma_s: 
+            {
+                auto G = [&](double s)
+                {  
+                    return to_plot->integrated_xsection(s);
+                };
+
+                add_dashed(bounds, G);
+                return;
+            }
+            case sigma_w: 
+            {
+                auto G = [&](double w)
+                {  
+                    return to_plot->integrated_xsection(w*w);
+                };
+
+                add_dashed(bounds, G);
+                return;
+            };
+            case sigma_Egam: 
+            {
+                auto G = [&](double E)
+                {  
+                    double w = W_cm(E);
+                    return to_plot->integrated_xsection(w*w);
+                };
+
+                add_dashed(bounds, G);
+                return;
+            };
+            default:
+            {
+                warning("plot::add_dashed", "Invalid curve_type passed as argument!");
+                return;
+            }
+        };
+        return;
+    };
+
+    void plot::add_dashed(curve_type opt, amplitude to_plot, double fixed, std::array<double,2> bounds)
+    {
+        switch (opt)
+        {
+            case dsigmadt_s: 
+            {
+                // Fixed variable is an s value
+                // Bounds are (-t)-values
+                auto G = [&](double mt)
+                {  
+                    double s = fixed;
+                    return to_plot->differential_xsection(s, -mt);
+                };
+
+                add_dashed(bounds, G);
+                return;
+            }
+            case dsigmadt_w: 
+            {
+                // Fixed variable is an w value
+                // Bounds are (-t)-values
+                auto G = [&](double mt)
+                {  
+                    double s = fixed*fixed;
+                    return to_plot->differential_xsection(s, -mt);
+                };
+
+                add_dashed(bounds, G);
+                return;
+            };
+            case dsigmadt_Egam: 
+            {
+                // Fixed variable is an Egam value
+                // Bounds are (-t)-values
+                auto G = [&](double mt)
+                {  
+                    double w = W_cm(fixed);
+                    double s = w*w;
+                    return to_plot->differential_xsection(s, -mt);
+                };
+
+                add_dashed(bounds, G);
+                return;
+            };
+            default:
+            {
+                warning("plot::add_curve", "Invalid curve_type passed as argument!");
+                return;
+            }
+        };
+        return;
+    };
 };

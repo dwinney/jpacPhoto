@@ -170,6 +170,12 @@ namespace jpacPhoto
             }
         };
 
+        // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
+        void add_dashed(curve_type opt, amplitude to_plot, std::array<double,2> bounds);
+
+        // Plot differential observable which requires one fixed variable
+        void add_dashed(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
+
         // -----------------------------------------------------------------------
         // OPTION SETTERS
 
