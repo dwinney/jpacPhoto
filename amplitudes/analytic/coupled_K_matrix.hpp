@@ -23,13 +23,30 @@ namespace jpacPhoto
             public: 
 
             coupled_K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<double,2> masses, std::string id = "coupled_K_matrix")
-            : raw_partial_wave(key, xkinem, J, "coupled_K_matrix", id),
-              _m1(masses[0]), _m2(masses[1])
+            : raw_partial_wave(key, xkinem, J, "coupled_K_matrix", id)
             {
                 // 3 K-matrix parameters and 2 normalizations
                 set_N_pars(5);
                 check_QNs(xkinem);
+
+                // Populate the thresholds
+                _thresholds[0] = {xkinem->get_meson_mass(), xkinem->get_recoil_mass()};
+                _thresholds[1] = masses;
             };
+
+            coupled_K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<std::array<double,2>,2> masses, std::string id = "coupled_K_matrix")
+            : raw_partial_wave(key, xkinem, J, "coupled_K_matrix", id), _triple(true)
+            {
+                // 3 K-matrix parameters and 2 normalizations
+                set_N_pars(9);
+                check_QNs(xkinem);
+
+                // Populate the thresholds
+                _thresholds[0] = {xkinem->get_meson_mass(), xkinem->get_recoil_mass()};
+                _thresholds[1] = masses[0];
+                _thresholds[2] = masses[1];
+            };
+
 
             // -----------------------------------------------------------------------
             // Virtuals 
@@ -59,7 +76,10 @@ namespace jpacPhoto
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()
             {
-                std::vector<std::string> labels = { J_label("N0"), J_label("N1"), J_label("A00"), J_label("A01"), J_label("A11") };
+                std::vector<std::string> labels =  {    J_label("N0"), J_label("N1"), J_label("A00"), J_label("A01"), J_label("A11") };
+                if (_triple) labels =  { J_label("N0"), J_label("N1"), J_label("N2"), J_label("A00"), J_label("A01"), J_label("A02"),
+                                                                                                      J_label("A11"), J_label("A12"),
+                                                                                                                      J_label("A22") };
                 switch (_option)
                 {
                     case Default: return labels;
@@ -67,6 +87,7 @@ namespace jpacPhoto
                     {
                         labels.push_back( J_label("B00") );
                         labels.push_back( J_label("B11") );
+                        if (_triple) labels.push_back( J_label("B22") );
                         return labels;
                     }
                     default:  return {{}};
@@ -81,13 +102,13 @@ namespace jpacPhoto
                 {
                     case Default:
                     {
-                        set_N_pars(5);
-                        _B00 = 0; _B11 = 0;
+                        set_N_pars(5 + 4*_triple);
+                        _B00 = 0; _B11 = 0; _B22 = 0;
                         break;
                     };
                     case EffectiveRange:   
                     { 
-                        set_N_pars(7); 
+                        set_N_pars(7 + 5*_triple); 
                         break;
                     };
                     default: option_error(); return;
@@ -99,34 +120,47 @@ namespace jpacPhoto
             // PW is the unitarized K-matrix form
             inline complex evaluate()
             {
-                // Recalculate momenta
-                _q[0] = _kinematics->final_momentum(_s);
-                _q[1] = csqrt(Kallen(_s, _m1*_m1, _m2*_m2)) / csqrt(4.*_s);
+                // Recalculate production related quantities for each threshold
+                for (int i = 0; i < 2 + _triple; i++)
+                {
+                    _q[i] = q(i);  // Break up momenta
+                    _G[i] = G(i);  // Phase-space factor
 
-                // Calculate loop functions
-                _G[0] = G(_mX, _mR); 
-                _G[1] = G(_m1, _m2);
-
-                // Production amplitude pieces
-                _N[0] = pow(pq(0), _J) * _N0;
-                _N[1] = pow(pq(1), _J) * _N1;
+                    // Production amplitude
+                    _N[i] = pow(pq(i), _J) * _Nhat[i]; 
+                }
 
                 // K-matrices elements
                 _K00 = pow(q2(0,0), _J) * (_A00 + _B00*q2(0,0));
                 _K01 = pow(q2(0,1), _J) *  _A01;
                 _K11 = pow(q2(1,1), _J) * (_A11 + _B11*q2(1,1));
 
-                // The A-matrices all share the same denominator
-                _D    = (1+_G[0]*_K00)*(1+_G[1]*_K11) - _G[0]*_G[1]*_K01*_K01;
+                if (_triple)
+                {
+                    _K02 = pow(q2(0,2), _J) *  _A02;
+                    _K12 = pow(q2(1,2), _J) *  _A12;
+                    _K22 = pow(q2(2,2), _J) * (_A22 + _B22*q2(2,2));
+                };
 
                 // Determinant of K-matrix
-                _delK = _K00*_K11 - _K01*_K01;
+                _detK = _K00*_K11*_K22 + 2*_K01*_K02*_K12 - _K02*_K02*_K11 - _K12*_K12*_K00 - _K01*_K01*_K22;
+
+                // Determinants of the sub-matrices
+                _detK01 = _K00*_K11 - _K01*_K01;
+                _detK02 = _K00*_K22 - _K02*_K02;
+                _detK12 = _K11*_K22 - _K12*_K12;
+
+                // The M-matrices all share the same denominator    
+                _D    = (1+_G[0]*_K00)*(1+_G[1]*_K11)*(1+_G[2]*_K22) - _G[0]*_G[1]*_K01*_K01
+                                                                     - _G[0]*_G[2]*_K02*_K02
+                                                                     - _G[1]*_G[2]*_K12*_K12 - _G[0]*_G[1]*_G[2]*(_K00*_K11*_K22 - _detK);
 
                 // Then all we need are the numerators
-                _M00 = (_K00 + _G[1]*_delK) / _D;
-                _M01 = _K01 / _D;
+                _M00 = (_K00 + _G[1]*_detK01 + _G[2]*_detK02 + _G[1]*_G[2]*(_detK12*_K00 + _detK02*_K11 + _detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12)) / _D;
+                _M01 = (_K01 + _G[2]*(_K01*_K22 - _K02*_K12)) / _D;
+                _M02 = (_K02 + _G[1]*(_K02*_K11 - _K01*_K12)) / _D;
 
-                complex T = _N[0] * (1 - _G[0]*_M00) - _N[1]*_G[1]*_M01;
+                complex T = _N[0] * (1 - _G[0]*_M00) - _N[1]*_G[1]*_M01 - _N[2]*_G[2]*_M02;
 
                 return T;
             };
@@ -135,50 +169,70 @@ namespace jpacPhoto
 
             inline void allocate_parameters(std::vector<double> pars)
             {
-                switch (_option)
+                if (!_triple)
                 {
-                    case Default: 
-                    {
-                        _N0   = pars[0];
-                        _N1   = pars[1];
-                        _A00  = pars[2];
-                        _A01  = pars[3];
-                        _A11  = pars[4];
-                        break;
-                    }
-                    case EffectiveRange: 
-                    {
-                        _N0   = pars[0];
-                        _N1   = pars[1];
-                        _A00  = pars[2];
-                        _A01  = pars[3];
-                        _A11  = pars[4];
-                        _B00  = pars[5];
-                        _B11  = pars[6];
-                        break;
-                    }
-                    default: return;
+                    _Nhat[0] = pars[0];
+                    _Nhat[1] = pars[1];
+                    _A00     = pars[2];
+                    _A01     = pars[3];
+                    _A11     = pars[4];
+                }
+                else
+                {
+                    _Nhat[0] = pars[0];
+                    _Nhat[1] = pars[1];
+                    _Nhat[2] = pars[2];
+                    _A00  = pars[3];
+                    _A01  = pars[4];
+                    _A02  = pars[5];
+                    _A11  = pars[6];
+                    _A12  = pars[7];
+                    _A22  = pars[8]; 
+                }
+
+                if ( _option == EffectiveRange )
+                {
+                    _B00 = pars[5+4*_triple];
+                    _B11 = pars[6+4*_triple];
+                    _B22 = _triple*pars[11];
                 }
             };
 
             // -----------------------------------------------------------------------
             private:
 
-            // Mass of the second open channel
-            double _m1 = 0,  _m2 = 0;
+            // If we use three channels
+            bool _triple = false;
+
+            // Mass of intermediate coupled channels
+            // we can have up to two additional channels
+            std::array<std::array<double,2>,3> _thresholds;
             
+            // Production parameters
+            std::array<complex,3> _q, _G, _N;
+
             // K-matrix parameters
-            double _A00 = 0, _A01 = 0, _A11 = 0;
-            double _B00 = 0, _B01 = 0, _B11 = 0;
+            double _A00 = 0, _A01 = 0, _A02 = 0;
+            double           _A11 = 0, _A12 = 0;
+            double                     _A22 = 0;
+
+            // Second order parameters (effective range)
+            double _B00 = 0, _B11 = 0, _B22 = 0;
             
             // Production amplitude parameters
-            double _N0 = 0,  _N1 = 0; 
+            std::array<double,3> _Nhat;
 
-            // Internal variables for the K and M amplitudes
-            complex _K00, _K01, _K11, _M00, _M01, _M11, _D, _delK;
-            std::array<complex,2> _q, _G, _N;
+            // Internal variables for the K matrices
+            complex _K00 = 0, _K01 = 0, _K02 = 0;
+            complex           _K11 = 0, _K12 = 0;
+            complex                     _K22 = 0;
+            complex  _D = 0,      _detK = 0;
+            complex  _detK01 = 0, _detK02 = 0, _detK12 = 0;
 
-            // Chew-Mandelstam phase-space
+            // As well as the final M matrixes
+            complex _M00 = 0, _M01 = 0, _M02 = 0;
+
+            // Chew-Mandelstam phase-space 
             inline complex G(double m1, double m2)
             {
                 complex rho, xi;
@@ -189,6 +243,14 @@ namespace jpacPhoto
                 result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
                 return result;
             };
+            inline complex G(unsigned i){ return G(_thresholds[i][0], _thresholds[i][1]); };
+
+            // Outgoing break-up momentum
+            inline complex q(double m1, double m2)
+            {
+                return csqrt(Kallen(_s, m1*m1, m2*m2)) / csqrt(4.*_s);
+            };
+            inline complex q(unsigned i){ return q(_thresholds[i][0], _thresholds[i][1]); };
 
             // Product of momenta for the photoproduction process
             inline complex pq(unsigned i){ return _kinematics->initial_momentum(_s) * _q[i]; };
