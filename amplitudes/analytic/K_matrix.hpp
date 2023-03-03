@@ -241,8 +241,8 @@ namespace jpacPhoto
                 if ( _option == EffectiveRange )
                 {
                     _B00 = pars[2+(_Nth>1)*(4*_Nth-5)];
-                    if (_Nth > 1) _B11 = pars[4*_Nth-2];
-                    if (_Nth > 2) _B22 = pars[4*_Nth-1];
+                    _B11 = (_Nth > 1)*pars[4*_Nth-2];
+                    _B22 = (_Nth > 1)*pars[4*_Nth-1];
                 }
             };
 
