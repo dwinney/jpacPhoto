@@ -1,10 +1,25 @@
+// Script conducting a chi2 minimization fit of K-matrix partial waves
+// to j/psi photoproduction data from both GlueX and J/psi-007.
+//
+// The S-wave model can be selected by uncommenting the appropriate definition.
+// Produces fit results and parameters to screen and plots results in region
+// of the data.
+//
+// OUTPUT: gluex_results.pdf, jpsi007_results.pdf
+// ------------------------------------------------------------------------------
+// Author:       Daniel Winney (2022)
+// Affiliation:  Joint Physics Analysis Center (JPAC),
+//               South China Normal Univeristy (SCNU)
+// Email:        dwinney@iu.alumni.edu
+// ------------------------------------------------------------------------------
+
 
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "fitter.hpp"
 #include "plotter.hpp"
 
-#include "analytic/scattering_length.hpp"
+#include "analytic/K_matrix.hpp"
 #include "gluex/data.hpp"
 #include "gluex/plots.hpp"
 #include "jpsi007/data.hpp"
@@ -14,10 +29,10 @@
 #include <iostream>
 #include <iomanip>
 
-void single_channel()
+void kmatrix_fit()
 {
     using namespace jpacPhoto;
-    using scattering_length = analytic::scattering_length;
+    using K_matrix         = analytic::K_matrix;
 
     // ---------------------------------------------------------------------------
     // Amplitude setup
@@ -27,20 +42,36 @@ void single_channel()
     kinematics kJpsi = new_kinematics(M_JPSI, M_PROTON);
     kJpsi->set_meson_JP( {1, -1} );
 
-    // Any number of individual partial waves
-    amplitude s = new_amplitude<scattering_length>(kJpsi, 0, "S-wave");
-    amplitude p = new_amplitude<scattering_length>(kJpsi, 1, "P-wave");
-    amplitude d = new_amplitude<scattering_length>(kJpsi, 2, "D-wave");
-    amplitude f = new_amplitude<scattering_length>(kJpsi, 3, "F-wave");
-    amplitude g = new_amplitude<scattering_length>(kJpsi, 4, "G-wave");
+    // Or with two-channels coupled
+    std::array<double,2> lower  = {M_D,     M_LAMBDAC};
+    std::array<double,2> higher = {M_DSTAR, M_LAMBDAC};
+    std::array<std::array<double,2>,2> open_channels = {lower, higher};
 
-    // Amplitude being fit is the sum of them all
-    amplitude to_fit = s + p + d /* + f  + g */;
+    // // CHOOSE AN S-WAVE MODEL
+
+    // // Single-channel S-wave
+    // amplitude s = new_amplitude<K_matrix>(kJpsi, 0, "1-channel S-wave");
+
+    // // Two-channel S-wave 
+    // amplitude s = new_amplitude<K_matrix>(kJpsi, 0, higher, "2-channel S-wave");
+    
+    // Three-channel S-wave
+    amplitude s = new_amplitude<K_matrix>(kJpsi, 0, open_channels, "3-channel S-wave");
+
+    // // EFFECTIVE RANGE?
+    // s->set_option(EffectiveRange);
+
+    // The rest of the waves are single channel and 
+    amplitude p = new_amplitude<K_matrix>(kJpsi, 1, "P-wave");
+    amplitude d = new_amplitude<K_matrix>(kJpsi, 2, "D-wave");
+    amplitude f = new_amplitude<K_matrix>(kJpsi, 3, "F-wave");
+
+    amplitude to_fit = s + p + d + f;
     to_fit->set_id("Sum");
 
-    // ---------------------------------------------------------------------------
-    //  Fitter setup
-    // ---------------------------------------------------------------------------
+    // // ---------------------------------------------------------------------------
+    // //  Fitter setup
+    // // ---------------------------------------------------------------------------
 
     fitter fitter(to_fit, "Migrad", 1.E-4);
 
@@ -55,12 +86,8 @@ void single_channel()
     fitter.add_data(gluex);
     fitter.add_data(jpsi007);
     
-    // -----------------------------------------
-    // Set up out initial guess
-
     // Fit N times with randomly sampled inital parameters
-    fitter.set_parameter_limits("b[0]", {0., 5.});  // Force the first normalization to be positive
-    fitter.do_fit(50);
+    fitter.do_fit(10);
 
     // ---------------------------------------------------------------------------
     // Plot the results
@@ -73,9 +100,15 @@ void single_channel()
 
     std::vector<plot> gluex_plots;
 
-    // Grab each pre-set plot but add the theory curve with add_curve
+     // Grab each pre-set plot but add the theory curve with add_curve
     plot pint = gluex::plot_integrated(plotter);
-    pint.add_curve(jpacPhoto::sigma_Egam, to_fit, {8., 11.8});
+
+    auto sigma = [&] (double E)
+    {
+        double W = W_cm(E);
+        return to_fit->integrated_xsection(W*W);
+    };
+    pint.add_curve({8., 11.8}, sigma, to_fit->id());
     gluex_plots.push_back(pint);
 
     // Do the same with the differential sets
@@ -85,9 +118,14 @@ void single_channel()
         double Wavg = W_cm(Eavg);
         double tmin = -kJpsi->t_min(Wavg*Wavg);
         double tmax = -kJpsi->t_max(Wavg*Wavg); 
+        
+        auto dsig_dt = [&](double mt)
+        {
+            return to_fit->differential_xsection(Wavg*Wavg, -mt);
+        };
 
         plot dif = gluex::plot_slice(plotter, i);
-        dif.add_curve(jpacPhoto::dsigmadt_Egam, to_fit, Eavg, {tmin, tmax});
+        dif.add_curve({tmin, tmax}, dsig_dt, to_fit->id());
 
         gluex_plots.push_back(dif);
     };
@@ -107,14 +145,14 @@ void single_channel()
         double tmin = -kJpsi->t_min(Wavg*Wavg);
         double tmax = -kJpsi->t_max(Wavg*Wavg);
 
-        auto dsig_tp = [&](double tp)
+        auto dsig_dtp = [&](double tp)
         {
             double t = tp + tmin;
             return to_fit->differential_xsection(Wavg*Wavg, -t);
         };
 
         plot dif =  jpsi007::plot_slice(plotter, i);
-        dif.add_curve({0, tmax-tmin}, dsig_tp, to_fit->id());
+        dif.add_curve({0, tmax-tmin}, dsig_dtp, to_fit->id());
         jpsi007_plots.push_back(dif);
     };
 
