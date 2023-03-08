@@ -31,8 +31,13 @@ namespace jpacPhoto
     {
         std::cout << "--------------------------------------------------------------" << std::endl;
     };
+    
+    inline void dashed_divider()
+    {
+        std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
+    };
 
-    // Default spacing value
+    // Default values
     const int PRINT_SPACING   = 15;
     const int PRINT_PRECISION = 9;
 
@@ -66,6 +71,7 @@ namespace jpacPhoto
     // String operations
 
     const int STRING_PRECISION = 3;
+    const int TEXT_WIDTH = 62;
 
     // Produce a string with the format "name = value units"
 
@@ -75,6 +81,14 @@ namespace jpacPhoto
         std::stringstream ss;
         ss << std::setprecision(STRING_PRECISION) << name + " = " << value << " " + units;
         return ss.str();
+    };
+
+    // Print a string centered on the terminal 
+    inline void centered(std::string words)
+    {
+        int x = words.length();
+        int gap_width = (TEXT_WIDTH - x)/2;
+        std::cout << std::left << std::setw(gap_width) << "" << std::setw(x) << words << std::setw(gap_width) << "" << std::endl;
     };
 };
 
