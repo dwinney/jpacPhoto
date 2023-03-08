@@ -99,14 +99,14 @@ namespace jpacPhoto
                 std::vector<std::string> labels;
                 switch (_Nth)
                 {
-                    case 1: { labels = { J_label("N"), J_label("A") }; break; }
+                    case 1: { labels = { J_label("n"), J_label("a") }; break; }
                     case 2: {
-                              labels = { J_label("N0"), J_label("N1"), J_label("A00"), J_label("A01"), J_label("A11") }; break;
+                              labels = { J_label("n0"), J_label("n1"), J_label("a00"), J_label("a01"), J_label("a11") }; break;
                     }
                     case 3: {
-                              labels = { J_label("N0"), J_label("N1"), J_label("N2"), J_label("A00"), J_label("A01"), J_label("A02"),
-                                                                                                      J_label("A11"), J_label("A12"),
-                                                                                                                      J_label("A22") }; break;
+                              labels = { J_label("n0"), J_label("n1"), J_label("n2"), J_label("a00"), J_label("a01"), J_label("a02"),
+                                                                                                      J_label("a11"), J_label("a12"),
+                                                                                                                      J_label("a22") }; break;
                     }
                 };
 
@@ -118,15 +118,15 @@ namespace jpacPhoto
                     {
                         if (_Nth == 1)
                         {
-                            labels.push_back( J_label("B"));
+                            labels.push_back( J_label("b"));
                             return labels;
                         };
 
-                        labels.push_back( J_label("B00") );
-                        labels.push_back( J_label("B11") );
+                        labels.push_back( J_label("b00") );
+                        labels.push_back( J_label("b11") );
                         if (_Nth == 2) return labels;
 
-                        labels.push_back( J_label("B22") );
+                        labels.push_back( J_label("b22") );
                         return labels;
                     }
                     default:  return {{}};
@@ -142,7 +142,7 @@ namespace jpacPhoto
                     case Default:
                     {
                         set_N_pars(2+(_Nth>1)*(4*_Nth-5));
-                        _B00 = 0; _B11 = 0; _B22 = 0;
+                        _b00 = 0; _b11 = 0; _b22 = 0;
                         break;
                     };
                     case EffectiveRange:   
@@ -164,27 +164,20 @@ namespace jpacPhoto
                 {
                     _q[i] = q(i);  // Break up momenta
                     _G[i] = G(i);  // Phase-space factor
-
-                    // Production amplitude
-                    _N[i] = pow(pq(i), _J) * _Nhat[i]; 
                 }
+
                 // K-matrices elements
-                _K00 = pow(q2(0,0), _J) * (_A00 + _B00*q2(0,0));
+                _K00 = pow(q2(0,0), _J) * (_a00 + _b00*q2(0,0));
 
-                _K01 = pow(q2(0,1), _J) *  _A01;
-                _K11 = pow(q2(1,1), _J) * (_A11 + _B11*q2(1,1));
+                _K01 = pow(q2(0,1), _J) *  _a01;
+                _K11 = pow(q2(1,1), _J) * (_a11 + _b11*q2(1,1));
 
-                _K02 = pow(q2(0,2), _J) *  _A02;
-                _K12 = pow(q2(1,2), _J) *  _A12;
-                _K22 = pow(q2(2,2), _J) * (_A22 + _B22*q2(2,2));
+                _K02 = pow(q2(0,2), _J) *  _a02;
+                _K12 = pow(q2(1,2), _J) *  _a12;
+                _K22 = pow(q2(2,2), _J) * (_a22 + _b22*q2(2,2));
 
                 // Determinant of K-matrix
                 _detK = _K00*_K11*_K22 + 2*_K01*_K02*_K12 - _K02*_K02*_K11 - _K12*_K12*_K00 - _K01*_K01*_K22;
-
-                // Determinants of the sub-matrices
-                _detK01 = _K00*_K11 - _K01*_K01;
-                _detK02 = _K00*_K22 - _K02*_K02;
-                _detK12 = _K11*_K22 - _K12*_K12;
 
                 // The M-matrices all share the same denominator    
                 _D    = (1+_G[0]*_K00)*(1+_G[1]*_K11)*(1+_G[2]*_K22) - _G[0]*_G[1]*_K01*_K01
@@ -192,13 +185,60 @@ namespace jpacPhoto
                                                                      - _G[1]*_G[2]*_K12*_K12 - _G[0]*_G[1]*_G[2]*(_K00*_K11*_K22 - _detK);
 
                 // Then all we need are the numerators
-                _M00 = (_K00 + _G[1]*_detK01 + _G[2]*_detK02 + _G[1]*_G[2]*(_detK12*_K00 + _detK02*_K11 + _detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12)) / _D;
-                _M01 = (_K01 + _G[2]*(_K01*_K22 - _K02*_K12)) / _D;
-                _M02 = (_K02 + _G[1]*(_K02*_K11 - _K01*_K12)) / _D;
+                _N[0] =   pow(pq(0), _J) * _n[0] * ((1 + _G[1]*_K11)*(1 + _G[2]*_K22) - _G[1]*_G[2]*_K12*_K12);
+                _N[1] = - pow(pq(1), _J) * _n[1] * _G[1]*(_K01 + _G[2]*(_K01*_K22 - _K02*_K12));
+                _N[2] = - pow(pq(2), _J) * _n[2] * _G[2]*(_K02 + _G[1]*(_K02*_K11 - _K01*_K12));
 
-                complex T = _N[0] * (1 - _G[0]*_M00) - _N[1]*_G[1]*_M01 - _N[2]*_G[2]*_M02;
+                complex T = (_N[0] + _N[1] + _N[2]) / _D;
 
                 return T;
+            };
+
+            // Isolate the production amplitude (numerator) 
+            inline complex production(double Egam)
+            {
+                double w = W_cm(Egam);
+                store(_kinematics->helicities(0), w*w, 0);
+                evaluate();
+                return _N[0] + _N[1] + _N[2];
+            };
+
+            // Isolate the production amplitude (numerator) for a specific channel
+            inline complex production(int i, double Egam)
+            {
+                double w = W_cm(Egam);
+                store(_kinematics->helicities(0), w*w, 0);
+                evaluate();
+                return _N[i];
+            };
+
+            inline double scattering_length()
+            {
+                store(_kinematics->helicities(0), _kinematics->sth(), 0);
+                evaluate();
+
+                // Determinants of the sub-matrices
+                complex detK01, detK02, detK12;
+                detK01 = _K00*_K11 - _K01*_K01;
+                detK02 = _K00*_K22 - _K02*_K02;
+                detK12 = _K11*_K22 - _K12*_K12;
+
+                // Use this to calculate the elastic T-matrix element
+                double T00_th = std::real((_K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12)) / _D);
+
+                // Then calculate the scattering length
+                double SL = - T00_th / (8*PI*_kinematics->Wth());
+                return SL / 5.068E-3; // IN UNITS OF mfm!!!!
+            };
+
+            inline double VMD_test()
+            {
+                store(_kinematics->helicities(0), _kinematics->sth(), 0);
+                evaluate();
+                
+                double VMD  = 0.0273;
+                double fit = std::abs(_n[0] / (8*PI*_kinematics->Wth()*scattering_length()*5.068E-3));
+                return fit / VMD;
             };
 
             protected:
@@ -210,39 +250,39 @@ namespace jpacPhoto
                     default: return;
                     case 1: 
                     {
-                        _Nhat[0] = pars[0];
-                        _A00     = pars[1];
+                        _n[0] = pars[0];
+                        _a00  = pars[1];
                         break;
                     };
                     case 2:
                     {
-                        _Nhat[0] = pars[0];
-                        _Nhat[1] = pars[1];
-                        _A00     = pars[2];
-                        _A01     = pars[3];
-                        _A11     = pars[4];
+                        _n[0] = pars[0];
+                        _n[1] = pars[1];
+                        _a00  = pars[2];
+                        _a01  = pars[3];
+                        _a11  = pars[4];
                         break;
                     };
                     case 3:
                     {
-                        _Nhat[0] = pars[0];
-                        _Nhat[1] = pars[1];
-                        _Nhat[2] = pars[2];
-                        _A00     = pars[3];
-                        _A01     = pars[4];
-                        _A02     = pars[5];
-                        _A11     = pars[6];
-                        _A12     = pars[7];
-                        _A22     = pars[8];
+                        _n[0] = pars[0];
+                        _n[1] = pars[1];
+                        _n[2] = pars[2];
+                        _a00  = pars[3];
+                        _a01  = pars[4];
+                        _a02  = pars[5];
+                        _a11  = pars[6];
+                        _a12  = pars[7];
+                        _a22  = pars[8];
                         break;
                     };
                 };
 
                 if ( _option == EffectiveRange )
                 {
-                    _B00 = pars[2+(_Nth>1)*(4*_Nth-5)];
-                    _B11 = (_Nth > 1)*pars[4*_Nth-2];
-                    _B22 = (_Nth > 1)*pars[4*_Nth-1];
+                    _b00 = pars[2+(_Nth>1)*(4*_Nth-5)];
+                    _b11 = (_Nth > 1)*pars[4*_Nth-2];
+                    _b22 = (_Nth > 1)*pars[4*_Nth-1];
                 }
             };
 
@@ -260,25 +300,21 @@ namespace jpacPhoto
             std::array<complex,3> _q, _G, _N;
 
             // K-matrix parameters
-            double _A00 = 0, _A01 = 0, _A02 = 0;
-            double           _A11 = 0, _A12 = 0;
-            double                     _A22 = 0;
+            double _a00 = 0, _a01 = 0, _a02 = 0;
+            double           _a11 = 0, _a12 = 0;
+            double                     _a22 = 0;
 
             // Second order parameters (effective range)
-            double _B00 = 0, _B11 = 0, _B22 = 0;
+            double _b00 = 0, _b11 = 0, _b22 = 0;
             
             // Production amplitude parameters
-            std::array<double,3> _Nhat;
+            std::array<double,3> _n;
 
             // Internal variables for the K matrices
             complex _K00 = 0, _K01 = 0, _K02 = 0;
             complex           _K11 = 0, _K12 = 0;
             complex                     _K22 = 0;
-            complex  _D = 0,      _detK = 0;
-            complex  _detK01 = 0, _detK02 = 0, _detK12 = 0;
-
-            // As well as the final M matrixes
-            complex _M00 = 0, _M01 = 0, _M02 = 0;
+            complex  _D = 0,  _detK = 0;
 
             // Chew-Mandelstam phase-space 
             inline complex G(double m1, double m2)
