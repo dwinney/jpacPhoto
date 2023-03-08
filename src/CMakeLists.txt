@@ -1,7 +1,8 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp" "fitter/*.cpp") 
+file(GLOB SRC "core/*.cpp" "cubature/*.c") 
 
 include_directories(core)
+include_directories(cubature)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp

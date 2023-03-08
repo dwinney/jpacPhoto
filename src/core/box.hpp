@@ -37,7 +37,7 @@ namespace jpacPhoto
 
         // Setting function for the masses of the internal masses in the loop
         inline void set_internal_masses(std::array<double,4> ex_m2)
-        {  _integrand._p01 = ex_m2[0]; _integrand._p12 = ex_m2[1]; _integrand._p23 = ex_m2[2]; _integrand._p03 = ex_m2[3]; }
+        {  _integrand._p01 = ex_m2[0]; _integrand._p12 = ex_m2[1]; _integrand._p03 = ex_m2[2]; _integrand._p23 = ex_m2[3]; }
 
         // Setting function for the (on-shell) masses of external particles
         inline void set_external_masses(std::array<double,4> in_m2)
