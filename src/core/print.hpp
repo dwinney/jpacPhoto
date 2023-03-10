@@ -19,6 +19,13 @@
 
 namespace jpacPhoto
 {
+    // Default values
+    const int TEXT_WIDTH       = 62;
+    const int PRINT_SPACING    = 15;
+    const int PRINT_PRECISION  = 9;    
+    const int STRING_PRECISION = 3;
+    const std::string UNIT_DIV = std::string(PRINT_SPACING, '-');
+
     // ---------------------------------------------------------------------------   
     // Output an empty line to the terminal
     inline void line()
@@ -29,17 +36,23 @@ namespace jpacPhoto
     // Print out a horizontal line
     inline void divider()
     {
-        std::cout << "--------------------------------------------------------------" << std::endl;
+        std::cout << std::string(TEXT_WIDTH, '-') << std::endl;
+    };
+
+    inline void divider(int n)
+    {
+        std::string div;
+        for (int i = 0; i < n; i++)
+        {
+            div = div + UNIT_DIV;
+        }
+        std::cout << div << std::endl;
     };
     
     inline void dashed_divider()
     {
         std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
     };
-
-    // Default values
-    const int PRINT_SPACING   = 15;
-    const int PRINT_PRECISION = 9;
 
     template<typename T>
     inline void print(T x)
@@ -69,9 +82,6 @@ namespace jpacPhoto
 
     // ---------------------------------------------------------------------------
     // String operations
-
-    const int STRING_PRECISION = 3;
-    const int TEXT_WIDTH = 62;
 
     // Produce a string with the format "name = value units"
 
