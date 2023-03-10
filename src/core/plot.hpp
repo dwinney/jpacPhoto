@@ -13,6 +13,7 @@
 
 #include <array>
 #include <vector>
+#include <deque>
 #include <iostream>   
 #include <sstream> 
 #include <functional>
@@ -28,6 +29,7 @@
 #include <TLatex.h>
 
 #include "data_set.hpp"
+#include "elementwise.hpp"
 #include "amplitude.hpp"
 #include "colors.hpp"
 
@@ -37,10 +39,11 @@ namespace jpacPhoto
 
     struct entry_style
     {
-        jpacColor _color    = jpacColor::DarkGrey;  // Color code 
-        int  _style         = 0;                    // Either linestyle or markerstyle code
-        bool _add_to_legend = true;                 // Whether to add this curve to the legend
-        std::string _label  = "";                   // Label to add to Legend
+        jpacColor _color      = jpacColor::DarkGrey;  // Color code 
+        int  _style           = 0;                    // Either linestyle or markerstyle code
+        bool _add_to_legend   = true;                 // Whether to add this curve to the legend
+        std::string _label    = "";                   // Label to add to Legend
+        std::string _draw_opt = "L";                // string which enters ROOT::Draw() 
     };
 
     enum curve_type { 
@@ -84,9 +87,9 @@ namespace jpacPhoto
             if (_isdata) _graph->SetLineWidth(_default_markerwidth);
             else         _graph->SetLineWidth(_default_linewidth);
             
-            _graph->SetLineColor(+_style._color);
+            _graph->SetLineColorAlpha(+_style._color, 0.9);
             _graph->SetLineStyle(_style._style);
-            _graph->SetMarkerColor(+_style._color);
+            _graph->SetMarkerColorAlpha(+_style._color, 0.9);
             _graph->SetMarkerStyle(_style._style);
         };
 
@@ -127,6 +130,12 @@ namespace jpacPhoto
             data_set copy(data);
             copy._id = different_id;
             add_data(copy);
+        };
+
+        // Add a small offset to change the running color index
+        inline void color_offset(unsigned n)
+        {
+            _Ncurve += n;
         };
 
         // -----------------------------------------------------------------------
@@ -175,6 +184,11 @@ namespace jpacPhoto
 
         // Plot differential observable which requires one fixed variable
         void add_dashed(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
+
+        // -----------------------------------------------------------------------
+        // Add an error band
+
+        void add_band(std::vector<double> x, std::vector<double> lower, std::vector<double> higher, int fill = 1001);
 
         // -----------------------------------------------------------------------
         // OPTION SETTERS
@@ -292,7 +306,7 @@ namespace jpacPhoto
         int _Npoints = 100;
 
         // List of all entries (theoretical curves) to be plotted
-        std::vector<plot_entry> _entries;
+        std::deque<plot_entry> _entries;
     };
 };
 

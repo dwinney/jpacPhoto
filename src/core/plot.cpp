@@ -60,13 +60,11 @@ namespace jpacPhoto
 
         for (auto entry : _entries)
         {
-            std::string legend_option = (entry._isdata) ? "P" : "L";
-
-            mg->Add(entry._graph, legend_option.c_str());
+            mg->Add(entry._graph, entry._style._draw_opt.c_str());
 
             if (entry._style._add_to_legend)
             {
-                legend->AddEntry(entry._graph, entry._style._label.c_str(), legend_option.c_str());
+                legend->AddEntry(entry._graph, entry._style._label.c_str(), entry._style._draw_opt.c_str());
             };
         };
 
@@ -118,6 +116,7 @@ namespace jpacPhoto
         style._label = data._id;
         style._style = 20 + _Ndata;
         style._color = jpacColor::DarkGrey;
+        style._draw_opt = "P";
 
         _Ndata++;
         _Nlegend++;
@@ -402,5 +401,27 @@ namespace jpacPhoto
             }
         };
         return;
+    };
+
+    // -----------------------------------------------------------------------
+    // Add an error band
+
+    void plot::add_band(std::vector<double> x, std::vector<double> lower, std::vector<double> higher, int fill)
+    {
+        int   N = x.size();
+        auto  y = (higher + lower) / 2;
+        auto ey = (higher - lower) / 2;
+
+        TGraph *graph = new TGraphErrors(N, &(x[0]), &(y[0]), NULL, &(ey[0]));
+
+        jpacColor color = JPACCOLORS[_Ncurve];
+        graph->SetFillColorAlpha(+color, 0.25);
+        graph->SetFillStyle(fill);
+
+        entry_style style;
+        style._color = color;
+        style._draw_opt = "3";
+        style._add_to_legend = false;
+        _entries.push_front(plot_entry(graph, style, false));
     };
 };
