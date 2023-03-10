@@ -1,6 +1,8 @@
-// Script for plotting
+// Script for extracting dynamical quantities form the fit results of the S-wave 
+// K-matrices in J/psi photo production
 //
-// OUTPUT: 1C_prod.pdf, 2C_prod.pdf
+// OUTPUT: eta_th, R_VMD, a_psip, and r_psip printed in table on cmdline
+//         plot of eta as a function of E saved to file (inelasticity.pdf)
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC),
@@ -19,7 +21,7 @@
 #include <iostream>
 #include <iomanip>
 
-void prod_mechs()
+void psip_dynamics()
 {
     using namespace jpacPhoto;
     using K_matrix         = analytic::K_matrix;
