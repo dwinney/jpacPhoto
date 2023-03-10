@@ -195,21 +195,34 @@ namespace jpacPhoto
             };
 
             // Isolate the production amplitude (numerator) 
-            inline complex production(double Egam)
+            inline double production(double Egam)
             {
                 double w = W_cm(Egam);
                 store(_kinematics->helicities(0), w*w, 0);
                 evaluate();
-                return _N[0] + _N[1] + _N[2];
+                return std::real(_N[0] + _N[1] + _N[2]);
             };
 
             // Isolate the production amplitude (numerator) for a specific channel
-            inline complex production(int i, double Egam)
+            inline double production(int i, double Egam)
             {
                 double w = W_cm(Egam);
                 store(_kinematics->helicities(0), w*w, 0);
                 evaluate();
-                return _N[i];
+                return std::real(_N[i]);
+            };
+
+            // Ratio of elastic to total production
+            inline double inelasticity(double Egam)
+            {
+                double w = W_cm(Egam);
+                store(_kinematics->helicities(0), w*w, 0);
+                evaluate();
+
+                double el = std::abs(_N[0]);
+                double in = std::abs(_N[1] + _N[2]);
+
+                return in / (el + in);
             };
 
             inline double scattering_length()
