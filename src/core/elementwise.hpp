@@ -17,7 +17,7 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Element-wise operations on data vectors
 
-    inline std::vector<double>operator+(std::vector<double> lhs, std::vector<double> rhs)
+    inline std::vector<double> operator+(std::vector<double> lhs, std::vector<double> rhs)
     {
         if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
 
@@ -29,7 +29,7 @@ namespace jpacPhoto
         return result;
     };
 
-    inline std::vector<double>operator-(std::vector<double> lhs, std::vector<double> rhs)
+    inline std::vector<double> operator-(std::vector<double> lhs, std::vector<double> rhs)
     {
         if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
 
@@ -42,7 +42,7 @@ namespace jpacPhoto
     };
 
     // Given two vector<double>s of the same size, calculate the average element wise
-    inline std::vector<double>operator*( std::vector<double> lhs, double c)
+    inline std::vector<double> operator*( std::vector<double> lhs, double c)
     {
         std::vector<double> result;
         for (int i = 0; i < lhs.size(); i++)
@@ -52,7 +52,7 @@ namespace jpacPhoto
         return result;
     };
 
-    inline std::vector<double>operator*(double c, std::vector<double> rhs)
+    inline std::vector<double> operator*(double c, std::vector<double> rhs)
     {
         std::vector<double> result;
         for (int i = 0; i < rhs.size(); i++)
@@ -62,7 +62,7 @@ namespace jpacPhoto
         return result;
     };
 
-    inline std::vector<double>operator/( std::vector<double> lhs, double c)
+    inline std::vector<double> operator/( std::vector<double> lhs, double c)
     {
         std::vector<double> result;
         for (int i = 0; i < lhs.size(); i++)
@@ -70,6 +70,11 @@ namespace jpacPhoto
             result.push_back( lhs[i]/c );
         };
         return result;
+    };
+
+    inline std::vector<double> operator-(const std::vector<double> & x)
+    {
+        return -1 * x;
     };
 };
 
