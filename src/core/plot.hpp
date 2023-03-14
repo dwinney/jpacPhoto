@@ -188,7 +188,7 @@ namespace jpacPhoto
         // -----------------------------------------------------------------------
         // Add an error band
 
-        void add_band(std::vector<double> x, std::vector<double> lower, std::vector<double> higher, int fill = 1001);
+        void add_band(std::vector<double> x, std::array<std::vector<double>,2> band, int fill = 1001);
 
         // -----------------------------------------------------------------------
         // OPTION SETTERS
@@ -211,6 +211,11 @@ namespace jpacPhoto
             ss << std::setprecision(3) << variable + " " << value << " " + units;
             _header = ss.str(); 
             _addheader = true; 
+        };
+
+        inline void add_logo(bool x, std::array<double, 2> coords = {0.93, 0.885})
+        {
+            _add_logo = x; _logo_coords = coords;
         };
 
         // -----------------------------------------------------------------------
@@ -249,15 +254,19 @@ namespace jpacPhoto
         // Filename of where to produce the desired plot
         std::string _filename;
 
+        bool _add_logo = true;
+        std::array<double,2> _logo_coords = {0.93, 0.885};
         inline void add_logo()
         {
             int red  = +jpacColor::Red;
             int blue = +jpacColor::Blue;
+            
             std::string JPAC = "#scale[1.3]{#font[32]{#color[" + std::to_string(blue) + "]{J}}"
                       + "^{#scale[0.8]{#font[32]{" + "#color[" + std::to_string(blue) + "]{P}"
                                                    + "#color[" + std::to_string(red) +  "]{A}"
                                                    + "#color[" + std::to_string(blue) + "]{C}}}}}";
-            TLatex *logo = new TLatex(.93, .885,  JPAC.c_str());
+
+            TLatex *logo = new TLatex(_logo_coords[0], _logo_coords[1], JPAC.c_str());
 
             logo->SetNDC();
             logo->SetTextSize(2/30.);

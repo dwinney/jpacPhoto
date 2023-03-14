@@ -70,7 +70,7 @@ namespace jpacPhoto
 
         mg->Draw("ALP");
 
-        add_logo();
+        if (_add_logo) add_logo();
 
         if (_addlegend) legend->Draw();
 
@@ -406,8 +406,11 @@ namespace jpacPhoto
     // -----------------------------------------------------------------------
     // Add an error band
 
-    void plot::add_band(std::vector<double> x, std::vector<double> lower, std::vector<double> higher, int fill)
+    void plot::add_band(std::vector<double> x, std::array<std::vector<double>,2> band, int fill)
     {
+        std::vector<double> higher, lower;
+        lower = band[0]; higher = band[1];
+        
         int   N = x.size();
         auto  y = (higher + lower) / 2;
         auto ey = (higher - lower) / 2;
