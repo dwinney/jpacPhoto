@@ -65,7 +65,10 @@ namespace jpacPhoto
             return plot(canvas, file);
         };
 
+        // Combine a vector of plots into a grid of specified dimensions
         static void combine(std::array<int,2> dims, std::vector<plot> plots, std::string filename);
+
+        static void stack(std::vector<plot> plots, std::string filename);
 
         private:
 
