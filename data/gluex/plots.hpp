@@ -49,8 +49,9 @@ namespace jpacPhoto
             plot pdif = p.new_plot();
             pdif.add_data(slice);
             pdif.set_logscale(false, true);
-            pdif.set_legend(0.55, 0.6);
-            pdif.set_ranges({0, tmax + 0.2}, {1E-3, 6});
+            pdif.set_legend(0.6+(i==0)*0.1, 0.4+(i!=0)*0.23);
+            pdif.set_ranges({0, 10}, {3E-4, 6});
+            if (i == 0) pdif.set_ranges({0, 10}, {2E-3, 1});
             pdif.add_header("#it{E}_{#gamma} =", slice._avg_w, "GeV");
             pdif.set_labels("#minus#it{t}  [GeV^{2}]", "#it{d}#sigma/#it{dt}  [nb / GeV^{2}]");
 
