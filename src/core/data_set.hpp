@@ -71,6 +71,44 @@ namespace jpacPhoto
         return result;
     };
 
+    // Similar to above except that the data is transposed, i.e. rows are the "categories"
+    // and the columns are data points. We specify the number of rows in this case
+    template<int N>
+    inline std::array<std::vector<double>, N> import_transposed(std::string rel_path)
+    {
+        // Check if rel_path starts with a / or not
+        // if not we add one
+        if (rel_path.front() != '/') rel_path = "/" + rel_path;
+
+        // Add the top level dir path to get full file path
+        std::array<std::vector<double>, N> result;
+        std::string file_path = jpacPhoto_dir() + rel_path;
+        std::ifstream infile(file_path);
+
+        if (!infile.is_open())
+        {
+            return error("import_data", "Cannot open file " + file_path + "!", result);
+        };
+
+        // Import data!
+        for (int i = 0; i < N; i++)
+        {   
+            std::string line;
+            std::getline(infile, line);
+            if (line.empty()) continue;        // skips empty lines
+            if (line.front() == '#') continue; // Skip comment lines 
+            std::istringstream is(line);   
+
+            double x;
+            while(is >> x)
+            {
+                result[i].push_back(x);
+            };
+        };
+            
+        return result;
+    };
+
     // If data file has more columns than are actually needed,
     // import with import_data and use this to throw out all but the desired columns
     template<int Nin, int Nout> 
