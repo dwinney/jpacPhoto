@@ -93,33 +93,34 @@ void psip_dynamics()
     p1.set_curve_points(1000);
 
     line(); 
-    divider(5);
-    print("", "eta_th", "R_VMD",  "a_psip [mfm]",  "r_psip  [mfm]");
-    divider(5);
+    divider(6);
+    print("", "eta_th", "R_VMD",  "a_psip [am]",  "r_psip  [am]", "(q r_psip)^2");
+    divider(6);
 
     for (int i = 0; i < 3; i++)
     {
         // Downcast to K_matrix to access non-virtual functions]
+        std::string si = std::to_string(i+1);
         auto amp = std::dynamic_pointer_cast<K_matrix>( amps[i] );
-        std::string label = std::to_string(i+1) + "C";
+        std::string label = si + "-channel";
 
         // Add curves of elasticity to the plot
         auto eta = [&](double e)
         {
             return amp->inelasticity(e);
         };
-        p1.add_curve( {8.2, 11.8}, eta, label);
+        p1.add_curve( {8.2, 11.8}, eta, label+ " ("+si+ "C)");
 
         // Calcuate  the range parameter
         double r2 = std::abs(a_pwave[i] / (8*PI*wth*amp->scattering_length()*5.068E-3));
 
         // Print in a little table
-        print(label, amp->inelasticity(eth), amp->VMD_test(), amp->scattering_length(), sqrt(r2)/5.068E-3);
+        print(label, amp->inelasticity(eth), amp->VMD_test(), amp->scattering_length(), sqrt(r2)/5.068E-3, pow(kJpsi->final_momentum(W_cm(12)*W_cm(12)),2)*r2);
     };
-    divider(5); line();
+    divider(6); line();
 
     p1.set_ranges( {8, 12}, {0, 1});
     p1.set_legend( 0.6, 0.65);
-    p1.set_labels( "#it{E}_{#gamma}  [GeV]", "#eta" );
+    p1.set_labels( "#it{E}_{#gamma}  [GeV]", "1 #minus #eta" );
     p1.save("inelasticity.pdf");
 };
