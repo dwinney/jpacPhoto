@@ -77,7 +77,7 @@ namespace jpacPhoto
     
     // // If only size 2 array is passes this specifies final state
     // // and initial state is assumed to be photon + proton
-    inline kinematics new_kinematics(double m1, double m2)
+    inline kinematics new_kinematics(double m1, double m2 = M_PROTON)
     {
         return std::make_shared<raw_kinematics>(masses{{0., M_PROTON, m1, m2}});
     };
