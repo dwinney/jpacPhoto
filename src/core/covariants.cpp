@@ -6,7 +6,7 @@
 // Email:        dwinney@iu.edu
 // ---------------------------------------------------------------------------
 
-#include "covariant.hpp"
+#include "covariants.hpp"
 #include "dirac_spinor.hpp"
 
 namespace jpacPhoto
@@ -15,7 +15,7 @@ namespace jpacPhoto
     // Methods related to our caching to minimize calculations
 
     // Check if energy step requires recalculating quantities
-    void covariant::check_cache(double s, double t)
+    void covariants::check_cache(double s, double t)
     {
         bool s_changed      =   unsynced(s, _s);
         bool masses_changed =   unsynced(_kinematics->get_beam_mass(), _mB)
@@ -41,7 +41,7 @@ namespace jpacPhoto
     };
 
     // The complicated recalculation only comes with changing energy dependence
-    void covariant::recalculate(double s)
+    void covariants::recalculate(double s)
     {
         // save the latest masses
         _mB = _kinematics->get_beam_mass();
@@ -66,28 +66,28 @@ namespace jpacPhoto
 
     // Beam momentum
     // Aligned with the positive z-hat axis
-    lorentz_tensor<complex,1> covariant::q()
+    lorentz_tensor<complex,1> covariants::q()
     {   
         return lorentz_vector<complex>( {{_EB, 0., 0., _qi}} );
     };
 
     // Target momentum
     // 3-momenta opposite q in the -z-hat direction
-    lorentz_tensor<complex,1> covariant::p()
+    lorentz_tensor<complex,1> covariants::p()
     {   
         return lorentz_vector<complex>( {{_ET, 0., 0., -_qi}} );
     };
 
     // Produced meson momentum
     // In x-z plane with axis angle _theta from the +z
-    lorentz_tensor<complex,1> covariant::q_prime()
+    lorentz_tensor<complex,1> covariants::q_prime()
     {
         return lorentz_vector<complex>( {{_EX, _qf*_sin, 0., _qf*_cos}} );
     };
 
     // Recoil baryon momentum
     // In x-z plane with axis angle _theta from the -z
-    lorentz_tensor<complex,1> covariant::p_prime()
+    lorentz_tensor<complex,1> covariants::p_prime()
     {
         return lorentz_vector<complex>( {{_ER, -_qf*_sin, 0., -_qf*_cos}} );
     };
@@ -96,7 +96,7 @@ namespace jpacPhoto
     // POLARIZATION VECTORS
     
     // Incoming, beam polarization vector
-    lorentz_tensor<complex,1> covariant::eps()
+    lorentz_tensor<complex,1> covariants::eps()
     {
         // If helicity out of bounds return zero vector
         if (abs(_lamB) > 1) return error("eps", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
@@ -111,7 +111,7 @@ namespace jpacPhoto
     };
 
     // Outgoing, meson polarization vector
-    lorentz_tensor<complex,1> covariant::eps_prime()
+    lorentz_tensor<complex,1> covariants::eps_prime()
     {
         // If helicity out of bounds return zero vector
         if (abs(_lamX) > 1) return error("eps_prime", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
@@ -130,7 +130,7 @@ namespace jpacPhoto
     // DIRAC SPINORS
 
     // incoming (target) spinor
-    dirac_spinor covariant::u()
+    dirac_spinor covariants::u()
     {
         complex wp = csqrt(_ET + _mT), wm = csqrt(_ET - _mT);
 
@@ -139,7 +139,7 @@ namespace jpacPhoto
     };
 
     // outgoing (recoil) spinor
-    dirac_spinor covariant::ubar()
+    dirac_spinor covariants::ubar()
     {
         complex wp = csqrt(_ER + _mR), wm = csqrt(_ER - _mR);
     

@@ -17,6 +17,7 @@
 #include "constants.hpp"
 #include "helicities.hpp"
 #include "kinematics.hpp"
+#include "covariants.hpp"
 #include "angular_functions.hpp"
 #include "amplitude_options.hpp"
 
@@ -109,12 +110,12 @@ namespace jpacPhoto
         // So this constructor is actually not accessable other than through
         // new_amplitude
         raw_amplitude(amplitude_key key, kinematics xkinem, std::string name, std::string id)
-        : _kinematics(xkinem), _id(id), _name(name)
+        : _kinematics(xkinem), _id(id), _name(name), _covariants(std::make_unique<covariants>(xkinem))
         {};        
 
         // Sum constructor 
         raw_amplitude(amplitude_key key, std::vector<amplitude> subamps, std::string id)
-        : _id(id), _name("amplitude_sum")
+        : _id(id), _name("amplitude_sum"), _covariants(nullptr)
         {
             add(subamps);
         };
@@ -173,6 +174,16 @@ namespace jpacPhoto
             };
 
             return labels;
+        };
+
+        // ---------------------------------------------------------------------------
+        // Initialization function to do checks and set option to default
+
+        inline void initialize(int Npars = 0)
+        {
+            set_N_pars(Npars);
+            check_QNs(_kinematics);
+            set_option(Default);
         };
 
         // ---------------------------------------------------------------------------
@@ -334,6 +345,9 @@ namespace jpacPhoto
 
         // Helicities
         int _lamB, _lamX, _lamR, _lamT;
+
+        // Store of covariant quantities
+        std::unique_ptr<covariants> _covariants;
 
         // ---------------------------------------------------------------------------
         // When calculating observables we can cache helicity amplitudes to avoid

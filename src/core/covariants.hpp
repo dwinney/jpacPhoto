@@ -7,8 +7,8 @@
 // Email:        dwinney@iu.edu
 // ------------------------------------------------------------------------------
 
-#ifndef COVARIANT_HPP
-#define COVARIANT_HPP
+#ifndef COVARIANTS_HPP
+#define COVARIANTS_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
@@ -20,12 +20,12 @@ namespace jpacPhoto
 {   
     // Now the covariants class assembles all relavant kinematic quantities and outputs 
     // them in the form they can be assembled in to amplitudes with Feynman rules
-    class covariant
+    class covariants
     {
         // ---------------------------------------------------------------------------
         public: 
 
-        covariant(kinematics xkinem)
+        covariants(kinematics xkinem)
         : _kinematics(xkinem)
         {};
 
@@ -38,6 +38,13 @@ namespace jpacPhoto
             _lamX = helicities[2];
             _lamR = helicities[3];
 
+            // Recalculate our cache if things have changed
+            check_cache(s, t);            
+        };  
+
+        // Same as above but dont update the helicities
+        inline void update(double s, double t)
+        {
             // Recalculate our cache if things have changed
             check_cache(s, t);            
         };  
