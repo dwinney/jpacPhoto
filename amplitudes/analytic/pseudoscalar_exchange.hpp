@@ -7,8 +7,8 @@
 // Email:        dwinney@iu.alumni.edu
 // ------------------------------------------------------------------------------
 
-#ifndef SCALAR_EXCHANGE_HPP
-#define SCALAR_EXCHANGE_HPP
+#ifndef ANALYTIC_PSEUDOSCALAR_EXCHANGE_HPP
+#define ANALYTIC_PSEUDOSCALAR_EXCHANGE_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
@@ -20,17 +20,16 @@ namespace jpacPhoto
 {
     namespace analytic
     {
-        class scalar_exchange : public raw_amplitude
+        class pseudoscalar_exchange : public raw_amplitude
         {
             public:
 
             // Constructor
-            scalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id)
-            : raw_amplitude(key, xkinem, "scalar_exchange", id),
+            pseudoscalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id)
+            : raw_amplitude(key, xkinem, "pseudoscalar_exchange", id),
               _mEx(exchange_mass)
             {
-                set_N_pars(3);
-                check_QNs(xkinem);
+                initialize(3);
             };
 
             // ---------------------------------------------------------------------------
@@ -57,7 +56,7 @@ namespace jpacPhoto
             };
 
             // Explicitly require t-channel helicities
-            inline helicity_channel native_helicity_frame(){ return helicity_channel::T; };
+            inline helicity_channel native_helicity_frame(){ return helicity_channel::T_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
             inline std::vector<std::array<int,2>> allowed_meson_JP()
@@ -162,7 +161,7 @@ namespace jpacPhoto
                     default: break;
                 };
 
-                return 2*_gTop*_qi*csqrt(_t)*result;
+                return _gTop*_qi*csqrt(_t)*result;
             };
 
             // Bottom coupling refers to the target-exchange-recoil interation
@@ -184,7 +183,7 @@ namespace jpacPhoto
                     default: break;
                 };
 
-                return _gBot * result;
+                return 2*_gBot * result;
             };
 
             // Scalar propagator in the t-channel

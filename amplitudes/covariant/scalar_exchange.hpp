@@ -1,0 +1,141 @@
+// Amplitude defining production via a spin-0 exchange in the t-channel,
+// this is evaluated via contraction of covariant quantities in the s-channel
+//
+// ------------------------------------------------------------------------------
+// Author:       Daniel Winney (2022)
+// Affiliation:  Joint Physics Analysis Center (JPAC),
+//               South China Normal Univeristy (SCNU)
+// Email:        dwinney@iu.alumni.edu
+// ------------------------------------------------------------------------------
+
+#ifndef COVARIANT_PSEUDOSCALAR_EXCHANGE_HPP
+#define COVARIANT_PSUEDOSCALAR_EXCHANGE_HPP
+
+#include "constants.hpp"
+#include "kinematics.hpp"
+#include "form_factor.hpp"
+#include "amplitude_options.hpp"
+#include "amplitude.hpp"
+
+namespace jpacPhoto
+{
+    namespace covariant
+    {
+        class scalar_exchange : public raw_amplitude
+        {
+            public:
+
+            // Constructor we specify the exchange particle mass
+            scalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id = "scalar_exchange")
+            : raw_amplitude(key, xkinem, "scalar_exchange", id), _mEx(exchange_mass)
+            {
+                set_N_pars(3);
+                check_QNs(xkinem);
+            }
+
+            
+            // ---------------------------------------------------------------------------
+            // VIRTUALS
+
+            inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
+            {
+                // Update the covariant caches
+                _covariants->update(helicities, s, t);
+
+                return 0.;
+            }
+
+            // Covariants are s-channel amplitudes
+            inline helicity_channel native_helicity_frame(){return helicity_channel::S_CHANNEL; };
+
+            // We can have pseudo-scalar, vector, and axial-vector
+            inline std::vector<std::array<int,2>> allowed_meson_JP()
+            {
+                return { PSUEDOSCALAR, VECTOR, AXIALVECTOR };
+            };
+
+            // But only either parity spin-1/2
+            inline std::vector<std::array<int,2>> allowed_baryon_JP()
+            {
+                return { HALFPLUS, HALFMINUS };
+            };
+            
+            // The options here are the type of form_factor used
+            // Default assumed exponential
+            inline void set_option( amplitude_option opt )
+            {
+                switch (opt)
+                {
+                    case (Default):
+                    case (ExpFF): 
+                    {
+                        _FF = new_FF<exponential>();
+                        _option = ExpFF;
+                        break;
+                    };
+                    case (MonopoleFF):
+                    {
+                        _FF = new_FF<monopole>(_mEx);
+                        _option = MonopoleFF;
+                        break;
+                    }
+                    default: 
+                    {
+                        option_error();
+                        return;
+                    };
+                };
+
+                // Before leaving make sure the new FF gets the last saved cutoff
+                _FF->set_cutoff(_ffCutoff);
+            };
+            
+            // Parameter names
+            inline std::vector<std::string> parameter_labels()
+            {
+                return { "gPhoton", "gNucleon", "Cutoff" };
+            };
+            
+            // -----------------------------------------------------------------------
+            // Internal data members 
+
+            protected:
+
+            // Have three free parameters: 
+            // [0] Top (beam-exchange-meson) coupling
+            // [1] Bottom (target-exchange-recoil) coupling
+            // [2] Form-factor cutoff
+            inline void allocate_parameters(std::vector<double> x)
+            {
+                _gTop     = x[0];
+                _gBot     = x[1];
+                _ffCutoff = x[2];
+
+                // Pass cutoff to FF as well
+                _FF->set_cutoff(_ffCutoff);
+                return;
+            };
+
+            // Exchange mass
+            double _mEx;
+
+            // Free parameters: two couplings and a form-factor cutoff
+            double _gTop = 0, _gBot = 0, _ffCutoff = 0;
+
+            // We include a t-channel form-factor for the propagator
+            // By default this is the exponential one
+            form_factor _FF = new_FF<exponential>();
+
+            // COVARIANT PIECES
+
+            // Scalar propagator in the t-channel
+            inline complex propagator()
+            {
+                return - I / (_t - _mEx*_mEx);
+            };
+
+        };
+    };
+};
+
+#endif
