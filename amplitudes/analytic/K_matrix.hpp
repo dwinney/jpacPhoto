@@ -28,8 +28,7 @@ namespace jpacPhoto
             : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
                 // 3 K-matrix parameters and 2 normalizations
-                set_N_pars(2);
-                check_QNs(xkinem);
+                initialize(2);
 
                 _Nth = 1;
 
@@ -41,9 +40,7 @@ namespace jpacPhoto
             K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<double,2> masses, std::string id = "K_matrix")
             : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
-                // 3 K-matrix parameters and 2 normalizations
-                set_N_pars(5);
-                check_QNs(xkinem);
+                initialize(5);
 
                 _Nth = 2;
 
@@ -56,9 +53,7 @@ namespace jpacPhoto
             K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<std::array<double,2>,2> masses, std::string id = "K_matrix")
             : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
-                // 3 K-matrix parameters and 2 normalizations
-                set_N_pars(9);
-                check_QNs(xkinem);
+                initialize(9);
 
                 _Nth = 3;
 
@@ -240,8 +235,8 @@ namespace jpacPhoto
                 double T00_th = std::real((_K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12)) / _D);
 
                 // Then calculate the scattering length
-                double SL = - T00_th / (8*PI*_kinematics->Wth());
-                return SL / 5.068E-3; // IN UNITS OF mfm!!!!
+                double SL = - 2*T00_th / _kinematics->Wth();
+                return SL / 5.068; // IN UNITS OF fm!!!!
             };
 
             inline double VMD_test()
@@ -250,7 +245,7 @@ namespace jpacPhoto
                 evaluate();
                 
                 double VMD  = 0.0273;
-                double fit = std::abs(_n[0] / (8*PI*_kinematics->Wth()*scattering_length()*5.068E-3));
+                double fit = std::abs(2*_n[0] / (_kinematics->Wth()*scattering_length()*5.068));
                 return fit / VMD;
             };
 
