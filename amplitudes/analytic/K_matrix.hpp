@@ -27,10 +27,8 @@ namespace jpacPhoto
             K_matrix(amplitude_key key, kinematics xkinem, int J, std::string id = "K_matrix")
             : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
-                // 3 K-matrix parameters and 2 normalizations
-                initialize(2);
-
                 _Nth = 1;
+                initialize(2);
 
                 // Populate the thresholds
                 _thresholds[0] = {xkinem->get_meson_mass(), xkinem->get_recoil_mass()};
@@ -40,9 +38,8 @@ namespace jpacPhoto
             K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<double,2> masses, std::string id = "K_matrix")
             : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
-                initialize(5);
-
                 _Nth = 2;
+                initialize(5);
 
                 // Populate the thresholds
                 _thresholds[0] = {xkinem->get_meson_mass(), xkinem->get_recoil_mass()};
@@ -53,9 +50,8 @@ namespace jpacPhoto
             K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<std::array<double,2>,2> masses, std::string id = "K_matrix")
             : raw_partial_wave(key, xkinem, J, "K_matrix", id)
             {
-                initialize(9);
-
                 _Nth = 3;
+                initialize(9);
 
                 // Populate the thresholds
                 _thresholds[0] = {xkinem->get_meson_mass(), xkinem->get_recoil_mass()};
