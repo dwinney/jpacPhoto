@@ -203,7 +203,8 @@ namespace jpacPhoto
         inline void set_ranges( std::array<double,2> x,  std::array<double,2> y)
         { _xbounds = x; _ybounds = y; _customranges = true; };
 
-        inline void set_legend(double x, double y){ _legendxcord = x; _legendycord = y; };
+        inline void set_legend(double x, double y){ _addlegend = true; _legendxcord = x; _legendycord = y; };
+        inline void draw_legend(bool x){_addlegend = x;};
         inline void add_header(std::string x){ _header = x; _addheader = true; };
         inline void add_header(std::string variable, double value, std::string units = "")
         {
@@ -216,6 +217,11 @@ namespace jpacPhoto
         inline void add_logo(bool x, std::array<double, 2> coords = {0.93, 0.885})
         {
             _add_logo = x; _logo_coords = coords;
+        };
+
+        inline void preliminary(bool x)
+        {
+            _prelim = x;
         };
 
         // -----------------------------------------------------------------------
@@ -272,6 +278,17 @@ namespace jpacPhoto
             logo->SetTextSize(2/30.);
             logo->SetTextAlign(32);
             logo->Draw();
+        };
+
+        bool _prelim = false;
+        inline void add_watermark()
+        {
+            TLatex *watermark = new TLatex(0.33,0.15,"PRELIMINARY");
+            watermark->SetNDC();
+            watermark->SetTextColorAlpha(16, 0.5);
+            watermark->SetTextSize(0.1);
+            watermark->SetLineWidth(2);
+            watermark->Draw();
         };
 
         // Load all the settings into the graphs and draw them

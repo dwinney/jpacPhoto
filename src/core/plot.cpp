@@ -67,12 +67,14 @@ namespace jpacPhoto
                 legend->AddEntry(entry._graph, entry._style._label.c_str(), entry._style._draw_opt.c_str());
             };
         };
-
-        mg->Draw("ALP");
+        mg->Draw("same");
 
         if (_add_logo) add_logo();
 
+        if (_prelim) add_watermark();
+
         if (_addlegend) legend->Draw();
+        if (!_addlegend && _addheader) { legend->Clear(); legend->SetHeader(("  " + _header).c_str(), "L"); legend->Draw();}
 
         mg->GetXaxis()->CenterTitle(true);
         mg->GetYaxis()->CenterTitle(true);
