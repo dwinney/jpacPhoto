@@ -18,13 +18,6 @@
 
 namespace jpacPhoto
 {
-    inline unsigned int factorial(unsigned int n) 
-    {
-        if (n == 0)
-        return 1;
-        return n * factorial(n - 1);
-    };
-
     // ---------------------------------------------------------------------------
     // Wigner d-func coefficient of leading power
     double wigner_leading_coeff(int j, int lam1, int lam2);
