@@ -1,7 +1,7 @@
-// Implementation of a simple pomeron exchange assuming spin-less external particles
+// Implementation of a simple pomeron exchange assuming perfect helicity conservation
 //
 // ------------------------------------------------------------------------------
-// Author:       Daniel Winney (2022)
+// Author:       Daniel Winney (2023)
 // Affiliation:  Joint Physics Analysis Center (JPAC),
 //               South China Normal Univeristy (SCNU)
 // Email:        dwinney@iu.alumni.edu
@@ -25,8 +25,7 @@ namespace jpacPhoto
             pomeron_exchange(amplitude_key key, kinematics xkinem, std::string id = "pomeron_exchange")
             : raw_amplitude(key, xkinem, "pomeron_exchange", id)
             {
-                set_N_pars(4);
-                check_QNs(xkinem);
+                initialize(4);
             };
 
             // -----------------------------------------------------------------------
@@ -35,9 +34,6 @@ namespace jpacPhoto
             // We assume spinless particles so we have no helicity structure
             inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
             {
-                // Arbitrarily pick one of the helicities to evaluate
-                if (helicities != _kinematics->helicities(0)) return 0;
-
                 // Save inputes
                 store(helicities, s, t);
 
@@ -45,10 +41,10 @@ namespace jpacPhoto
                 double t_prime = t - _kinematics->t_min(s);
                 double alpha   = _alpha0 + t * _alphaP;
 
-                // Normalization here to get rid of helicity dependence in amplitude::probability_distribution
-                // First a 2 removes the factor 1/4 when averaging over initial helicities
-                // then a 1/sqrt(2) removes the factor of 2 from the parity relation in amplitude::update_cache
-                return sqrt(2) * _A * exp(_b0 * t_prime) * pow((s - _kinematics->sth()) / _s0, alpha);
+                // Helicity conservation
+                bool helicity_conserving = (_lamB == _lamX) && (_lamT == _lamR);
+
+                return _A * exp(_b0 * t_prime) * pow((s - _kinematics->sth()) / _s0, alpha) * helicity_conserving;
             };
 
             // Explicitly require t-channel helicities
@@ -75,9 +71,6 @@ namespace jpacPhoto
                 _alpha0 = pars[2];
                 _alphaP = pars[3];
             };
-
-            // -----------------------------------------------------------------------
-            private:
 
             // Free parameters
             double _A      = 1; // Overall noramalization
