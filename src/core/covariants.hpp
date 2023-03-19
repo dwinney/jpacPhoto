@@ -15,6 +15,7 @@
 #include "lorentz_tensor.hpp"
 #include "dirac_spinor.hpp"
 #include "contract.hpp"
+#include "bilinear.hpp"
 
 namespace jpacPhoto
 {   

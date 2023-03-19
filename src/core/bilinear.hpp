@@ -12,6 +12,7 @@
 #define BILINEAR_HPP
 
 #include "constants.hpp"
+#include "contract.hpp"
 #include "lorentz_tensor.hpp"
 #include "dirac_matrix.hpp"
 #include "dirac_spinor.hpp"
@@ -27,6 +28,18 @@ namespace jpacPhoto
     // inline lorentz_tensor<dirac_matrix,2> sigma_tensor()
     // { return (tensor_product(gamma_vector(), gamma_vector())); };
     /* identity<dirac_matrix>()*metric_tensor() - */ 
+
+    inline lorentz_tensor<complex,1> bilinear(dirac_spinor ubar, lorentz_tensor<dirac_matrix,1> Gamma, dirac_spinor u)
+    {
+        std::array<complex,4> entries;
+
+        for (auto mu : LORENTZ_INDICES)
+        {
+            entries[+mu] = contract(ubar, Gamma(mu)*u);
+        }
+
+        return lorentz_tensor<complex,1>({entries});
+    };
 };
 
 #endif
