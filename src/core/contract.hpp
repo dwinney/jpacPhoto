@@ -42,13 +42,28 @@ namespace jpacPhoto
     int metric(std::vector<lorentz_index> permutations);
 
     // ---------------------------------------------------------------------------
-    // Contractions between tensors of sametype
+    // I wrote this and it wors fine but you need to specify the template parameter 
+    // which is annoying and i dont like it
+    // e.g. i want to write contract(q, p) not contract<complex>(q, p);
 
-    // Two vectors contracted 
     template<class LType, class RType, int R>
     inline auto contract(lorentz_tensor<LType,R> left, lorentz_tensor<RType,R> right)
     {
         auto sum = 0 * identity<LType>() * identity<RType>();
+        for (auto perm : permutations(R))
+        {
+            sum += metric(perm) * contract(left(perm), right(perm));
+        };
+        return sum;
+    };
+
+    // So I'd rather just write the interactions between types seperately as needed lol
+    
+    // Two scalar vectors contracted 
+    template<int R>
+    inline complex contract(lorentz_tensor<complex,R> left, lorentz_tensor<complex,R> right)
+    {
+        complex sum = 0;
         for (auto perm : permutations(R))
         {
             sum += metric(perm) * contract(left(perm), right(perm));
