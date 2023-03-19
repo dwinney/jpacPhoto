@@ -57,14 +57,23 @@ namespace jpacPhoto
     template<class Type, int Rank>
     class lorentz_tensor : public tensor_object<Type>
     {
-        public: 
-        
         // The shape is always a Rank x 4 tensor. 
         // The Type depends on the possibility of dirac structures
         // Scalar (complex/double) quantities is any object with only Lorentz structure
         // dirac_spinor and dirac_matrix tensors allow constructor of high half-integer spin wavefunctions
         using tensor_entries = std::vector<std::array<Type,4>>; 
         using tensor_ptr     = std::shared_ptr<tensor_object<Type>>;
+        
+        public: 
+        
+        // Constructor for tensors by explicit element specification
+        // This only wors for size 1 and 2, i.e. lorentz vectors and metric
+        // Tensors always initialized with normalization of 1
+        // Higher rank tensors should be created by outer-products
+        lorentz_tensor<Type,Rank>(tensor_entries entries)
+        : _entries(entries), _is_sum(false)
+        {};
+
 
         // Copy constructor
         lorentz_tensor<Type,Rank>(lorentz_tensor<Type,Rank> const & old)
@@ -181,14 +190,6 @@ namespace jpacPhoto
 
         private:
 
-        // Constructor for tensors by explicit element specification
-        // This only wors for size 1 and 2, i.e. lorentz vectors and metric
-        // Tensors always initialized with normalization of 1
-        // Higher rank tensors should be created by outer-products
-        lorentz_tensor<Type,Rank>(tensor_entries entries)
-        : _entries(entries), _is_sum(false)
-        {};
-
         // Implicit constructor, stores pointers to constituent tensors of smaller rank
         lorentz_tensor<Type,Rank>(std::vector<std::shared_ptr<tensor_object<Type>>> Ts)
         : _subtensors(Ts), _is_sum(false)
@@ -223,21 +224,10 @@ namespace jpacPhoto
         template<class T, int R>
         friend lorentz_tensor<T,R> tensor_product(std::array<lorentz_tensor<T,1>,R>);
 
-        // Special constructors
-        template<class T>
-        friend lorentz_tensor<T,      1> lorentz_vector(std::array<T,4>);
-        friend lorentz_tensor<complex,2> metric_tensor();
-
         // "Capture" constructors
         
         template<class LType, int R>
         friend lorentz_tensor<LType,R> operator*(LType c, lorentz_tensor<complex,R> rhs);
-
-        template<class LType>
-        friend lorentz_tensor<LType,2> operator*(LType c, lorentz_tensor<complex,2> rhs);
-
-        template<class RType>
-        friend lorentz_tensor<RType,2> operator*(lorentz_tensor<complex,2> rhs, RType c);
 
         // IF we end up with a rank-0 object, return the scalar piece
         template<class T>
