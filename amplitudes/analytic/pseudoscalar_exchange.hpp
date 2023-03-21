@@ -175,7 +175,7 @@ namespace jpacPhoto
                 switch (qns)
                 {
                     // 1/2+
-                    case (11) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR))/2; break;
+                    case (11) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR)); break;
                     
                     // 3/2+
                     case (31) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR))/2; break;
@@ -183,7 +183,7 @@ namespace jpacPhoto
                     default: break;
                 };
 
-                return 2*_gBot * result;
+                return _gBot * result;
             };
 
             // Scalar propagator in the t-channel

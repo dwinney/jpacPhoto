@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 #ifndef COVARIANT_PSEUDOSCALAR_EXCHANGE_HPP
-#define COVARIANT_PSUEDOSCALAR_EXCHANGE_HPP
+#define COVARIANT_PSEUDOSCALAR_EXCHANGE_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
@@ -21,28 +21,33 @@ namespace jpacPhoto
 {
     namespace covariant
     {
-        class scalar_exchange : public raw_amplitude
+        class pseudoscalar_exchange : public raw_amplitude
         {
             public:
 
             // Constructor we specify the exchange particle mass
-            scalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id = "scalar_exchange")
-            : raw_amplitude(key, xkinem, "scalar_exchange", id), _mEx(exchange_mass)
+            pseudoscalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id = "pseudoscalar_exchange")
+            : raw_amplitude(key, xkinem, "pseudoscalar_exchange", id), _mEx(exchange_mass)
             {
-                set_N_pars(3);
-                check_QNs(xkinem);
+                initialize(3);
             }
-
             
             // ---------------------------------------------------------------------------
             // VIRTUALS
 
             inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
             {
-                // Update the covariant caches
+                // Save inputs
+                store(helicities, s, t);
                 _covariants->update(helicities, s, t);
-
-                return 0.;
+                
+                // Parse which argument should go into the form-factor
+                // The exponential takes t' = t - tmin while monopole takes just t
+                complex FF = (_option == amplitude_option::ExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
+                                                                  : _FF->eval(_t);
+                
+                // Multiply couplings with propagator
+                return FF * top_coupling() * propagator() * bottom_coupling();
             }
 
             // Covariants are s-channel amplitudes
@@ -132,6 +137,55 @@ namespace jpacPhoto
             inline complex propagator()
             {
                 return - I / (_t - _mEx*_mEx);
+            };
+
+            inline complex top_coupling()
+            {
+                // Beam
+                auto q     = _covariants->q();
+                auto eps   = _covariants->eps();
+                
+                // Outgoing meson
+                auto q_p   = _covariants->q_prime();
+                auto eps_p = _covariants->eps_prime();
+
+                // Coupling function depends on
+                // the quantum numbers of the produced meson
+                auto JP  = _kinematics->get_meson_JP();
+                int  qns =  10 * JP[0] + (JP[1] == 1);
+
+                complex result = 0;
+
+                switch (qns)
+                {
+                    // Axial-vector
+                    case (11): { result = contract(eps,   eps_p) * contract(q,   q_p) 
+                                        - contract(eps, q_p)     * contract(eps_p, q);
+                                 result /= _mX; 
+                                 break;};
+                    
+                    // Vector
+                    case (10): { result = 4*levi_civita(eps_p, eps, q, q_p);
+                                 if (!_kinematics->is_photon()) result /= 4; 
+                                 break;}
+
+                    // Pseudo-scalar
+                    case ( 0): { result = - contract(eps, q - 2 * q_p); break;}
+
+                    default: break;
+                };
+
+                return _gTop * result; 
+            };
+
+            inline complex bottom_coupling()
+            {
+                auto u    = _covariants->u();    // Target
+                auto ubar = _covariants->ubar(); // Recoil
+
+                complex result = contract(ubar, gamma_5() * u);
+            
+                return _gBot * result;
             };
 
         };
