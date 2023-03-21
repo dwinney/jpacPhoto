@@ -70,6 +70,15 @@ namespace jpacPhoto
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
+    // These are the exact same as aove except they allow setting an amplitude_option
+    template<class A>
+    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, std::string id)
+    {
+        auto amp = new_amplitude<A>(xkinem, id);
+        amp->set_option(opt);
+        return amp;
+    };
+
     // "constructor" specifying an extra parameter
     template<class A, typename B>
     inline amplitude new_amplitude(kinematics xkinem, B extra, std::string id)
@@ -78,12 +87,29 @@ namespace jpacPhoto
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
     
+    template<class A, typename B>
+    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, B extra, std::string id)
+    {
+        auto amp = new_amplitude<A>(xkinem, extra, id);
+        amp->set_option(opt);
+        return amp;
+    };
+
     // "constructor" specifying two extra parameters
     template<class A, typename B, typename C>
     inline amplitude new_amplitude(kinematics xkinem, B extra1, C extra2, std::string id)
     {
         auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra1, extra2, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
+    };
+
+    // "constructor" specifying two extra parameters
+    template<class A, typename B, typename C>
+    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, B extra1, C extra2, std::string id)
+    {
+        auto amp = new_amplitude<A>(xkinem, extra1, extra2, id);
+        amp->set_option(opt);
+        return amp;
     };
 
     // ---------------------------------------------------------------------------
