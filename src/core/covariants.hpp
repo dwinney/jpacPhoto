@@ -12,6 +12,7 @@
 
 #include "constants.hpp"
 #include "kinematics.hpp"
+#include "levi_civita.hpp"
 #include "lorentz_tensor.hpp"
 #include "dirac_spinor.hpp"
 #include "contract.hpp"
@@ -64,13 +65,16 @@ namespace jpacPhoto
         lorentz_tensor<complex,1> p_prime();   // Recoil momentum 
 
         // Momentum transfers  
-        inline lorentz_tensor<complex,1> k_s(){ return q() + p(); };             // s-channel momentum transfer
-        inline lorentz_tensor<complex,1> k_t(){ return q() - q_prime(); };       // t-channel momentum transfer
-        inline lorentz_tensor<complex,1> k_u(){ return q() - p_prime(); };       // u-channel momentum transfer
+        inline lorentz_tensor<complex,1> k_s(){ return q() + p(); };        // s-channel momentum transfer
+        inline lorentz_tensor<complex,1> k_t(){ return q() - q_prime(); };  // t-channel momentum transfer
+        inline lorentz_tensor<complex,1> k_u(){ return q() - p_prime(); };  // u-channel momentum transfer
 
         // Polarization vectors
         lorentz_tensor<complex,1> eps();       // Beam (incoming) polarization
         lorentz_tensor<complex,1> eps_prime(); // Meson (outgoing) polarization
+
+        // Field strength tensor
+        inline lorentz_tensor<complex,2> F(){ return tensor_product(q(), eps()) - tensor_product(eps(), q()); }; // Beam field tensor
 
         // SPINORS
         dirac_spinor u();    // incoming (target) spinor

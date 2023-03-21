@@ -28,7 +28,7 @@ namespace jpacPhoto
         // Recalculating theta dependence is super easy 
         // so this doesnt need a seperate method
         double theta = _kinematics->theta_s(s, t);
-        if ( !are_equal(theta, _theta) )
+        if ( unsynced(theta, _theta) )
         {
             _theta = theta;
             _cos = cos(theta);
@@ -122,8 +122,8 @@ namespace jpacPhoto
         // Check cases:
         bool transverse = ( abs(_lamX) == 1 );
             
-        if ( transverse ) return - lorentz_vector<complex>({{  0, _lamX*_cos,  I,    -_sin}}) / sqrt(2);
-        else              return   lorentz_vector<complex>({{_qf,   _EX*_sin,  0, _EX*_cos}}) / _mX;
+        if ( transverse ) return - lorentz_vector<complex>({{  0, _lamX*_cos,  I, -_lamX*_sin}}) / sqrt(2);
+        else              return   lorentz_vector<complex>({{_qf,   _EX*_sin,  0,    _EX*_cos}}) / _mX;
     };
 
     // ---------------------------------------------------------------------------
@@ -143,7 +143,7 @@ namespace jpacPhoto
     {
         complex wp = csqrt(_ER + _mR), wm = csqrt(_ER - _mR);
         
-        dirac_spinor u = (_lamR == 1) ? dirac_spinor({{{wp*_sinhalf, -wp*_coshalf,  wp*_sinhalf, -wm*_coshalf}}}) 
+        dirac_spinor u = (_lamR == 1) ? dirac_spinor({{{wp*_sinhalf, -wp*_coshalf,  wm*_sinhalf, -wm*_coshalf}}}) 
                                       : dirac_spinor({{{wp*_coshalf,  wp*_sinhalf, -wm*_coshalf, -wm*_sinhalf}}});
 
         return u.adjoint();
