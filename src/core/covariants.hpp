@@ -12,7 +12,6 @@
 
 #include "constants.hpp"
 #include "kinematics.hpp"
-#include "levi_civita.hpp"
 #include "lorentz_tensor.hpp"
 #include "dirac_spinor.hpp"
 #include "contract.hpp"

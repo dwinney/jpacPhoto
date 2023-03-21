@@ -493,10 +493,6 @@ namespace jpacPhoto
         };
         return lorentz_tensor<T,2>(sum);
     };
-
-    // ---------------------------------------------------------------------------
-    // Lorentz tesnors involving dirac_spinor and dirac_matrix
-
 };
 
 #endif

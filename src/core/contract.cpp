@@ -26,25 +26,20 @@ namespace jpacPhoto
         return sum;
     };
 
-    // Again, spinors need to be defined seperately becasue they dont return their own type
-    complex contract(lorentz_tensor<dirac_spinor,1> left, lorentz_tensor<dirac_spinor,1> right)
-    {
-        complex sum = 0.;
-        for (auto mu : LORENTZ_INDICES)
-        {
-            sum += metric(mu) * contract(left(mu), right(mu));
-        };
-        return sum;
-    };
-
     // ---------------------------------------------------------------------------
     // Function to return a vector of all permutations of N indices
 
     std::vector<std::vector<lorentz_index>> permutations(unsigned N)
     {
+        // First two cases are hard-coded for easy access
         if (N == 1) return { {lorentz_index::t}, {lorentz_index::x}, 
                                                  {lorentz_index::y}, 
                                                  {lorentz_index::z}};
+
+        if (N == 2) return { {lorentz_index::t, lorentz_index::t}, {lorentz_index::t, lorentz_index::x}, {lorentz_index::t, lorentz_index::y}, {lorentz_index::t, lorentz_index::z}, 
+                             {lorentz_index::x, lorentz_index::t}, {lorentz_index::x, lorentz_index::x}, {lorentz_index::x, lorentz_index::y}, {lorentz_index::x, lorentz_index::z}, 
+                             {lorentz_index::y, lorentz_index::t}, {lorentz_index::y, lorentz_index::x}, {lorentz_index::y, lorentz_index::y}, {lorentz_index::y, lorentz_index::z}, 
+                             {lorentz_index::z, lorentz_index::t}, {lorentz_index::z, lorentz_index::x}, {lorentz_index::z, lorentz_index::y}, {lorentz_index::z, lorentz_index::z} };
 
         // Get the previous set of permutations
         std::vector<std::vector<lorentz_index>> previous = permutations(N - 1);
@@ -76,5 +71,14 @@ namespace jpacPhoto
             if (mu != lorentz_index::t) prod *= -1;
         };
         return prod;
+    };
+
+    // Return the value of the levi-civita symbol for some combination of lorentz_indices
+    int levi_civita(lorentz_index mu, lorentz_index nu, lorentz_index alpha, lorentz_index beta)
+    {
+        // Convert indices to their ints
+        int a = +mu, b = +nu, c = +alpha, d = +beta;
+        int result = (d - c) * (d - b) * (d - a) * (c - b) * (c - a) * (b - a);
+        return (result == 0) ? result : result / abs(result);
     };
 };
