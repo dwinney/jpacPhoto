@@ -227,21 +227,23 @@ namespace jpacPhoto
                 detK02 = _K00*_K22 - _K02*_K02;
                 detK12 = _K11*_K22 - _K12*_K12;
 
-                // Use this to calculate the elastic T-matrix element
-                double T00_th = std::real((_K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12)) / _D);
+                // Use this to calculate the elastic 00 element of T-matrix 
+                complex N = _K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12);
+                _T00th = std::real(N / _D);
 
                 // Then calculate the scattering length
-                double SL = - 2*T00_th / _kinematics->Wth();
-                return SL / 5.068; // IN UNITS OF fm!!!!
+                double SL = - _T00th / (8*PI*_kinematics->Wth());
+
+                // Output in units of fm
+                return SL / 5.068; 
             };
 
-            inline double VMD_test()
+            inline double R_VMD()
             {
-                store(_kinematics->helicities(0), _kinematics->sth(), 0);
-                evaluate();
+                scattering_length();
                 
                 double VMD  = 0.0273;
-                double fit = std::abs(2*_n[0] / (_kinematics->Wth()*scattering_length()*5.068));
+                double fit = std::abs(_n[0] / _T00th);
                 return fit / VMD;
             };
 
@@ -320,6 +322,9 @@ namespace jpacPhoto
             complex                     _K22 = 0;
             complex  _D = 0,  _detK = 0;
 
+            // Value of the elastic amplitude at threshold
+            double _T00th = 0;
+
             // Chew-Mandelstam phase-space 
             inline complex G(double m1, double m2)
             {
@@ -329,7 +334,7 @@ namespace jpacPhoto
                 rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
                 xi     = 1 - (m1+m2)*(m1+m2)/_s;
                 result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
-                return result;
+                return result / (16*PI);
             };
             inline complex G(unsigned i){ return G(_thresholds[i][0], _thresholds[i][1]); };
 
