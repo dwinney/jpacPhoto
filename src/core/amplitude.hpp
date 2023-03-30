@@ -158,6 +158,11 @@ namespace jpacPhoto
         // is the sum of individual amplitudes at fixed helicities
         virtual complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
         {
+            if (_subamplitudes.size() == 0)
+            {
+                return 0;
+            }
+
             complex sum = 0;
             for (amplitude amp : _subamplitudes)
             {
@@ -187,17 +192,26 @@ namespace jpacPhoto
         virtual void set_option(amplitude_option x){ _option = x; };
         
         // Give each parameter a name if you'd like
-        // By default we assume this is a sum and we grab labels from each subamplitude
         virtual std::vector<std::string> parameter_labels()
         {
             std::vector<std::string> labels;
-            for (auto amp : _subamplitudes)
+            if (_subamplitudes.size() == 0)
             {
-                std::vector<std::string> sublabels = amp->parameter_labels();
-                labels.insert(
-                    labels.end(), sublabels.begin(), sublabels.end()
-                );
-            };
+                for (int i = 0; i < _N_pars; i++)
+                {
+                    labels.push_back("par[" + std::to_string(i) + "]");
+                }
+            }
+            else
+            {
+                for (auto amp : _subamplitudes)
+                {
+                    std::vector<std::string> sublabels = amp->parameter_labels();
+                    labels.insert(
+                        labels.end(), sublabels.begin(), sublabels.end()
+                    );
+                };
+            }
 
             return labels;
         };
@@ -294,6 +308,21 @@ namespace jpacPhoto
             _parameters_changed = true;
         };
 
+        // Given a vector of double of appropriate length, allocate free parameters to model
+        // By default we feed the total parameters into the subamplitudes 
+        virtual void allocate_parameters( std::vector<double> x )
+        {
+            // For each subamplitude grab a subvector of its parameters
+            auto running_iter = x.begin();
+            for (amplitude amp : _subamplitudes)
+            {
+                auto sub_pars = std::vector<double>(running_iter, running_iter + amp->N_pars());
+                amp->set_parameters(sub_pars);
+
+                running_iter += amp->N_pars();
+            };
+        };
+
         // ---------------------------------------------------------------------------
         protected:
         
@@ -317,21 +346,6 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         // Parameter handling 
-
-        // Given a vector of double of appropriate length, allocate free parameters to model
-        // By default we feed the total parameters into the subamplitudes 
-        virtual void allocate_parameters( std::vector<double> x )
-        {
-            // For each subamplitude grab a subvector of its parameters
-            auto running_iter = x.begin();
-            for (amplitude amp : _subamplitudes)
-            {
-                auto sub_pars = std::vector<double>(running_iter, running_iter + amp->N_pars());
-                amp->set_parameters(sub_pars);
-
-                running_iter += amp->N_pars();
-            };
-        };
 
         // Number of parameters to expect
         int  _N_pars = 0;
