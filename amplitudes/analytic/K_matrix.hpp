@@ -75,7 +75,9 @@ namespace jpacPhoto
                 // Normalization here to get rid of helicity dependence in amplitude::probability_distribution
                 // First a 2 removes the factor 1/4 when averaging over initial helicities
                 // then a 1/sqrt(2) removes the factor of 2 from the parity relation in amplitude::update_cache
-                return sqrt(2) * (2*_J+1) * legendre(_J, cos(_theta)) * evaluate();
+                complex result = sqrt(2) * (2*_J+1) * legendre(_J, cos(_theta)) * evaluate();
+
+                return result;
             };
 
             // We can have any quantum numbers
@@ -287,8 +289,8 @@ namespace jpacPhoto
                 if ( _option == EffectiveRange )
                 {
                     _b00 = pars[2+(_Nth>1)*(4*_Nth-5)];
-                    _b11 = (_Nth > 1)*pars[4*_Nth-2];
-                    _b22 = (_Nth > 1)*pars[4*_Nth-1];
+                    _b11 = (_Nth > 1) ? pars[4*_Nth-2] : 0;
+                    _b22 = (_Nth > 2) ? pars[4*_Nth-1] : 0;
                 }
             };
 
@@ -303,7 +305,7 @@ namespace jpacPhoto
             std::array<std::array<double,2>,3> _thresholds;
             
             // Production parameters
-            std::array<complex,3> _q, _G, _N;
+            std::array<complex,3> _q = {0,0,0}, _G = {0,0,0}, _N = {0,0,0};
 
             // K-matrix parameters
             double _a00 = 0, _a01 = 0, _a02 = 0;
@@ -314,7 +316,7 @@ namespace jpacPhoto
             double _b00 = 0, _b11 = 0, _b22 = 0;
             
             // Production amplitude parameters
-            std::array<double,3> _n;
+            std::array<double,3> _n = {0,0,0};
 
             // Internal variables for the K matrices
             complex _K00 = 0, _K01 = 0, _K02 = 0;
