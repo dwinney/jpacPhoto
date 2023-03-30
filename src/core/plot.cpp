@@ -80,11 +80,25 @@ namespace jpacPhoto
         mg->GetYaxis()->CenterTitle(true);
         _canvas->Modified();
 
+        double ylow, yhigh;
         if (_customranges)
         {
             mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
             mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
+            mg->SetMinimum(_ybounds[0]);
+            mg->SetMaximum(_ybounds[1]);
+            ylow = _ybounds[0]; yhigh = _ybounds[1];
         };
+
+        for (auto line : _lines)
+        {
+            auto vert = new TLine(line._xvalue, ylow, line._xvalue, yhigh);
+            vert->SetLineWidth(plot_entry::_default_linewidth);
+            vert->SetLineColorAlpha(line._color, 0.7);
+            vert->SetLineStyle(line._linestyle);
+            vert->Draw();
+        }
+
     };
 
     // ---------------------------------------------------------------------------
@@ -429,4 +443,7 @@ namespace jpacPhoto
         style._add_to_legend = false;
         _entries.push_front(plot_entry(graph, style, false));
     };
+
+    // -----------------------------------------------------------------------
+    // Draw other things such as a vertical line at a certain x value
 };

@@ -27,6 +27,7 @@
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
 #include <TLatex.h>
+#include <TLine.h>
 
 #include "data_set.hpp"
 #include "elementwise.hpp"
@@ -191,6 +192,18 @@ namespace jpacPhoto
         void add_band(std::vector<double> x, std::array<std::vector<double>,2> band, int fill = 1001);
 
         // -----------------------------------------------------------------------
+        // Draw other things such as a vertical line at a certain x value
+
+        inline void add_vertical(double x_val, std::array<int, 2> style = {kBlack, kDashed})
+        {
+            vertical new_vert;
+            new_vert._xvalue    = x_val;
+            new_vert._color     = style[0];
+            new_vert._linestyle = style[1];   
+            _lines.push_back(new_vert);
+        };
+
+        // -----------------------------------------------------------------------
         // OPTION SETTERS
 
         // Add string labels to the axes, follows TLatex 
@@ -204,7 +217,7 @@ namespace jpacPhoto
         { _xbounds = x; _ybounds = y; _customranges = true; };
 
         inline void set_legend(double x, double y){ _addlegend = true; _legendxcord = x; _legendycord = y; };
-        inline void draw_legend(bool x){_addlegend = x;};
+        inline void set_legend(bool x){_addlegend = x;};
         inline void add_header(std::string x){ _header = x; _addheader = true; };
         inline void add_header(std::string variable, double value, std::string units = "")
         {
@@ -333,6 +346,18 @@ namespace jpacPhoto
 
         // List of all entries (theoretical curves) to be plotted
         std::deque<plot_entry> _entries;
+
+        // ------------------------------------------------------------------------
+        // LINE MANAGEMENT
+
+        struct vertical 
+        {
+            double _xvalue = 0;
+            int _color     = kBlack;
+            int _linestyle = kDashed;
+        };
+
+        std::vector<vertical> _lines;
     };
 };
 
