@@ -21,6 +21,37 @@
 namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
+    // Quantum number handling
+
+    particle raw_kinematics::get_meson()
+    {
+        auto JP = get_meson_JP();
+        int  qns =  10 * JP[0] + (JP[1] == 1);
+        switch(qns)
+        {
+            case (11): return axialvector;
+            case (10): return vector;
+            case ( 0): return pseudoscalar;
+            case ( 1): return scalar;
+        };  
+        return particle_error;
+    };
+
+    particle raw_kinematics::get_baryon()
+    {
+        auto JP = get_baryon_JP();
+        int  qns =  10 * JP[0] + (JP[1] == 1);
+        switch(qns)
+        {
+            case (11): return halfplus;
+            case (10): return halfminus;
+            case (31): return threeplus;
+            case (30): return threeminus;
+        };  
+        return particle_error;
+    };
+
+    // ---------------------------------------------------------------------------
     // Find a set of helicities given an index
 
     std::array<int, 4> raw_kinematics::helicities(int i)

@@ -59,15 +59,15 @@ namespace jpacPhoto
             inline helicity_channel native_helicity_frame(){ return helicity_channel::T_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
-            inline std::vector<std::array<int,2>> allowed_meson_JP()
+            inline std::vector<particle> allowed_mesons()
             {
-                return { PSUEDOSCALAR, VECTOR, AXIALVECTOR };
+                return {pseudoscalar, vector, axialvector };
             };
 
             // But only either parity spin-1/2
-            inline std::vector<std::array<int,2>> allowed_baryon_JP()
+            inline std::vector<particle> allowed_baryons()
             {
-                return { HALFPLUS, HALFMINUS };
+                return { halfplus, threeplus };
             };
 
             // The options here are the type of form_factor used
@@ -143,20 +143,15 @@ namespace jpacPhoto
             {
                 // Coupling function depends on
                 // the quantum numbers of the produced meson
-                auto JP  = _kinematics->get_meson_JP();
-                int  qns =  10 * JP[0] + (JP[1] == 1);
-
+       
                 complex result = 0;
-                switch (qns)
+                switch ( _kinematics->get_meson() )
                 {
-                    // Axial-vector
-                    case (11): result = 1/_mX; break;
+                    case (axialvector): result = 1/_mX; break;
                     
-                    // Vector
-                    case (10): result = (_kinematics->is_photon()) ? -4 : -1; break;
+                    case (vector): result = (_kinematics->is_photon()) ? -4 : -1; break;
 
-                    // Pseudo-scalar
-                    case ( 0): result = (_kinematics->is_photon()) ? 0 : 2*I/_mB; break;
+                    case (pseudoscalar): result = (_kinematics->is_photon()) ? 0 : 2*I/_mB; break;
 
                     default: break;
                 };
@@ -168,17 +163,13 @@ namespace jpacPhoto
             inline complex bottom_coupling()
             {
                 // This is also dependent on baryon quantum numbers
-                auto JP = _kinematics->get_baryon_JP();
-                int qns = 10 * JP[0] + (JP[1] == 1);
 
                 complex result = 0;
-                switch (qns)
+                switch ( _kinematics->get_baryon() )
                 {
-                    // 1/2+
-                    case (11) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR)); break;
+                    case (halfplus) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR)); break;
                     
-                    // 3/2+
-                    case (31) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR))/2; break;
+                    case (threeplus) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR))/2; break;
 
                     default: break;
                 };

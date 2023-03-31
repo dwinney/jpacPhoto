@@ -67,6 +67,7 @@ namespace jpacPhoto
             inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
             {
                 // Arbitrarily pick one of the helicities to evaluate
+                // this removes the need of evaluating the same thing 24 times per energy step
                 if (helicities != _kinematics->helicities(0)) return 0;
 
                 // Save inputes
@@ -81,10 +82,8 @@ namespace jpacPhoto
             };
 
             // We can have any quantum numbers
-            // but for now explicitly put only pseudo-scalar, vector, and axial-vector
-            // and either parity spin-1/2
-            inline std::vector<std::array<int,2>> allowed_meson_JP() { return { PSUEDOSCALAR, VECTOR, AXIALVECTOR }; };
-            inline std::vector<std::array<int,2>> allowed_baryon_JP(){ return { HALFPLUS, HALFMINUS }; };
+            inline std::vector<particle> allowed_mesons() { return any(); };
+            inline std::vector<particle> allowed_baryons(){ return any(); };
 
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()

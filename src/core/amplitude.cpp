@@ -242,19 +242,22 @@ namespace jpacPhoto
     void raw_amplitude::check_QNs(kinematics kinem)
     {
         // Get all the allowed JP's from the amplitude
-        std::vector<std::array<int,2>> allowed_meson_JP, allowed_baryon_JP;
-        allowed_meson_JP  = this->allowed_meson_JP();
-        allowed_baryon_JP = this->allowed_baryon_JP();
+        std::vector<particle> allowed_mesons, allowed_baryons;
+        allowed_mesons  = this->allowed_mesons();
+        allowed_baryons = this->allowed_baryons();
 
         // Grab the requested JPs from the raw_kinematics
-        std::array<int,2> requested_meson_JP, requested_baryon_JP;
-        requested_meson_JP  = kinem->get_meson_JP();
-        requested_baryon_JP = kinem->get_baryon_JP();
+        particle requested_meson, requested_baryon;
+        requested_meson  = kinem->get_meson();
+        requested_baryon = kinem->get_baryon();
 
         // Check if they are allowed
         bool meson_fails, baryon_fails;
-        meson_fails  = std::find(allowed_meson_JP.begin(),  allowed_meson_JP.end(),  requested_meson_JP)  == allowed_meson_JP.end();
-        baryon_fails = std::find(allowed_baryon_JP.begin(), allowed_baryon_JP.end(), requested_baryon_JP) == allowed_baryon_JP.end();
+        meson_fails  = std::find(allowed_mesons.begin(),  allowed_mesons.end(),  requested_meson)  == allowed_mesons.end();
+        baryon_fails = std::find(allowed_baryons.begin(), allowed_baryons.end(), requested_baryon) == allowed_baryons.end();
+    
+        auto requested_meson_JP = kinem->get_meson_JP();
+        auto requested_baryon_JP = kinem->get_meson_JP();
 
         if (meson_fails)
         {

@@ -184,8 +184,8 @@ namespace jpacPhoto
         // Additionally, given a kinematics with arbitrary final state quantum numbers
         // Amplitudes should be able to specify which spin-parity combinations 
         // they can accomodate
-        virtual std::vector<std::array<int,2>> allowed_meson_JP(){  return _subamplitudes[0]->allowed_meson_JP(); };
-        virtual std::vector<std::array<int,2>> allowed_baryon_JP(){ return _subamplitudes[0]->allowed_baryon_JP(); };
+        virtual std::vector<particle> allowed_mesons(){  return _subamplitudes[0]->allowed_mesons(); };
+        virtual std::vector<particle> allowed_baryons(){ return _subamplitudes[0]->allowed_baryons(); };
 
         // If an amplitude_option is passed, make appropriate changes.
         // By default this does nothing except save _option

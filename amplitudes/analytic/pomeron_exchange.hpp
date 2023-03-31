@@ -47,14 +47,12 @@ namespace jpacPhoto
                 return _A * exp(_b0 * t_prime) * pow((s - _kinematics->sth()) / _s0, alpha) * helicity_conserving;
             };
 
-            // Explicitly require t-channel helicities
+            // Even though its "analytic" we require s-channel helicity conservation
             inline helicity_channel native_helicity_frame(){ return helicity_channel::S_CHANNEL; };
 
-            // We can have any quantum numbers
-            // but for now explicitly put only pseudo-scalar, vector, and axial-vector
-            // and either parity spin-1/2
-            inline std::vector<std::array<int,2>> allowed_meson_JP() { return { PSUEDOSCALAR, VECTOR, AXIALVECTOR }; };
-            inline std::vector<std::array<int,2>> allowed_baryon_JP(){ return { HALFPLUS, HALFMINUS }; };
+            // Vector mesons and half plus only
+            inline std::vector<particle> allowed_mesons() { return { vector }; };
+            inline std::vector<particle> allowed_baryons(){ return { halfplus }; };
 
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()
