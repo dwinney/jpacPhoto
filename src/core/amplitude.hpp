@@ -135,13 +135,13 @@ namespace jpacPhoto
         // but requires the amplitude_key as a parameter which is private
         // So this constructor is actually not accessable other than through
         // new_amplitude
-        raw_amplitude(amplitude_key key, kinematics xkinem, std::string name, std::string id)
-        : _kinematics(xkinem), _id(id), _name(name), _covariants(std::make_unique<covariants>(xkinem))
+        raw_amplitude(amplitude_key key, kinematics xkinem, std::string id)
+        : _kinematics(xkinem), _id(id), _covariants(std::make_unique<covariants>(xkinem))
         {};        
 
         // Sum constructor 
         raw_amplitude(amplitude_key key, std::vector<amplitude> subamps, std::string id)
-        : _id(id), _name("amplitude_sum"), _covariants(nullptr)
+        : _id(id), _covariants(nullptr)
         {
             add(subamps);
         };
@@ -281,12 +281,6 @@ namespace jpacPhoto
         // Change the debug flag
         inline void set_debug(int x){ _debug = x; };
 
-        // Constant string which is used to differenciate derived classes 
-        inline std::string name()
-        {
-            return this->_name;
-        };
-
         // Number of free parameters
         inline int N_pars(){ return _N_pars; };
 
@@ -329,18 +323,15 @@ namespace jpacPhoto
         // String identifier
         std::string _id = "amplitude";
 
-        // Name for the class itself used for error messages
-        std::string _name = "amplitude";
-
         // Debugging flag
-        int _debug = 0;
+        unsigned int _debug = 0;
 
         // Each amplitude may have different options for evaluating their amplitude
         // they may be differenticated with this variable
         amplitude_option _option = Default;
         inline void option_error()
         {
-            warning(name()+"::set_option", 
+            warning(id()+"::set_option", 
                     "Unexpected option passed. Continuing without change..."); 
         };
 
@@ -360,7 +351,7 @@ namespace jpacPhoto
         bool correct_size(std::vector<double> pars);
         inline void pars_error(int x)
         {
-            warning(name()+"::set_parameters", 
+            warning(id()+"::set_parameters", 
                     "Unexpected number of parameters passed. Expected "+std::to_string(_N_pars)+" but recieved "+std::to_string(x)+").");
         };
 

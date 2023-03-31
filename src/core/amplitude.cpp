@@ -192,7 +192,7 @@ namespace jpacPhoto
 
             if (_cached_helicity_amplitudes.size() != n)
             {
-                warning(name()+"::update_cache", "Cached size doesn't match expected number of helicity amplitude!");
+                warning(id()+"::update_cache", "Cached size doesn't match expected number of helicity amplitude!");
             };
         };
 
@@ -230,7 +230,7 @@ namespace jpacPhoto
     {
         if (pars.size() != _N_pars)
         {
-            return error(name()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+            return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
         };
         return true;
     };
@@ -258,12 +258,12 @@ namespace jpacPhoto
 
         if (meson_fails)
         {
-            warning(name()+"::check_QNs", "Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
+            warning(id()+"::check_QNs", "Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
         };
     
         if (baryon_fails)
         {
-            warning(name()+"::check_QNs", "Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
+            warning(id()+"::check_QNs", "Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
         };    
     };
 
