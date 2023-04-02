@@ -173,7 +173,7 @@ namespace jpacPhoto
 
         complex result;
         result  = t * (s - u) + (_masses._mB2 - _masses._mX2) * (_masses._mT2 - _masses._mR2);
-        result /=  csqrt(Kallen(t, _masses._mX2, _masses._mB2)) * sqrt(XR * Kallen(t, _masses._mT2, _masses._mR2));
+        result /=  csqrt(Kallen(t, _masses._mX2, _masses._mB2)) * csqrt(Kallen(t, _masses._mT2, _masses._mR2));
 
         return result;
     };
@@ -190,7 +190,7 @@ namespace jpacPhoto
 
         complex result;
         result  = u * (t - s) + (_masses._mB2 - _masses._mR2) * (_masses._mT2 - _masses._mX2);
-        result /=  csqrt(Kallen(u, _masses._mR2, _masses._mB2)) * sqrt(XR * Kallen(u, _masses._mT2, _masses._mX2));
+        result /=  csqrt(Kallen(u, _masses._mR2, _masses._mB2)) * csqrt(Kallen(u, _masses._mT2, _masses._mX2));
 
         return result;
     };
@@ -213,7 +213,7 @@ namespace jpacPhoto
 
     // Intrisnic parity obeyed by helicity amplitude 
     // This depends on which scattering chan we look at and quantum numbers of all particles
-    double raw_kinematics::intrinsic_parity(helicity_frame channel)
+    int raw_kinematics::intrinsic_parity(helicity_frame channel)
     {
         int s_a, s_b, s_c, s_d;
         int eta_a, eta_b, eta_c, eta_d;
@@ -248,14 +248,14 @@ namespace jpacPhoto
             default: { return 0; }
         };
 
-        int eta = eta_a * eta_b * eta_c * eta_d * pow(-1., double( (s_c + s_d - s_a - s_b)/2 ));
+        int eta = eta_a * eta_b * eta_c * eta_d * pow(-1, (s_c + s_d - s_a - s_b)/2);
         
-        return double(eta);
+        return eta;
     };
 
     // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
     // Depends on the channel with respect to which the helicities are defined
-    double raw_kinematics::parity_phase(std::array<int, 4> helicities, helicity_frame channel)
+    int raw_kinematics::parity_phase(std::array<int, 4> helicities, helicity_frame channel)
     {
         int lam, lamp;
         switch (channel)
@@ -282,7 +282,7 @@ namespace jpacPhoto
             default: { return 0; }
         };
 
-        double eta = intrinsic_parity(channel) *  pow(-1, double( (lam - lamp)/2 ));
+        int eta = intrinsic_parity(channel) *  pow(-1, (lam - lamp)/2 );
         return eta;
     };
 

@@ -17,7 +17,7 @@
 namespace jpacPhoto
 {
     // Each amplitude needs to be able to tell which frame its helicities are defined in
-    enum helicity_frame{ HELICITY_INDEPENDENT, S_CHANNEL, T_CHANNEL, U_CHANNEL };
+    enum helicity_frame{ HELICITY_ERROR, HELICITY_INDEPENDENT, S_CHANNEL, T_CHANNEL, U_CHANNEL };
 
     // ---------------------------------------------------------------------------
     // Massless helicity combinations

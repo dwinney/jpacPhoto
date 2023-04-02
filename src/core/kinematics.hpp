@@ -213,12 +213,12 @@ namespace jpacPhoto
        
         // Intrisnic parity obeyed by helicity amplitude 
         // This depends on which scattering chan we look at and quantum numbers of all particles
-        double intrinsic_parity(helicity_frame channel);
+        int intrinsic_parity(helicity_frame channel);
 
         // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
         // Depends on the channel with respect to which the helicities are defined
-        double parity_phase(std::array<int, 4> helicities, helicity_frame channel);
-        inline double parity_phase(int i, helicity_frame channel)
+        int parity_phase(std::array<int, 4> helicities, helicity_frame channel);
+        inline int parity_phase(int i, helicity_frame channel)
         {
             return parity_phase(_helicities[i], channel);
         };

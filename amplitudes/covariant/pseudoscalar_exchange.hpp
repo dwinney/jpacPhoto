@@ -152,14 +152,17 @@ namespace jpacPhoto
 
                 switch (_kinematics->get_meson())
                 {
-                    case (AXIALVECTOR): { result = contract(eps,   eps_p) * contract(q,   q_p) 
-                                                 - contract(eps, q_p)     * contract(eps_p, q);
-                                          result /= _mX; break;};                                          
+                    case (AXIALVECTOR):  { result = contract(eps,   eps_p) * contract(q,   q_p) 
+                                                  - contract(eps, q_p)     * contract(eps_p, q);
+                                           result /= _mX; 
+                                           break;};                                          
                     
-                    case (VECTOR): { result = 4*levi_civita(eps_p, eps, q, q_p);
-                                     if (!_kinematics->is_photon()) result /= 4;  break;}
+                    case (VECTOR):       { result = levi_civita(eps_p, eps, q, q_p);
+                                           if (_kinematics->is_photon()) result *= 4;  
+                                           break;}
 
-                    case (PSEUDOSCALAR): { result = - contract(eps, q - 2 * q_p); break;}
+                    case (PSEUDOSCALAR): { result = - contract(eps, q - 2 * q_p); 
+                                           break;}
 
                     default: break;
                 };
