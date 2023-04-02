@@ -80,11 +80,8 @@ namespace jpacPhoto
         inline helicity_channel native_helicity_frame(){ return helicity_channel::S_CHANNEL; };
 
         // Specify which final state particles amplitude can acommodate
-        // Return value is vector of 2-tuples {J, P}
-        // consts are provided for meson: VECTOR, SCALAR, PSEUDOSCALAR, AXIALVECTOR
-        // and baryons: HALFPLUS, HALFMINUS, etc
-        inline std::vector<std::array<int,2>> allowed_meson_JP() { return { VECTOR }; };
-        inline std::vector<std::array<int,2>> allowed_baryon_JP(){ return { HALFPLUS }; };
+        inline std::vector<particle> allowed_mesons() { return { vector, axialvector }; };
+        inline std::vector<particle> allowed_baryons(){ return { halfplus, halfminus }; };
 
         // Given a std::vector<double> of size N_pars
         // save parameters to local variables with which to calculate amplitude
@@ -134,7 +131,7 @@ namespace jpacPhoto
         protected:
 
         // Local data
-        double _p1 = 0; _p2 = 0;
+        double _p1 = 0, _p2 = 0;
     };
 
 #endif

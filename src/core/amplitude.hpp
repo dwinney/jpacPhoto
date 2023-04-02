@@ -45,11 +45,15 @@ namespace jpacPhoto
         // The only functions that can create new amplitudes
         // are these friend functions
 
-        // Constructor with no free parameters, only kinematics and id
+        // Constructor with no free parameters
+        template<class A>
+        friend amplitude new_amplitude(kinematics);
+
+        // non-trivial id
         template<class A>
         friend amplitude new_amplitude(kinematics, std::string);
 
-        // One additional parameter
+        // One additional abitrary parameter
         template<class A, typename B>
         friend amplitude new_amplitude(kinematics, B, std::string);
 
@@ -63,6 +67,13 @@ namespace jpacPhoto
     };
 
     // This function serves as our "constructor"
+    template<class A>
+    inline amplitude new_amplitude(kinematics xkinem)
+    {
+        auto amp = std::make_shared<A>(amplitude_key(), xkinem);
+        return std::static_pointer_cast<raw_amplitude>(amp);
+    };
+
     template<class A>
     inline amplitude new_amplitude(kinematics xkinem, std::string id)
     {
@@ -135,7 +146,7 @@ namespace jpacPhoto
         // but requires the amplitude_key as a parameter which is private
         // So this constructor is actually not accessable other than through
         // new_amplitude
-        raw_amplitude(amplitude_key key, kinematics xkinem, std::string id)
+        raw_amplitude(amplitude_key key, kinematics xkinem, std::string id = "amplitude")
         : _kinematics(xkinem), _id(id), _covariants(std::make_unique<covariants>(xkinem))
         {};        
 
