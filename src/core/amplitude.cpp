@@ -178,17 +178,25 @@ namespace jpacPhoto
             _cached_helicity_amplitudes.clear();
 
             // Total number of amplitudes
-            int n = _kinematics->N_amps();
+            int n = (native_helicity_frame() == HELICITY_INDEPENDENT) ? 1 : _kinematics->N_amps();
 
-            // However we ill only calculate the first half
-            // with the rest related by the parity_phase
-            for (int i = 0; i < n; i++)
+            if (n == 1)
             {
-                complex hel_amp;
-                if (i < n/2) hel_amp = helicity_amplitude(_kinematics->helicities(i), s, t);
-                else         hel_amp = parity_phase(i) * _cached_helicity_amplitudes[n - 1 - i];
-                _cached_helicity_amplitudes.push_back(hel_amp); 
+                // Arbitrary pick the first helicity set to evvaluate, skip parity phase calculations
+                _cached_helicity_amplitudes.push_back(helicity_amplitude(_kinematics->helicities(0), s, t));
             }
+            else
+            {
+                // Otherwise we only calculate the first half amplitudes
+                // with the rest related by the parity_phase
+                for (int i = 0; i < n; i++)
+                {
+                    complex hel_amp;
+                    if (i < n/2) hel_amp = helicity_amplitude(_kinematics->helicities(i), s, t);
+                    else         hel_amp = parity_phase(i) * _cached_helicity_amplitudes[n - 1 - i];
+                    _cached_helicity_amplitudes.push_back(hel_amp); 
+                }
+            };
 
             if (_cached_helicity_amplitudes.size() != n)
             {
@@ -302,8 +310,10 @@ namespace jpacPhoto
         norm /= (2.56819E-6); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
-        if (_kinematics->is_photon()) norm /= 4.;
-        else                          norm /= 6.;
+        if (native_helicity_frame() !=  HELICITY_INDEPENDENT)
+        {
+            norm /= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
+        }
 
         return norm * sum;
     };
@@ -498,7 +508,7 @@ namespace jpacPhoto
     // Calculate the Helicity frame SDME
     complex raw_amplitude::SDME_H(int alpha, int lam, int lamp, double s, double t)
     {
-        helicity_channel frame = this->native_helicity_frame();
+        helicity_frame frame = this->native_helicity_frame();
         
         switch (frame)
         {
@@ -516,7 +526,7 @@ namespace jpacPhoto
     // Calculate the Gottfried-Jackson SDME
     complex raw_amplitude::SDME_GJ(int alpha, int lam, int lamp, double s, double t)
     {
-        helicity_channel frame = this->native_helicity_frame();
+        helicity_frame frame = this->native_helicity_frame();
 
         switch (frame)
         {

@@ -56,18 +56,18 @@ namespace jpacPhoto
             };
 
             // Explicitly require t-channel helicities
-            inline helicity_channel native_helicity_frame(){ return helicity_channel::T_CHANNEL; };
+            inline helicity_frame native_helicity_frame(){ return T_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
             inline std::vector<particle> allowed_mesons()
             {
-                return {pseudoscalar, vector, axialvector };
+                return { PSEUDOSCALAR, VECTOR, AXIALVECTOR };
             };
 
             // But only either parity spin-1/2
             inline std::vector<particle> allowed_baryons()
             {
-                return { halfplus, threeplus };
+                return { HALFPLUS, THREEPLUS };
             };
 
             // The options here are the type of form_factor used
@@ -147,11 +147,11 @@ namespace jpacPhoto
                 complex result = 0;
                 switch ( _kinematics->get_meson() )
                 {
-                    case (axialvector): result = 1/_mX; break;
+                    case (AXIALVECTOR): result = 1/_mX; break;
                     
-                    case (vector): result = (_kinematics->is_photon()) ? -4 : -1; break;
+                    case (VECTOR): result = (_kinematics->is_photon()) ? -4 : -1; break;
 
-                    case (pseudoscalar): result = (_kinematics->is_photon()) ? 0 : 2*I/_mB; break;
+                    case (PSEUDOSCALAR): result = (_kinematics->is_photon()) ? 0 : 2*I/_mB; break;
 
                     default: break;
                 };
@@ -167,9 +167,9 @@ namespace jpacPhoto
                 complex result = 0;
                 switch ( _kinematics->get_baryon() )
                 {
-                    case (halfplus) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR)); break;
+                    case (HALFPLUS) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR)); break;
                     
-                    case (threeplus) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR))/2; break;
+                    case (THREEPLUS) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR))/2; break;
 
                     default: break;
                 };

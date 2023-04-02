@@ -66,17 +66,11 @@ namespace jpacPhoto
             // helicity independent
             inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
             {
-                // Arbitrarily pick one of the helicities to evaluate
-                // this removes the need of evaluating the same thing 24 times per energy step
-                if (helicities != _kinematics->helicities(0)) return 0;
-
                 // Save inputes
                 store(helicities, s, t);
                 
-                // Normalization here to get rid of helicity dependence in amplitude::probability_distribution
-                // First a 2 removes the factor 1/4 when averaging over initial helicities
-                // then a 1/sqrt(2) removes the factor of 2 from the parity relation in amplitude::update_cache
-                complex result = sqrt(2) * (2*_J+1) * legendre(_J, cos(_theta)) * evaluate();
+                // Calculate the partial wave from this
+                complex result = (2*_J+1) * legendre(_J, cos(_theta)) * evaluate();
 
                 return result;
             };
@@ -84,6 +78,9 @@ namespace jpacPhoto
             // We can have any quantum numbers
             inline std::vector<particle> allowed_mesons() { return any(); };
             inline std::vector<particle> allowed_baryons(){ return any(); };
+
+            // And helicity independent
+            inline helicity_frame native_helicity_frame(){ return HELICITY_INDEPENDENT; };
 
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()

@@ -41,18 +41,16 @@ namespace jpacPhoto
                 double t_prime = t - _kinematics->t_min(s);
                 double alpha   = _alpha0 + t * _alphaP;
 
-                // Helicity conservation
-                bool helicity_conserving = (_lamB == _lamX) && (_lamT == _lamR);
-
-                return _A * exp(_b0 * t_prime) * pow((s - _kinematics->sth()) / _s0, alpha) * helicity_conserving;
+                // Nothing here depends on helicities
+                return _A * exp(_b0 * t_prime) * pow((s - _kinematics->sth()) / _s0, alpha);
             };
 
             // Even though its "analytic" we require s-channel helicity conservation
-            inline helicity_channel native_helicity_frame(){ return helicity_channel::S_CHANNEL; };
+            inline helicity_frame native_helicity_frame(){ return HELICITY_INDEPENDENT; };
 
             // Vector mesons and half plus only
-            inline std::vector<particle> allowed_mesons() { return { vector }; };
-            inline std::vector<particle> allowed_baryons(){ return { halfplus }; };
+            inline std::vector<particle> allowed_mesons() { return { VECTOR }; };
+            inline std::vector<particle> allowed_baryons(){ return { HALFPLUS }; };
 
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()

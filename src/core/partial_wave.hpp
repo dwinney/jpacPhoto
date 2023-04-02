@@ -33,8 +33,11 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Methods to make partial_Waves from existing amplitudes
 
-    // "Constructor" function which projects an existing amplitude
-    amplitude project(int J, bool half_int, amplitude to_project, std::string id = "");
+    // "Constructor" function which projects an existing amplitude onto legendre polynomial
+    amplitude project(int J, amplitude to_project, std::string id = "");
+
+    // "Constructor" function which projects onto d-functions
+    amplitude helicity_project(int J, amplitude to_project, std::string id = "");
 
     // ---------------------------------------------------------------------------
     // Raw_amplitude class
@@ -58,9 +61,9 @@ namespace jpacPhoto
         };
 
         // These are always assumed to be s-channel helicities so this is fixed
-        helicity_channel native_helicity_frame()
+        helicity_frame native_helicity_frame()
         {
-            return helicity_channel::S_CHANNEL;
+            return helicity_frame::S_CHANNEL;
         };
 
         virtual std::vector<particle> allowed_mesons(){  return (_amplitude == nullptr) ? std::vector<particle>() : _amplitude->allowed_mesons(); };

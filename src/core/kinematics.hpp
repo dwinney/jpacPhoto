@@ -57,7 +57,7 @@ namespace jpacPhoto
 
         explicit masses(std::array<double,4> m)
         : _mB(m[0]), _mB2(m[0]*m[0]), _mT(m[1]), _mT2(m[1]*m[1]),
-            _mX(m[2]), _mX2(m[2]*m[2]), _mR(m[3]), _mR2(m[3]*m[3])
+          _mX(m[2]), _mX2(m[2]*m[2]), _mR(m[3]), _mR2(m[3]*m[3])
         {};
 
         public:
@@ -147,7 +147,7 @@ namespace jpacPhoto
             _nAmps = _helicities.size();
         };
         inline void set_meson_JP(std::array<int,2> jp){ set_meson_JP(jp[0], jp[1]); };
-
+        void set_meson_JP(particle x);
         
         // ---------------------------------------------------------------------------
         // Quantum numbers of produced baryon.
@@ -164,6 +164,7 @@ namespace jpacPhoto
             _nAmps = _helicities.size();
         };
         inline void set_baryon_JP(std::array<int,2> jp){ set_baryon_JP(jp[0], jp[1]); };
+        void set_baryon_JP(particle x);
 
         // ---------------------------------------------------------------------------
         // Accessing the helicity combinations 
@@ -212,12 +213,12 @@ namespace jpacPhoto
        
         // Intrisnic parity obeyed by helicity amplitude 
         // This depends on which scattering chan we look at and quantum numbers of all particles
-        double intrinsic_parity(helicity_channel channel);
+        double intrinsic_parity(helicity_frame channel);
 
         // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
         // Depends on the channel with respect to which the helicities are defined
-        double parity_phase(std::array<int, 4> helicities, helicity_channel channel);
-        inline double parity_phase(int i, helicity_channel channel)
+        double parity_phase(std::array<int, 4> helicities, helicity_frame channel);
+        inline double parity_phase(int i, helicity_frame channel)
         {
             return parity_phase(_helicities[i], channel);
         };

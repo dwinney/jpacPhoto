@@ -51,17 +51,17 @@ namespace jpacPhoto
             }
 
             // Covariants are s-channel amplitudes
-            inline helicity_channel native_helicity_frame(){return helicity_channel::S_CHANNEL; };
+            inline helicity_frame native_helicity_frame(){return S_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
             inline std::vector<particle> allowed_mesons()
             {
-                return { pseudoscalar, vector, axialvector };
+                return { PSEUDOSCALAR, VECTOR, AXIALVECTOR };
             };
 
             inline std::vector<std::array<int,2>> allowed_baryons()
             {
-                return { halfplus, threeplus };
+                return { HALFPLUS, THREEPLUS };
             };
             
             // The options here are the type of form_factor used
@@ -148,28 +148,18 @@ namespace jpacPhoto
                 auto q_p   = _covariants->q_prime();
                 auto eps_p = _covariants->eps_prime();
 
-                // Coupling function depends on
-                // the quantum numbers of the produced meson
-                auto JP  = _kinematics->get_meson_JP();
-                int  qns =  10 * JP[0] + (JP[1] == 1);
-
                 complex result = 0;
 
-                switch (qns)
+                switch (_kinematics->get_meson())
                 {
-                    // Axial-vector
-                    case (11): { result = contract(eps,   eps_p) * contract(q,   q_p) 
-                                        - contract(eps, q_p)     * contract(eps_p, q);
-                                 result /= _mX; 
-                                 break;};
+                    case (AXIALVECTOR): { result = contract(eps,   eps_p) * contract(q,   q_p) 
+                                                 - contract(eps, q_p)     * contract(eps_p, q);
+                                          result /= _mX; break;};                                          
                     
-                    // Vector
-                    case (10): { result = 4*levi_civita(eps_p, eps, q, q_p);
-                                 if (!_kinematics->is_photon()) result /= 4; 
-                                 break;}
+                    case (VECTOR): { result = 4*levi_civita(eps_p, eps, q, q_p);
+                                     if (!_kinematics->is_photon()) result /= 4;  break;}
 
-                    // Pseudo-scalar
-                    case ( 0): { result = - contract(eps, q - 2 * q_p); break;}
+                    case (PSEUDOSCALAR): { result = - contract(eps, q - 2 * q_p); break;}
 
                     default: break;
                 };

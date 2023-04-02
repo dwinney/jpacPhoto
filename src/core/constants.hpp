@@ -146,24 +146,13 @@ namespace jpacPhoto
     // ------------------------------------------------------------------------------
     // Quantum number combinations
 
-    // Mesons
-    const std::array<int,2> SCALAR       = {0, +1};
-    const std::array<int,2> PSUEDOSCALAR = {0, -1};
-    const std::array<int,2> VECTOR       = {1, -1};
-    const std::array<int,2> AXIALVECTOR  = {1, +1};
-
-    // Baryons
-    const std::array<int,2> HALFPLUS   = {1, +1};
-    const std::array<int,2> HALFMINUS  = {1, -1};
-    const std::array<int,2> THREEPLUS  = {3, +1};
-    const std::array<int,2> THREEMINUS = {3, -1};
-
-    enum particle { particle_error, scalar, pseudoscalar, vector, axialvector, 
-                                    halfplus, halfminus, threeplus, threeminus };
-
+    enum particle { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
+                                    HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
+        
     // Its possible to have a completely quantum number independent amplitude
     // in which case use this
-    inline std::vector<particle> any(){ return {scalar, pseudoscalar, vector, axialvector, halfplus, halfminus, threeplus, threeminus}; };
+    inline std::vector<particle> any(){ return { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
+                                                                 HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS }; };
 
     // ------------------------------------------------------------------------------
     // // NaN's, 0, and 1 for throwing errors with custom data types

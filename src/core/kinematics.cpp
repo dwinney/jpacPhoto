@@ -29,12 +29,27 @@ namespace jpacPhoto
         int  qns =  10 * JP[0] + (JP[1] == 1);
         switch(qns)
         {
-            case (11): return axialvector;
-            case (10): return vector;
-            case ( 0): return pseudoscalar;
-            case ( 1): return scalar;
+            case (11): return AXIALVECTOR;
+            case (10): return VECTOR;
+            case ( 0): return PSEUDOSCALAR;
+            case ( 1): return SCALAR;
         };  
-        return particle_error;
+        return PARTICLE_ERROR;
+    };
+
+    void raw_kinematics::set_meson_JP(particle x)
+    {
+        int J, P;
+        switch (x)
+        {
+            case ( AXIALVECTOR): J = 1, P = +1; break;
+            case (      VECTOR): J = 1, P = -1; break;
+            case (      SCALAR): J = 0, P = +1; break;
+            case (PSEUDOSCALAR): J = 0, P = -1; break;
+            default: return;
+        };
+
+        set_meson_JP(J, P);
     };
 
     particle raw_kinematics::get_baryon()
@@ -43,13 +58,29 @@ namespace jpacPhoto
         int  qns =  10 * JP[0] + (JP[1] == 1);
         switch(qns)
         {
-            case (11): return halfplus;
-            case (10): return halfminus;
-            case (31): return threeplus;
-            case (30): return threeminus;
+            case (11): return HALFPLUS;
+            case (10): return HALFMINUS;
+            case (31): return THREEPLUS;
+            case (30): return THREEMINUS;
         };  
-        return particle_error;
+        return PARTICLE_ERROR;
     };
+
+    void raw_kinematics::set_baryon_JP(particle x)
+    {
+        int J, P;
+        switch (x)
+        {
+            case (  HALFPLUS): J = 1, P = +1; break;
+            case ( HALFMINUS): J = 1, P = -1; break;
+            case ( THREEPLUS): J = 3, P = +1; break;
+            case (THREEMINUS): J = 3, P = -1; break;
+            default: return;
+        };
+
+        set_baryon_JP(J, P);
+    };
+
 
     // ---------------------------------------------------------------------------
     // Find a set of helicities given an index
@@ -182,7 +213,7 @@ namespace jpacPhoto
 
     // Intrisnic parity obeyed by helicity amplitude 
     // This depends on which scattering chan we look at and quantum numbers of all particles
-    double raw_kinematics::intrinsic_parity(helicity_channel channel)
+    double raw_kinematics::intrinsic_parity(helicity_frame channel)
     {
         int s_a, s_b, s_c, s_d;
         int eta_a, eta_b, eta_c, eta_d;
@@ -192,21 +223,21 @@ namespace jpacPhoto
 
         switch (channel)
         {
-            case helicity_channel::S_CHANNEL :
+            case helicity_frame::S_CHANNEL :
             {
                 s_b =  1;            eta_b = +1;         // proton
                 s_c =  2*_mjp[0];    eta_c = _mjp[1];   // produced meson
                 s_d =  _bjp[0];      eta_d = _bjp[1];   // recoil baryon
                 break;
             }
-            case helicity_channel::T_CHANNEL :
+            case helicity_frame::T_CHANNEL :
             {
                 s_b =  2*_mjp[0];   eta_b = _mjp[1];    // produced meson
                 s_c =  1;           eta_c = +1;          // proton
                 s_d =  _bjp[0];     eta_d = _bjp[1];    // recoil baryon
                 break;
             }
-            case helicity_channel::U_CHANNEL :
+            case helicity_frame::U_CHANNEL :
             {
                 s_b =  _bjp[0];      eta_b = _bjp[1];    // recoil baryon
                 s_c =  1;            eta_c = +1;          // proton
@@ -214,7 +245,7 @@ namespace jpacPhoto
                 break;
             }
 
-            default: { return 0.; }
+            default: { return 0; }
         };
 
         int eta = eta_a * eta_b * eta_c * eta_d * pow(-1., double( (s_c + s_d - s_a - s_b)/2 ));
@@ -224,34 +255,34 @@ namespace jpacPhoto
 
     // Phase relating lambda_gamma = +1 and lambda_gamma = -1 amplitudes 
     // Depends on the channel with respect to which the helicities are defined
-    double raw_kinematics::parity_phase(std::array<int, 4> helicities, helicity_channel channel)
+    double raw_kinematics::parity_phase(std::array<int, 4> helicities, helicity_frame channel)
     {
         int lam, lamp;
         switch (channel)
         {
-            case helicity_channel::S_CHANNEL :
+            case helicity_frame::S_CHANNEL :
             {
                 lam =  (2 * helicities[0] - helicities[1]);
                 lamp = (2 * helicities[2] - helicities[3]);
                 break;
             }
-            case helicity_channel::T_CHANNEL :
+            case helicity_frame::T_CHANNEL :
             {
                 lam =  (2 * (helicities[0] - helicities[2]));
                 lamp = (helicities[1] - helicities[3]);
                 break;
             }
-            case helicity_channel::U_CHANNEL :
+            case helicity_frame::U_CHANNEL :
             {
                 lam =  (2 * helicities[0] - helicities[3]);
                 lamp = (2 * helicities[2] - helicities[1]);
                 break;
             }
 
-            default: { return 0.; }
+            default: { return 0; }
         };
 
-        double eta = intrinsic_parity(channel) *  pow(-1., double( (lam - lamp)/2 ));
+        double eta = intrinsic_parity(channel) *  pow(-1, double( (lam - lamp)/2 ));
         return eta;
     };
 

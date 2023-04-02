@@ -24,16 +24,30 @@ namespace jpacPhoto
         return wa + wb;
     };
 
-    amplitude project(int J, bool half_int, amplitude to_project, std::string id)
+    amplitude helicity_project(int J, amplitude to_project, std::string id)
     {
-        if (to_project->native_helicity_frame() != helicity_channel::S_CHANNEL)
+        if (to_project->native_helicity_frame() != helicity_frame::S_CHANNEL)
         {
             return error("project", 
                          "Amplitude " + to_project->id() + " not an s-channel helicity amplitude!", 
                          nullptr);
         }
 
-        amplitude amp_ptr = std::make_shared<raw_partial_wave>(amplitude_key(), J, to_project, half_int, id);
+        amplitude amp_ptr = std::make_shared<raw_partial_wave>(amplitude_key(), J, to_project, true, id);
+        return amp_ptr;
+    };
+
+    
+    amplitude project(int J, amplitude to_project, std::string id)
+    {
+        if (to_project->native_helicity_frame() != helicity_frame::HELICITY_INDEPENDENT)
+        {
+            return error("project", 
+                         "Amplitude " + to_project->id() + " has helicity dependence, dont know how to handle yet!", 
+                         nullptr);
+        }
+
+        amplitude amp_ptr = std::make_shared<raw_partial_wave>(amplitude_key(), J, to_project, false, id);
         return amp_ptr;
     };
 

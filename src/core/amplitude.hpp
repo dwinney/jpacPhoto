@@ -61,9 +61,12 @@ namespace jpacPhoto
         template<class A, typename B, typename C>
         friend amplitude new_amplitude(kinematics, B, C, std::string);
 
+        // Add two amplitude together
         friend amplitude operator+(amplitude a, amplitude b);
 
-        friend amplitude project(int, bool, amplitude, std::string);
+        // Project an amplitude onto partial wave with integer or half-integer spin
+        friend amplitude project(int, amplitude, std::string);
+        friend amplitude helicity_project(int, amplitude, std::string);
     };
 
     // This function serves as our "constructor"
@@ -187,7 +190,7 @@ namespace jpacPhoto
         // defined with respect to (s, t, or u channel CoM frame)
         // By default all subamplitudes are assumed to have the same native frame (else it doesnt make sense
         // to sum them) thus we return the first in the vector.
-        virtual helicity_channel native_helicity_frame()
+        virtual helicity_frame native_helicity_frame()
         {
             return _subamplitudes[0]->native_helicity_frame();
         };
