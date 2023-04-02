@@ -166,14 +166,14 @@ namespace jpacPhoto
     };
 
     // Scattering angles in t and u channel frames
-    complex raw_kinematics::z_t(double s, double theta)
+    double raw_kinematics::z_t(double s, double theta)
     {
         double t = t_man(s, theta);
         double u = u_man(s, theta);
 
-        complex result;
+        double result;
         result  = t * (s - u) + (_masses._mB2 - _masses._mX2) * (_masses._mT2 - _masses._mR2);
-        result /=  csqrt(Kallen(t, _masses._mX2, _masses._mB2)) * csqrt(Kallen(t, _masses._mT2, _masses._mR2));
+        result /=  sqrt(Kallen(t, _masses._mX2, _masses._mB2) * Kallen(t, _masses._mT2, _masses._mR2));
 
         return result;
     };
@@ -183,14 +183,14 @@ namespace jpacPhoto
         return _masses._mX2 + _masses._mB2 + _masses._mT2 + _masses._mR2 - s - t_man(s, theta);
     };
 
-    complex raw_kinematics::z_u(double s, double theta)
+    double raw_kinematics::z_u(double s, double theta)
     {
         double t = t_man(s, theta);
         double u = u_man(s, theta);
 
-        complex result;
+        double result;
         result  = u * (t - s) + (_masses._mB2 - _masses._mR2) * (_masses._mT2 - _masses._mX2);
-        result /=  csqrt(Kallen(u, _masses._mR2, _masses._mB2)) * csqrt(Kallen(u, _masses._mT2, _masses._mX2));
+        result /=  sqrt(Kallen(u, _masses._mR2, _masses._mB2) * Kallen(u, _masses._mT2, _masses._mX2));
 
         return result;
     };

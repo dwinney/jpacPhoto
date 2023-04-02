@@ -15,7 +15,7 @@ namespace jpacPhoto
     enum amplitude_option
     {
         Default,
-        ExpFF, MonopoleFF,
+        ExpFF, MonopoleFF, NoFF,
         ScatteringLength, EffectiveRange
     };
 };

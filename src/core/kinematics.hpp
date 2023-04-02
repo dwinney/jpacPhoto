@@ -204,8 +204,8 @@ namespace jpacPhoto
         double u_max(double s){ return u_man(s, 0.); };
 
         // Scattering angles in t and u channel frames
-        complex z_t(double s, double theta);
-        complex z_u(double s, double theta);
+        double z_t(double s, double theta);
+        double z_u(double s, double theta);
 
         // modulous of 3-momenta in t-channel frame
         complex initial_momentum_tframe(double t);
