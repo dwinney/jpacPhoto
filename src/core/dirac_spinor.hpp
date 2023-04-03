@@ -41,7 +41,8 @@ namespace jpacPhoto
         complex operator()(dirac_index a);
         inline complex operator()(int a){return operator()(static_cast<dirac_index>(a));};
 
-        // Operations with constants
+        // Reassignment
+        dirac_spinor & operator=(dirac_spinor const & u);
         dirac_spinor & operator*=(complex c);
         dirac_spinor & operator/=(complex c);
         dirac_spinor & operator+=(dirac_spinor u);
@@ -81,7 +82,6 @@ namespace jpacPhoto
 
     template<>
     inline dirac_spinor zero() { return dirac_spinor({0, 0, 0, 0}); };
-
 
     // Multiplication of spinor objects element-wise
     // This is kind of weird, but required to make lorentz_tensors<dirac_spinors> work 

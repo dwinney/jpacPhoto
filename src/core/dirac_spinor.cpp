@@ -19,6 +19,13 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Intrinsic properties of dirac_spinors
 
+    // reassignment 
+    dirac_spinor & dirac_spinor::operator=(dirac_spinor const & u)
+    {
+        _entries = u._entries;
+        return *this;
+    };
+
     // Access elements
     complex dirac_spinor::operator()(dirac_index a)
     {
