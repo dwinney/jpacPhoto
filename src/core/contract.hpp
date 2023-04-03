@@ -74,6 +74,21 @@ namespace jpacPhoto
         return sum;
     };
 
+    // Two vectors contracted with a projector
+    template<class Type>
+    inline complex contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type, 2> P, lorentz_tensor<Type,1> right)
+    {
+        complex sum = 0;
+        for (auto mu : LORENTZ_INDICES)
+        {
+            for (auto nu : LORENTZ_INDICES)
+            {
+                sum += metric({mu,nu}) * left(mu) * P(mu, nu) * right(nu);
+            }
+        };
+        return sum;
+    };
+
     // Two scalar rank-2's contracted 
     template<class Type>
     inline complex contract(lorentz_tensor<Type,2> left, lorentz_tensor<Type,2> right)
@@ -145,7 +160,7 @@ namespace jpacPhoto
                     }
                 }
             }
-            q[+mu] = sum;
+            q[+mu] = metric(mu) * sum;
         };
 
         return lorentz_vector(q);

@@ -53,6 +53,11 @@ namespace jpacPhoto
         return (1./i)*c;
     };
 
+    inline complex operator/(const int& i, const complex&c)
+    {
+        return (1./c)*i;
+    };
+
     inline complex operator+(const complex&c, const int& i)
     {
         return c + XR*i;

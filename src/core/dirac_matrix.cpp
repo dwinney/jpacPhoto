@@ -38,13 +38,15 @@ namespace jpacPhoto
 
     dirac_matrix & dirac_matrix::operator+=(dirac_matrix G)
     {
+        std::array<std::array<complex,4>,4> new_entries;
         for (auto i : DIRAC_INDICES)
         {
             for (auto j : DIRAC_INDICES)
             {
-                _entries[+i][j] += G(i,j);
+                new_entries[+i][+j] = _N*_entries[+i][+j] + G(i,j);
             };
         };
+        _entries = new_entries; _N = 1;
         return *this;  
     };
 

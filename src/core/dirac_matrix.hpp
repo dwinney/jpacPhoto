@@ -76,7 +76,7 @@ namespace jpacPhoto
         {};
 
         dirac_matrix(complex const & c)
-        : _N(c)
+        : _N(1), _entries(constant_matrix(c))
         {};
 
         // These are the fundamental dirac_matrices
@@ -99,10 +99,15 @@ namespace jpacPhoto
         friend dirac_matrix operator-(dirac_matrix, complex);
 
         // These always have fixed size (4x4)
-        std::array<std::array<complex,4>,4> _entries = {{ { 1,  0,  0,  0},
-                                                          { 0,  1,  0,  0},
-                                                          { 0,  0,  1,  0},
-                                                          { 0,  0,  0,  1}  }};
+        std::array<std::array<complex,4>,4> _entries;
+
+        inline static const std::array<std::array<complex,4>,4> constant_matrix(complex c)
+        {
+            return  {{ { c,  0,  0,  0},
+                       { 0,  c,  0,  0},
+                       { 0,  0,  c,  0},
+                       { 0,  0,  0,  c}  }};
+        };
 
         // Store normalization seperately to avoid unnecessary calculation
         complex _N = 1;
