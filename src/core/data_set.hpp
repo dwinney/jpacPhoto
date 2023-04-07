@@ -175,6 +175,9 @@ namespace jpacPhoto
 
         // For a differential set it may be useful to have an average s 
         double _avg_w = 0;
+
+        // If we want a data entry in t he legend
+        bool _add_to_legend = false;
     };
 };
 

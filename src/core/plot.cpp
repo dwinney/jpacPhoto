@@ -133,6 +133,7 @@ namespace jpacPhoto
         style._style = 20 + _Ndata;
         style._color = jpacColor::DarkGrey;
         style._draw_opt = "P";
+        style._add_to_legend = data._add_to_legend;
 
         _Ndata++;
         _Nlegend++;
