@@ -162,7 +162,7 @@ namespace jpacPhoto
         // Get dimensions of the parition we're making
         int ydim = plots.size();
 
-        TCanvas *canvas = new TCanvas(filename.c_str(), filename.c_str(), 600, 475*ydim);
+        TCanvas *canvas = new TCanvas(filename.c_str(), filename.c_str(), 600, 460*ydim);
         
         canvas->Divide(1, ydim, 0, 0);
 
@@ -193,11 +193,12 @@ namespace jpacPhoto
 
             // Remove the x-axis label
             gStyle->SetTitleSize(0, "x");
+            gStyle->SetLegendTextSize(0.035);
 
             // Settings for the first entry
             if (plot == begin(plots))
             {
-                plot->add_logo(true, {0.95, 0.87});
+                plot->add_logo(true, {0.94, 0.85}, 1.4);
 
                 gPad->SetTopMargin(0.05);
                 gPad->SetBottomMargin(0);
@@ -213,7 +214,7 @@ namespace jpacPhoto
                 gPad->SetBottomMargin(0.15);
 
                 // Return title size to normal value
-                gStyle->SetTitleSize(0.045, "x");
+                gStyle->SetTitleSize(0.05, "x");
 
                 // Apply the linewidth 
                 plot->draw();
@@ -242,6 +243,8 @@ namespace jpacPhoto
         for (auto plot : plots)
         {
             plot.reset_linewidth();
+            plot.reset_logo();
+            gROOT->SetStyle("jpacStyle");
         };
     };
 };

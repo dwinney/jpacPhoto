@@ -227,9 +227,13 @@ namespace jpacPhoto
             _addheader = true; 
         };
 
-        inline void add_logo(bool x, std::array<double, 2> coords = {0.93, 0.885})
+        inline void add_logo(bool x, std::array<double, 2> coords = {0.93, 0.885}, double scale = 1)
         {
-            _add_logo = x; _logo_coords = coords;
+            _add_logo = x; _logo_coords = coords; _logo_scale = scale;
+        };
+        inline void reset_logo()
+        {
+            _add_logo = true; _logo_coords =  {0.93, 0.885}; _logo_scale = 1;
         };
 
         inline void preliminary(bool x)
@@ -275,6 +279,7 @@ namespace jpacPhoto
 
         bool _add_logo = true;
         std::array<double,2> _logo_coords = {0.93, 0.885};
+        double _logo_scale = 1;
         inline void add_logo()
         {
             int red  = +jpacColor::Red;
@@ -288,7 +293,7 @@ namespace jpacPhoto
             TLatex *logo = new TLatex(_logo_coords[0], _logo_coords[1], JPAC.c_str());
 
             logo->SetNDC();
-            logo->SetTextSize(2/30.);
+            logo->SetTextSize(2/30. * _logo_scale);
             logo->SetTextAlign(32);
             logo->Draw();
         };
