@@ -67,16 +67,16 @@ namespace jpacPhoto
             int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
             int lamp = 2 * helicities[2] - helicities[3]; // Meson  - Recoil
             
-            return (_J + 1) * wigner_d_half(_J, lam, lamp, theta) * evaluate(helicities, s);
+            return (_J + 1) * wigner_d_half(_J, lam, lamp, theta) * partial_wave(helicities, s);
         }
         else
         {
-            return (2*_J+1) * legendre(_J, cos(theta)) * evaluate(helicities, s);
+            return (2*_J+1) * legendre(_J, cos(theta)) * partial_wave(helicities, s);
         }
     };
 
     // Evaluate the partial-wave projection integral numerically and return only the s-dependent piece
-    complex raw_partial_wave::evaluate(std::array<int,4> helicities, double s)
+    complex raw_partial_wave::partial_wave(std::array<int,4> helicities, double s)
     {
         // Quick check that J is large enough for given helicities
         int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
