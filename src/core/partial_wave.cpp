@@ -97,7 +97,7 @@ namespace jpacPhoto
             double t = _kinematics->t_man(s, theta);
             std::complex<double> integrand;
             integrand  = sin(theta);
-            integrand *= (_halfinteger) ? wigner_d_half(_J, lam, lamp, theta) : legendre(_J, cos(theta));
+            integrand *= (_halfinteger) ? wigner_d_half(_J, lam, lamp, theta) : sqrt(2)*legendre(_J, cos(theta));
             integrand *= _amplitude->helicity_amplitude(helicities, s, t);
             return integrand/2;
         };
