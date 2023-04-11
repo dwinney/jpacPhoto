@@ -110,8 +110,8 @@ namespace jpacPhoto
     const double M_B1        = 1.229;
     const double M_JPSI      = 3.0969160;
     const double M_PSI2S     = 3.686;
-    const double M_D         = 1.86965;
-    const double M_DSTAR     = 2.01026;
+    const double M_D         = 1.86484;
+    const double M_DSTAR     = 2.00685;
     const double M_UPSILON1S = 9.4603;
     const double M_UPSILON2S = 10.02336;
     const double M_UPSILON3S = 10.3552;
