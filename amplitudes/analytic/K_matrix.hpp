@@ -70,7 +70,7 @@ namespace jpacPhoto
                 store(helicities, s, t);
                 
                 // Calculate the partial wave from this
-                complex result = (2*_J+1) * legendre(_J, cos(_theta)) * evaluate();
+                complex result = (2*_J+1) * legendre(_J, cos(_theta)) * partial_wave(_s);
 
                 return result;
             };
@@ -89,14 +89,8 @@ namespace jpacPhoto
                 switch (_Nth)
                 {
                     case 1: { labels = { J_label("n"), J_label("a") }; break; }
-                    case 2: {
-                              labels = { J_label("n0"), J_label("n1"), J_label("a00"), J_label("a01"), J_label("a11") }; break;
-                    }
-                    case 3: {
-                              labels = { J_label("n0"), J_label("n1"), J_label("n2"), J_label("a00"), J_label("a01"), J_label("a02"),
-                                                                                                      J_label("a11"), J_label("a12"),
-                                                                                                                      J_label("a22") }; break;
-                    }
+                    case 2: { labels = labels_2C; break; }
+                    case 3: { labels = labels_3C; break; }
                 };
 
                 // If EffectiveRange, add extra labels
@@ -131,13 +125,11 @@ namespace jpacPhoto
                     case Default:
                     {
                         set_N_pars(2+(_Nth>1)*(4*_Nth-5));
-                        _b00 = 0; _b11 = 0; _b22 = 0;
-                        break;
+                        _b00 = 0; _b11 = 0; _b22 = 0; break;
                     };
                     case EffectiveRange:   
                     { 
-                        set_N_pars(3+(_Nth>1)*(5*_Nth-6)); 
-                        break;
+                        set_N_pars(3+(_Nth>1)*(5*_Nth-6)); break;
                     };
                     default: option_error(); return;
                 };
@@ -146,8 +138,10 @@ namespace jpacPhoto
             };
 
             // PW is the unitarized K-matrix form
-            inline complex evaluate()
+            inline complex partial_wave(double s)
             {
+                store({_lamB, _lamT, _lamX, _lamR}, s, _t);
+
                 // Recalculate production related quantities for each threshold
                 for (int i = 0; i < _Nth; i++)
                 {
@@ -169,7 +163,7 @@ namespace jpacPhoto
                 _detK = _K00*_K11*_K22 + 2*_K01*_K02*_K12 - _K02*_K02*_K11 - _K12*_K12*_K00 - _K01*_K01*_K22;
 
                 // The M-matrices all share the same denominator    
-                _D    = (1+_G[0]*_K00)*(1+_G[1]*_K11)*(1+_G[2]*_K22) - _G[0]*_G[1]*_K01*_K01
+                _D = (1+_G[0]*_K00)*(1+_G[1]*_K11)*(1+_G[2]*_K22) - _G[0]*_G[1]*_K01*_K01
                                                                      - _G[0]*_G[2]*_K02*_K02
                                                                      - _G[1]*_G[2]*_K12*_K12 - _G[0]*_G[1]*_G[2]*(_K00*_K11*_K22 - _detK);
 
@@ -178,46 +172,23 @@ namespace jpacPhoto
                 _N[1] = - pow(pq(1), _J) * _n[1] * _G[1]*(_K01 + _G[2]*(_K01*_K22 - _K02*_K12));
                 _N[2] = - pow(pq(2), _J) * _n[2] * _G[2]*(_K02 + _G[1]*(_K02*_K11 - _K01*_K12));
 
-                complex T = (_N[0] + _N[1] + _N[2]) / _D;
-
-                return T;
+                return (_N[0] + _N[1] + _N[2]) / _D;
             };
 
-            // Isolate the production amplitude (numerator) 
-            inline double production(double Egam)
+            // Ratio of direct vs indirect photoproduction
+            inline double zeta()
             {
-                double w = W_cm(Egam);
-                store(_kinematics->helicities(0), w*w, 0);
-                evaluate();
-                return std::real(_N[0] + _N[1] + _N[2]);
-            };
+                partial_wave(_kinematics->sth());
 
-            // Isolate the production amplitude (numerator) for a specific channel
-            inline double production(int i, double Egam)
-            {
-                double w = W_cm(Egam);
-                store(_kinematics->helicities(0), w*w, 0);
-                evaluate();
-                return std::real(_N[i]);
-            };
+                double direct   = std::abs(_N[0]);
+                double indirect = std::abs(_N[1] + _N[2]);
 
-            // Ratio of elastic to total production
-            inline double inelasticity(double Egam)
-            {
-                double w = W_cm(Egam);
-                store(_kinematics->helicities(0), w*w, 0);
-                evaluate();
-
-                double el = std::abs(_N[0]);
-                double in = std::abs(_N[1] + _N[2]);
-
-                return in / (el + in);
+                return indirect / (direct + indirect);
             };
 
             inline double scattering_length()
             {
-                store(_kinematics->helicities(0), _kinematics->sth(), 0);
-                evaluate();
+                partial_wave(_kinematics->sth());
 
                 // Determinants of the sub-matrices
                 complex detK01, detK02, detK12;
@@ -226,11 +197,11 @@ namespace jpacPhoto
                 detK12 = _K11*_K22 - _K12*_K12;
 
                 // Use this to calculate the elastic 00 element of T-matrix 
-                complex N = _K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12);
-                _T00th = std::real(N / _D);
+                complex N    = _K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12);
+                double T00th = std::real(N / _D);
 
                 // Then calculate the scattering length
-                double SL = - _T00th / (8*PI*_kinematics->Wth());
+                double SL = - T00th / (8*PI*_kinematics->Wth());
 
                 // Output in units of fm
                 return SL / 5.068; 
@@ -238,11 +209,9 @@ namespace jpacPhoto
 
             inline double R_VMD()
             {
-                scattering_length();
-                
-                double VMD  = 0.0273;
-                double fit = std::abs(_n[0] / _T00th);
-                return fit / VMD;
+                double F = std::real( partial_wave(_kinematics->sth()) );
+                double T = 5.068*8*PI*_kinematics->Wth()*scattering_length();
+                return std::abs(F / T) / 0.0273;
             };
 
             protected:
@@ -320,9 +289,6 @@ namespace jpacPhoto
             complex                     _K22 = 0;
             complex  _D = 0,  _detK = 0;
 
-            // Value of the elastic amplitude at threshold
-            double _T00th = 0;
-
             // Chew-Mandelstam phase-space 
             inline complex G(double m1, double m2)
             {
@@ -348,6 +314,9 @@ namespace jpacPhoto
             
             // Product of momenta of the hadronic rescattering process
             inline complex q2(unsigned i, unsigned j){ return _q[i] * _q[j]; };
+
+            std::vector<std::string> labels_2C = { J_label("n0"), J_label("n1"), J_label("a00"), J_label("a01"), J_label("a11") };
+            std::vector<std::string> labels_3C = { J_label("n0"), J_label("n1"), J_label("n2"), J_label("a00"), J_label("a01"), J_label("a02"), J_label("a11"), J_label("a12"), J_label("a22") };
         };
     };
 };
