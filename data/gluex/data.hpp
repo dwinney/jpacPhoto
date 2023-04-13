@@ -221,6 +221,21 @@ namespace jpacPhoto
 
             return data;
         };
+
+        // Produce a vector with all the 2022 differential data data from GlueX
+        // Indices correspond to:
+        // [0] slice-0 differential
+        // [1] slice-1 differential
+        // [2] slice-2 differential
+        inline std::vector<data_set> differential()
+        {
+            std::vector<data_set> data;
+            for (int i = 0; i < 3; i++)
+            {
+                data.push_back( gluex::slice(i) );
+            };
+            return data;
+        };
     };
 };
 
