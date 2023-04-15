@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 
 project (jpacPhoto)
 
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -62,13 +63,3 @@ find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 # Build core library 
 
 add_subdirectory(src)
-
-# # Building jpacInclusive
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/inclusive)
-# add_subdirectory(src/inclusive)
-
-# # Building jpacBox requires BOOST
-# if (BUILD_BOX)
-#     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/box)
-#     add_subdirectory(src/box)
-# endif()

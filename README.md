@@ -1,154 +1,100 @@
 #   jpacPhoto
-Framework for amplitude analysis involving single meson production via quasi-elastic scattering of a real photon on a nucleon target. Focus on expandability and easy interfacing with Monte-Carlo tools and event generators.
+Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target ($\gamma p \to J/\psi \mathcal{Q}$). Focus on expandability and easy interfacing with other libraries / analysis code. 
 
 <p align="center">
   <img width="300" src="./doc/FeynmanDiagram.png">
 </p>
 
 
-Base library requires only [ROOT](https://root.cern.ch/) (tested with version 6.17 and 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library) libraries installed. 
-
-Optional dependencies include [Boost C++](https://www.boost.org/) libraries for the extension jpacBox library to compute one-loop box diagrams and the [jpacStyle](https://github.com/dwinney/jpacStyle) library to build executables which reproduce plots in e.g. to reproduce plots in [[1]](https://arxiv.org/abs/1907.09393) and [[2]](https://arxiv.org/abs/2008.01001).
+Compilation of the base library requires only [ROOT](https://root.cern.ch/) (tested with version 6.17 and 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library) and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68) libraries.
 
 ##  INSTALLATION
 To install clone normally and use:
 ```bash
+cd jpacPhoto
 mkdir build && cd build
 cmake ..
 cmake --build . --target install
 ```
-This will create the core library `/lib/libjpacPhoto.so` with the linkable library. Modules `libjpacInclusive.so` and `libjpacBox.so` will also be built as additional libraries, the latter only if Boost C++ is found in $PATH. Root dictionaries for all libraries are also installed in `lib` directory.
+This will create the core library `/lib/libJPACPHOTO.so` with the linkable library as well as ROOT dictionary (.pcm) files. 
 
-If the [jpacStyle](https://github.com/dwinney/jpacStyle) library is installed, the exectuable `/bin/plotPhoto` is compiled which allows scripts in the `/examples` to be run with ROOT's cling interpeter. 
-
-The executable as well as parts of `jpacInclusive` require the environment variable `JPACPHOTO` to be set to the top-level directory in order to find auxilary files. This can be done as such:
+Additionally a [scripting executable](./src/cling/jpacPhoto.cpp) will be installed into `/bin/jpacPhoto` which short-cuts loading the libraries into an interactive ROOT session and running a .cpp file as an interpreted script.   
+This executable requires the environment variable `JPACPHOTO` to be set to the top-level directory in order to find auxilary files. This can be done as such:
 ```bash
 export JPACPHOTO=/path/to/jpacPhoto # for bash
 setenv JPACPHOTO /path/to/jpacPhoto # for csh
 ```
 
 ##  USAGE
-The linkable libraries can be added to an existing CMake project using `find_library()` and linked as normal:
-```cmake
-find_library(PHOTOLIB NAMES jpacPhoto libjpacPhoto
-                       HINTS "$ENV{JPACPHOTO}/lib")
-target_link_libraries( myTarget jpacPhoto)
-```
 
-To reproduce results and generate the plots in JPAC papers, scripts are provided in the [examples](./examples) directory. These can be run with the `plotPhoto` executable in the bin folder (assuming jpacStyle was found during the install). The bin directory can be added to $PATH such that `photoPlot` can be called from any directory. 
-Then for example:
+The primary use case is to reproduce results from JPAC papers [[1-3]](#references). The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
+
+This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/amplitudes/`](./amplitudes/) and [`/scripts/`](./scripts) respectively.  To run a script in a local directory simply run 
 ```bash
-export PATH=$PATH:$JPACPHOTO/bin
-
-cd examples/core/exlusive_XYZ
-plotPhoto X3872_low.cpp
+$JPACPHOTO/bin/jpacPhoto my_script.cpp
 ```
-will generate Fig. 3a of [[2]](https://arxiv.org/abs/2008.01001).
-<p align="center">
-  <img width="400" src="./doc/X3872_example.png">
-</p>
- If you do not want to modify your $PATH, simply add the relative path to the executable.
+Optionally the bin directory can be added to $PATH removes need to provide absolute path.
+
+The linkable library can be added to an existing CMake project using `find_library()` and linked as normal:
+```cmake
+find_library(PHOTOLIB NAMES JPACPHOTO libJPACPHOTO
+                       HINTS "$ENV{JPACPHOTO}/lib")
+target_link_libraries( myTarget JPACPHOTO)
+```
 
 ##  AMPLITUDES
-The main object of interest in the core library is the abstract [`amplitude`](./include/core/amplitude.hpp) class. Given phtoproduction reactions are calculated on a per-helicity-amplitude basis  which allows one to compute an array of [observables](./src/core/observables.cpp):
-* Probability distribution ( Σ_λ | A |^2 )
-* Differential cross section ( dσ / dt )
-* Integrated total cross section ( σ )
-* Polarization asymmetries ( A_LL and K_LL )
-* Spin density matrix elements ( ρ^α_λ,λ' )
-* Integrated beam asymmetry ( Σ_4pi )
-* Beam asymmetry in the y-direction ( Σ_y )
-* Parity asymmetry ( P_σ )
+The main object of interest in the core library is the abstract [`amplitude`](./src/core/amplitude.hpp) and implementations defined by the user. Amplitudes implemented so may be found in [/amplitudes/](./amplitudes/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
 
-All kinematics are passed around by the [`reaction_kinematics`](./include/core/reaction_kinematics.hpp) class which allows all masses to float and accepts arbitrary quantum numbers for the final state meson and baryon (although not all amplitudes below may be available for a given final state).
+| Observable                      |                                            |
+|:-------------------------------:| :-----------------------------------------:|
+| Probability distribution        | $\sum_{\{\lambda\}} \|F_{\{\lambda\}}\|^2$ |
+| Differential cross section      | $\frac{d\sigma}{dt}$                       |
+| Integrated total cross section  | $\sigma$                                   |
+| Double polarization asymmetries | $A_{LL} \, ,K_{LL}$                        |
+| Spin density matrix elements    | $\rho^\alpha_{\lambda,\lambda^\prime}$     |
+| Integrated beam asymmetry       | $\Sigma_{4\pi}$                            |
+| Beam asymmetry in y-direction   | $\Sigma_{y}$                               |
+| Parity asymmetry                | $P_{\sigma}$                               |
+
+
+All kinematics are passed around by the [`kinematics`](./src/core/kinematics.hpp) class which allows arbitrary masses for all particles and arbitrary quantum numbers for the produced final state meson & baryon.
 
 The basic usage is:
 ```c++
 // Set up kinematics
-reaction_kinematics myKin (M_MESON, M_BARYON) 
-myKin.set_meson_JP(1, -1);  // J = 1  , P = -1
-myKin.set_baryon_JP(1, 1);  // J = 1/2, P =  1
+kinematics myKin = new_kinematics(M_MESON, M_BARYON);
+myKin->set_meson_JP(1, -1);  // J = 1  , P = -1
+myKin->set_baryon_JP(1, 1);  // J = 1/2, P =  1
 
 // Set up amplitude
-my_amplitude myAmp(&myKin, /* additional parameters */);
-myAmp.set_params{ {/* couplings */} };
+amplitude myAmp = new_amplitude<my_implementation>(&myKin, /* additional parameters */);
+myAmp->set_params{ {/* couplings */} };
 
 // Evaluate observables
-myAmp.integrated_xsection(s);
-myAmp.SDME(alpha, lam1, lam2, s, t);
+myAmp->integrated_xsection(s);
+myAmp->SDME(0, 1, -1, s, t);
 ```
 
-Available amplitudes, so far, include:
-
-### s-channel:
-* [Baryon resonance](./include/core/baryon_resonance.hpp) - following [[1]](https://arxiv.org/abs/1907.09393), Breit-Wigner resonance for a baryon of spin up to 5/2 and arbitrary parity. 
- 
-### t-channel:
-* [Pomeron exchange](./include/core/pomeron_exchange.hpp) - three parameterizations of Pomeron exchange are available: [helicity-conserving](https://arxiv.org/abs/1606.08912), [exponential-pomeron](https://arxiv.org/abs/1907.09393), and [dipole-pomeron](https://arxiv.org/abs/1508.00339).
-* [(fixed-spin and reggeized) Pseudo-scalar meson exchange](./include/core/pseudoscalar_exchange.hpp) - allows production of mesons with pseudo-scalar, vector, and axial-vector mesons and spin-1/2+ and 3/2+ baryons.
-* [(fixed-spin and reggeized) Vector meson exchange](./include/core/vector_exchange.hpp) - allows production of mesons with scalar, pseudo-scalar, vector, and axial-vector quantum numbers
-* [Primakoff effect off nuclear target](./include/core/primakoff_effect.hpp) - special amplitude for investigation of X(3872) production via Primakoff effect
-
-### u-channel:
-* [(fixed-spin) Dirac fermion exchange](./include/core/dirac_exchange.hpp) - allows production of mesons with pseudo-scalar and vector quantum numbers and spin-1/2+, 1/2- and 3/2- baryons.
-
-Incoherent (interfering) sums of amplitudes may be constructed through the [`amplitude_sum`](./include/core/amplitude_sum.hpp) class.
-
-## SEMI-INCLUSIVE REACTIONS
-The optional library `jpacInclusive` extends the results of the excluive amplitudes above to consider semi-inclusive production in the Mueller-Regge formalism in the [`triple_regge`](./include/inclusive/triple_regge.hpp) object.
-
-<p align="center">
-  <img width="500" src="./doc/triple_regge.png">
-</p>
-
-Unlike individual amplitudes above, semi-inclusive production is calcultated at the cross-sections level but may be calculated as a function of total center-of-mass energy, momentum transfer, and invariant missing mass. 
-
-Basic structure looks like:
+Incoherent (interfering) sums and partial wave projections of any combination of amplitudes may also be constructed. These are treated as amplitudes themselves and all observables are available with the same syntax:
 ```c++
-// Exclusive amplitude set up as above with couplings / kinematics already set
-amplitude myExcAmp;
+// Sum two amplitudes together
+amplitude amp1, amp2;
+amplitude sum = amp1 + amp2;
 
-// Pass exclusive amplitude to triple_regge object
-triple_regge myIncAmp (&myExcAmp);
+// Take the J = 1 partial wave
+amplitude pwave = project(1, sum);
 
-// Output observables
-myIncAmp.invariant_xsection(s, t, M2);
-myIncAmp.integrated_xsection(s);
-```
-This extention is currently only available for pion-exchange processes but will be expanded to include other exchanges.
-
-##  BOX AMPLITUDE
-The optional library `jpacBox` allows exchange amplitudes (in the t and u-channels) to be combined into a box diagram of the form:
-
-<p align="center">
-  <img width="400" src="./doc/BoxDiagram.png">
-</p>
-
-The calculation is done via a dispersion relation and integrating over the entire intermediate phase-space. The [`box_amplitude`](./include/box/box_amplitude.hpp) class requires the `gauss_kronrod` integration method from Boost C++ which can natively handle complex integrands and thus makes it particularly efficient in computing dispersion relations. 
-
-```c++
-// Set up left and right amplitudes by cutting box along the middle
-// Left amplitude involves a photon 
-reaction_kinematics kLeft (0., M_N, M_QPRIME, M_R);
-amplitude leftAmp (&kLeft, /* other parameters */);
-
-// Right amplitude involes a massive "beam" 
-reaction_kinematics kRight(M_Q, M_NPRIME, M_QPRIME, M_R);
-amplitude rightAmp (&kRight, /* other parameters */);
-
-// Create kinematics object for the whole reaction
-reaction_kinematics kBox (0, M_N, M_Q, M_NPRIME);
-
-// Finally create a box amplitude object
-box_amplitude myBox (&kBox, &leftAmp, &rightAmp);
-
-// box_amplitude inherits from jpacPhoto::amplitude and can be treated as such
+// Access observables
+amp1->integrated_xsection(s);  // Individual term
+sum->integrated_xsection(s);   // Interfering sum
+pwave->integrated_xsection(s); // Only P-wave contribution of sum
 ```
 
 ##  REFERENCES
 + [1] [Double Polarization Observables in Pentaquark Photoproduction](https://arxiv.org/abs/1907.09393)
 + [2] [XYZ spectroscopy at electron-hadron facilities: Exclusive processes](https://arxiv.org/abs/2008.01001)
-+ [3] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
++ [3] [XYZ spectroscopy at electron-hadron facilities II: Semi-inclusive processes with pion exchange](https://arxiv.org/abs/2209.05882)
++ [4] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
 
 <p align="center">
   <img width="275" src="./doc/JPAClogo.png">
