@@ -293,7 +293,14 @@ namespace jpacPhoto
         inline std::string id(){ return _id; };
 
         // Change the debug flag
-        inline void set_debug(int x){ _debug = x; };
+        inline void set_debug(int x)
+        { 
+            _debug = x;
+            for (auto amp : _subamplitudes)
+            {
+                amp->set_debug(x);
+            }
+        };
 
         // Number of free parameters
         inline int N_pars(){ return _N_pars; };
