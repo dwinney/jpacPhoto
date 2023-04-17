@@ -229,6 +229,12 @@ namespace jpacPhoto
         template<int R>
         friend lorentz_tensor<dirac_spinor,R> operator*(dirac_spinor c, lorentz_tensor<complex,R> rhs);
 
+        // Tensor dirac_spinor * matrices
+        template<int R>
+        friend lorentz_tensor<dirac_spinor,R> operator*(dirac_matrix M, lorentz_tensor<dirac_spinor,R> rhs);
+        template<int R>
+        friend lorentz_tensor<dirac_spinor,R> operator*(lorentz_tensor<dirac_spinor,R> lhs, dirac_matrix M);
+
         // Whether or not to take the conjugate of the element
         bool _conj = false;
         
@@ -466,7 +472,7 @@ namespace jpacPhoto
     };
     
     // --------------------------------------------------------------------------
-    // Interactions with constant types 
+    // Interactions with constant scalar types 
 
     // Multiplication by the same type
     // Order matters here only becasue of possible matrix multipication
@@ -483,7 +489,7 @@ namespace jpacPhoto
         return lhs;
     };
 
-    // Multiplication by the an integer type, order no longer matters
+    // Multiplication by an integer type, order no longer matters
 
     // int
     template<class T = complex, int R>
@@ -494,7 +500,7 @@ namespace jpacPhoto
     template<class T = complex, int R>
     inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, int c){ return c*lhs; };
     
-    // complex, we need to define complex * dirac_spinor and dirac_matrix seperately becasue else the template above gets comfused
+    // we need to define complex * dirac_spinor and dirac_matrix seperately becasue else the template above gets confused
     template<int R>
     inline lorentz_tensor<dirac_spinor,R> operator*(complex c, lorentz_tensor<dirac_spinor,R> rhs){ return (c*identity<dirac_spinor>())*rhs; };
     template<int R>
@@ -507,9 +513,24 @@ namespace jpacPhoto
 
     // Division only makes sense for dirac scalar types
     template<class LType, class RType, int R>
-    inline lorentz_tensor<LType,R> operator/(lorentz_tensor<LType,R> lhs, RType c)
+    inline lorentz_tensor<LType,R> operator/(lorentz_tensor<LType,R> lhs, RType c){ return (1./complex(c)) * lhs; };
+
+    
+    // --------------------------------------------------------------------------
+    // Interactions with constant non-scalar types 
+
+    // Multiplying matrices and spinors with tensor structure
+    template<int R>
+    inline lorentz_tensor<dirac_spinor,R> operator*(dirac_matrix M, lorentz_tensor<dirac_spinor,R> rhs)
     {
-        return (1./complex(c)) * lhs;
+        rhs._lhsN = M*rhs._lhsN;
+        return rhs;
+    };
+    template<int R>
+    inline lorentz_tensor<dirac_spinor,R> operator*(lorentz_tensor<dirac_spinor,R> lhs, dirac_matrix M)
+    {
+        lhs._rhsN = lhs._rhsN*M;
+        return lhs;
     };
 };
 

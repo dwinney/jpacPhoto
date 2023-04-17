@@ -117,9 +117,9 @@ namespace jpacPhoto
 
     dirac_matrix gamma_2()
     {
-        return dirac_matrix({{ { 0,  0,   0,   I},
+        return dirac_matrix({{ { 0,  0,   0,  -I},
                                { 0,  0,   I,   0},
-                               { 0, -I,   0,   0},
+                               { 0,  I,   0,   0},
                                {-I,  0,   0,   0}  }});
     };
 
