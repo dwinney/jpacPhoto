@@ -22,12 +22,17 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Covariant gamma matrix structures
 
+    // Non-trivial dirac_matrix tensors
+    // Any arbitrary tensor up to rank-2 can be built from these
+
     inline lorentz_tensor<dirac_matrix,1> gamma_vector()
     { return lorentz_vector<dirac_matrix>({gamma_0(), gamma_1(), gamma_2(), gamma_3()}); };
 
-    // inline lorentz_tensor<dirac_matrix,2> sigma_tensor()
-    // { return (tensor_product(gamma_vector(), gamma_vector())); };
-    /* identity<dirac_matrix>()*metric_tensor() - */ 
+    inline lorentz_tensor<dirac_matrix,2> sigma_tensor()
+    { return tensor_product(gamma_vector(), gamma_vector()) - identity<dirac_matrix>()*metric_tensor(); };
+
+    // ---------------------------------------------------------------------------
+    // Bilinear methods combine two dirac_spiors with a lorentz_tensor 
 
     inline lorentz_tensor<complex,1> bilinear(dirac_spinor ubar, lorentz_tensor<dirac_matrix,1> Gamma, dirac_spinor u)
     {

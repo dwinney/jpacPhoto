@@ -190,12 +190,12 @@ namespace jpacPhoto
         inline lorentz_tensor<Type,Rank> & operator*=(Type c)
         {
             // Apply the constant to the first index simply
-            _rhsN *= c;
+            _rhsN *= c*identity<Type>();
             return *this;
         };
         inline lorentz_tensor<Type,Rank> & operator/=(complex c)
         {
-            _rhsN *= (1/c);
+            _rhsN *= (1/c)*identity<Type>();
             return *this;
         };
 
@@ -203,7 +203,7 @@ namespace jpacPhoto
         inline lorentz_tensor<Type,Rank> operator-()
         {
             lorentz_tensor<Type,Rank> neg = *this;
-            neg *= -1;
+            neg._lhsN *= -1*identity<Type>();
             return neg;
         };
 
@@ -217,9 +217,9 @@ namespace jpacPhoto
 
         private:
 
+        // Multiply tensors by non-tensor objects
         template<class T, int R>
         friend lorentz_tensor<T,R> operator*(T c, lorentz_tensor<T,R> rhs);
-
         template<class T, int R>
         friend lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, T c);
 
@@ -439,29 +439,7 @@ namespace jpacPhoto
     // We dont use template here because compiler gets confused between complex, double, int, etc.
     // We want to always default to complex even if we write p = -2*q;
 
-    // Complex -> Complex
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator*(T c, lorentz_tensor<T,R> rhs)
-    {
-        rhs._lhsN *= c;
-        return rhs;
-    };
-
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, T c)
-    {
-        lhs._rhsN *= c;
-        return lhs;
-    };
-
-    // Division only makes sense for complex (dirac scalars)
-    template<class LType, int R>
-    inline lorentz_tensor<LType,R> operator/(lorentz_tensor<LType,R> lhs, complex c)
-    {
-        return (1./c) * lhs;
-    };
-
-    // complex -> dirac_matrix
+    // complex * dirac_matrix -> dirac_matrix
     template<int R>
     inline lorentz_tensor<dirac_matrix,R> operator*(dirac_matrix c, lorentz_tensor<complex,R> rhs)
     {
@@ -474,7 +452,7 @@ namespace jpacPhoto
         return c * lhs;
     };
 
-    // complex -> dirac_spinor
+    // complex * dirac_spinor -> dirac_spinor
     template<int R>
     inline lorentz_tensor<dirac_spinor,R> operator*(dirac_spinor c, lorentz_tensor<complex,R> rhs)
     {
@@ -485,6 +463,53 @@ namespace jpacPhoto
     inline lorentz_tensor<dirac_spinor,R> operator*(lorentz_tensor<complex,R> lhs, dirac_spinor c)
     {
         return c * lhs;
+    };
+    
+    // --------------------------------------------------------------------------
+    // Interactions with constant types 
+
+    // Multiplication by the same type
+    // Order matters here only becasue of possible matrix multipication
+    template<class T = complex, int R>
+    inline lorentz_tensor<T,R> operator*(T c, lorentz_tensor<T,R> rhs)
+    {
+        rhs._lhsN *= c;
+        return rhs;
+    };
+    template<class T = complex, int R>
+    inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, T c)
+    {
+        lhs._rhsN *= c;
+        return lhs;
+    };
+
+    // Multiplication by the an integer type, order no longer matters
+
+    // int
+    template<class T = complex, int R>
+    inline lorentz_tensor<T,R> operator*(int c, lorentz_tensor<T,R> rhs)
+    {
+        return (c*identity<T>())*rhs;
+    };
+    template<class T = complex, int R>
+    inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, int c){ return c*lhs; };
+    
+    // complex, we need to define complex * dirac_spinor and dirac_matrix seperately becasue else the template above gets comfused
+    template<int R>
+    inline lorentz_tensor<dirac_spinor,R> operator*(complex c, lorentz_tensor<dirac_spinor,R> rhs){ return (c*identity<dirac_spinor>())*rhs; };
+    template<int R>
+    inline lorentz_tensor<dirac_spinor,R> operator*(lorentz_tensor<dirac_spinor,R> lhs, complex c){ return (c*identity<dirac_spinor>())*lhs; }; 
+
+    template<int R>
+    inline lorentz_tensor<dirac_matrix,R> operator*(complex c, lorentz_tensor<dirac_matrix,R> rhs){ return (c*identity<dirac_matrix>())*rhs; };
+    template<int R>
+    inline lorentz_tensor<dirac_matrix,R> operator*(lorentz_tensor<dirac_matrix,R> lhs, complex c){ return (c*identity<dirac_matrix>())*lhs; }; 
+
+    // Division only makes sense for dirac scalar types
+    template<class LType, class RType, int R>
+    inline lorentz_tensor<LType,R> operator/(lorentz_tensor<LType,R> lhs, RType c)
+    {
+        return (1./complex(c)) * lhs;
     };
 };
 
