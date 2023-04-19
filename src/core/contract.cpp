@@ -31,15 +31,18 @@ namespace jpacPhoto
 
     std::vector<std::vector<lorentz_index>> permutations(unsigned N)
     {
-        // First two cases are hard-coded for easy access
-        if (N == 1) return { {lorentz_index::t}, {lorentz_index::x}, 
-                                                 {lorentz_index::y}, 
-                                                 {lorentz_index::z}};
+        auto t = LORENTZ_INDICES[0];
+        auto x = LORENTZ_INDICES[1];
+        auto y = LORENTZ_INDICES[2];
+        auto z = LORENTZ_INDICES[3];
 
-        if (N == 2) return { {lorentz_index::t, lorentz_index::t}, {lorentz_index::t, lorentz_index::x}, {lorentz_index::t, lorentz_index::y}, {lorentz_index::t, lorentz_index::z}, 
-                             {lorentz_index::x, lorentz_index::t}, {lorentz_index::x, lorentz_index::x}, {lorentz_index::x, lorentz_index::y}, {lorentz_index::x, lorentz_index::z}, 
-                             {lorentz_index::y, lorentz_index::t}, {lorentz_index::y, lorentz_index::x}, {lorentz_index::y, lorentz_index::y}, {lorentz_index::y, lorentz_index::z}, 
-                             {lorentz_index::z, lorentz_index::t}, {lorentz_index::z, lorentz_index::x}, {lorentz_index::z, lorentz_index::y}, {lorentz_index::z, lorentz_index::z} };
+        // First two cases are hard-coded for easy access
+        if (N == 1) return { {t}, {x}, {y}, {z}};
+
+        if (N == 2) return { {t, t}, {t, x}, {t, y}, {t, z}, 
+                             {x, t}, {x, x}, {x, y}, {x, z}, 
+                             {y, t}, {y, x}, {y, y}, {y, z}, 
+                             {z, t}, {z, x}, {z, y}, {z, z} };
 
         // Get the previous set of permutations
         std::vector<std::vector<lorentz_index>> previous = permutations(N - 1);

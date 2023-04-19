@@ -19,6 +19,7 @@ namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
     // Contraction of dirac_spinors is different because theyre dirac_indices
+    
     complex contract(dirac_spinor left, dirac_spinor right);
 
     // ---------------------------------------------------------------------------
