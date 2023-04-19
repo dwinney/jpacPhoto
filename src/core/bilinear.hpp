@@ -37,6 +37,17 @@ namespace jpacPhoto
         return tensor_product(gamma_vector(), gamma_vector()) - identity<dirac_matrix>()*metric_tensor(); 
     };
 
+    inline dirac_matrix slash(lorentz_tensor<complex,1> q)
+    {
+        auto gamma = gamma_vector();
+        dirac_matrix sum = zero<dirac_matrix>();
+        for (auto mu : LORENTZ_INDICES)
+        {
+            sum += metric(mu) * gamma(mu) * q(mu);
+        }
+        return sum;
+    };
+
     // ---------------------------------------------------------------------------
     // Special case of lorentz_tensor which mixes spinors and matrices. 
     // Here the saved subtensors, normalizations, and return values are different types
@@ -79,8 +90,8 @@ namespace jpacPhoto
         lorentz_tensor<dirac_matrix, Rank> _matrix;
 
         // Normalizations for the spinors on either side
-        dirac_spinor _lhs = identity<dirac_spinor>();
-        dirac_spinor _rhs = identity<dirac_spinor>();
+        dirac_spinor _lhs = zero<dirac_spinor>();
+        dirac_spinor _rhs = zero<dirac_spinor>();
     };
 
     // ---------------------------------------------------------------------------

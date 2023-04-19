@@ -65,9 +65,9 @@ namespace jpacPhoto
 
     // Two vectors contracted 
     template<class Type>
-    inline complex contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type,1> right)
+    inline Type contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type,1> right)
     {
-        complex sum = 0;
+        Type sum = zero<Type>();
         for (auto mu : LORENTZ_INDICES)
         {
             sum += metric(mu) * left(mu) * right(mu);
@@ -77,9 +77,9 @@ namespace jpacPhoto
 
     // Two vectors contracted with a projector
     template<class Type>
-    inline complex contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type, 2> P, lorentz_tensor<Type,1> right)
+    inline Type contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type, 2> P, lorentz_tensor<Type,1> right)
     {
-        complex sum = 0;
+        Type sum = zero<Type>();
         for (auto mu : LORENTZ_INDICES)
         {
             for (auto nu : LORENTZ_INDICES)
@@ -92,9 +92,9 @@ namespace jpacPhoto
 
     // Two scalar rank-2's contracted 
     template<class Type>
-    inline complex contract(lorentz_tensor<Type,2> left, lorentz_tensor<Type,2> right)
+    inline Type contract(lorentz_tensor<Type,2> left, lorentz_tensor<Type,2> right)
     {
-        complex sum = 0;
+        Type sum = zero<Type>();
         for (auto mu : LORENTZ_INDICES)
         {
             for (auto nu : LORENTZ_INDICES)

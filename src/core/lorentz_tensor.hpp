@@ -102,7 +102,7 @@ namespace jpacPhoto
         // -----------------------------------------------------------------------
         // Unary operations 
 
-        // Multiply and divide by a constant
+        // Multiply and divide by a constant, assumed on the right
         inline lorentz_tensor<Type,Rank> & operator*=(Type c)
         {
             // Apply the constant to the first index simply
@@ -142,6 +142,8 @@ namespace jpacPhoto
         // "Capture" constructor require more access than other contructors
         template<int R>
         friend lorentz_tensor<dirac_matrix,R> operator*(dirac_matrix c, lorentz_tensor<complex,R> rhs);
+        template<int R>
+        friend lorentz_tensor<dirac_matrix,R> operator*(lorentz_tensor<complex,R> lhs, dirac_matrix c);
         template<int R>
         friend lorentz_tensor<dirac_spinor,R> operator*(dirac_spinor c, lorentz_tensor<complex,R> rhs);
 
@@ -282,28 +284,6 @@ namespace jpacPhoto
     };
 
     // ---------------------------------------------------------------------------
-    // Operations between tensors
-
-    // Add two vectors together.
-    // For arbitrary size, this is done by saving tensors and adding iteratively through terms in the sum
-    // when an element is asked for
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator+(lorentz_tensor<T,R> lhs, lorentz_tensor<T,R> rhs)
-    {
-        auto l = std::make_shared<lorentz_tensor<T,R>>(lhs);
-        auto r = std::make_shared<lorentz_tensor<T,R>>(rhs);
-        lorentz_tensor<T,R> sum({l,r}, true);
-        return sum;
-    };
-    
-    // Subtract two vectors together
-    template<class T, int R>
-    inline lorentz_tensor<T,R> operator-(lorentz_tensor<T,R> lhs, lorentz_tensor<T,R> rhs)
-    {
-        return lhs + (-rhs);
-    };
-
-    // ---------------------------------------------------------------------------
     // Scalar tensors "capture" dirac data types they get multipled by a non-scalar dirac type
     // We dont use template here because compiler gets confused between complex, double, int, etc.
     // We want to always default to complex even if we write p = -2*q;
@@ -317,7 +297,10 @@ namespace jpacPhoto
     };
     template<int R>
     inline lorentz_tensor<dirac_matrix,R> operator*(lorentz_tensor<complex,R> lhs, dirac_matrix c)
-    {  return c * lhs; };
+    {  
+        auto matrified = lhs.matrixify();
+        return static_cast<lorentz_tensor<dirac_matrix,R>&>(*matrified) * c;
+    };
 
     // complex * dirac_spinor -> dirac_spinor
     template<int R>
@@ -338,13 +321,13 @@ namespace jpacPhoto
     template<class T = complex, int R>
     inline lorentz_tensor<T,R> operator*(T c, lorentz_tensor<T,R> rhs)
     {
-        rhs._lhsN *= c;
+        rhs._lhsN = c * rhs._lhsN;
         return rhs;
     };
     template<class T = complex, int R>
     inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, T c)
     {
-        lhs._rhsN *= c;
+        lhs._rhsN = lhs._rhsN * c;
         return lhs;
     };
 
@@ -357,6 +340,15 @@ namespace jpacPhoto
     template<class T = complex, int R>
     inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, int c)
     { return c*lhs; };
+
+    // double
+    template<class T = complex, int R>
+    inline lorentz_tensor<T,R> operator*(double c, lorentz_tensor<T,R> rhs)
+    { return (c*identity<T>())*rhs; };
+    template<class T = complex, int R>
+    inline lorentz_tensor<T,R> operator*(lorentz_tensor<T,R> lhs, double c)
+    { return c*lhs; };
+    
     
     // we need to define complex * dirac_spinor and dirac_matrix seperately becasue else the template above gets confused
     template<int R>
@@ -384,14 +376,36 @@ namespace jpacPhoto
     template<int R>
     inline lorentz_tensor<dirac_spinor,R> operator*(dirac_matrix M, lorentz_tensor<dirac_spinor,R> rhs)
     {
-        rhs._lhsN = M*rhs._lhsN;
+        rhs._lhsN = M * rhs._lhsN;
         return rhs;
     };
     template<int R>
     inline lorentz_tensor<dirac_spinor,R> operator*(lorentz_tensor<dirac_spinor,R> lhs, dirac_matrix M)
     {
-        lhs._rhsN = lhs._rhsN*M;
+        lhs._rhsN = lhs._rhsN * M;
         return lhs;
+    };
+
+    // ---------------------------------------------------------------------------
+    // Operations between tensors
+
+    // Add two vectors together.
+    // For arbitrary size, this is done by saving tensors and adding iteratively through terms in the sum
+    // when an element is asked for
+    template<class T, int R>
+    inline lorentz_tensor<T,R> operator+(lorentz_tensor<T,R> lhs, lorentz_tensor<T,R> rhs)
+    {
+        auto l = std::make_shared<lorentz_tensor<T,R>>(lhs);
+        auto r = std::make_shared<lorentz_tensor<T,R>>(rhs);
+        lorentz_tensor<T,R> sum({l,r}, true);
+        return sum;
+    };
+    
+    // Subtract two vectors together
+    template<class T, int R>
+    inline lorentz_tensor<T,R> operator-(lorentz_tensor<T,R> lhs, lorentz_tensor<T,R> rhs)
+    {
+        return lhs + (-rhs);
     };
 };
 
