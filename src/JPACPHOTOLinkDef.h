@@ -17,5 +17,6 @@
 #pragma link C++ defined_in "plotter.hpp";
 #pragma link C++ defined_in "plot.hpp";
 #pragma link C++ defined_in "box.hpp";
+#pragma link C++ defined_in "inclusive_process.hpp";
 
 #endif

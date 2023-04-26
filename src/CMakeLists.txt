@@ -1,7 +1,9 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp" "cubature/*.c") 
+file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "inclusive/*.cpp" "cubature/*.c") 
 
 include_directories(core)
+include_directories(covariants)
+include_directories(inclusive)
 include_directories(cubature)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
@@ -14,6 +16,7 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     fitter.hpp
     data_set.hpp
     box.hpp
+    inclusive_process.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )
