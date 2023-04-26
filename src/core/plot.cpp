@@ -49,7 +49,7 @@ namespace jpacPhoto
 
         // Set up legend
         _legendxoffset  = 0.3;
-        _legendyoffset  = 0.036*(_Nlegend + _addheader);
+        _legendyoffset  = _legendyscale*(_Nlegend + _addheader);
         auto legend = new TLegend(_legendxcord,  _legendycord, 
                                   _legendxcord + _legendxoffset, 
                                   _legendycord + _legendyoffset);

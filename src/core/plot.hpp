@@ -236,6 +236,11 @@ namespace jpacPhoto
             _add_logo = true; _logo_coords =  {0.93, 0.885}; _logo_scale = 1;
         };
 
+        inline void set_legend_spacing(double x)
+        {
+            _legendyscale = x;
+        };
+
         inline void preliminary(bool x)
         {
             _prelim = x;
@@ -330,7 +335,7 @@ namespace jpacPhoto
 
         bool   _addlegend     = true;
         double _legendxcord   = 0.3, _legendycord   = 0.7;
-        double _legendxoffset = 0.3, _legendyoffset = 0.15;
+        double _legendxoffset = 0.3, _legendyoffset = 0.15, _legendyscale = 0.036;
 
         // Number of entries to expect on the legend
         // used to calculate the offset to be visually appealing

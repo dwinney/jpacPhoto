@@ -193,7 +193,7 @@ namespace jpacPhoto
 
             // Remove the x-axis label
             gStyle->SetTitleSize(0, "x");
-            gStyle->SetLegendTextSize(0.035);
+            gStyle->SetLegendTextSize(0.04);
 
             // Settings for the first entry
             if (plot == begin(plots))
@@ -204,6 +204,7 @@ namespace jpacPhoto
                 gPad->SetBottomMargin(0);
                 
                 // Apply the linewidth 
+                plot->set_legend_spacing(0.05);
                 plot->draw();
                 continue;
             };
