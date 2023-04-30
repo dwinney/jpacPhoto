@@ -69,10 +69,8 @@ namespace jpacPhoto
                 // Save inputes
                 store(helicities, s, t);
                 
-                // Calculate the partial wave from this
-                complex result = (2*_J+1) * legendre(_J, cos(_theta)) * partial_wave(_s);
-
-                return result;
+                return (_debug == 1) ? (2*_J+1) * legendre(_J, _kinematics->z_s(s,t)) * partial_wave(_s)
+                                     : (2*_J+1) * legendre(_J, cos(_theta))           * partial_wave(_s);
             };
 
             // We can have any quantum numbers
@@ -122,6 +120,7 @@ namespace jpacPhoto
             {
                 switch (x)
                 {
+                    case ScatteringLength:
                     case Default:
                     {
                         set_N_pars(2+(_Nth>1)*(4*_Nth-5));
@@ -164,8 +163,8 @@ namespace jpacPhoto
 
                 // The M-matrices all share the same denominator    
                 _D = (1+_G[0]*_K00)*(1+_G[1]*_K11)*(1+_G[2]*_K22) - _G[0]*_G[1]*_K01*_K01
-                                                                     - _G[0]*_G[2]*_K02*_K02
-                                                                     - _G[1]*_G[2]*_K12*_K12 - _G[0]*_G[1]*_G[2]*(_K00*_K11*_K22 - _detK);
+                                                                  - _G[0]*_G[2]*_K02*_K02
+                                                                  - _G[1]*_G[2]*_K12*_K12 - _G[0]*_G[1]*_G[2]*(_K00*_K11*_K22 - _detK);
 
                 // Then all we need are the numerators
                 _N[0] =   pow(pq(0), _J) * _n[0] * ((1 + _G[1]*_K11)*(1 + _G[2]*_K22) - _G[1]*_G[2]*_K12*_K12);
@@ -173,6 +172,22 @@ namespace jpacPhoto
                 _N[2] = - pow(pq(2), _J) * _n[2] * _G[2]*(_K02 + _G[1]*(_K02*_K11 - _K01*_K12));
 
                 return (_N[0] + _N[1] + _N[2]) / _D;
+            };
+
+            // Extract just the elastic amplitude as a function of s
+            inline complex elastic_amplitude(double s)
+            {
+                partial_wave(s);
+
+                // Determinants of the sub-matrices
+                complex detK01, detK02, detK12;
+                detK01 = _K00*_K11 - _K01*_K01;
+                detK02 = _K00*_K22 - _K02*_K02;
+                detK12 = _K11*_K22 - _K12*_K12;
+
+                // Use this to calculate the elastic 00 element of T-matrix 
+                complex N    = _K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12);
+                return N / _D;
             };
 
             // Ratio of direct vs indirect photoproduction
@@ -188,30 +203,26 @@ namespace jpacPhoto
 
             inline double scattering_length()
             {
-                partial_wave(_kinematics->sth());
-
-                // Determinants of the sub-matrices
-                complex detK01, detK02, detK12;
-                detK01 = _K00*_K11 - _K01*_K01;
-                detK02 = _K00*_K22 - _K02*_K02;
-                detK12 = _K11*_K22 - _K12*_K12;
-
-                // Use this to calculate the elastic 00 element of T-matrix 
-                complex N    = _K00 + _G[1]*detK01 + _G[2]*detK02 + _G[1]*_G[2]*(detK12*_K00 + detK02*_K11 + detK01*_K22 - 2*_K00*_K11*_K22 + 2*_K01*_K02*_K12);
-                double T00th = std::real(N / _D);
-
-                // Then calculate the scattering length
-                double SL = - T00th / (8*PI*_kinematics->Wth());
-
-                // Output in units of fm
-                return SL / 5.068; 
+                double T00th = std::real( elastic_amplitude(_kinematics->sth() ));
+                double SL    = - T00th / (8*PI*_kinematics->Wth());
+                return SL / 5.068; // Output in units of fm
             };
 
             inline double R_VMD()
             {
-                double F = std::real( partial_wave(_kinematics->sth()) );
-                double T = 5.068*8*PI*_kinematics->Wth()*scattering_length();
-                return std::abs(F / T) / 0.0273;
+                double F = std::real( partial_wave(     _kinematics->sth()) );
+                double T = std::real( elastic_amplitude(_kinematics->sth()) );
+                double gVMD = 0.0273;
+
+                return std::abs(F / T) / gVMD;
+            };
+
+            inline double total_xsection(double s)
+            {
+                if (s <= _kinematics->sth()) return 0;
+
+                // Output in mb!
+                return  0.389352 * (2*_J+1)*std::imag(elastic_amplitude(s)) / sqrt(Kallen(_s, _mX*_mX, _mR*_mR));
             };
 
             protected:

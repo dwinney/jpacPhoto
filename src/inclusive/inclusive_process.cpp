@@ -14,6 +14,27 @@
 
 namespace jpacPhoto
 {
+    bool raw_inclusive_process::correct_size(std::vector<double> pars)
+    {
+        if (pars.size() != _N_pars)
+        {
+            return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+        };
+        return true;
+    };
+
+    void raw_inclusive_process::set_parameters( std::vector<double> x )
+    {
+        // Check the size is alright
+        if (!correct_size(x))
+        {
+            return;
+        };
+
+        // Allocate them (amplitude specific)
+        allocate_parameters(x);
+    };
+
     // Momentum of the photon
     double raw_inclusive_process::qGamma()
     {
@@ -186,7 +207,7 @@ namespace jpacPhoto
         if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2)) return 0.;
         set_total_energy(s);
 
-        double mx = (_useTX) ? XfromTM2(t, M2) : M2; 
+        double mx = (use_TX()) ? XfromTM2(t, M2) : M2; 
         return jacobianTM2(t, M2) * invariant_xsection(s, t, mx);
     };
 
@@ -196,7 +217,7 @@ namespace jpacPhoto
         set_total_energy(s);
 
 
-        double mx = (_useTX) ? x : M2fromTX(t,x); 
+        double mx = (use_TX()) ? x : M2fromTX(t,x); 
         return jacobianTX(t, x) * invariant_xsection(s, t, mx);
     };
 
@@ -206,7 +227,7 @@ namespace jpacPhoto
         set_total_energy(s);
 
         double t  = TfromXY2(x ,y2);
-        double mx = (_useTX) ? x : M2fromXY2(t, x); 
+        double mx = (use_TX()) ? x : M2fromXY2(t, x); 
         return jacobianXY2(x, y2) * invariant_xsection(s, t, mx);
     }
 
@@ -230,8 +251,8 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dM2(double s, double M2)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2))            return 0;
-        if (!_useTX && (sqrt(M2) >= sqrt(s) - sqrt(_mX2))) return 0;
+        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2))              return 0;
+        if (!use_TX() && (sqrt(M2) >= sqrt(s) - sqrt(_mX2))) return 0;
         set_total_energy(s);
 
         auto dSigma = [&](double t)
@@ -289,7 +310,7 @@ namespace jpacPhoto
 
         double result;
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
-        if (_useTX == true)
+        if (use_TX() == true)
         {
             // Assume argument 3 is M2
             auto dSigma = [&](double x)
@@ -311,9 +332,9 @@ namespace jpacPhoto
             };
             ROOT::Math::Functor1D wF(dSigma);
             ig.SetFunction(wF);
-
-            // Integrate over x
-            result = ig.Integral(minimum_M2(), pow(sqrt(s) - sqrt(_mX2), 2));
+            
+            // Integrate over M2
+            result = ig.Integral(minimum_M2() + EPS, pow(sqrt(s) - sqrt(_mX2), 2));
         }
 
         return result;

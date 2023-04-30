@@ -87,9 +87,16 @@ namespace jpacPhoto
         inline void   set_total_energy(double s){ _s = s; };
         inline double get_total_energy(){ return _s; };
 
-        // Set whether we should assume the independent variables are (t, M2) or (t, x)
-        // See _useTX below
-        inline void use_TX(bool x){ _useTX = x; };
+        // Number of free parameters
+        inline int N_pars(){ return _N_pars; };
+
+        // This function is what a user actually calls
+        // It wraps the protected vitual method allocate_parameters() with checks of correct size and caching
+        void set_parameters( std::vector<double> x );
+
+        // Given a vector of double of appropriate length, allocate free parameters to model
+        // By default we do nothing
+        virtual void allocate_parameters( std::vector<double> x ){ return; };
         
         // ----------------------------------------------------------------------
         // Kinematics 
@@ -165,7 +172,7 @@ namespace jpacPhoto
         // Fully integrated
         double integrated_xsection(double s);   
         
-        private:
+        protected:
 
         // Mass of the observed and target particles
         double _mX2 = 0, _mT2 = M2_PROTON;
@@ -177,10 +184,17 @@ namespace jpacPhoto
         // when integrating. So I include this flag (set to default as false):
         // False -> assume independent variables are t and M2 
         // True  -> assume independent variables are t and x
-        bool _useTX = false;    
+        inline virtual bool use_TX(){ return false; };   
 
         // String ID 
         std::string _id = "inclusive_process";
+
+        // Number of parameters
+        inline void set_N_pars(int Npars){ _N_pars = Npars; };
+        int  _N_pars = 0;
+
+        // Simple check that a given vector is of the expected size
+        bool correct_size(std::vector<double> pars);
     };
 };
 
