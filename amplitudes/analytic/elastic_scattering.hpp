@@ -75,17 +75,16 @@ namespace jpacPhoto
                 return labels;
             };
 
-            inline void set_option(amplitude_option x)
+            inline void set_option(int x)
             {
                 switch (x)
                 {
-                    case ScatteringLength:
-                    case Default:
+                    case kScatteringLength:
                     {
                         set_N_pars(1);
                         _b = 0; break;
                     };
-                    case EffectiveRange:   
+                    case kEffectiveRange:   
                     { 
                         set_N_pars(2); break;
                     };
@@ -94,6 +93,10 @@ namespace jpacPhoto
 
                 _option = x;
             }
+
+            // Options
+            static const int kScatteringLength = 0;
+            static const int kEffectiveRange   = 1;
 
             protected:
             

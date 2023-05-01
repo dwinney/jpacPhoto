@@ -42,14 +42,17 @@ namespace jpacPhoto
                 // An on-shell spin-0 exchange cannot flip helicities
                 bool helicity_conserving = (_lamB == _lamX) && (_lamR == _lamT);
                 if (!helicity_conserving) return 0;
-                
+
+                complex result = top_coupling() * propagator() * bottom_coupling();
+                if (_option == kNoFF) return result;
+
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == amplitude_option::ExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                                  : _FF->eval(_t);
+                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
+                                                : _FF->eval(_t);
 
                 // Multiply couplings with propagator
-                return FF * top_coupling() * propagator() * bottom_coupling();
+                return FF * result;
             };
 
             // -----------------------------------------------------------------------

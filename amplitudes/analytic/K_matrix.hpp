@@ -94,8 +94,8 @@ namespace jpacPhoto
                 // If EffectiveRange, add extra labels
                 switch (_option)
                 {
-                    case Default: return labels;
-                    case EffectiveRange:  
+                    case kScatteringLength: return labels;
+                    case kEffectiveRange:  
                     {
                         if (_Nth == 1)
                         {
@@ -116,17 +116,16 @@ namespace jpacPhoto
 
             // The amplitude_option to choose a limiting case of parameters
             // or Default to reset to the most general parameterization
-            inline void set_option(amplitude_option x)
+            inline void set_option(int x)
             {
                 switch (x)
                 {
-                    case ScatteringLength:
-                    case Default:
+                    case kScatteringLength:
                     {
                         set_N_pars(2+(_Nth>1)*(4*_Nth-5));
                         _b00 = 0; _b11 = 0; _b22 = 0; break;
                     };
-                    case EffectiveRange:   
+                    case kEffectiveRange:   
                     { 
                         set_N_pars(3+(_Nth>1)*(5*_Nth-6)); break;
                     };
@@ -225,6 +224,10 @@ namespace jpacPhoto
                 return  0.389352 * (2*_J+1)*std::imag(elastic_amplitude(s)) / sqrt(Kallen(_s, _mX*_mX, _mR*_mR));
             };
 
+            // Options
+            static const int kScatteringLength = 0;
+            static const int kEffectiveRange   = 1;
+
             protected:
 
             inline void allocate_parameters(std::vector<double> pars)
@@ -262,16 +265,13 @@ namespace jpacPhoto
                     };
                 };
 
-                if ( _option == EffectiveRange )
+                if ( _option == kEffectiveRange )
                 {
                     _b00 = pars[2+(_Nth>1)*(4*_Nth-5)];
                     _b11 = (_Nth > 1) ? pars[4*_Nth-2] : 0;
                     _b22 = (_Nth > 2) ? pars[4*_Nth-1] : 0;
                 }
             };
-
-            // -----------------------------------------------------------------------
-            private:
 
             // If we use three channels
             int _Nth = 0;

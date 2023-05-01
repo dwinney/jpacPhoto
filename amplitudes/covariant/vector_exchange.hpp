@@ -13,7 +13,6 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "form_factor.hpp"
-#include "amplitude_options.hpp"
 #include "amplitude.hpp"
 
 namespace jpacPhoto
@@ -42,12 +41,12 @@ namespace jpacPhoto
                 _covariants->update(helicities, s, t);
 
                 complex result = contract(top_coupling(), propagator(), bottom_coupling());
-                if (_option == NoFF) return result;
+                if (_option == kNoFF) return result;
 
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == amplitude_option::ExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                                  : _FF->eval(_t);
+                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
+                                                 : _FF->eval(_t);
 
                 // Multiply couplings with propagator
                 return FF * result;
@@ -63,14 +62,17 @@ namespace jpacPhoto
             inline std::vector<particle> allowed_baryons(){ return { HALFPLUS }; };
 
             // The options here are the type of form_factor used
-            inline void set_option( amplitude_option opt )
+            // Default assumed exponential
+            static const int kExpFF      = 0;
+            static const int kMonopoleFF = 1;
+            static const int kNoFF       = 2;
+            inline void set_option( int opt )
             {
                 switch (opt)
                 {
-                    case (Default):
-                    case (ExpFF): {      _FF = new_FF<exponential>();  _option = ExpFF; break; }
-                    case (MonopoleFF): { _FF = new_FF<monopole>(_mEx); _option = opt;   break; }
-                    case (NoFF): { _FF = nullptr; _option = opt; set_N_pars(3); return; }
+                    case (kExpFF):      { _FF = new_FF<exponential>();  _option = kExpFF; break; }
+                    case (kMonopoleFF): { _FF = new_FF<monopole>(_mEx); _option = opt;   break; }
+                    case (kNoFF):       { _FF = nullptr; _option = opt; set_N_pars(3); return; }
                     default: { option_error(); return; };
                 };
 
@@ -82,7 +84,7 @@ namespace jpacPhoto
             inline std::vector<std::string> parameter_labels()
             {
                 std::vector<std::string> labels = { "gPhoton", "gN_Vector", "gN_Tensor"};
-                if (_option != NoFF)     labels.push_back("Cutoff");
+                if (_option != kNoFF)     labels.push_back("Cutoff");
                 return labels;
             };
             
@@ -101,7 +103,7 @@ namespace jpacPhoto
                 _gBotV    = x[1];
                 _gBotT    = x[2];
 
-                if (_option != NoFF)
+                if (_option != kNoFF)
                 {
                     _ffCutoff = x[3];
                     _FF->set_cutoff(_ffCutoff);

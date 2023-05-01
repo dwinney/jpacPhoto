@@ -17,6 +17,7 @@
 #include "plotter.hpp"
 
 #include "analytic/pseudoscalar_exchange.hpp"
+#include "covariant/pseudoscalar_exchange.hpp"
 #include "regge/pseudoscalar_exchange.hpp"
 
 void Z_mesons()

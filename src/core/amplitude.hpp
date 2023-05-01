@@ -19,7 +19,6 @@
 #include "kinematics.hpp"
 #include "covariants.hpp"
 #include "angular_functions.hpp"
-#include "amplitude_options.hpp"
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"
@@ -84,29 +83,12 @@ namespace jpacPhoto
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
-    // These are the exact same as aove except they allow setting an amplitude_option
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, std::string id)
-    {
-        auto amp = new_amplitude<A>(xkinem, id);
-        amp->set_option(opt);
-        return amp;
-    };
-
     // "constructor" specifying an extra parameter
     template<class A, typename B>
     inline amplitude new_amplitude(kinematics xkinem, B extra, std::string id)
     {
         auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-    
-    template<class A, typename B>
-    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, B extra, std::string id)
-    {
-        auto amp = new_amplitude<A>(xkinem, extra, id);
-        amp->set_option(opt);
-        return amp;
     };
 
     // "constructor" specifying two extra parameters
@@ -115,15 +97,6 @@ namespace jpacPhoto
     {
         auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra1, extra2, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-
-    // "constructor" specifying two extra parameters
-    template<class A, typename B, typename C>
-    inline amplitude new_amplitude(kinematics xkinem, amplitude_option opt, B extra1, C extra2, std::string id)
-    {
-        auto amp = new_amplitude<A>(xkinem, extra1, extra2, id);
-        amp->set_option(opt);
-        return amp;
     };
 
     // ---------------------------------------------------------------------------
@@ -201,9 +174,9 @@ namespace jpacPhoto
         virtual std::vector<particle> allowed_mesons(){  return _subamplitudes[0]->allowed_mesons(); };
         virtual std::vector<particle> allowed_baryons(){ return _subamplitudes[0]->allowed_baryons(); };
 
-        // If an amplitude_option is passed, make appropriate changes.
+        // If an an appropriate flag is passed, make appropriate changes.
         // By default this does nothing except save _option
-        virtual void set_option(amplitude_option x){ _option = x; };
+        virtual void set_option(int x){ _option = x; };
         
         // Give each parameter a name if you'd like
         virtual std::vector<std::string> parameter_labels()
@@ -237,7 +210,7 @@ namespace jpacPhoto
         {
             set_N_pars(Npars);
             check_QNs(_kinematics);
-            set_option(Default);
+            set_option(0);
         };
 
         // ---------------------------------------------------------------------------
@@ -349,7 +322,7 @@ namespace jpacPhoto
 
         // Each amplitude may have different options for evaluating their amplitude
         // they may be differenticated with this variable
-        amplitude_option _option = Default;
+        int _option = 0;
         inline void option_error()
         {
             warning(id()+"::set_option", 

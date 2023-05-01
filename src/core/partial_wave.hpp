@@ -13,7 +13,6 @@
 #include "constants.hpp"
 #include "helicities.hpp"
 #include "kinematics.hpp"
-#include "amplitude_options.hpp"
 #include "amplitude.hpp"
 
 #include <boost/math/quadrature/gauss_kronrod.hpp>

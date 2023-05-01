@@ -17,6 +17,7 @@
 #include "plotter.hpp"
 
 #include "analytic/vector_exchange.hpp"
+#include "covariant/vector_exchange.hpp"
 #include "regge/vector_exchange.hpp"
 
 void X_mesons()
@@ -70,20 +71,23 @@ void X_mesons()
     amplitude ChiC1_rhoL = new_amplitude<analytic::vector_exchange>(kChiC1, M_RHO, "#rho exchange");
     ChiC1_rhoL->set_parameters({gChi_rho, gV_rho, gT_rho, LamRho});
 
-    amplitude ChiC1_phiL = new_amplitude<analytic::vector_exchange>(kChiC1, NoFF, M_PHI, "#phi exchange");
+    amplitude ChiC1_phiL = new_amplitude<analytic::vector_exchange>(kChiC1, M_PHI, "#phi exchange");
+    ChiC1_phiL->set_option(analytic::vector_exchange::kNoFF);
     ChiC1_phiL->set_parameters({gChi_phi, gV_phi, gT_phi});
 
-    amplitude ChiC1_psiL = new_amplitude<analytic::vector_exchange>(kChiC1, NoFF, M_JPSI, "#it{J}/#psi exchange");
+    amplitude ChiC1_psiL = new_amplitude<analytic::vector_exchange>(kChiC1, M_JPSI, "#it{J}/#psi exchange");
+    ChiC1_psiL->set_option(analytic::vector_exchange::kNoFF);
+
     ChiC1_psiL->set_parameters({gChi_psi, gV_psi, gT_psi});
     
     amplitude ChiC1_L = ChiC1_omegaL + ChiC1_rhoL + ChiC1_phiL + ChiC1_psiL;
     ChiC1_L->set_id("#chi_{c1}");
 
     // X(3872)
-    amplitude X_omegaL = new_amplitude<analytic::vector_exchange>(kX, M_OMEGA, "#omega exchange");
+    amplitude X_omegaL = new_amplitude<covariant::vector_exchange>(kX, M_OMEGA, "#omega exchange");
     X_omegaL->set_parameters({gX_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude X_rhoL = new_amplitude<analytic::vector_exchange>(kX, M_RHO, "#rho exchange");
+    amplitude X_rhoL = new_amplitude<covariant::vector_exchange>(kX, M_RHO, "#rho exchange");
     X_rhoL->set_parameters({gX_rho, gV_rho, gT_rho, LamRho});
     
     // Total is the sum of the above exchanges

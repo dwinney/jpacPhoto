@@ -13,7 +13,6 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "form_factor.hpp"
-#include "amplitude_options.hpp"
 #include "amplitude.hpp"
 
 namespace jpacPhoto
@@ -53,12 +52,12 @@ namespace jpacPhoto
                 if (abs(_lam) == 2) return 0;
               
                 complex result = top_coupling() * propagator() * bottom_coupling();
-                if (_option == NoFF) return result;
+                if (_option == kNoFF) return result;
 
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == amplitude_option::ExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                                  : _FF->eval(_t);
+                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
+                                                 : _FF->eval(_t);
 
                 // Multiply couplings with propagator
                 return FF * result;
@@ -79,25 +78,28 @@ namespace jpacPhoto
                 return { HALFPLUS };
             };
 
+
             // The options here are the type of form_factor used
-            inline void set_option( amplitude_option opt )
+            static const int kExpFF      = 0;
+            static const int kMonopoleFF = 1;
+            static const int kNoFF       = 2;
+            inline void set_option( int opt )
             {
                 switch (opt)
                 {
-                    case (Default):
-                    case (ExpFF): 
+                    case (kExpFF): 
                     {
                         _FF = new_FF<exponential>();
-                        _option = ExpFF;
+                        _option = opt;
                         break;
                     };
-                    case (MonopoleFF):
+                    case (kMonopoleFF):
                     {
                         _FF = new_FF<monopole>(_mEx);
                         _option = opt;
                         break;
                     }
-                    case (NoFF):
+                    case (kNoFF):
                     {
                         _FF = nullptr;
                         _option = opt;
@@ -119,7 +121,7 @@ namespace jpacPhoto
             inline std::vector<std::string> parameter_labels()
             {
                 std::vector<std::string> labels = { "gPhoton", "gN_Vector", "gN_Tensor"};
-                if (_option != NoFF)     labels.push_back("Cutoff");
+                if (_option != kNoFF)    labels.push_back("Cutoff");
                 return labels;
             };
             
@@ -138,7 +140,7 @@ namespace jpacPhoto
                 _gBotV    = x[1];
                 _gBotT    = x[2];
 
-                if (_option != NoFF)
+                if (_option != kNoFF)
                 {
                     _ffCutoff = x[3];
                     _FF->set_cutoff(_ffCutoff);
@@ -171,9 +173,9 @@ namespace jpacPhoto
                 complex result = 0;
                 switch ( _kinematics->get_meson() )
                 {
-                    case (AXIALVECTOR): result = (abs(_lam) == 0) ? 1 : csqrt(_t) / _mX; break;
+                    case (AXIALVECTOR):  result = (abs(_lam) == 0) ? 1 : csqrt(_t) / _mX; break;
                     
-                    case (VECTOR): result = (abs(_lam) == 0) ? 1 + (1-abs(_lamB)*_mB/_mX) : (- csqrt(_t)/_mX); break;
+                    case (VECTOR):       result = (abs(_lam) == 0) ? 1 + (1-abs(_lamB)*_mB/_mX) : (- csqrt(_t)/_mX); break;
 
                     case (PSEUDOSCALAR): result = (_kinematics->is_photon()) ? -4*csqrt(_t) : csqrt(_t); break;
 
