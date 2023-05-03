@@ -21,7 +21,7 @@ namespace jpacPhoto
         // Integrated cross-section data as a function of Egamma
         inline data_set integrated()
         {
-            std::string id = "GlueX 2022";
+            std::string id = "GlueX (2023)";
 
             auto raw  = import_data<6>("/data/gluex/gluex2022_int.tsv");
             int  N    = check<6>(raw, id);
@@ -31,6 +31,7 @@ namespace jpacPhoto
             wrapped._N    = N;
             wrapped._lab  = true;
             wrapped._type = integrated_data;
+            wrapped._add_to_legend = true;
 
             // energy values are lab frame energies 
             wrapped._w       = raw[1];
@@ -88,6 +89,7 @@ namespace jpacPhoto
             wrapped._id    = id;
             wrapped._type  = differential_data;
             wrapped._N     = N;
+            wrapped._add_to_legend = true;
 
             // These are differential and thus we need to specify the avg energy 
             wrapped._lab   = true;

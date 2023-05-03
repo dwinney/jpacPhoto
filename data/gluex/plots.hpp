@@ -24,7 +24,6 @@ namespace jpacPhoto
         inline plot plot_integrated(plotter& p)
         {
             data_set inte = gluex::integrated(); 
-            inte._id = "GlueX"; 
 
             plot pint = p.new_plot();
             pint.add_data( inte );
@@ -41,8 +40,8 @@ namespace jpacPhoto
         inline plot plot_slice(plotter& p, int i)
         {
             data_set slice = gluex::slice(i); 
-            slice._id = "GlueX"; 
-
+            slice._id = "GlueX (2023)";
+            
             // Grab the position of upper edge of last t-bin
             double tmax = slice._t.back() + slice._terr[1].back();
 

@@ -60,6 +60,7 @@ namespace jpacPhoto
             wrapped._id        = "J/psi-007 (" + var_def("E", Eavg, "GeV") + ")";
             wrapped._N         = N;
             wrapped._type      = differential_data;
+            wrapped._add_to_legend = true;
             wrapped._lab       = true;
             wrapped._negt      = true;
             wrapped._tprime    = true;

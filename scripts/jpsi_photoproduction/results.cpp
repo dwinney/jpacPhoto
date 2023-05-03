@@ -1,3 +1,20 @@
+// Script which imports the bootstrap error bounds and plots them alongside the 
+// cross sections and data
+//
+// Reproduces figs. 2-4 of [1]
+//
+// OUTPUT: integrated.pdf 
+//         gluex_diff_12C.pdf,   gluex_diff_3C.pdf
+//         jpsi007_diff_12C.pdf, jpis007_diff_3C.pdf
+// ------------------------------------------------------------------------------
+// Author:       Daniel Winney (2022)
+// Affiliation:  Joint Physics Analysis Center (JPAC),
+//               South China Normal Univeristy (SCNU)
+// Email:        dwinney@iu.alumni.edu
+// ------------------------------------------------------------------------------
+// REFERENCES:
+// [1] 	arXiv:2305.01449 [hep-ph]
+// ------------------------------------------------------------------------------
 
 #include "constants.hpp"
 #include "plotter.hpp"
@@ -13,7 +30,7 @@
 #include <iostream>
 #include <iomanip>
 
-void plot_results()
+void results()
 {
     using namespace jpacPhoto;
     using K_matrix         = analytic::K_matrix;
@@ -21,7 +38,7 @@ void plot_results()
     plotter plotter;
 
     // Path to bootstrap files
-    std::string path = "tests/jpsi/bootstrap/";
+    std::string path = "scripts/jpsi_photoproduction/bootstrap/";
 
     // ---------------------------------------------------------------------------
     // Amplitude setup
@@ -37,10 +54,12 @@ void plot_results()
     std::array<std::array<double,2>,2> open_channels = {lower, higher};
 
     // Single-channel S-wave
-    amplitude s_1C = new_amplitude<K_matrix>(kJpsi, EffectiveRange, 0, "1-channel S-wave");
+    amplitude s_1C = new_amplitude<K_matrix>(kJpsi, 0, "1-channel S-wave");
+    s_1C->set_option(K_matrix::kEffectiveRange);
 
     // Two-channel S-wave 
-    amplitude s_2C = new_amplitude<K_matrix>(kJpsi, EffectiveRange, 0, higher, "2-channel S-wave");
+    amplitude s_2C = new_amplitude<K_matrix>(kJpsi, 0, higher, "2-channel S-wave");
+    s_2C->set_option(K_matrix::kEffectiveRange);
 
     // Three-channel S-wave
     amplitude s_3C = new_amplitude<K_matrix>(kJpsi, 0, open_channels, "3-channel S-wave");
@@ -58,7 +77,7 @@ void plot_results()
     sum_2C->set_id("Two channels (2C)");
 
     amplitude sum_3CNR = s_3C + p + d + f;    
-    sum_3CNR->set_id("Non-resonant (3C-NR)");
+    sum_3CNR->set_id("Nonresonant (3C-NR)");
 
     amplitude sum_3CR  = s_3C + p + d + f;    
     sum_3CR->set_id("Resonant (3C-R)");
@@ -191,8 +210,8 @@ void plot_results()
     plotter.stack(gluex_difs_12C, "gluex_dif_12C.pdf");
     plotter.stack(gluex_difs_3C,  "gluex_dif_3C.pdf");
 
-    // // -----------------------------------------
-    // // J/psi-007
+    // -----------------------------------------
+    // J/psi-007
     
     std::vector<plot> jpsi007_plots12, jpsi007_plots3;
 

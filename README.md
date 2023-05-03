@@ -1,5 +1,5 @@
 #   jpacPhoto
-Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target ($\gamma p \to J/\psi \mathcal{Q}$). Focus on expandability and easy interfacing with other libraries / analysis code. 
+Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target. Focus on expandability and easy interfacing with other libraries / analysis code. 
 
 <p align="center">
   <img width="300" src="./doc/FeynmanDiagram.png">
@@ -27,7 +27,7 @@ setenv JPACPHOTO /path/to/jpacPhoto # for csh
 
 ##  USAGE
 
-The primary use case is to reproduce results from JPAC papers [[1-3]](#references). The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
+The primary use case is to reproduce results from JPAC papers [[1-4]](#references). The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
 
 This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/amplitudes/`](./amplitudes/) and [`/scripts/`](./scripts) respectively.  To run a script in a local directory simply run 
 ```bash
@@ -94,7 +94,8 @@ pwave->integrated_xsection(s); // Only P-wave contribution of sum
 + [1] [Double Polarization Observables in Pentaquark Photoproduction](https://arxiv.org/abs/1907.09393)
 + [2] [XYZ spectroscopy at electron-hadron facilities: Exclusive processes](https://arxiv.org/abs/2008.01001)
 + [3] [XYZ spectroscopy at electron-hadron facilities II: Semi-inclusive processes with pion exchange](https://arxiv.org/abs/2209.05882)
-+ [4] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
++ [4] [Dynamics in near-threshold J/ψ photoproduction](https://arxiv.org/abs/2305.01449)
++ [5] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
 
 <p align="center">
   <img width="275" src="./doc/JPAClogo.png">
