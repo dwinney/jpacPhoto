@@ -97,6 +97,9 @@ namespace jpacPhoto
         // Given a vector of double of appropriate length, allocate free parameters to model
         // By default we do nothing
         virtual void allocate_parameters( std::vector<double> x ){ return; };
+
+        // Pass a flag and make the appropriate changes, defaults to do nothing excpet save the flag
+        virtual inline void set_option( int opt ){ _option = opt; };
         
         // ----------------------------------------------------------------------
         // Kinematics 
@@ -174,6 +177,9 @@ namespace jpacPhoto
         
         protected:
 
+        // Int flag used to signal desired changes to amplitude
+        int _option = 0;
+        
         // Mass of the observed and target particles
         double _mX2 = 0, _mT2 = M2_PROTON;
 

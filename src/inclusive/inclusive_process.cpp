@@ -59,7 +59,7 @@ namespace jpacPhoto
     // Jacobian in polar coordinates
     double raw_inclusive_process::jacobianRCOS(double r, double cos)
     {
-        return(2*PI*r*r*pow(pMax(), 3)) /  EfromRCOS(r, cos);
+        return(2*PI*r*r*pow(pMax(), 3.)) /  EfromRCOS(r, cos);
     };
 
     // ---------------------------------------------------------------------------
@@ -204,7 +204,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dtdM2(double s, double t, double M2)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2)) return 0.;
         set_total_energy(s);
 
         double mx = (use_TX()) ? XfromTM2(t, M2) : M2; 
@@ -213,7 +212,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dtdx(double s, double t, double x)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2)) return 0;
         set_total_energy(s);
 
 
@@ -223,7 +221,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dxdy2(double s, double x, double y2)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2)) return 0;
         set_total_energy(s);
 
         double t  = TfromXY2(x ,y2);
@@ -236,7 +233,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dt(double s, double t)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2)) return 0;
         set_total_energy(s);
 
         auto dSigma = [&](double M2)
@@ -251,8 +247,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dM2(double s, double M2)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2))              return 0;
-        if (!use_TX() && (sqrt(M2) >= sqrt(s) - sqrt(_mX2))) return 0;
         set_total_energy(s);
 
         auto dSigma = [&](double t)
@@ -271,7 +265,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dy2(double s, double y2)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(_mT2)) return 0;
         set_total_energy(s);
 
         auto dSigma = [&](double x)
@@ -287,7 +280,6 @@ namespace jpacPhoto
 
     double raw_inclusive_process::dsigma_dx(double s, double x)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(minimum_M2())) return 0;
         set_total_energy(s);
 
         auto dSigma = [&](double y2)
@@ -305,38 +297,22 @@ namespace jpacPhoto
     // OUTPUT IN NANOBARN
     double raw_inclusive_process::integrated_xsection(double s)
     {
-        if (sqrt(s) <= sqrt(_mX2) + sqrt(minimum_M2())) return 0;
+        if (sqrt(s) < sqrt(_mX2) + sqrt(minimum_M2())) return 0;
         set_total_energy(s);
 
-        double result;
-        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
-        if (use_TX() == true)
+        auto dSigma = [&](const double * rcos)
         {
-            // Assume argument 3 is M2
-            auto dSigma = [&](double x)
-            {
-                return dsigma_dx(s,x);
-            };
-            ROOT::Math::Functor1D wF(dSigma);
-            ig.SetFunction(wF);
+            double r = rcos[0], cos = rcos[1];
 
-            // Integrate over x
-            result = ig.Integral(0., 1.);
-        }
-        else
-        {
-            // Assume argument 3 is M2
-            auto dSigma = [&](double m2)
-            {
-                return dsigma_dM2(s, m2);
-            };
-            ROOT::Math::Functor1D wF(dSigma);
-            ig.SetFunction(wF);
-            
-            // Integrate over M2
-            result = ig.Integral(minimum_M2() + EPS, pow(sqrt(s) - sqrt(_mX2), 2));
-        }
+            double t  = TfromRCOS( r, cos);
+            double mx = (use_TX()) ? XfromRCOS(r, cos) : M2fromRCOS(r, cos);
 
-        return result;
+            // print(s, r, cos, t, M2);
+            return jacobianRCOS(r, cos) * invariant_xsection(s, t, mx); 
+        };
+        ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::Type::kVEGAS, 1E-6, 1E-6);
+
+        double min[2] = {0., -1.}, max[2] = {1., 1.};
+        return ig.Integral(dSigma, 2, min, max);
     };
 };

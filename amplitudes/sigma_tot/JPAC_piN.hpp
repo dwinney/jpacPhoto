@@ -26,6 +26,8 @@ namespace jpacPhoto
     {
         public: 
 
+        // Iso here refers to +-1 the sign of the PRODUCES MESON
+        // this is the opposite of the exchanged pion
         JPAC_piN(int iso)
         : raw_total_xsection({M_PION, M_PROTON}), _iso(iso)
         {
@@ -109,7 +111,7 @@ namespace jpacPhoto
             {
                 double W    = sqrt(s);
                 double E    = (s + M2_PROTON - M2_PION) / (2.*W);
-                double Elab = (s - M2_PROTON - M2_PION)/(2.*M_PROTON);
+                double Elab = (s - M2_PROTON - M2_PION) / (2.*M_PROTON);
                 double qcm  = sqrt(Kallen(s, M2_PROTON, M2_PION)) / (2.*W);
 
                 double f1 = 0., f3 = 0., g1 = 0., g3 = 0.;
@@ -193,13 +195,13 @@ namespace jpacPhoto
             for (auto wave : _pws)
             {
                 int L = (wave->L() < _Lcut) ? wave->L() : _Lcut;
-
                 if (L >= 3 && s < 1.18) continue;
                 if (L >= 4 && s < 1.3)  continue;
 
                 double pw = wave->sigma(_iso, s);
-                double RL = pow(bfpi, double(L));
-                sum +=  pw * RL;
+                if (pw < 0) continue;
+
+                sum += pow(bfpi, L) * pw ;
             };
 
             return sum;

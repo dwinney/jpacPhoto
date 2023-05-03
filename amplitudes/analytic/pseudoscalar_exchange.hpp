@@ -186,7 +186,7 @@ namespace jpacPhoto
                 {
                     case (HALFPLUS) : result = csqrt( _t - (_mT-_mR)*(_mT-_mR)); break;
                     
-                    case (THREEPLUS) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR))/2; break;
+                    case (THREEPLUS) : result = csqrt(2*_t/3)*(_qf/_mR)*csqrt( _t - (_mT+_mR)*(_mT+_mR)); break;
 
                     default: break;
                 };

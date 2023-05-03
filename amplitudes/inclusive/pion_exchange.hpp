@@ -26,8 +26,8 @@ namespace jpacPhoto
             public: 
 
             pion_exchange(inclusive_key key, double mX, int pm, std::string id = "")
-            : raw_inclusive_process(key, mX, id),
-              _sigma(new_total_xsection<JPAC_piN>(pm))
+            : raw_inclusive_process(key, mX, id), _pm(pm),
+              _sigma(new_total_xsection<JPAC_piN>(-pm))
             {
                 set_N_pars(2);
             };
@@ -51,6 +51,25 @@ namespace jpacPhoto
                 return pow(coupling(t)/(M2_PION - t), 2) * sigmatot * phase_space / (16*PI*PI*PI);
             };
 
+            // Options are the parameterization of the sigma_tot
+            static const int kJPAC  = 0;
+            static const int kPDG   = 1;
+            static const int kPwave = 2;
+            inline void set_option (int opt)
+            {
+                switch (opt)
+                {
+                    case kJPAC:  { _sigma = new_total_xsection<JPAC_piN>(-_pm); 
+                                   _option = opt; break; };
+                    case kPwave: { _sigma = new_total_xsection<JPAC_piN>(-_pm, 1); 
+                                   _option = opt; break; };
+                    case kPDG:   { PDG_total_xsections pdgpm = (_pm == +1) ? pipp : pimp; print("we in baby");
+                                   _sigma = new_PDG_sigmatot(pdgpm); 
+                                   _option = opt; break; };
+                    default: return;
+                };
+            }
+
             protected:
 
             inline double coupling(double t)
@@ -61,6 +80,7 @@ namespace jpacPhoto
             private:
             
             total_xsection _sigma;
+            int _pm = +1;       // Charge of the produced meson
             double _g      = 0; // Top coupling
             double _LamPi2 = 0; // Exponential cut-off
         };
