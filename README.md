@@ -29,15 +29,15 @@ setenv JPACPHOTO /path/to/jpacPhoto # for csh
 
 The primary use case is to reproduce results from JPAC papers [[1-4]](#references). The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
 
-This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/amplitudes/`](./amplitudes/) and [`/scripts/`](./scripts) respectively.  To run a script in a local directory simply run 
+This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/amplitudes/`](./amplitudes/) and [`/scripts/`](./scripts) respectively.  To run a script located in the bin directory simply run 
 ```bash
-$JPACPHOTO/bin/jpacPhoto my_script.cpp
+jpacPhoto my_script.cpp
 ```
-Optionally the bin directory can be added to $PATH removes need to provide absolute path.
+or add the bin directory to $PATH to call `jpacPhoto` from any directory. 
 
 The linkable library can be added to an existing CMake project using `find_library()` and linked as normal:
 ```cmake
-find_library(PHOTOLIB NAMES JPACPHOTO libJPACPHOTO
+find_library(JPACPHOTO NAMES JPACPHOTO libJPACPHOTO
                        HINTS "$ENV{JPACPHOTO}/lib")
 target_link_libraries( myTarget JPACPHOTO)
 ```
@@ -45,16 +45,15 @@ target_link_libraries( myTarget JPACPHOTO)
 ##  AMPLITUDES
 The main object of interest in the core library is the abstract [`amplitude`](./src/core/amplitude.hpp) and implementations defined by the user. Amplitudes implemented so may be found in [/amplitudes/](./amplitudes/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
 
-| Observable                      |                                            |
-|:-------------------------------:| :-----------------------------------------:|
-| Probability distribution        | $\sum_{\{\lambda\}} \|F_{\{\lambda\}}\|^2$ |
-| Differential cross section      | $\frac{d\sigma}{dt}$                       |
-| Integrated total cross section  | $\sigma$                                   |
-| Double polarization asymmetries | $A_{LL} \, ,K_{LL}$                        |
-| Spin density matrix elements    | $\rho^\alpha_{\lambda,\lambda^\prime}$     |
-| Integrated beam asymmetry       | $\Sigma_{4\pi}$                            |
-| Beam asymmetry in y-direction   | $\Sigma_{y}$                               |
-| Parity asymmetry                | $P_{\sigma}$                               |
+| Observable                           |                                                 | Callable functions                                                                                                  |
+|--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| Unpolarized probability distribution | $\sum_{\{\lambda\}} \|A_{\{\lambda\}}\|^2$ | `probability_distribution(double s, double t)       `                                                                |
+| Differential cross section           | $\frac{d\sigma}{dt}$  [nb/GeV $^2$]                          | `differential_xsection(double s, double t)            `                                                              |
+| Integrated total cross section       | $\sigma$ [nb]                                       | `integrated_xsection(double s)      `                                                                                |
+| Double polarization asymmetries      | $A_{LL},K_{LL}$                                 | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)    `                                                              |
+| Meson spin density matrix elements   | $\rho^{\alpha}_{\lambda,\lambda^\prime}$        | `SDME_H(int alpha, int lam, int lamp, double s, double t)` <br /> `SDME_GJ(int alpha, int lam, int lamp, double s, double t)` |
+| Beam asymmetries            | $\Sigma_{4\pi}, \Sigma_y$                                 | `beam_asymmetry_4pi(double s, double t)` <br />  `beam_asymmetry_y(double s, double t)  `                                                                       |
+| Parity asymmetry                     | $P_\sigma$                                      | `parity_asymmetry(double s, double t)            `                                                                   |
 
 
 All kinematics are passed around by the [`kinematics`](./src/core/kinematics.hpp) class which allows arbitrary masses for all particles and arbitrary quantum numbers for the produced final state meson & baryon.
@@ -67,7 +66,7 @@ myKin->set_meson_JP(1, -1);  // J = 1  , P = -1
 myKin->set_baryon_JP(1, 1);  // J = 1/2, P =  1
 
 // Set up amplitude
-amplitude myAmp = new_amplitude<my_implementation>(&myKin, /* additional parameters */);
+amplitude myAmp = new_amplitude<my_implementation>(myKin, /* additional parameters */);
 myAmp->set_params{ {/* couplings */} };
 
 // Evaluate observables
