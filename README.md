@@ -48,8 +48,8 @@ The main object of interest in the core library is the abstract [`amplitude`](./
 | Observable                           |                                                 | Callable functions                                                                                                  |
 |--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
 | Unpolarized probability distribution | $\sum_{\{\lambda\}} \|A_{\{\lambda\}}\|^2$ | `probability_distribution(double s, double t)       `                                                                |
-| Differential cross section           | $\frac{d\sigma}{dt}$  [nb/GeV $^2$]                          | `differential_xsection(double s, double t)            `                                                              |
-| Integrated total cross section       | $\sigma$ [nb]                                       | `integrated_xsection(double s)      `                                                                                |
+| Differential cross section in \[nb/GeV $^2$\]          | $\frac{d\sigma}{dt}$                           | `differential_xsection(double s, double t)            `                                                              |
+| Integrated total cross section in \[nb\]     | $\sigma$                                 | `integrated_xsection(double s)      `                                                                                |
 | Double polarization asymmetries      | $A_{LL},K_{LL}$                                 | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)    `                                                              |
 | Meson spin density matrix elements   | $\rho^{\alpha}_{\lambda,\lambda^\prime}$        | `SDME_H(int alpha, int lam, int lamp, double s, double t)` <br /> `SDME_GJ(int alpha, int lam, int lamp, double s, double t)` |
 | Beam asymmetries            | $\Sigma_{4\pi}, \Sigma_y$                                 | `beam_asymmetry_4pi(double s, double t)` <br />  `beam_asymmetry_y(double s, double t)  `                                                                       |
@@ -66,19 +66,23 @@ myKin->set_meson_JP(1, -1);  // J = 1  , P = -1
 myKin->set_baryon_JP(1, 1);  // J = 1/2, P =  1
 
 // Set up amplitude
-amplitude myAmp = new_amplitude<my_implementation>(myKin, /* additional parameters */);
-myAmp->set_params{ {/* couplings */} };
+amplitude myAmp1 = new_amplitude<my_implementation>(myKin, /* additional parameters */);
+myAmp1->set_parameters{ {/* couplings etc */} };
+
+amplitude myAmp2 = new_amplitude<my_other_implementation>(myKin, /* additional parameters */);
+myAmp2->set_parameters{ {/* couplings etc */} };
 
 // Evaluate observables
-myAmp->integrated_xsection(s);
-myAmp->SDME(0, 1, -1, s, t);
+myAmp1->integrated_xsection(s);
+myAmp2->SDME(0, 1, -1, s, t);
 ```
-
-Incoherent (interfering) sums and partial wave projections of any combination of amplitudes may also be constructed. These are treated as amplitudes themselves and all observables are available with the same syntax:
+Multiple amplitudes may describe the same process sharing the same kinematics instance and
+incoherent (interfering) sums any combination of (compatible) amplitudes may be constructed. Partial wave projections onto Legendre and Wigner functions can be taken for any amplitude of combination of amplitudes. All of these are treated as amplitudes themselves and have access to observables are available with the same syntax:
 ```c++
 // Sum two amplitudes together
 amplitude amp1, amp2;
 amplitude sum = amp1 + amp2;
+sum->set_parameters{ /* couplings for both amp1 and amp2 */};
 
 // Take the J = 1 partial wave
 amplitude pwave = project(1, sum);
