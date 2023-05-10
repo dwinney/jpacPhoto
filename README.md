@@ -45,13 +45,13 @@ target_link_libraries( myTarget JPACPHOTO)
 ##  AMPLITUDES
 The main object of interest in the core library is the abstract [`amplitude`](./src/core/amplitude.hpp) and implementations defined by the user. Amplitudes implemented so may be found in [/amplitudes/](./amplitudes/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
 
-| Observable                           |                                                 | Callable functions                                                                                                  |
+| Observable                           |                                                 | Callable `amplitude` function                                                                                                  |
 |--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
 | Unpolarized probability distribution | $\sum_{\{\lambda\}} \|A_{\{\lambda\}}\|^2$ | `probability_distribution(double s, double t)       `                                                                |
-| Differential cross section in \[nb/GeV $^2$\]          | $\frac{d\sigma}{dt}$                           | `differential_xsection(double s, double t)            `                                                              |
-| Integrated total cross section in \[nb\]     | $\sigma$                                 | `integrated_xsection(double s)      `                                                                                |
+| Differential cross section \[nb/GeV $^2$\]          | $d\sigma/dt$                           | `differential_xsection(double s, double t)            `                                                              |
+| Integrated total cross section \[nb\]     | $\sigma$                                 | `integrated_xsection(double s)      `                                                                                |
 | Double polarization asymmetries      | $A_{LL},K_{LL}$                                 | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)    `                                                              |
-| Meson spin density matrix elements   | $\rho^{\alpha}_{\lambda,\lambda^\prime}$        | `SDME_H(int alpha, int lam, int lamp, double s, double t)` <br /> `SDME_GJ(int alpha, int lam, int lamp, double s, double t)` |
+| Meson spin density matrix elements   | $\rho^{a}_{\lambda,\lambda^\prime}$        | `SDME_H(int a, int lam, int lamp, double s, double t)` <br /> `SDME_GJ(int a, int lam, int lamp, double s, double t)` |
 | Beam asymmetries            | $\Sigma_{4\pi}, \Sigma_y$                                 | `beam_asymmetry_4pi(double s, double t)` <br />  `beam_asymmetry_y(double s, double t)  `                                                                       |
 | Parity asymmetry                     | $P_\sigma$                                      | `parity_asymmetry(double s, double t)            `                                                                   |
 
