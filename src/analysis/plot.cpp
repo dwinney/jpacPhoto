@@ -161,6 +161,7 @@ namespace jpacPhoto
         style._color = JPACCOLORS[_Ncurve];
         style._style = kSolid;
         style._label = id;
+        style._add_to_legend = (id != "");
         add_curve(x, fx, style);
     };
 
@@ -189,7 +190,7 @@ namespace jpacPhoto
         style._color = JPACCOLORS[_Ncurve];
         style._style = kSolid;
         style._label = id;
-        style._add_to_legend = true;
+        style._add_to_legend = (id != "");
 
         add_curve(bounds, F, style);
     };
