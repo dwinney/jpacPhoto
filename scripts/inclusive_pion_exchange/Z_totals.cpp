@@ -34,7 +34,7 @@ void Z_totals()
     // ---------------------------------------------------------------------------
 
     // Bottom vertex coupling (pi - nucleon - nucleon)
-    double g_piNN = sqrt(2) * sqrt(4*PI*13.81); 
+    double g_piNN = sqrt(2) * sqrt(4*M_PI*13.81); 
 
     // Cutoff for exponential form factor
     double lambda_pi = .900;  // MeV 

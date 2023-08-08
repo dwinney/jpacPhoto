@@ -305,7 +305,7 @@ namespace jpacPhoto
         double sum = probability_distribution(s, t);
 
         double norm = 1.;
-        norm /= 64. * PI * s;
+        norm /= 64. * M_PI * s;
         norm /= std::real(pow(_kinematics->initial_momentum(s), 2.));
         norm /= (2.56819E-6); // Convert from GeV^-2 -> nb
 

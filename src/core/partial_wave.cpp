@@ -102,6 +102,6 @@ namespace jpacPhoto
             return integrand/2;
         };
 
-        return boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, 0., PI, 0., 1.E-6, NULL);
+        return boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, 0., M_PI, 0., 1.E-6, NULL);
     };
 };

@@ -203,7 +203,7 @@ namespace jpacPhoto
             inline double scattering_length()
             {
                 double T00th = std::real( elastic_amplitude(_kinematics->sth() ));
-                double SL    = - T00th / (8*PI*_kinematics->Wth());
+                double SL    = - T00th / (8*M_PI*_kinematics->Wth());
                 return SL / 5.068; // Output in units of fm
             };
 
@@ -308,8 +308,8 @@ namespace jpacPhoto
 
                 rho    = csqrt(Kallen(_s, m1*m1, m2*m2)) / _s;
                 xi     = 1 - (m1+m2)*(m1+m2)/_s;
-                result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
-                return result / (16*PI);
+                result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / M_PI;
+                return result / (16*M_PI);
             };
             inline complex G(unsigned i){ return G(_thresholds[i][0], _thresholds[i][1]); };
 

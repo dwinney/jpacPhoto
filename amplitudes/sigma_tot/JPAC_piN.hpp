@@ -224,7 +224,7 @@ namespace jpacPhoto
             {
                 int n     = (_tau + 1)/2;
                 double nu = (s - M2_PROTON - M2_PION) / (2*M_PROTON); 
-                complex signature_factor = (1+_tau*exp(-I*PI*_alpha0))/2;
+                complex signature_factor = (1+_tau*exp(-I*M_PI*_alpha0))/2;
                 return - std::imag(_c * signature_factor * pow(nu / sqrt(_s0), _alpha0) * cgamma(n-_alpha0));
 
             };

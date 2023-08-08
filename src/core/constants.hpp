@@ -92,11 +92,10 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Mathematical constants 
 
-    const double PI       = M_PI;
     const double DEG2RAD  = (M_PI / 180.);
     const double EPS      = 1.e-7;
     const double ALPHA    = 1. / 137.;
-    const double E        = sqrt(4. * PI * ALPHA);
+    const double E        = sqrt(4. * M_PI * ALPHA);
 
     const complex IEPS(0., EPS);
 

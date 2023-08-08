@@ -25,7 +25,7 @@ namespace jpacPhoto
 
         // Assemble the result as a complex double
         complex result(val[0], val[1]);
-        result /= pow(4.*PI, 2.); // Rest of left-over factors from covariant loop normalization
+        result /= pow(4.*M_PI, 2.); // Rest of left-over factors from covariant loop normalization
 
         return result;
     };

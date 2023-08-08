@@ -105,7 +105,7 @@ namespace jpacPhoto
                 
                 complex norm = - wigner_leading_coeff(1, _lam, _lamp) * _slope;
 
-                complex signature_factor  = (-1 + exp(-I*PI*alpha))/2;
+                complex signature_factor  = (-1 + exp(-I*M_PI*alpha))/2;
 
                 complex half_angle_factor = pow( csqrt((1-_zt)/2), abs(_lam - _lamp)) 
                                           * pow( csqrt((1+_zt)/2), abs(_lam + _lamp));

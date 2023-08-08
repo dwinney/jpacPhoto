@@ -59,7 +59,7 @@ namespace jpacPhoto
     // Jacobian in polar coordinates
     double raw_inclusive_process::jacobianRCOS(double r, double cos)
     {
-        return(2*PI*r*r*pow(pMax(), 3.)) /  EfromRCOS(r, cos);
+        return(2*M_PI*r*r*pow(pMax(), 3.)) /  EfromRCOS(r, cos);
     };
 
     // ---------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace jpacPhoto
     // Jacobian in (t, M2)
     double raw_inclusive_process::jacobianTM2(double t, double M2)
     {
-        return PI/ (2*sqrt(_s)*qGamma());
+        return M_PI/ (2*sqrt(_s)*qGamma());
     };
 
     // t from cos and M2 

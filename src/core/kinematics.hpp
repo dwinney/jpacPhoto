@@ -199,8 +199,8 @@ namespace jpacPhoto
 
         // Bound of cross-variables
         double t_min(double s){ return t_man(s, 0.); };
-        double t_max(double s){ return t_man(s, PI); };
-        double u_min(double s){ return u_man(s, PI); };
+        double t_max(double s){ return t_man(s, M_PI); };
+        double u_min(double s){ return u_man(s, M_PI); };
         double u_max(double s){ return u_man(s, 0.); };
 
         // Scattering angles in t and u channel frames
