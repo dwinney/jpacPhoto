@@ -22,14 +22,14 @@ void Load()
     TString main_lib    = main_dir + "/lib/libJPACPHOTO." + lib_ext;
 
     // Supplementary header files 
-    TString amplitudes  = main_dir + "/amplitudes";
+    TString physics  = main_dir + "/physics";
     TString data        = main_dir + "/data";
 
     if (!gSystem->AccessPathName(main_lib.Data()))
     {
         Int_t pholib = gSystem->Load( main_lib.Data());
         gInterpreter->AddIncludePath( core.Data());
-        gInterpreter->AddIncludePath( amplitudes.Data());
+        gInterpreter->AddIncludePath( physics.Data());
         gInterpreter->AddIncludePath( data.Data());
     }
     else
