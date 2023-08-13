@@ -88,7 +88,7 @@ namespace jpacPhoto
                 double alpha = _a0 + _aP * _t; // linear trajectory
                 if (std::abs(alpha) > 20) return 0;
                 
-                std::complex<double> signature_factor = (1 + exp(-I*M_PI*alpha))/2;
+                std::complex<double> signature_factor = (1 + exp(-I*PI*alpha))/2;
                 return signature_factor * cgamma(-alpha) * pow(_s, alpha);
             };  
         };

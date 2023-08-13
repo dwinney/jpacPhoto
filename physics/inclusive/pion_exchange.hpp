@@ -48,7 +48,7 @@ namespace jpacPhoto
                 double sigmatot    = _sigma->evaluate(M2, t) * 1E6; // in nb
                 double phase_space = sqrt(Kallen(M2, t, M2_PROTON)/Kallen(s, 0., M2_PROTON));
 
-                return pow(coupling(t)/(M2_PION - t), 2) * sigmatot * phase_space / (16*M_PI*M_PI*M_PI);
+                return pow(coupling(t)/(M2_PION - t), 2) * sigmatot * phase_space / (16*PI*PI*PI);
             };
 
             // Options are the parameterization of the sigma_tot

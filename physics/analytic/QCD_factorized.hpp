@@ -115,8 +115,8 @@ namespace jpacPhoto
 
             // Normalization factors
             double _alpha_EM = 1/137, _alpha_S = 0.3;
-            double _e = sqrt(4*M_PI*_alpha_EM);
-            double _norm = 2/3*_e*_e*(16*M_PI*_alpha_S)/sqrt(3);
+            double _e = sqrt(4*PI*_alpha_EM);
+            double _norm = 2/3*_e*_e*(16*PI*_alpha_S)/sqrt(3);
         };
     };
 };

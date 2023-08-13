@@ -35,7 +35,7 @@ void b1()
     // ---------------------------------------------------------------------------
 
     double g_b1 = 0.24;
-    double g_NN = sqrt(2.) * sqrt(4. * M_PI * 13.81); // Nucleon coupling same for all
+    double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
     double g_delta = 18.5;
     double LamPi = .9;  // 900 MeV cutoff for formfactor
     
