@@ -25,13 +25,14 @@ int main(int argc, char **argv)
         if((opt.Contains(".cpp"))) macroName = opt;
     }
 
-    // All of this is just to add "-l" to argv so that 
-    // ROOT opens without a welcome message...
+    // All of this is just to add -l and -b to argv so that 
+    // ROOT opens without a welcome message and in batch mode...
     std::vector<char*> new_argv(argv, argv + argc);
     new_argv.push_back((char *) "-l");
+    new_argv.push_back((char *) "-b");
     new_argv.push_back(NULL);
     argv = new_argv.data();
-    argc += 1;    
+    argc += 2;    
 
     TRint * app = new TRint( "jpacPhoto", &argc, argv);
     TString JPACPHOTO = gSystem->Getenv("JPACPHOTO");
