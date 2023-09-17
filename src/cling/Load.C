@@ -36,31 +36,4 @@ void Load()
     {
         Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
     }
-
-    // //----------------------------------------------------------------------
-    // // Non-essential libraries
-
-    // TString INCLUSIVE_INC  = JPACPHOTO_DIR;
-    //         INCLUSIVE_INC += "/include/inclusive";
-    // TString INCLUSIVE_LIB  = JPACPHOTO_DIR;
-    //         INCLUSIVE_LIB += "/lib/libjpacInclusive.";
-    //         INCLUSIVE_LIB += LIB_EXT;
-
-    // if (!gSystem->AccessPathName(INCLUSIVE_LIB.Data()))
-    // {
-    //     gInterpreter->AddIncludePath( INCLUSIVE_INC.Data());
-    //     Int_t inclib = gSystem->Load( INCLUSIVE_LIB.Data());
-    // }
-
-    // TString BOX_INC  = JPACPHOTO_DIR;
-    //         BOX_INC += "/include/box";
-    // TString BOX_LIB  = JPACPHOTO_DIR;
-    //         BOX_LIB += "/lib/libjpacBox.";
-    //         BOX_LIB += LIB_EXT;
-
-    // if (!gSystem->AccessPathName(BOX_LIB.Data()))
-    // {
-    //     gInterpreter->AddIncludePath( BOX_INC.Data());
-    //     Int_t boxlib = gSystem->Load( BOX_LIB.Data());
-    // }
 }

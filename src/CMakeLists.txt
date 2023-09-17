@@ -1,11 +1,10 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "inclusive/*.cpp" "cubature/*.c" "analysis/*.cpp") 
+file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "inclusive/*.cpp" "plotting/*.cpp") 
 
 include_directories(core)
 include_directories(covariants)
 include_directories(inclusive)
-include_directories(cubature)
-include_directories(analysis)
+include_directories(plotting)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp
@@ -16,7 +15,6 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     lorentz_tensor.hpp
     fitter.hpp
     data_set.hpp
-    box.hpp
     inclusive_process.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
