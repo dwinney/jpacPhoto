@@ -102,7 +102,7 @@ namespace jpacPhoto
             double Eavg = 0;
 
             // The filtering requires kinematics of jpsi p 
-            kinematics kJpsi = new_kinematics(M_JPSI, M_PROTON);
+            single_meson::kinematics kJpsi = single_meson::new_kinematics(M_JPSI, M_PROTON);
 
             // Target location for 
             std::array<std::vector<double>,6> reduced;

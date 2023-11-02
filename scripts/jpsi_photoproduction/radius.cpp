@@ -30,6 +30,7 @@
 void radius()
 {
     using namespace jpacPhoto;
+    using namespace jpacPhoto::single_meson;
     using K_matrix         = analytic::K_matrix;
     using complex = std::complex<double>;
 

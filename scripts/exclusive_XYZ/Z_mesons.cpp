@@ -23,6 +23,7 @@
 void Z_mesons()
 {
     using namespace jpacPhoto;
+    using namespace jpacPhoto::single_meson;
 
     // ---------------------------------------------------------------------------
     // Couplings and constants

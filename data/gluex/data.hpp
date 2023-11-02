@@ -167,7 +167,7 @@ namespace jpacPhoto
             std::array<std::vector<double>,7> reduced;
 
             // The filtering requires kinematics of jpsi p 
-            kinematics kJpsi = new_kinematics(M_JPSI, M_PROTON);
+            single_meson::kinematics kJpsi = single_meson::new_kinematics(M_JPSI, M_PROTON);
 
             for (int i = 0; i < Ntot; i++)
             {

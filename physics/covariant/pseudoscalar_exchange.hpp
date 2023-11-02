@@ -20,13 +20,13 @@ namespace jpacPhoto
 {
     namespace covariant
     {
-        class pseudoscalar_exchange : public raw_amplitude
+        class pseudoscalar_exchange : public single_meson::raw_amplitude
         {
             public:
 
             // Constructor we specify the exchange particle mass
-            pseudoscalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id = "pseudoscalar_exchange")
-            : raw_amplitude(key, xkinem, id), _mEx(exchange_mass)
+            pseudoscalar_exchange(single_meson::amplitude_key key, single_meson::kinematics xkinem, double exchange_mass, std::string id = "pseudoscalar_exchange")
+            : single_meson::raw_amplitude(key, xkinem, id), _mEx(exchange_mass)
             {
                 initialize(3);
             }

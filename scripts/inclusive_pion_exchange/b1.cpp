@@ -25,6 +25,7 @@ using namespace jpacPhoto;
 void b1()
 {
     using namespace jpacPhoto;
+    using namespace jpacPhoto::single_meson;
     using complex = std::complex<double>;
     using pion_exchange = fixed_spin::pion_exchange;
     
@@ -147,7 +148,7 @@ void b1()
     plot p2 = plotter.new_plot();
     p2.set_curve_points(N);
     p2.set_legend(0.5, 0.7);
-    p2.set_ranges({2, 5}, {0, 8});
+    p2.set_ranges({2, 4}, {0, 8});
     p2.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
     p2.add_curve( bounds, func_p, b1p->id());
     p2.add_dashed(bounds, func_N);

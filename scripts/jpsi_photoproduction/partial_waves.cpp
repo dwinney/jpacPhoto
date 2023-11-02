@@ -32,7 +32,8 @@
 void partial_waves()
 {
     using namespace jpacPhoto;
-    using K_matrix         = analytic::K_matrix;
+    using namespace jpacPhoto::single_meson;
+    using K_matrix = analytic::K_matrix;
 
     // ---------------------------------------------------------------------------
     //  Parameters

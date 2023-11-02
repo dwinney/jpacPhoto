@@ -24,6 +24,7 @@
 void Z_totals()
 {
     using namespace jpacPhoto;
+    using namespace jpacPhoto::single_meson;
     using complex = std::complex<double>;
     using pion_exchange = fixed_spin::pion_exchange;
 

@@ -18,12 +18,12 @@ namespace jpacPhoto
 {
     namespace analytic
     {
-        class pomeron_exchange : public raw_amplitude
+        class pomeron_exchange : public single_meson::raw_amplitude
         {
             public: 
 
-            pomeron_exchange(amplitude_key key, kinematics xkinem, std::string id = "pomeron_exchange")
-            : raw_amplitude(key, xkinem, id)
+            pomeron_exchange(single_meson::amplitude_key key, single_meson::kinematics xkinem, std::string id = "pomeron_exchange")
+            : single_meson::raw_amplitude(key, xkinem, id)
             {
                 initialize(4);
             };

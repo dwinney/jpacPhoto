@@ -19,13 +19,13 @@ namespace jpacPhoto
 {
     namespace analytic
     {
-        class K_matrix : public raw_partial_wave
+        class K_matrix : public single_meson::raw_partial_wave
         {
             public: 
 
             // Single channel K-matrix
-            K_matrix(amplitude_key key, kinematics xkinem, int J, std::string id = "K_matrix")
-            : raw_partial_wave(key, xkinem, J, id)
+            K_matrix(single_meson::amplitude_key key, single_meson::kinematics xkinem, int J, std::string id = "K_matrix")
+            : single_meson::raw_partial_wave(key, xkinem, J, id)
             {
                 _Nth = 1;
                 initialize(2);
@@ -35,8 +35,8 @@ namespace jpacPhoto
             };
 
             // Two-channel K-matrix
-            K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<double,2> masses, std::string id = "K_matrix")
-            : raw_partial_wave(key, xkinem, J, id)
+            K_matrix(single_meson::amplitude_key key, single_meson::kinematics xkinem, int J, std::array<double,2> masses, std::string id = "K_matrix")
+            : single_meson::raw_partial_wave(key, xkinem, J, id)
             {
                 _Nth = 2;
                 initialize(5);
@@ -47,8 +47,8 @@ namespace jpacPhoto
             };
 
             // Three-channel K-matrix
-            K_matrix(amplitude_key key, kinematics xkinem, int J, std::array<std::array<double,2>,2> masses, std::string id = "K_matrix")
-            : raw_partial_wave(key, xkinem, J, id)
+            K_matrix(single_meson::amplitude_key key, single_meson::kinematics xkinem, int J, std::array<std::array<double,2>,2> masses, std::string id = "K_matrix")
+            : single_meson::raw_partial_wave(key, xkinem, J, id)
             {
                 _Nth = 3;
                 initialize(9);
