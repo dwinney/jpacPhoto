@@ -13,7 +13,7 @@
 
 namespace jpacPhoto
 {
-    namespace single_meson
+    namespace one_meson
     {
         // ---------------------------------------------------------------------------
         // Add two partial waves together

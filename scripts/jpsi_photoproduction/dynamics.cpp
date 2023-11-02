@@ -23,7 +23,7 @@
 void dynamics()
 {
     using namespace jpacPhoto;
-    using namespace jpacPhoto::single_meson;
+    using namespace jpacPhoto::one_meson;
     using K_matrix         = analytic::K_matrix;
 
     // J/psi proton final

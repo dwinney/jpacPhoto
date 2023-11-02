@@ -20,7 +20,7 @@
 
 namespace jpacPhoto
 {
-    namespace single_meson
+    namespace one_meson
     {
         // Foward declare the PW amplitude
         class raw_partial_wave;

@@ -19,7 +19,7 @@
 
 namespace jpacPhoto
 {   
-    namespace single_meson
+    namespace one_meson
     {
         // Now the covariants class assembles all relavant kinematic quantities and outputs 
         // them in the form they can be assembled in to amplitudes with Feynman rules

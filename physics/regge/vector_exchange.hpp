@@ -25,7 +25,7 @@ namespace jpacPhoto
             public: 
 
             // Constructor calls the analytic one with no exchange mass
-            vector_exchange(single_meson::amplitude_key key, single_meson::kinematics xkinem, std::string id)
+            vector_exchange(one_meson::amplitude_key key, one_meson::kinematics xkinem, std::string id)
             : analytic::vector_exchange(key, xkinem, 0, id)
             {
                 // Two additional parameters for regge trajectory

@@ -11,7 +11,7 @@
 
 namespace jpacPhoto
 {
-    namespace single_meson
+    namespace one_meson
     {
         // ---------------------------------------------------------------------------
         // Methods related to our caching to minimize calculations

@@ -26,7 +26,7 @@
 
 namespace jpacPhoto
 {   
-    namespace single_meson
+    namespace one_meson
     {
         // Forward declare amplitude for the typedef below
         class raw_amplitude;

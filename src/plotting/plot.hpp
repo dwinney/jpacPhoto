@@ -161,8 +161,8 @@ namespace jpacPhoto
         inline void set_curve_points(int N){ _Npoints = N; };
 
         // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
-        void add_curve(curve_type opt, single_meson::amplitude to_plot, std::array<double,2> bounds);
-        inline void add_curve(curve_type opt, std::vector<single_meson::amplitude> to_plot, std::array<double,2> bounds)
+        void add_curve(curve_type opt, one_meson::amplitude to_plot, std::array<double,2> bounds);
+        inline void add_curve(curve_type opt, std::vector<one_meson::amplitude> to_plot, std::array<double,2> bounds)
         {
             for (auto amp : to_plot)
             {
@@ -171,8 +171,8 @@ namespace jpacPhoto
         };
 
         // Plot differential observable which requires one fixed variable
-        void add_curve(curve_type opt, single_meson::amplitude to_plot, double fixed_val, std::array<double,2> bounds);
-        inline void add_curve(curve_type opt, std::vector<single_meson::amplitude> to_plot, double fixed_val, std::array<double,2> bounds)
+        void add_curve(curve_type opt, one_meson::amplitude to_plot, double fixed_val, std::array<double,2> bounds);
+        inline void add_curve(curve_type opt, std::vector<one_meson::amplitude> to_plot, double fixed_val, std::array<double,2> bounds)
         {
             for (auto amp : to_plot)
             {
@@ -181,10 +181,10 @@ namespace jpacPhoto
         };
 
         // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
-        void add_dashed(curve_type opt, single_meson::amplitude to_plot, std::array<double,2> bounds);
+        void add_dashed(curve_type opt, one_meson::amplitude to_plot, std::array<double,2> bounds);
 
         // Plot differential observable which requires one fixed variable
-        void add_dashed(curve_type opt, single_meson::amplitude to_plot, double fixed_val, std::array<double,2> bounds);
+        void add_dashed(curve_type opt, one_meson::amplitude to_plot, double fixed_val, std::array<double,2> bounds);
 
         // -----------------------------------------------------------------------
         // Add an error band

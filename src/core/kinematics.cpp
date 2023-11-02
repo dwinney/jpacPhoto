@@ -20,7 +20,7 @@
 
 namespace jpacPhoto
 {
-    namespace single_meson
+    namespace one_meson
     {
         // ---------------------------------------------------------------------------
         // Quantum number handling

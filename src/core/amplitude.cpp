@@ -16,7 +16,7 @@
 
 namespace jpacPhoto
 {
-    namespace single_meson
+    namespace one_meson
     {
         // ------------------------------------------------------------------------------
         // External methods for amplitude sums

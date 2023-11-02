@@ -225,7 +225,7 @@ namespace jpacPhoto
 
     // -----------------------------------------------------------------------
     // Add curve methods which take in an amplitude directly
-    void plot::add_curve(curve_type opt, single_meson::amplitude to_plot, std::array<double,2> bounds)
+    void plot::add_curve(curve_type opt, one_meson::amplitude to_plot, std::array<double,2> bounds)
     {
         switch (opt)
         {
@@ -269,7 +269,7 @@ namespace jpacPhoto
         return;
     };
 
-    void plot::add_curve(curve_type opt, single_meson::amplitude to_plot, double fixed, std::array<double,2> bounds)
+    void plot::add_curve(curve_type opt, one_meson::amplitude to_plot, double fixed, std::array<double,2> bounds)
     {
         switch (opt)
         {
@@ -324,7 +324,7 @@ namespace jpacPhoto
 
     // -----------------------------------------------------------------------
     // same as the add curve methods above but for dashed entries
-    void plot::add_dashed(curve_type opt, single_meson::amplitude to_plot, std::array<double,2> bounds)
+    void plot::add_dashed(curve_type opt, one_meson::amplitude to_plot, std::array<double,2> bounds)
     {
         switch (opt)
         {
@@ -368,7 +368,7 @@ namespace jpacPhoto
         return;
     };
 
-    void plot::add_dashed(curve_type opt, single_meson::amplitude to_plot, double fixed, std::array<double,2> bounds)
+    void plot::add_dashed(curve_type opt, one_meson::amplitude to_plot, double fixed, std::array<double,2> bounds)
     {
         switch (opt)
         {

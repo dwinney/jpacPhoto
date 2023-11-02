@@ -25,7 +25,7 @@ using namespace jpacPhoto;
 void b1()
 {
     using namespace jpacPhoto;
-    using namespace jpacPhoto::single_meson;
+    using namespace jpacPhoto::one_meson;
     using complex = std::complex<double>;
     using pion_exchange = fixed_spin::pion_exchange;
     

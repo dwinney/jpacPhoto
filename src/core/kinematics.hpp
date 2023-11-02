@@ -32,7 +32,7 @@
 
 namespace jpacPhoto
 {
-    namespace single_meson
+    namespace one_meson
     {
         // ---------------------------------------------------------------------------
         // The reaction kinematics object is intended to have all relevant kinematic quantities
@@ -46,7 +46,7 @@ namespace jpacPhoto
         // Forward declaration so we can rename ptr to kinematics as just kinematics
         // WE do this because we basically never want to work with a raw instance, but pass around a pointer
         class raw_kinematics;
-        using kinematics = std::shared_ptr<jpacPhoto::single_meson::raw_kinematics>;
+        using kinematics = std::shared_ptr<jpacPhoto::one_meson::raw_kinematics>;
 
         // Constructors are made private to prevent raw_kinematics objects from being initialized
         // All user interactions should be through the pointer class kinematics

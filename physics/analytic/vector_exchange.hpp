@@ -19,13 +19,13 @@ namespace jpacPhoto
 {
     namespace analytic
     {
-        class vector_exchange : public single_meson::raw_amplitude
+        class vector_exchange : public one_meson::raw_amplitude
         {
             public:
 
             // Constructor
-            vector_exchange(single_meson::amplitude_key key, single_meson::kinematics xkinem, double exchange_mass, std::string id)
-            : single_meson::raw_amplitude(key, xkinem, id),
+            vector_exchange(one_meson::amplitude_key key, one_meson::kinematics xkinem, double exchange_mass, std::string id)
+            : one_meson::raw_amplitude(key, xkinem, id),
               _mEx(exchange_mass)
             {
                 initialize(4);

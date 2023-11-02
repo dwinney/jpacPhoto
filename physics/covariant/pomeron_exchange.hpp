@@ -23,7 +23,7 @@ namespace jpacPhoto
         {
             public: 
 
-            pomeron_exchange(single_meson::amplitude_key key, single_meson::kinematics xkinem, std::string id = "pomeron_exchange")
+            pomeron_exchange(one_meson::amplitude_key key, one_meson::kinematics xkinem, std::string id = "pomeron_exchange")
             : analytic::pomeron_exchange(key, xkinem, id)
             {};
 
