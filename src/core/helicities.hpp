@@ -324,6 +324,23 @@ namespace jpacPhoto
         return hels;  
     };
 
+    inline std::string print_helicities(std::array<int,3> lam)
+    {
+        std::array<std::string,3> lams;
+        for (int i = 0; i < 3; i++)
+        {
+            switch (lam[i])
+            {
+                case  1: lams[i] = "#plus";    break;
+                case  0: lams[i] = "0";        break;
+                case -1: lams[i] = "#minus";   break;
+                default: continue;
+            };
+        };
+        std::string hels = "{" + lams[0] + "," + lams[1] + "," + lams[2] + "}";
+        return hels;  
+    };
+
     inline int find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless = true)
     {
         std::vector<std::array<int,4>> hels = get_helicities(mj, bj, is_massless);

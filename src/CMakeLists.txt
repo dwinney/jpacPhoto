@@ -1,10 +1,11 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "inclusive/*.cpp" "plotting/*.cpp") 
+file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "inclusive/*.cpp" "plotting/*.cpp" "two_meson/*.cpp") 
 
 include_directories(core)
 include_directories(covariants)
 include_directories(inclusive)
 include_directories(plotting)
+include_directories(two_meson)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp
@@ -16,6 +17,8 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     fitter.hpp
     data_set.hpp
     inclusive_process.hpp
+    amplitude2.hpp
+    kinematics2.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )
