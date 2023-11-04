@@ -1,11 +1,9 @@
 # BUILD LIBRARY FROM LOCAL FiLES FOR THE MAIN LIBRARY
-file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "inclusive/*.cpp" "plotting/*.cpp" "two_meson/*.cpp") 
+file(GLOB SRC "core/*.cpp" "covariants/*.cpp" "plotting/*.cpp") 
 
 include_directories(core)
 include_directories(covariants)
-include_directories(inclusive)
 include_directories(plotting)
-include_directories(two_meson)
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp

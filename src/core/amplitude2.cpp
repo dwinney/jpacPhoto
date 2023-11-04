@@ -124,13 +124,19 @@ namespace jpacPhoto
         // Updators for the different caches we have
 
         // Save current kinematic quantities from _kinematics
-        void raw_amplitude::store(std::array<int,3> helicities, double s, double s12, double t)
+        void raw_amplitude::store(std::array<int,3> helicities, double s, double t, double s12, double thetaGJ, double phiGJ)
         {
             _lamB = helicities[0];
             _lamT = helicities[1];
             _lamR = helicities[2];
 
-            _s = s; _s12 = s12; _t = t;
+            _s = s; _s12 = s12; _t = t; 
+            _thetaGJ = thetaGJ; _phiGJ = phiGJ;
+
+            _s1 = _kinematics->s1(s, t, s12, thetaGJ, phiGJ);
+            _s2 = _kinematics->s2(s, t, s12, thetaGJ, phiGJ);
+            _t1 = _kinematics->t1(s, t, s12, thetaGJ, phiGJ);
+            _t2 = _kinematics->t2(s, t, s12, thetaGJ, phiGJ);
 
             _mB = _kinematics->get_beam_mass();
             _mT = _kinematics->get_target_mass();
@@ -143,14 +149,14 @@ namespace jpacPhoto
 
         // Check for any changes within the set tolerance 
         // And recalculate helicity amplitudes if needed
-        void raw_amplitude::update_cache(double s, double s12, double t)
+        void raw_amplitude::update_cache(double s, double t, double s12, double thetaGJ, double phiGJ)
         {
-            bool s_changed    = !are_equal(_cached_s, s, _cache_tolerance);
-            bool s12_changed  = !are_equal(_cached_s12, s12, _cache_tolerance);
-            bool t_changed    = !are_equal(_cached_t, t, _cache_tolerance);
-            bool mR_changed   = !are_equal(_cached_mR, _kinematics->get_recoil_mass(), _cache_tolerance);
-
-            bool need_update = _parameters_changed || s_changed || s12_changed || t_changed || mR_changed;
+            bool s_changed      = !are_equal(_cached_s,       s,       _cache_tolerance);
+            bool t_changed      = !are_equal(_cached_t,       t,       _cache_tolerance);
+            bool s12_changed    = !are_equal(_cached_s12,     s12,     _cache_tolerance);
+            bool angles_changed = !are_equal(_cached_thetaGJ, thetaGJ, _cache_tolerance) || !are_equal(_cached_phiGJ, phiGJ, _cache_tolerance);
+ 
+            bool need_update = _parameters_changed || s_changed || s12_changed || t_changed || angles_changed;
 
             if (need_update)
             {
@@ -162,7 +168,7 @@ namespace jpacPhoto
                 if (n == 1)
                 {
                     // Arbitrary pick the first helicity set to evaluate, skip parity phase calculations
-                    _cached_helicity_amplitudes.push_back(helicity_amplitude(_kinematics->helicities(0), s, s12, t));
+                    _cached_helicity_amplitudes.push_back(helicity_amplitude(_kinematics->helicities(0), s, t, s12, thetaGJ, phiGJ));
                 }
                 // else
                 // {
@@ -184,28 +190,48 @@ namespace jpacPhoto
             };
 
             // Update the cache info as well
-            _cached_s  = s; _cached_s12 = s12; _cached_t = t;
-            _cached_mR = _kinematics->get_recoil_mass();
+            _cached_s  = s; _cached_s12  = s12; _cached_t = t;
+            _cached_thetaGJ = thetaGJ; _cached_phiGJ = phiGJ;
             _parameters_changed = false;
         };
 
         // ------------------------------------------------------------------------------
-        // Parameter handling
+        // OBSERVABLES
 
-        // Ability to change number of expected parameters from inside a class
-        void raw_amplitude::set_N_pars(int N)
+        // Square helicity amplitudes and sum over spins (no flux factor)
+        double raw_amplitude::probability_distribution(double s, double t, double s12, double thetaGJ, double phiGJ)
         {
-            _N_pars = N;
+            update_cache(s, t, s12, thetaGJ, phiGJ);
+
+            double sum = 0.;
+            for (auto amp : _cached_helicity_amplitudes)
+            {
+                sum += std::norm(amp);
+            };
+
+            return sum;
         };
 
-        // Simple check that a given vector is of the expected size
-        bool raw_amplitude::correct_size(std::vector<double> pars)
+        // Propertly normalized fully (unpolarized) differential crosss section in nb
+        double raw_amplitude::differential_xsection(double s, double t, double s12, double thetaGJ, double phiGJ)
         {
-            if (pars.size() != _N_pars)
+            if (s < _kinematics->sth()) return 0.;
+
+            double spin_sum = probability_distribution(s, t, s12, thetaGJ, phiGJ);
+
+            // Three particle phase-space (includes jacobian for thetaGJ integration)
+            double phi3 = sin(thetaGJ) / pow(2.*PI, 5);
+            phi3       *= sqrt(Kallen(_s12, _m1*_m1, _m2*_m2))/(16.*sqrt(_s12)*(s-_mT*_mT));
+
+            double flux = (2.*(s-_mT*_mT));
+
+            // Average over initial helicities
+            if (!helicity_independent())
             {
-                return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+                flux *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
             };
-            return true;
+
+            return phi3 * spin_sum / flux / (2.56819E-6);   // Output in nb / GeV^4
         };
     };
 };

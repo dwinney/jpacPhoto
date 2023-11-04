@@ -139,14 +139,14 @@ namespace jpacPhoto
             // Given set of helicities, total energy, 2 meson invariant mass,
             // and total momentum transfer (between target and recoil)
             // Calculate the helicity amplitude for a given model
-            virtual complex helicity_amplitude(std::array<int,3> helicities, double s, double s12, double t)
+            virtual complex helicity_amplitude(std::array<int,3> helicities, double s, double t, double s12, double thetaGJ, double phiGJ)
             {
                 if (_subamplitudes.size() == 0) return 0;
 
                 complex sum = 0;
                 for (amplitude amp : _subamplitudes)
                 {
-                    sum += amp->helicity_amplitude(helicities, s, s12, t);
+                    sum += amp->helicity_amplitude(helicities, s, t, s12, thetaGJ, phiGJ);
                 }
                 return sum;
             };
@@ -182,15 +182,6 @@ namespace jpacPhoto
                 }
 
                 return labels;
-            };
-
-            // ---------------------------------------------------------------------------
-            // Initialization function to do checks and set option to default
-
-            inline void initialize(int Npars = 0)
-            {
-                set_N_pars(Npars);
-                set_option(0);
             };
 
             // ---------------------------------------------------------------------------
@@ -257,10 +248,27 @@ namespace jpacPhoto
             };
 
             // ---------------------------------------------------------------------------
+            // OBSERVABLES 
+
+            // Unpolarized sum of helicty amplitudes squared (no flux factors)
+            double probability_distribution(double s, double t, double s12, double thetaGJ, double phiGJ);
+
+            // Propertly normalized fully differential crosss section in nb
+            double differential_xsection(double s, double t, double s12, double thetaGJ, double phiGJ);
+
+
+            // ---------------------------------------------------------------------------
             protected:
             
             // String identifier
             std::string _id = "amplitude";
+            
+            // Initialization function to do checks and set option to default
+            inline void initialize(int Npars = 0)
+            {
+                set_N_pars(Npars);
+                set_option(0);
+            };
 
             // Debugging flag
             unsigned int _debug = 0;
@@ -283,10 +291,18 @@ namespace jpacPhoto
             bool _parameters_changed = false;
 
             // Ability to change number of expected parameters from inside a class
-            void set_N_pars(int N);
+            inline void set_N_pars(int N){ _N_pars = N; };
 
             // Simple check that a given vector is of the expected size
-            bool correct_size(std::vector<double> pars);
+            inline bool correct_size(std::vector<double> pars)
+            {
+                if (pars.size() != _N_pars)
+                {
+                    return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+                };
+                return true;
+            };
+           
             inline void pars_error(int x)
             {
                 warning(id()+"::set_parameters", 
@@ -297,10 +313,13 @@ namespace jpacPhoto
             // Each amplitude may also store copies of all kinematic variables
             // to avoid having to pass them around
 
-            void store(std::array<int,3> helicities, double s, double s12, double t);
+            void store(std::array<int,3> helicities, double s, double t, double s12, double thetaGJ, double phiGJ);
 
-            // Invariant masses and scattering angle
-            double _s, _s12, _t;
+            // External variables
+            double _s, _s12, _t, _thetaGJ, _phiGJ;
+
+            // Internal variables
+            double _s1, _s2, _t1, _t2;
 
             // External particle masses
             double _mB, _m1, _m2, _mR, _mT;
@@ -313,11 +332,11 @@ namespace jpacPhoto
             // unnecessary calculation
 
             // Update the cache
-            void update_cache(double s, double s12, double t);
+            void update_cache(double s, double t, double s12, double thetaGJ, double phiGJ);
 
             double _cache_tolerance = 1.E-4;
-            double _cached_mR = 0.; // Final state masses 
             double _cached_s  = 0., _cached_s12 = 0., _cached_t  = 0.; // Invariants
+            double _cached_thetaGJ = 0., _cached_phiGJ = 0.;           // Angles
             
             // Saved copies of amplitudes
             std::vector<complex> _cached_helicity_amplitudes;
