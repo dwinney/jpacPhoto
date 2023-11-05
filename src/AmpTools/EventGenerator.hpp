@@ -27,6 +27,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 
 #include "debug.hpp"
+#include "print.hpp"
 
 namespace jpacPhoto
 {
@@ -110,39 +111,56 @@ namespace jpacPhoto
             Writer writer(_labels, outfile);
 
             // Generate events
-            double maxWeight = _generator.GetWtMax();
-            for (int i = 0; i < nEvents; i++)
+            line();
+            divider();
+            print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
+            divider();
+            int nPS = 1E5; // Generate phase space in chunks of
+            int nGenerated = 0;
+            int Passes = 1;
+            while (nGenerated < nEvents)
             {
-                double weight = _generator.Generate();
-                if (weight / maxWeight < drand48())
+                int nPass = 0;
+                double maxWeight = _generator.GetWtMax();
+                for (int i = 0; i < nPS; i++)
                 {
-                    i--; continue;
-                };
-                
-                std::vector<TLorentzVector> fvecs;
-                for (int n = 0; n < N; n++)
-                {
-                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
-                };
-                Kinematics* kin = new Kinematics(fvecs);
+                    double weight = _generator.Generate();
+                    if (weight / maxWeight < drand48())
+                    {
+                        i--; continue;
+                    };
+                    
+                    std::vector<TLorentzVector> fvecs;
+                    for (int n = 0; n < N; n++)
+                    {
+                        fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
+                    };
+                    Kinematics* kin = new Kinematics(fvecs);
 
-                // Here instead of loading to writer, load to the AmpToolsInterface
-                ATI.loadEvent(kin, i, nEvents);
-                delete kin;
-            };
-
-            // DO accept / reject
-            double maxIntensity = ATI.processEvents(reaction->reactionName());
-            for (int i = 0; i < nEvents; i++)
-            {
-                double Intensity = ATI.intensity(i); 
-                if (Intensity / maxIntensity > drand48())
-                {
-                    Kinematics* kin = ATI.kinematics(i);
-                    writer.writeEvent(*kin);
+                    // Here instead of loading to writer, load to the AmpToolsInterface
+                    ATI.loadEvent(kin, i, nPS);
                     delete kin;
-                }
-            }
+                };
+
+                // DO accept / reject
+                double maxIntensity = ATI.processEvents(reaction->reactionName());
+                for (int i = 0; i < nPS; i++)
+                {
+                    double Intensity = ATI.intensity(i); 
+                    if ((nGenerated + nPass) < nEvents && Intensity / maxIntensity > drand48())
+                    {
+                        nPass++;
+                        Kinematics* kin = ATI.kinematics(i);
+                        writer.writeEvent(*kin);
+                        delete kin;
+                    }
+                };
+                print("-- Pass " + std::to_string(Passes) + ": Generated " + std::to_string(nPass) + " events (" + std::to_string(nGenerated + nPass) + "/" + std::to_string(nEvents) + ")...");
+                nGenerated += nPass;
+                Passes++;
+            };
+            divider();
+            line();
         };
 
         protected:
