@@ -25,12 +25,22 @@ void Load()
     TString physics     = main_dir + "/physics";
     TString data        = main_dir + "/data";
 
+    //----------------------------------------------------------------------
+    // Load AmpTools if it exists
+
+    TString amptools_lib     = main_dir + "/lib/libAMPTOOLS." + lib_ext;
+    TString amptools_physics = main_dir + "/AmpTools";
+
+
     if (!gSystem->AccessPathName(main_lib.Data()))
     {
         Int_t pholib = gSystem->Load( main_lib.Data());
         gInterpreter->AddIncludePath( core.Data());
         gInterpreter->AddIncludePath( physics.Data());
         gInterpreter->AddIncludePath( data.Data());
+
+        Int_t amplib = gSystem->Load( amptools_lib.Data());
+        gInterpreter->AddIncludePath( amptools_physics.Data());
     }
     else
     {

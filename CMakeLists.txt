@@ -22,6 +22,9 @@ if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
 
+# Option whether or not to look for AmpTools
+option(JPACTOOLS "Build jpacTools extention" "FALSE")
+
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting
 
@@ -41,23 +44,47 @@ if (ROOT_FOUND)
     list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS}) 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}")
 else()
-    message(SEND_ERROR "-- Root not found")
+    message(SEND_ERROR "-- Root not found!")
 endif()
 
 ##-----------------------------------------------------------------------
 ## Check if JPACPHOTO environment variable is set. 
 
 if (DEFINED ENV{JPACPHOTO})
-    message("-- Environment variable JPACPHOTO found ($ENV{JPACPHOTO})")
+    message("-- Environment variable JPACPHOTO found! ($ENV{JPACPHOTO})")
 else()
     message(WARNING "-- JPACPHOTO environment variable not set!")
 endif()
 
 ##-----------------------------------------------------------------------
-## Look for BOOST needed for jpacBox
+## Look for BOOST C++
 
 set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+
+##-----------------------------------------------------------------------
+## If JPACTOOLS is set, look for the library
+
+if ( JPACTOOLS )
+    message("-- Building with the jpacTools extention!")
+    ## First make sure the AMPTOOLS environment variable is set
+    if (DEFINED ENV{AMPTOOLS})
+        message("-- Environment variable AMPTOOLS set! ($ENV{AMPTOOLS})")
+        set(AMPTOOLS_SRC  $ENV{AMPTOOLS})
+        set(AMPTOOLS_LIB  $ENV{AMPTOOLS}/lib)
+    else()
+        message(SEND_ERROR "-- AMPTOOLS environment variable not set!")
+    endif()
+
+    find_library(STATIC_AMPTOOLS REQUIRED NAMES  AmpTools libAmpTools
+                                 HINTS "${AMPTOOLS_LIB}"  )
+
+    if ( STATIC_AMPTOOLS )
+        message("-- AmpTools found! (${STATIC_AMPTOOLS})")
+    else()
+        message(SEND_ERROR "-- AmpTools not found!")
+    endif()
+endif()
 
 ##-----------------------------------------------------------------------
 # Build core library 

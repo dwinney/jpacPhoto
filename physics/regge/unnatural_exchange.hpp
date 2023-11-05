@@ -18,90 +18,93 @@
 
 namespace jpacPhoto
 {
-    class unnatural_exchange : public raw_amplitude
+    namespace regge
     {
-        public: 
-
-        unnatural_exchange(amplitude_key key, kinematics xkinem, std::string id = "unnatural_exchange")
-        : raw_amplitude(key, xkinem, id), _J(0), _m(M_PION)
+        class unnatural_exchange : public one_meson::raw_amplitude
         {
-            initialize(3);
-        };
+            public: 
 
-        // -----------------------------------------------------------------------
-        // REQUIRED VIRTUAL FUNCTIONS
+            unnatural_exchange(one_meson::amplitude_key key, one_meson::kinematics xkinem, std::string id = "unnatural_exchange")
+            : one_meson::raw_amplitude(key, xkinem, id), _J(0), _m(M_PION)
+            {
+                initialize(3);
+            };
 
-        inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
-        {
-            store(helicities, s, t);
+            // -----------------------------------------------------------------------
+            // REQUIRED VIRTUAL FUNCTIONS
 
-            // An on-shell spin-0 exchange cannot flip helicities
-            bool helicity_conserving = (_lamB == _lamX) && (_lamR == _lamT);
-            if (!helicity_conserving) return 0;
+            inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
+            {
+                store(helicities, s, t);
 
-            return top_coupling() * bottom_coupling() * propagator();
-        };
+                // An on-shell spin-0 exchange cannot flip helicities
+                bool helicity_conserving = (_lamB == _lamX) && (_lamR == _lamT);
+                if (!helicity_conserving) return 0;
 
-        inline helicity_frame native_helicity_frame(){ return T_CHANNEL; };
+                return top_coupling() * bottom_coupling() * propagator();
+            };
 
-        // Specify which final state particles amplitude can acommodate
-        inline std::vector<particle> allowed_mesons() { return {AXIALVECTOR}; };
-        inline std::vector<particle> allowed_baryons(){ return {THREEPLUS};   };
+            inline helicity_frame native_helicity_frame(){ return T_CHANNEL; };
 
-        inline void allocate_parameters(std::vector<double> pars)
-        {
-            _gT = pars[0];
-            _gB = pars[1];
-            _aP = pars[2];
-        };
+            // Specify which final state particles amplitude can acommodate
+            inline std::vector<particle> allowed_mesons() { return {AXIALVECTOR}; };
+            inline std::vector<particle> allowed_baryons(){ return {THREEPLUS};   };
 
-        protected:
+            inline void allocate_parameters(std::vector<double> pars)
+            {
+                _gT = pars[0];
+                _gB = pars[1];
+                _aP = pars[2];
+            };
 
-        // Coupling constants 
-        // gT = gamma - b1    - J 
-        // gB = gamma - Delta - J
-        double _gT = 1, _gB = 1;
+            protected:
 
-        // Exchange trajectory parameters
-        double _aP; // Slope
-        double _m;  // Mass of the lowest resonance on trajectory
-        int    _J;  // Spin of lowest exchange
-        double _s0 = 1; // Fixed scale
+            // Coupling constants 
+            // gT = gamma - b1    - J 
+            // gB = gamma - Delta - J
+            double _gT = 1, _gB = 1;
 
-        // Photon - B1- J^P coupling
-        inline complex top_coupling()
-        {
-            complex q = _kinematics->initial_momentum_tframe(_s);
-            return _gT * csqrt(_t) * q;
-        };
+            // Exchange trajectory parameters
+            double _aP; // Slope
+            double _m;  // Mass of the lowest resonance on trajectory
+            int    _J;  // Spin of lowest exchange
+            double _s0 = 1; // Fixed scale
 
-        // N - Delta - J^P coupling
-        inline complex bottom_coupling()
-        {
-            // Momentum
-            complex p  = _kinematics->final_momentum_tframe(_s);
-            return _gB*sqrt(2./3)*csqrt(_t)/_mR*p*(omega(+1,-1)+omega(-1, +1));
-        };
+            // Photon - B1- J^P coupling
+            inline complex top_coupling()
+            {
+                complex q = _kinematics->initial_momentum_tframe(_s);
+                return _gT * csqrt(_t) * q;
+            };
 
-        // Typical Regge propagator
-        inline complex propagator()
-        {
-            double alpha = _aP *( _t - _m*_m);
+            // N - Delta - J^P coupling
+            inline complex bottom_coupling()
+            {
+                // Momentum
+                complex p  = _kinematics->final_momentum_tframe(_s);
+                return _gB*sqrt(2./3)*csqrt(_t)/_mR*p*(omega(+1,-1)+omega(-1, +1));
+            };
 
-            // Signature calculated from the lowest resonance
-            int tau = (_J % 2 == 0) - !(_J % 2 == 0);
-            complex signature = (1 + tau*exp(-I*PI*alpha))/2;
+            // Typical Regge propagator
+            inline complex propagator()
+            {
+                double alpha = _aP *( _t - _m*_m);
 
-            return _aP * signature * cgamma(_J - alpha) * pow(_s/_s0, alpha);
-        };
+                // Signature calculated from the lowest resonance
+                int tau = (_J % 2 == 0) - !(_J % 2 == 0);
+                complex signature = (1 + tau*exp(-I*PI*alpha))/2;
 
-        // Shortcut for product of energy factors that appear from spinors
-        // x and y are signs for the target and recoil sqrt(E + \pm m) respetively
-        inline complex omega(int x, int y)
-        {
-            complex ET = (_t + _mT*_mT - _mR*_mR) / csqrt(4*_t);
-            complex ER = (_t - _mT*_mT + _mR*_mR) / csqrt(4*_t);
-            return sqrt( (ET + x*_mT)*(ER + y*_mR) );
+                return _aP * signature * cgamma(_J - alpha) * pow(_s/_s0, alpha);
+            };
+
+            // Shortcut for product of energy factors that appear from spinors
+            // x and y are signs for the target and recoil sqrt(E + \pm m) respetively
+            inline complex omega(int x, int y)
+            {
+                complex ET = (_t + _mT*_mT - _mR*_mR) / csqrt(4*_t);
+                complex ER = (_t - _mT*_mT + _mR*_mR) / csqrt(4*_t);
+                return sqrt( (ET + x*_mT)*(ER + y*_mR) );
+            };
         };
     };
 };
