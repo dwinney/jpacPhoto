@@ -39,7 +39,7 @@ namespace jpacPhoto
             _tree->Branch( subscript("s", 0).c_str(), &_s1,  subscriptD("s", 0).c_str());
             _tree->Branch( subscript("s", 1).c_str(), &_s2,  subscriptD("s", 1).c_str());
             _tree->Branch( subscript("t", 0).c_str(), &_t1,  subscriptD("t", 0).c_str());
-            _tree->Branch( subscript("t", 1).c_str(), &_t1,  subscriptD("t", 0).c_str());
+            _tree->Branch( subscript("t", 1).c_str(), &_t2,  subscriptD("t", 1).c_str());
 
             _tree->Branch( "cosGJ",   &_cosGJ,   "cosGJ/D");
             _tree->Branch( "thetaGJ", &_thetaGJ, "thetaGJ/D");

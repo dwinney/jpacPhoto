@@ -22,7 +22,6 @@ namespace jpacPhoto
     {
         inline static one_meson::amplitude initialize_amplitude()
         {
-            using namespace jpacPhoto;
             using namespace jpacPhoto::one_meson;
 
             kinematics kB1Delta = new_kinematics( M_B1, M_DELTA );

@@ -16,6 +16,7 @@
 
 #include "IUAmpTools/Amplitude.h"
 #include "IUAmpTools/UserAmplitude.h"
+#include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/AmpParameter.h"
 
 #include "constants.hpp"
@@ -42,12 +43,12 @@ namespace jpacPhoto
         //    - from the precalculated variables userVars and the initialized amplitude
         //      calculate the intensity function
 
-        std::vector<double> convertParameters( std::vector<AmpParameter> input)
+       std::vector<double> convertParameters( std::vector<AmpParameter> input)
         {
             std::vector<double> output;
             for (auto par : input)
             {
-                output.push_back( par );
+                output.push_back( double(par) );
             }
             return output;
         };
@@ -64,20 +65,20 @@ namespace jpacPhoto
             : UserAmplitude< jpacAmplitude<A> >()
             {};
 
-            jpacAmplitude( const vector< std::string>& args ) 
+            jpacAmplitude( const std::vector<std::string>& args ) 
             : UserAmplitude< jpacAmplitude<A> >(args)
             {
                 _amplitude = A::initialize_amplitude();
 
-                // All others are assmed to be amplitude parameters
                 for (int i = 0; i < args.size(); i++)
                 {
                     _pars.push_back( AmpParameter(args[i]) );
-                    this->registerParameter( _pars[i] );
                 };
 
-                // Pass parameters to amplitude
-                _amplitude->set_parameters( convertParameters(_pars) );
+                for (int i = 0; i < args.size(); i++)
+                {
+                    this->registerParameter( _pars[i] );
+                }
             };
 
             ~jpacAmplitude(){};
@@ -94,6 +95,8 @@ namespace jpacPhoto
             // can be calculated on the jpacPhoto side and square rooted 
             inline std::complex<GDouble> calcAmplitude( GDouble** pKin, GDouble* userVars ) const 
             { 
+                // Make sure the amplitude knows about the most up-to-date parameters in AmpTools
+                _amplitude->set_parameters( convertParameters(_pars) );
                 return sqrt( A::intensity(userVars, _amplitude) );               
             };
 
