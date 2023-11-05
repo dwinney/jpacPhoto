@@ -1,5 +1,5 @@
 #   jpacPhoto
-Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target. Focus on expandability and easy interfacing with other libraries / analysis code. 
+Framework for amplitude analysis involving one or two meson photoproduction off nucleon targets. Focus on expandability and easy interfacing with other libraries / analysis code. 
 
 <p align="center">
   <img width="300" src="./doc/FeynmanDiagram.png">
@@ -29,7 +29,7 @@ setenv JPACPHOTO /path/to/jpacPhoto # for csh
 
 The primary use case is to reproduce results from JPAC papers [[1-4]](#references). The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
 
-This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/amplitudes/`](./amplitudes/) and [`/scripts/`](./scripts) respectively.  To run a script located in the bin directory simply run 
+This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/physics/`](./physics/) and [`/scripts/`](./scripts) respectively.  To run a script located in the bin directory simply run 
 ```bash
 jpacPhoto my_script.cpp
 ```
@@ -42,8 +42,8 @@ find_library(JPACPHOTO NAMES JPACPHOTO libJPACPHOTO
 target_link_libraries( myTarget JPACPHOTO)
 ```
 
-##  AMPLITUDES
-The main object of interest in the core library is the abstract [`amplitude`](./src/core/amplitude.hpp) and implementations defined by the user. Amplitudes implemented so may be found in [/amplitudes/](./amplitudes/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
+##  SINGLE MESON AMPLITUDES
+The main object of interest in the core library is the abstract [`one_meson::amplitude`](./src/core/amplitude.hpp) and implementations defined by the user which defines the scattering amplitude for a 2-to-2 process. Amplitudes implemented so may be found in [/physics/](./physics/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
 
 | Observable                           |                                                 | Callable `amplitude` function                                                                                                  |
 |--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
@@ -60,6 +60,8 @@ All kinematics are passed around by the [`kinematics`](./src/core/kinematics.hpp
 
 The basic usage is:
 ```c++
+using namespace jpacPhoto::one_meson;
+
 // Set up kinematics
 kinematics myKin = new_kinematics(M_MESON, M_BARYON);
 myKin->set_meson_JP(1, -1);  // J = 1  , P = -1
@@ -79,6 +81,8 @@ myAmp2->SDME(0, 1, -1, s, t);
 Multiple amplitudes may describe the same process sharing the same kinematics instance and
 incoherent (interfering) sums any combination of (compatible) amplitudes may be constructed. Partial wave projections onto Legendre and Wigner functions can be taken for any amplitude of combination of amplitudes. All of these are treated as amplitudes themselves and have access to observables are available with the same syntax:
 ```c++
+using namespace jpacPhoto::one_meson;
+
 // Sum two amplitudes together
 amplitude amp1, amp2;
 amplitude sum = amp1 + amp2;
@@ -92,6 +96,35 @@ amp1->integrated_xsection(s);  // Individual term
 sum->integrated_xsection(s);   // Interfering sum
 pwave->integrated_xsection(s); // Only P-wave contribution of sum
 ```
+##  TWO MESON AMPLITUDES
+A second amplitude class, [`two_meson::amplitude`](./src/core/amplitude2.hpp) extends the above framework to 2-to-3 processes. At present this only allows for the two mesons to be pseudoscalars with helicity amplitudes only depending on the beam, target, and recoil particle helicities. The usage is identical to the 2-to-2 case within a different namespace:
+```c++
+using namespace jpacPhoto::two_meson;
+
+// Set up kinematics
+kinematics myKin = new_kinematics(M_MESON1, M_MESON2, M_BARYON);
+myKin->set_meson_labels( "eta", "pi"); // Optional string id's to differentiate mesons
+
+// Set up amplitude
+amplitude myAmp1 = new_amplitude<my_implementation>(myKin, /* additional parameters */);
+myAmp1->set_parameters{ {/* couplings etc */} };
+
+amplitude myAmp2 = new_amplitude<my_other_implementation>(myKin, /* additional parameters */);
+myAmp2->set_parameters{ {/* couplings etc */} };
+
+// Evaluate observables. 
+// Dependent variables are always three invariants and Gottfried-Jackson angles
+myAmp1->differential_xsection(s, t, setapi, thetaGJ, phiGJ);
+(myAmp1 + myAmp2)->differential_xsection(s, t, setapi, thetaGJ, phiGJ);
+```
+##  JPAC(PHOTO, AMP)TOOLS
+An optional extention to the core library which provides a generic interface for using JPAC amplitudes with analysis utilities of [AmpTools](https://github.com/mashephe/AmpTools/tree/master/AmpTools) can be built by passing the `-DJPACTOOLS=TRUE` flag when configuring CMake. This requires that the `AmpTools` is installed following the installation instructions but compiled with the additional `-fPIC` CXX flag and the `$AMPTOOLS` environment variable set to the top-level directory containing the installation.
+
+Here the class template [`jpacAmplitude<A>`](./src/AmpTools/jpacAmplitude.hpp) wraps `jpacPhoto::amplitude` to be used in event generators or fits through:
+```c++
+AmpToolsInterface::registerAmplitude( jpacAmplitude<my_implementation>() );
+```
+where `my_implementation` is a user implemented struct containing static functions which inject the amplitude details into the AmpTools interfaces. Examples and templates of this are found in [/AmpTools/](./AmpTools/).
 
 ##  REFERENCES
 + [1] [Double Polarization Observables in Pentaquark Photoproduction](https://arxiv.org/abs/1907.09393)
