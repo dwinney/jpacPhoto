@@ -33,12 +33,6 @@ namespace jpacPhoto
         // jpacPhoto::amplitude initialize_amplitude()
         //   - Return an amplitude pointer of choice already set up with kinematics, sums, etc
         //
-        // unsigned int N_variables();
-        //   - Return number of kinematic variables needed to calculate intensity
-        //
-        // void calculate_variables(GDouble** pKin, GDouble* userVars)
-        //   - Take in the 4-vector and calculate the N_variables quantities into userVars
-        //
         //  double intensity( GDouble* userVars, jpacPhoto::amplitude)
         //    - from the precalculated variables userVars and the initialized amplitude
         //      calculate the intensity function
@@ -88,7 +82,23 @@ namespace jpacPhoto
             inline std::string name() const { return "jpacAmplitude"; };
 
             // We explicitly want to only calculate amplitudes using the userVars 
-            inline bool needsUserVarsOnly() const { return true; }
+            inline bool   needsUserVarsOnly() const { return true; }
+            inline unsigned int numUserVars() const { return 2; };
+            enum UsersVars { kVar_s = 0, kVar_t = 1 };
+
+            inline void calcUserVars( GDouble** pKin, GDouble* userVars ) const
+            {
+                TLorentzVector meson( pKin[0][1], pKin[0][2], pKin[0][3], pKin[0][0]);
+                TLorentzVector baryon(pKin[1][1], pKin[1][2], pKin[1][3], pKin[1][0]);
+
+                double s = (meson + baryon).M2();
+                userVars[kVar_s] = s;
+
+                double Egam = jpacPhoto::E_beam(sqrt(s));
+                TLorentzVector beam( 0, 0, Egam, Egam);
+                double t = (beam - meson).M2();
+                userVars[kVar_t] = t;
+            };
 
             // A single jpacAmplitude can already have a sum included so we only need to consider
             // so we only need to consider a single AmpTools ampltiude. This means the intensity
@@ -97,12 +107,9 @@ namespace jpacPhoto
             { 
                 // Make sure the amplitude knows about the most up-to-date parameters in AmpTools
                 _amplitude->set_parameters( convertParameters(_pars) );
-                return sqrt( A::intensity(userVars, _amplitude) );               
+                return sqrt( A::intensity(userVars[kVar_s], userVars[kVar_t], _amplitude) );               
             };
-
-            inline unsigned int numUserVars()                                     const { return A::N_variables(); };
-            inline void         calcUserVars( GDouble** pKin, GDouble* userVars ) const { A::calculate_variables(pKin, userVars); };
-            inline double       Intensity(    GDouble** pKin, GDouble* userVars ) const { return A::intensity( userVars, _amplitude); };
+            inline double Intensity(GDouble** pKin, GDouble* userVars ) const { return A::intensity(userVars[kVar_s], userVars[kVar_t], _amplitude); };
 
             protected:
 

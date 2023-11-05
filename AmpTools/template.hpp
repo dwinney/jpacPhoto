@@ -20,7 +20,7 @@
 
 namespace jpacPhoto
 {
-    struct my_decay_process
+    struct my_process
     {
         // Here we should set up the kinematics and amplitude we want to inject into AmpTools
         // parameters accessable by jpacPhoto::amplitude::set_parameters() will be set by 
@@ -38,37 +38,14 @@ namespace jpacPhoto
             return amp1 + amp2;
         };
 
-        // Here we need to specify what variables we need to calculate the intensity
-        // We always assume you dont need the full four-vectors to calculate the final
-        // intensity since we have an analytic formula
-
-        // For a 2->2 (unpolarized) process we need only 2 variables: s and t
-        // We can generalize this to have 3 and include a polarization angle
-        enum UsersVars { kVar_s = 0, kVar_t = 1 };
-        inline static unsigned int N_variables() { return 2; }
-
-        // Take in the 4-vectors and calculate the variables we need
-        inline static void  calculate_variables( GDouble** pKin, GDouble* userVars )
-        {
-            TLorentzVector meson( pKin[0][1], pKin[0][2], pKin[0][3], pKin[0][0]);
-            TLorentzVector baryon(pKin[1][1], pKin[1][2], pKin[1][3], pKin[1][0]);
-
-            double s = (meson + baryon).M2();
-            userVars[kVar_s] = s;
-
-            double Egam = jpacPhoto::E_beam(sqrt(s));
-            TLorentzVector beam( 0, 0, Egam, Egam);
-            double t = (beam - meson).M2();
-            userVars[kVar_t] = t;
-        };
-
+       
         // Here we specify what we will use as the intensity
-        // In the simple example of no subsequent decays we can use the differential
-        // cross section directly.
-        // In more complicated processes, here we calculate the decay chains
-        inline static double intensity( GDouble* userVars, one_meson::amplitude amp) 
+        // In the simple example of no subsequent decays and no polarization information
+        // we can use the differential cross section directly
+        // In more complicated processes, here we calculate whatever we want
+        inline static double intensity( double s, double t, one_meson::amplitude amp) 
         { 
-            return amp->differential_xsection(userVars[kVar_s], userVars[kVar_t]);               
+            return amp->differential_xsection(s, t);               
         };
     };
 };

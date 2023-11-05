@@ -117,9 +117,14 @@ namespace jpacPhoto
             divider();
             int nPS = 1E5; // Generate phase space in chunks of
             int nGenerated = 0;
-            int Passes = 1;
+            int Passes = 1, nFailed = 0;
             while (nGenerated < nEvents)
             {
+                if (nFailed > 3)
+                {
+                    warning("EventGenerator::generatePhysics", "Three passes with no events generated, possible infinite loop? Exitig...");
+                    exit(1);
+                };
                 int nPass = 0;
                 double maxWeight = _generator.GetWtMax();
                 for (int i = 0; i < nPS; i++)
@@ -158,6 +163,7 @@ namespace jpacPhoto
                 print("-- Pass " + std::to_string(Passes) + ": Generated " + std::to_string(nPass) + " events (" + std::to_string(nGenerated + nPass) + "/" + std::to_string(nEvents) + ")...");
                 nGenerated += nPass;
                 Passes++;
+                if (nPass == 0) nFailed++;
             };
             divider();
             line();
