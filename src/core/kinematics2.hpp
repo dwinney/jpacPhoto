@@ -104,7 +104,7 @@ namespace jpacPhoto
             // Accessors and setters for masses 
 
             inline double Wth(){ return (_m1 + _m2 + _mR); }; // square root of the threshold
-            inline double sth(){ return Wth() * Wth(); }; // final state threshold
+            inline double sth(){ return Wth() * Wth(); };     // final state threshold
 
             // Assessor functions for masses
             inline std::array<double,2> get_meson_masses() { return {_m1, _m2}; };
