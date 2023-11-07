@@ -35,9 +35,9 @@ namespace jpacPhoto
         {
             _tree->Branch( "s",    &_s, "s/D" );
             _tree->Branch( "t",    &_t, "t/D" );
-            _tree->Branch( subscript("s", 3).c_str(), &_s12, subscriptD("s", 3).c_str());
-            _tree->Branch( subscript("s", 0).c_str(), &_s1,  subscriptD("s", 0).c_str());
-            _tree->Branch( subscript("s", 1).c_str(), &_s2,  subscriptD("s", 1).c_str());
+            _tree->Branch( subscript("s", 0, 1).c_str(), &_s12, subscriptD("s", 0, 1).c_str());
+            _tree->Branch( subscript("s", 0, 2).c_str(), &_s1,  subscriptD("s", 0, 2).c_str());
+            _tree->Branch( subscript("s", 1, 2).c_str(), &_s2,  subscriptD("s", 1, 2).c_str());
             _tree->Branch( subscript("t", 0).c_str(), &_t1,  subscriptD("t", 0).c_str());
             _tree->Branch( subscript("t", 1).c_str(), &_t2,  subscriptD("t", 1).c_str());
 
@@ -50,7 +50,7 @@ namespace jpacPhoto
         {
             // Inital state reconstructed from the internally calcualted _Ebeam
             TLorentzVector beam(  0., 0., _Ebeam, _Ebeam);
-            TLorentzVector target(0., 0., 0.,     jpacPhoto::M_PROTON);
+            TLorentzVector target(0., 0., 0.,   M_PROTON);
             TLorentzVector m1(fvecs[0]);
             TLorentzVector m2(fvecs[1]);
             TLorentzVector recoil(fvecs[2]);
@@ -67,12 +67,12 @@ namespace jpacPhoto
             _t1 = (beam - m1).M2();
             _t2 = (beam - m2).M2();
 
-            // Boost only the initalstate and particle 1 to GJ frame to calculate angles
-            beam.Boost(  -(m1 + m2).BoostVector());
-            target.Boost(-(m1 + m2).BoostVector());
-            m1.Boost(    -(m1 + m2).BoostVector());
+            // Boost only the initialstate and particle 1 to GJ frame to calculate angles
+            beam.Boost(  - (m1 + m2).BoostVector());
+            recoil.Boost(- (m1 + m2).BoostVector());
+            m1.Boost(    - (m1 + m2).BoostVector());
 
-            TVector3 z = beam.Vect().Unit();
+            TVector3 z =  beam.Vect().Unit();
             TVector3 y = (beam.Vect().Cross(recoil.Vect())).Unit();
             TVector3 x = y.Cross(z);
 
@@ -80,13 +80,13 @@ namespace jpacPhoto
             _thetaGJ = GJ.Theta(); _phiGJ = GJ.Phi(); _cosGJ = cos(_thetaGJ);
         };
 
-        inline std::string subscript(std::string x, int i)
+        inline std::string subscript(std::string x, int i, int j = -1)
         {
-            return (i < 3) ? x + "_" + _labels[i] : x + "_" + _labels[0] + _labels[1];
+            return  (j == -1) ? x + "_" + _labels[i] : x + "_" + _labels[i] + _labels[j];
         };
-        inline std::string subscriptD(std::string x, int i)
+        inline std::string subscriptD(std::string x, int i, int j = -1)
         {
-            return subscript(x,i) + "/D";
+            return subscript(x, i, j) + "/D";
         };
 
         double _s, _t, _s12, _s1, _s2, _t1, _t2, _cosGJ, _thetaGJ, _phiGJ;

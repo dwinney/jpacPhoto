@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <time.h>
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
@@ -63,6 +64,9 @@ namespace jpacPhoto
         // https://github.com/mashephe/AmpTools/blob/master/Tutorials/Dalitz/DalitzExe/generatePhaseSpace.cc
         inline void generatePhaseSpace(int nEvents, std::string outfile = "out.root")
         {
+            // Set random seeds
+            gRandom = new TRandom3(0);
+
             Writer writer(_labels, outfile);
          
             if ( !ENERGY_SET )
@@ -76,7 +80,7 @@ namespace jpacPhoto
             for (int i = 0; i < nEvents; i++)
             {
                 double weight = _generator.Generate();
-                if (weight / maxWeight < drand48())
+                if (weight / maxWeight < gRandom->Rndm())
                 {
                     i--; continue;
                 };
@@ -91,13 +95,66 @@ namespace jpacPhoto
             };
         };
 
-        // Generate nEvents phase space points given a fixed beam energy
-        // Basically follows the generatePhysics.cc tutorial 
-        // https://github.com/mashephe/AmpTools/blob/master/Tutorials/Dalitz/DalitzExe/generatePhysics.cc
+        // Generate nEvents phasespace points but additionally save weights corresponding
+        // to the intensity specified in configfile
+        template<class A>
+        inline void generateWeightedPhaseSpace(int nEvents, std::string configfile, std::string outfile = "out.root")
+        {
+            // Set random seeds
+            gRandom = new TRandom3(0);
+
+            ConfigFileParser parser(configfile);
+            ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
+            cfgInfo->display();
+            ReactionInfo* reaction = cfgInfo->reactionList()[0];
+
+            // AmpToolsInterface
+            AmpToolsInterface::registerAmplitude( A() );
+            AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kMCGeneration);
+
+            // DataWriter
+            Writer writer(_labels, outfile);
+
+            // Generate a phase-space data set
+            double maxWeight = _generator.GetWtMax();
+            for (int i = 0; i < nEvents; i++)
+            {
+                double weight = _generator.Generate();
+                if (weight / maxWeight < gRandom->Rndm())
+                {
+                    i--; continue;
+                };
+                
+                std::vector<TLorentzVector> fvecs;
+                for (int n = 0; n < N; n++)
+                {
+                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
+                };
+                Kinematics* kin = new Kinematics(fvecs);
+
+                // Here instead of load load to the AmpToolsInterface to calculate intensity
+                ATI.loadEvent(kin, i, nEvents);
+                delete kin;
+            };
+
+            // Instead of accept reject simply save with weight
+            double maxIntensity = ATI.processEvents(reaction->reactionName());
+            for (int i = 0; i < nEvents; i++)
+            {
+                Kinematics* kin = ATI.kinematics(i);
+                kin->setWeight(ATI.intensity(i) / maxIntensity);
+                writer.writeEvent(*kin);
+                delete kin;
+            };
+        };
+
+        // Generate nEvents using hit-or-miss with a specified model intensity
         template<class A>
         inline void generatePhysics(int nEvents, std::string configfile, std::string outfile = "out.root")
         {
-            // Parse config file 
+            // Set random seeds
+            gRandom = new TRandom3(0);
+
             ConfigFileParser parser(configfile);
             ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
             cfgInfo->display();
@@ -114,15 +171,18 @@ namespace jpacPhoto
             line();
             divider();
             print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
+            print("Configuration file: " + configfile);
+            print("Output file: " + outfile);
             divider();
-            int nPS = 1E5; // Generate phase space in chunks of
+            int nPS = 5E5; // Generate phase space in chunks
+
             int nGenerated = 0;
             int Passes = 1, nFailed = 0;
             while (nGenerated < nEvents)
             {
                 if (nFailed > 3)
                 {
-                    warning("EventGenerator::generatePhysics", "Three passes with no events generated, possible infinite loop? Exitig...");
+                    warning("EventGenerator::generatePhysics", "Three passes with no events generated, possible infinite loop? Exiting...");
                     exit(1);
                 };
                 int nPass = 0;
@@ -130,7 +190,7 @@ namespace jpacPhoto
                 for (int i = 0; i < nPS; i++)
                 {
                     double weight = _generator.Generate();
-                    if (weight / maxWeight < drand48())
+                    if (weight / maxWeight < gRandom->Rndm())
                     {
                         i--; continue;
                     };
@@ -152,7 +212,7 @@ namespace jpacPhoto
                 for (int i = 0; i < nPS; i++)
                 {
                     double Intensity = ATI.intensity(i); 
-                    if ((nGenerated + nPass) < nEvents && Intensity / maxIntensity > drand48())
+                    if ((nGenerated + nPass) < nEvents && Intensity / maxIntensity > gRandom->Rndm())
                     {
                         nPass++;
                         Kinematics* kin = ATI.kinematics(i);

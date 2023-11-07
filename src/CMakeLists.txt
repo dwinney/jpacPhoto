@@ -33,8 +33,6 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     fitter.hpp
     data_set.hpp
     inclusive_process.hpp
-    amplitude2.hpp
-    kinematics2.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )

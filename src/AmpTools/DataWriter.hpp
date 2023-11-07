@@ -45,7 +45,7 @@ namespace jpacPhoto
             _file->Close();
         };
 
-        inline void writeEvent( const Kinematics& kin )
+        inline void writeEvent( const Kinematics& kin)
         {
             std::vector<TLorentzVector> particleList = kin.particleList();
             
@@ -82,7 +82,8 @@ namespace jpacPhoto
             _tree = new TTree( "nt", "nt" );
             _nEvents = 0;
 
-            _tree->Branch( "E_beam", &_Ebeam, "E_beam/D" );
+            _tree->Branch( "E_beam", &_Ebeam,  "E_beam/D" );
+            _tree->Branch( "weight", &_weight, "weight/D" );
 
             // Every writer will save the elements of the four vector automatically
             for (int i = 0; i < N; i++)

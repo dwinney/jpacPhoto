@@ -17,7 +17,5 @@
 #pragma link C++ defined_in "plotter.hpp";
 #pragma link C++ defined_in "plot.hpp";
 #pragma link C++ defined_in "inclusive_process.hpp";
-#pragma link C++ defined_in "amplitude2.hpp";
-#pragma link C++ defined_in "kinematics2.hpp";
 
 #endif

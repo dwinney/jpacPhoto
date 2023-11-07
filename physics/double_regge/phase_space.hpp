@@ -11,8 +11,8 @@
 #define DR_PHASESPACE_HPP
 
 #include "constants.hpp"
-#include "kinematics2.hpp"
-#include "amplitude2.hpp"
+#include "kinematics.hpp"
+#include "amplitude.hpp"
 
 namespace jpacPhoto
 {
@@ -24,13 +24,23 @@ namespace jpacPhoto
         phase_space(two_meson::amplitude_key key, two_meson::kinematics xkinem, std::string id = "phase_space")
         : two_meson::raw_amplitude(key, xkinem, id)
         {
-            initialize(0);
+            initialize(1);
         };
 
         inline complex helicity_amplitude(std::array<int,3> helicities, double s, double t, double s12, double thetaGJ, double phiGJ)
         {
-            return 1.;
+            store(helicities, s, t, s12, thetaGJ, phiGJ);
+            return _norm;
         };
+        
+        inline void allocate_parameters(std::vector<double> pars)
+        {
+            _norm = pars[0];
+        }
+
+        protected:
+        
+        double _norm = 1.;
     };
 };
 
