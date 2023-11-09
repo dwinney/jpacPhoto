@@ -40,9 +40,8 @@ namespace jpacPhoto
         // Destructor writes to file
         ~DataWriter<N>()
         {
-            _file->cd();
-            _tree->Write();
-            _file->Close();
+            _tree->AutoSave();
+            delete _file;
         };
 
         inline void writeEvent( const Kinematics& kin)

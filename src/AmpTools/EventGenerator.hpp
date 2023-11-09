@@ -59,9 +59,136 @@ namespace jpacPhoto
             ENERGY_SET = true;
         };
 
+        // ------------------------------------------------------------------------------
+        // These methods are for generating WEIGHTED events
+        // These generate and save the raw 4-vectors from TGenPhaseSpace
+        // and save the weights (either of pure phase-space or an amplitude )
+
         // Generate nEvents phase space points given a fixed beam energy
         // Follows the generatePhaseSpace AmpTools tutorial
         // https://github.com/mashephe/AmpTools/blob/master/Tutorials/Dalitz/DalitzExe/generatePhaseSpace.cc
+        inline void generateWeightedPhaseSpace(int nEvents, std::string outfile = "out.root")
+        {
+            // Set random seeds
+            gRandom = new TRandom3(0);
+
+            Writer writer(_labels, outfile);
+         
+            if ( !ENERGY_SET )
+            {
+                jpacPhoto::warning("jpacTools::EventGenerator", "Beam energy not set!");
+                return;
+            };
+
+            // Instead of accept reject just save weight
+            for (int i = 0; i < nEvents; i++)
+            {
+                double weight = _generator.Generate();
+
+                // Unpack 4-vectors 
+                std::vector<TLorentzVector> fvecs;
+                for (int n = 0; n < N; n++)
+                {
+                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
+                };
+
+                Kinematics kin = Kinematics(fvecs);
+                kin.setWeight(weight); // Set weight and save all events
+                writer.writeEvent(kin);
+            };
+        };
+
+        // Generate nEvents phasespace points but additionally save weights corresponding
+        // to the intensity specified in configfile
+        template<class A>
+        inline void generateWeightedPhysics(int nEvents, std::string configfile, std::string outfile = "out.root")
+        {
+            // Set random seeds
+            gRandom = new TRandom3(0);
+
+            // Generate events
+            line();
+            divider();
+            print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
+            print("Method:", "Weighted Phasespace");
+            print("cfg file:", configfile);
+            print("Output file:", outfile);
+            divider();
+
+            ConfigFileParser parser(configfile);
+            ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
+            // cfgInfo->display();
+            ReactionInfo* reaction = cfgInfo->reactionList()[0];
+
+            // AmpToolsInterface
+            AmpToolsInterface::registerAmplitude( A() );
+            AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kMCGeneration);
+
+            // DataWriter
+            Writer writer(_labels, outfile);
+
+            // Generate a phase-space data set
+            for (int i = 0; i < nEvents; i++)
+            {
+                double weight = _generator.Generate();
+                std::vector<TLorentzVector> fvecs;
+                for (int n = 0; n < N; n++)
+                {
+                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
+                };
+                Kinematics* kin = new Kinematics(fvecs);
+                kin->setWeight(weight);
+
+                // Here instead of load load to the AmpToolsInterface to calculate intensity
+                ATI.loadEvent(kin, i, nEvents);
+                delete kin;
+            };
+
+            // Instead of accept reject simply save with weight
+            double maxIntensity = ATI.processEvents(reaction->reactionName());
+            for (int i = 0; i < nEvents; i++)
+            {
+                Kinematics* kin = ATI.kinematics(i);
+                kin->setWeight(ATI.intensity(i) * kin->weight());
+                writer.writeEvent(*kin);
+                delete kin;
+            };
+
+            line();
+        };
+
+        // ------------------------------------------------------------------------------
+        // These methods are for generating UNWEIGHTED events using hit-or-miss
+        // and therefore have weights of 1
+
+        inline std::vector<Kinematics> generateBatch()
+        {
+            std::vector<Kinematics> out;
+            for (int i = 0; i < _nBatch; i++)
+            {
+                double weight = _generator.Generate(); 
+                std::vector<TLorentzVector> fvecs;
+                for (int n = 0; n < N; n++)
+                {
+                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
+                };
+                Kinematics kin = Kinematics(fvecs);
+                kin.setWeight(weight);
+                out.push_back(kin);
+            };
+            return out;
+        };
+
+        inline double getMaxWeight( std::vector<Kinematics> in)
+        {
+            double max = in[0].weight();
+            for (auto event : in)
+            {
+                if (event.weight() > max) max = event.weight();
+            };
+            return max;
+        };
+
         inline void generatePhaseSpace(int nEvents, std::string outfile = "out.root")
         {
             // Set random seeds
@@ -75,76 +202,36 @@ namespace jpacPhoto
                 return;
             };
 
-            // Generate events
-            double maxWeight = _generator.GetWtMax();
-            for (int i = 0; i < nEvents; i++)
+            int nGenerated = 0; // Total points generated so far
+            int nFailed = 0;    // Number of passes made with no generated events
+            while (nGenerated < nEvents)
             {
-                double weight = _generator.Generate();
-                if (weight / maxWeight < gRandom->Rndm())
+                if (nFailed > 3)
                 {
-                    i--; continue;
+                    warning("EventGenerator::generatePhasespace", "Three passes with no events generated, possible infinite loop? Exiting...");
+                    exit(1);
                 };
+
+                auto batch       = generateBatch();
+                double maxWeight = getMaxWeight(batch);
                 
-                std::vector<TLorentzVector> fvecs;
-                for (int n = 0; n < N; n++)
+                // Do accept / reject
+                int nPass = 0; // Number of events generated this pass
+                for (auto event : batch)
                 {
-                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
+                    // Terminate early if generated enough events
+                    if ((nGenerated + nPass) >= nEvents) break;
+
+                    double weight = event.weight(); 
+                    if (weight / maxWeight > gRandom->Rndm())
+                    {
+                        event.setWeight(1.); // Reset the weight to 1
+                        writer.writeEvent(event);
+                        nPass++;
+                    }
                 };
-                Kinematics kin(fvecs);
-                writer.writeEvent(kin);
-            };
-        };
-
-        // Generate nEvents phasespace points but additionally save weights corresponding
-        // to the intensity specified in configfile
-        template<class A>
-        inline void generateWeightedPhaseSpace(int nEvents, std::string configfile, std::string outfile = "out.root")
-        {
-            // Set random seeds
-            gRandom = new TRandom3(0);
-
-            ConfigFileParser parser(configfile);
-            ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
-            cfgInfo->display();
-            ReactionInfo* reaction = cfgInfo->reactionList()[0];
-
-            // AmpToolsInterface
-            AmpToolsInterface::registerAmplitude( A() );
-            AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kMCGeneration);
-
-            // DataWriter
-            Writer writer(_labels, outfile);
-
-            // Generate a phase-space data set
-            double maxWeight = _generator.GetWtMax();
-            for (int i = 0; i < nEvents; i++)
-            {
-                double weight = _generator.Generate();
-                if (weight / maxWeight < gRandom->Rndm())
-                {
-                    i--; continue;
-                };
-                
-                std::vector<TLorentzVector> fvecs;
-                for (int n = 0; n < N; n++)
-                {
-                    fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
-                };
-                Kinematics* kin = new Kinematics(fvecs);
-
-                // Here instead of load load to the AmpToolsInterface to calculate intensity
-                ATI.loadEvent(kin, i, nEvents);
-                delete kin;
-            };
-
-            // Instead of accept reject simply save with weight
-            double maxIntensity = ATI.processEvents(reaction->reactionName());
-            for (int i = 0; i < nEvents; i++)
-            {
-                Kinematics* kin = ATI.kinematics(i);
-                kin->setWeight(ATI.intensity(i) / maxIntensity);
-                writer.writeEvent(*kin);
-                delete kin;
+                nGenerated += nPass;
+                if (nPass == 0) nFailed++;
             };
         };
 
@@ -155,9 +242,18 @@ namespace jpacPhoto
             // Set random seeds
             gRandom = new TRandom3(0);
 
+            // Generate events
+            line();
+            divider();
+            print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
+            print("Method:", "Hit-or-Miss");
+            print("cfg file:", configfile);
+            print("Output file:", outfile);
+            divider();
+
             ConfigFileParser parser(configfile);
             ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
-            cfgInfo->display();
+            // cfgInfo->display();
             ReactionInfo* reaction = cfgInfo->reactionList()[0];
 
             // AmpToolsInterface
@@ -166,15 +262,6 @@ namespace jpacPhoto
 
             // DataWriter
             Writer writer(_labels, outfile);
-
-            // Generate events
-            line();
-            divider();
-            print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
-            print("Configuration file: " + configfile);
-            print("Output file: " + outfile);
-            divider();
-            int nPS = 5E5; // Generate phase space in chunks
 
             int nGenerated = 0;
             int Passes = 1, nFailed = 0;
@@ -185,34 +272,35 @@ namespace jpacPhoto
                     warning("EventGenerator::generatePhysics", "Three passes with no events generated, possible infinite loop? Exiting...");
                     exit(1);
                 };
-                int nPass = 0;
-                double maxWeight = _generator.GetWtMax();
-                for (int i = 0; i < nPS; i++)
-                {
-                    double weight = _generator.Generate();
-                    if (weight / maxWeight < gRandom->Rndm())
-                    {
-                        i--; continue;
-                    };
-                    
-                    std::vector<TLorentzVector> fvecs;
-                    for (int n = 0; n < N; n++)
-                    {
-                        fvecs.push_back( TLorentzVector( *_generator.GetDecay(n) ) );
-                    };
-                    Kinematics* kin = new Kinematics(fvecs);
 
-                    // Here instead of loading to writer, load to the AmpToolsInterface
-                    ATI.loadEvent(kin, i, nPS);
-                    delete kin;
+                int nPass = 0;
+                
+                // First generate a batch of phase space
+                auto batch       = generateBatch();
+                double maxWeight = getMaxWeight(batch);
+                int nPS = 0;  // Number of generated PS points
+
+                // Do hit-or-miss to generate phasespace
+                for (auto event : batch)
+                {
+                    double weight = event.weight(); 
+                    if (weight / maxWeight > gRandom->Rndm())
+                    {
+                        event.setWeight(1.); // Reset the weight to 1
+                        ATI.loadEvent(&event, nPS, batch.size()); // Instead of writing, load to AmpTools
+                        nPS++;
+                    };
                 };
 
+                // Loop over the loaded events and do a second hit-or-miss
                 // DO accept / reject
                 double maxIntensity = ATI.processEvents(reaction->reactionName());
                 for (int i = 0; i < nPS; i++)
                 {
+                    if ((nGenerated + nPass) >= nEvents) break;
+
                     double Intensity = ATI.intensity(i); 
-                    if ((nGenerated + nPass) < nEvents && Intensity / maxIntensity > gRandom->Rndm())
+                    if (Intensity / maxIntensity > gRandom->Rndm())
                     {
                         nPass++;
                         Kinematics* kin = ATI.kinematics(i);
@@ -236,6 +324,9 @@ namespace jpacPhoto
 
         // Final state particle labels
         std::array<std::string,N> _labels;
+
+        // For hit-or-miss we always generate phase-spaces in chunks of this size
+        int _nBatch = 1E6;
 
         // Related to TGenPhaseSpace
         bool ENERGY_SET = false;
