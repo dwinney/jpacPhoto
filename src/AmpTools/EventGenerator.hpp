@@ -260,6 +260,9 @@ namespace jpacPhoto
             AmpToolsInterface::registerAmplitude( A() );
             AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kMCGeneration);
 
+            line();
+            divider();
+            
             // DataWriter
             Writer writer(_labels, outfile);
 

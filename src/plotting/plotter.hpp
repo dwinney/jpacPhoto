@@ -13,6 +13,7 @@
 #define PLOTTER_HPP
 
 #include "plot.hpp"
+#include "histogram.hpp"
 #include "colors.hpp"
 
 #include <array>
@@ -42,7 +43,7 @@ namespace jpacPhoto
         };
 
         // Create a new plot!
-        plot new_plot(std::string file = "")
+        inline plot new_plot(std::string file = "")
         {
             // Make it the global default style
             gROOT->SetStyle("jpacStyle");
@@ -65,8 +66,51 @@ namespace jpacPhoto
             return plot(canvas, file);
         };
 
+        // Create a new histogram!
+        inline histogram_1D new_histogram_1D(std::string label = "")
+        {
+            // Make it the global default style
+            gROOT->SetStyle("jpacStyle");
+
+            // Set up a new canvas 
+            _Nplots++;
+            std::string name = "c" + std::to_string(_Nplots);
+            TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 600, 600);
+            canvas->UseCurrentStyle();
+            canvas->SetTopMargin(0.05);
+            canvas->SetRightMargin(0.03);
+            canvas->SetLeftMargin(0.12);
+            canvas->SetBottomMargin(0.12);
+            canvas->SetFixedAspectRatio();
+            
+            // Pass this to the plot which will populate it with everything else
+            return histogram_1D(canvas, label);
+        };
+
+        // Create a new histogram!
+        inline histogram_2D new_histogram_2D(std::string labelx = "", std::string labely = "")
+        {
+            // Make it the global default style
+            gROOT->SetStyle("jpacStyle");
+
+            // Set up a new canvas 
+            _Nplots++;
+            std::string name = "c" + std::to_string(_Nplots);
+            TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 600, 600);
+            canvas->UseCurrentStyle();
+            canvas->SetTopMargin(0.05);
+            canvas->SetRightMargin(0.14);
+            canvas->SetLeftMargin(0.14);
+            canvas->SetBottomMargin(0.12);
+            canvas->SetFixedAspectRatio();
+            
+            // Pass this to the plot which will populate it with everything else
+            return histogram_2D(canvas, {labelx, labely});
+        };
+
         // Combine a vector of plots into a grid of specified dimensions
         static void combine(std::array<int,2> dims, std::vector<plot> plots, std::string filename);
+        static void combine(std::array<int,2> dims, std::vector<combinable*> hists, std::string filename);
 
         static void stack(std::vector<plot> plots, std::string filename);
 

@@ -35,15 +35,15 @@ void generator()
     using namespace jpacPhoto;
     using namespace jpacPhoto::two_meson;
 
-    EventGenerator<ThreeBodyWriter, 3> generator( {M_ETA, M_PION, M_PROTON}, {"eta", "pi", "p"} );
+    EventGenerator<ThreeBodyWriter,3> generator( {M_ETA, M_PION, M_PROTON}, {"eta", "pi", "p"} );
     generator.setBeamEnergy(9.);
 
     // Pure phase space for gam p -> eta pi p
-    generator.generatePhaseSpace(1E6, "phase_space.root"); 
+    // generator.generatePhaseSpace(1E5, "unweighted.root"); 
+    // generator.generateWeightedPhaseSpace(1E5, "weighted.root"); 
 
-    // // Phase space but with saved weights calculated from amplitude
-    // generator.generateWeightedPhaseSpace<jpacAmplitude<double_regge>>(1E4, "etapi.cfg", "weighted.root"); 
-
-    // // Hit or miss MC using model
-    // generator.generatePhysics<jpacAmplitude<double_regge>>(1E4, "etapi.cfg", "unweighted.root");      
+    // Hit or miss MC using model
+    // generator.generatePhysics<jpacAmplitude<double_regge>>(1E5, "etapi.cfg", "unweighted.root");      
+    // Phase space but with saved weights calculated from amplitude
+    generator.generateWeightedPhysics<jpacAmplitude<double_regge>>(1E6, "etapi.cfg", "weighted.root"); 
 };

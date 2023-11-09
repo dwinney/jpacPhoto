@@ -1,6 +1,7 @@
-// Abstract data writer class for an N particle final state, each file contains a root file and tree
-// We need to wrap everything from AmpTools because the static library cannot be 
-// loaded into cling interpreter directly
+// Abstract data writer class for an N particle final state
+// This will read the the 4-vectors and weights of each of the particles
+// Additional quantities can be read by overriding the setupExtras() and
+// calculateExtras() in a derived class
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2023)
@@ -36,6 +37,13 @@ namespace jpacPhoto
         DataWriter<N>( std::array<std::string,N> labels )
         : _labels(labels)
         {};
+
+        // If this is the actuall class to be used, then call initialize
+        DataWriter<N>( std::array<std::string,N> labels, const std::string & outfile )
+        : _labels(labels)
+        {
+            initialize(outfile);
+        };
 
         // Destructor writes to file
         ~DataWriter<N>()

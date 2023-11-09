@@ -98,7 +98,26 @@ namespace jpacPhoto
             vert->SetLineStyle(line._linestyle);
             vert->Draw();
         }
+    };
 
+    void plot::combine_draw(double scale)
+    {
+        // Apply global settings to the pad
+        gPad->UseCurrentStyle();
+        gPad->SetFixedAspectRatio();
+        gPad->SetTopMargin(0.05);
+        gPad->SetRightMargin(0.03);
+        gPad->SetLeftMargin(0.16);
+        gPad->SetBottomMargin(0.12);
+
+        // Apply logscale settings
+        gPad->SetLogx(_xlog);
+        gPad->SetLogy(_ylog);
+
+        // Apply the linewidth 
+        scale_linewidth(scale);
+        draw();
+        reset_linewidth();
     };
 
     // ---------------------------------------------------------------------------

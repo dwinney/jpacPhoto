@@ -42,6 +42,6 @@ void generator()
     EventGenerator<TwoBodyWriter,2> generator( {M_B1, M_DELTA}, {"b1", "delta"} );
     generator.setBeamEnergy(Egam);
 
-    generator.generatePhaseSpace(1E5, "phase_space.root");
-    generator.generatePhysics< one_meson::jpacAmplitude<stable_b1delta> >(1E5, cfgname, "physics.root");
+    // generator.generatePhaseSpace(1E5, "phase_space.root");
+    generator.generatePhysics< one_meson::jpacAmplitude<stable_b1delta> >(10, cfgname, "physics.root");
 };

@@ -31,6 +31,7 @@
 
 #include "data_set.hpp"
 #include "elementwise.hpp"
+#include "combinable.hpp"
 #include "amplitude.hpp"
 #include "colors.hpp"
 
@@ -102,7 +103,7 @@ namespace jpacPhoto
     // This class contains the entries, data, and options of producing a single plot/file
     // These can be generated from the plotter->make_plot() method which applies
     // all global settings
-    class plot 
+    class plot : public combinable
     {
         public:
 
@@ -316,6 +317,7 @@ namespace jpacPhoto
 
         // Load all the settings into the graphs and draw them
         void draw();
+        void combine_draw(double scale);
 
         // -----------------------------------------------------------------------
         // AXIS SETUP 
