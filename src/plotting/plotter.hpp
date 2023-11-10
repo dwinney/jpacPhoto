@@ -67,7 +67,7 @@ namespace jpacPhoto
         };
 
         // Create a new histogram!
-        inline histogram_1D new_histogram_1D(std::string label = "")
+        inline histogram_1D new_histogram_1D(std::string label = "", std::array<double,2> bounds = {1., 0.})
         {
             // Make it the global default style
             gROOT->SetStyle("jpacStyle");
@@ -84,7 +84,7 @@ namespace jpacPhoto
             canvas->SetFixedAspectRatio();
             
             // Pass this to the plot which will populate it with everything else
-            return histogram_1D(canvas, label);
+            return histogram_1D(canvas, label, bounds);
         };
 
         // Create a new histogram!

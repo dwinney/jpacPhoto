@@ -29,6 +29,8 @@
 
 #include "debug.hpp"
 #include "print.hpp"
+#include "constants.hpp"
+#include "Experiment.hpp"
 
 namespace jpacPhoto
 {
@@ -53,10 +55,18 @@ namespace jpacPhoto
         // This can later be replaced by a function of beam specturm
         inline void setBeamEnergy(double Egam) 
         {
-            double M_PROTON = 0.938272;
-            TLorentzVector W = TLorentzVector(0., 0., Egam, Egam + M_PROTON);
-            _generator.SetDecay(W, N, _masses);
-            ENERGY_SET = true;
+            if (_exp->id() != "constant")
+            {
+                warning("EventGenerator::setBeamEnergy", "setBeamEnergy called on when using a non-constant beam spectrum is ignored.");
+                return;
+            };
+
+            _exp->_constantEbeam = Egam;
+        };
+
+        inline void setExperiment(Experiment * exp)
+        {
+            _exp = exp;
         };
 
         // ------------------------------------------------------------------------------
@@ -74,15 +84,16 @@ namespace jpacPhoto
 
             Writer writer(_labels, outfile);
          
-            if ( !ENERGY_SET )
-            {
-                jpacPhoto::warning("jpacTools::EventGenerator", "Beam energy not set!");
-                return;
-            };
+           double egam = _exp->beam_energy();
+            TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
+            _generator.SetDecay(W, N, _masses);
 
             // Instead of accept reject just save weight
             for (int i = 0; i < nEvents; i++)
             {
+                double egam = _exp->beam_energy();
+                TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
+                _generator.SetDecay(W, N, _masses);
                 double weight = _generator.Generate();
 
                 // Unpack 4-vectors 
@@ -130,6 +141,9 @@ namespace jpacPhoto
             // Generate a phase-space data set
             for (int i = 0; i < nEvents; i++)
             {
+                double egam = _exp->beam_energy();
+                TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
+                _generator.SetDecay(W, N, _masses);
                 double weight = _generator.Generate();
                 std::vector<TLorentzVector> fvecs;
                 for (int n = 0; n < N; n++)
@@ -166,6 +180,9 @@ namespace jpacPhoto
             std::vector<Kinematics> out;
             for (int i = 0; i < _nBatch; i++)
             {
+                double egam = _exp->beam_energy();
+                TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
+                _generator.SetDecay(W, N, _masses);
                 double weight = _generator.Generate(); 
                 std::vector<TLorentzVector> fvecs;
                 for (int n = 0; n < N; n++)
@@ -226,7 +243,7 @@ namespace jpacPhoto
                     if (weight / maxWeight > gRandom->Rndm())
                     {
                         event.setWeight(1.); // Reset the weight to 1
-                        writer.writeEvent(event);
+                        if (_exp->acceptance(event)) writer.writeEvent(*event);
                         nPass++;
                     }
                 };
@@ -307,7 +324,7 @@ namespace jpacPhoto
                     {
                         nPass++;
                         Kinematics* kin = ATI.kinematics(i);
-                        writer.writeEvent(*kin);
+                        if (_exp->acceptance(kin)) writer.writeEvent(*kin);
                         delete kin;
                     }
                 };
@@ -321,6 +338,8 @@ namespace jpacPhoto
         };
 
         protected:
+
+        Experiment * _exp;
 
         // Final state masses
         double _masses[N];

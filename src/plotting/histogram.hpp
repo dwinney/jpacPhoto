@@ -42,14 +42,16 @@ namespace jpacPhoto
 
         // Set custom bounds for both axes
         inline void set_range( double xl, double xh)
-        { _xbounds = {xl, xh}; _customranges = true; };
+        {   
+            _xbounds = {xl, xh}; _customranges = true; 
+        };
 
         protected:
 
-        histogram_1D(TCanvas* canvas, std::string label = "")
+        histogram_1D(TCanvas* canvas, std::string label = "", std::array<double,2> bounds = {1., 0.})
         : _canvas(canvas), _xlabel(label)
         {
-            _hist = new TH1D("h", "h", 60, 1., 0.);
+            _hist = new TH1D("h", "h", 60, bounds[0], bounds[1]);
         };
 
         friend class plotter;

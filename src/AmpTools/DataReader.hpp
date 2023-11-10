@@ -51,6 +51,7 @@ namespace jpacPhoto
 
             _tree->GetEntry(_nCounter++);
             std::vector<TLorentzVector> particleList;
+            particleList.push_back(TLorentzVector(0., 0., _Ebeam, _Ebeam));
             for (int i = 0; i < N; i++)
             {
                 particleList.push_back(TLorentzVector(_Px[i], _Py[i], _Pz[i], _E[i]));
