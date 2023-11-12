@@ -795,10 +795,10 @@ namespace jpacPhoto
         {
             if (s < _kinematics->sth()) return 0.;
 
-            double spin_sum = probability_distribution(s, t, s12, thetaGJ, phiGJ);
+            double spin_sum = sin(thetaGJ) * probability_distribution(s, t, s12, thetaGJ, phiGJ);
 
             // Three particle phase-space (includes jacobian for thetaGJ integration)
-            double phi3 = sin(thetaGJ) / pow(2.*PI, 5);
+            double phi3 = 1. / pow(2.*PI, 5);
             phi3       *= sqrt(Kallen(_s12, _m1*_m1, _m2*_m2))/(16.*sqrt(_s12)*(s-_mT*_mT));
 
             double flux = (2.*(s-_mT*_mT));

@@ -25,6 +25,16 @@
 
 namespace jpacPhoto
 {
+    std::vector<double> convertParameters( std::vector<AmpParameter> input)
+    {
+        std::vector<double> output;
+        for (auto par : input)
+        {
+            output.push_back( double(par) );
+        }
+        return output;
+    };
+
     namespace one_meson
     {
         // Here the template A must be a struct with the following STATIC
@@ -32,20 +42,6 @@ namespace jpacPhoto
         //  
         // jpacPhoto::amplitude initialize_amplitude()
         //   - Return an amplitude pointer of choice already set up with kinematics, sums, etc
-        //
-        //  double intensity( GDouble* userVars, jpacPhoto::amplitude)
-        //    - from the precalculated variables userVars and the initialized amplitude
-        //      calculate the intensity function
-
-       std::vector<double> convertParameters( std::vector<AmpParameter> input)
-        {
-            std::vector<double> output;
-            for (auto par : input)
-            {
-                output.push_back( double(par) );
-            }
-            return output;
-        };
 
         template<class A>
         class jpacAmplitude : public UserAmplitude< jpacAmplitude<A> >
@@ -107,9 +103,8 @@ namespace jpacPhoto
             { 
                 // Make sure the amplitude knows about the most up-to-date parameters in AmpTools
                 _amplitude->set_parameters( convertParameters(_pars) );
-                return sqrt( A::intensity(userVars[kVar_s], userVars[kVar_t], _amplitude) );               
+                return sqrt( _amplitude->probability_distribution(userVars[kVar_s], userVars[kVar_t]) );               
             };
-            inline double Intensity(GDouble** pKin, GDouble* userVars ) const { return A::intensity(userVars[kVar_s], userVars[kVar_t], _amplitude); };
 
             protected:
 
@@ -133,20 +128,6 @@ namespace jpacPhoto
         //
         // jpacPhoto::amplitude initialize_amplitude()
         //   - Return an amplitude pointer of choice already set up with kinematics, sums, etc
-        //
-        //  double intensity( GDouble* userVars, jpacPhoto::amplitude)
-        //    - from the precalculated variables userVars and the initialized amplitude
-        //      calculate the intensity function
-
-       std::vector<double> convertParameters( std::vector<AmpParameter> input)
-        {
-            std::vector<double> output;
-            for (auto par : input)
-            {
-                output.push_back( double(par) );
-            }
-            return output;
-        };
 
         template<class A>
         class jpacAmplitude : public UserAmplitude< jpacAmplitude<A> >
@@ -222,11 +203,7 @@ namespace jpacPhoto
             { 
                 // Make sure the amplitude knows about the most up-to-date parameters in AmpTools
                 _amplitude->set_parameters( convertParameters(_pars) );
-                return sqrt( A::intensity(userVars[kVar_s], userVars[kVar_t], userVars[kVar_s12], userVars[kVar_thetaGJ], userVars[kVar_phiGJ], _amplitude) );               
-            };
-            inline double Intensity(GDouble** pKin, GDouble* userVars ) const 
-            {
-                return A::intensity(userVars[kVar_s], userVars[kVar_t], userVars[kVar_s12], userVars[kVar_thetaGJ], userVars[kVar_phiGJ], _amplitude); 
+                return sqrt( _amplitude->probability_distribution(userVars[kVar_s], userVars[kVar_t], userVars[kVar_s12], userVars[kVar_thetaGJ], userVars[kVar_phiGJ]) );               
             };
 
             protected:

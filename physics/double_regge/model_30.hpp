@@ -54,7 +54,7 @@ namespace jpacPhoto
             complex term1 = gamma(-alpha1) * pow(s/_s0, alpha1) * pow(s2/_s0, alpha2 - alpha1) * xi(-1, alpha1) * xi(+1, alpha2 - alpha1) * V1;
             complex term2 = gamma(-alpha2) * pow(s/_s0, alpha2) * pow(s1/_s0, alpha1 - alpha2) * xi(-1, alpha2) * xi(+1, alpha1 - alpha2) * V2;
 
-            return term1 + term2;
+            return sin(thetaGJ) * (term1 + term2);
         };
         
         inline void allocate_parameters(std::vector<double> pars)

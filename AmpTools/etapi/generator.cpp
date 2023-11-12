@@ -1,10 +1,12 @@
 #include "EventGenerator.hpp"
+#include "GlueX.hpp"
 #include "jpacAmplitude.hpp"
 #include "ThreeBodyWriter.hpp"
-#include "double_regge/model_30.hpp"
+#include "DataReader.hpp"
+#include "plotter.hpp"
+#include "histogram.hpp"
 
-#include <string>
-#include <cstdlib>
+#include "double_regge/model_30.hpp"
 
 namespace jpacPhoto
 {
@@ -19,13 +21,8 @@ namespace jpacPhoto
             kinematics kEtaPi = new_kinematics( M_ETA, M_PION, M_PROTON );
             amplitude amp     = new_amplitude<model_30>(kEtaPi);
             amp->set_option(model_30::kFast1);
-            return amp;
-        };
 
-        // Use the differential cross-section as unpolarized intensity
-        inline static double intensity(double s, double t, double s12, double thetaGJ, double phiGJ, two_meson::amplitude amp) 
-        { 
-            return amp->differential_xsection(s, t, s12, thetaGJ, phiGJ);               
+            return amp;
         };
     };
 };
@@ -34,16 +31,63 @@ void generator()
 {
     using namespace jpacPhoto;
     using namespace jpacPhoto::two_meson;
+    using R = ThreeBodyReader;
+    
+    std::string outfile = "physics";
 
-    EventGenerator<ThreeBodyWriter,3> generator( {M_ETA, M_PION, M_PROTON}, {"eta", "pi", "p"} );
-    generator.setBeamEnergy(9.);
+    // ------------------------------------------------------------------------------
+    // Generate phasespace
 
-    // Pure phase space for gam p -> eta pi p
-    // generator.generatePhaseSpace(1E5, "unweighted.root"); 
-    // generator.generateWeightedPhaseSpace(1E5, "weighted.root"); 
+    // GlueX g(8.0, 9.0);
+    // EventGenerator<ThreeBodyWriter,3> generator( {M_ETA, M_PION, M_PROTON}, {"eta", "pi", "p"} );
+    // generator.setExperiment(&g);
 
-    // Hit or miss MC using model
-    // generator.generatePhysics<jpacAmplitude<double_regge>>(1E5, "etapi.cfg", "unweighted.root");      
-    // Phase space but with saved weights calculated from amplitude
-    generator.generateWeightedPhysics<jpacAmplitude<double_regge>>(1E6, "etapi.cfg", "weighted.root"); 
+    // // Hit or miss MC using model
+    // generator.generatePhysics< jpacAmplitude<double_regge> >(1E6, "etapi.cfg", outfile + ".root");     
+
+    // ------------------------------------------------------------------------------
+    // Make histograms
+
+    ThreeBodyReader reader({"eta", "pi", "p", outfile + ".root"});
+
+    plotter plotter;
+    histogram_1D ht      = plotter.new_histogram_1D("#it{t}  [GeV^{2}]", {-6, 1});
+    histogram_1D hs12    = plotter.new_histogram_1D("#it{s}_{#eta#pi}  [GeV^{2}]", {0, 14});
+    histogram_1D hs1     = plotter.new_histogram_1D("#it{s}_{#eta#it{p}}  [GeV^{2}]", {0, 14});
+    histogram_1D hs2     = plotter.new_histogram_1D("#it{s}_{#pi#it{p}}  [GeV^{2}]", {0, 14});
+    histogram_1D ht1     = plotter.new_histogram_1D("#it{t}_{#eta}  [GeV^{2}]", {-10, 1});
+    histogram_1D ht2     = plotter.new_histogram_1D("#it{t}_{#pi}  [GeV^{2}]", {-10, 1});
+    histogram_1D hcos    = plotter.new_histogram_1D("cos#theta_{GJ}", {-1.,1});
+    histogram_1D hphi    = plotter.new_histogram_1D("#phi_{GJ}", {-PI, PI});
+    histogram_1D hEbeam  = plotter.new_histogram_1D("#it{E}_{#gamma}", {7.5, 9.5});
+
+    histogram_2D phi_s12 = plotter.new_histogram_2D("#it{s}_{#eta#pi}  [GeV^{2}]",    "#phi_{GJ}");
+    histogram_2D phi_s1  = plotter.new_histogram_2D("#it{s}_{#eta#it{p}}  [GeV^{2}]", "#phi_{GJ}");
+    histogram_2D phi_s2  = plotter.new_histogram_2D("#it{s}_{#pi#it{p}}  [GeV^{2}]",  "#phi_{GJ}");
+
+    for (int i = 0; i < reader.numEvents(); i++)
+    {
+        auto kin = reader.getEvent();
+        double w = kin->weight();
+        
+        double setapi = reader.getExtra(R::kS12);
+        double spip   = reader.getExtra(R::kS2);
+
+        if (setapi < 4.0 || spip < 4.0) continue;
+
+        ht.fill(   reader.getExtra(R::kT)    , w);
+        hs12.fill( reader.getExtra(R::kS12)  , w);
+        hs1.fill(  reader.getExtra(R::kS1)   , w);
+        hs2.fill(  reader.getExtra(R::kS2)   , w);
+        ht1.fill(  reader.getExtra(R::kT1)   , w);
+        ht2.fill(  reader.getExtra(R::kT2)   , w);
+        hcos.fill( reader.getExtra(R::kCosGJ), w);
+        hphi.fill( reader.getExtra(R::kPhiGJ), w);
+        hEbeam.fill( kin->particle(0).E(), w);
+
+        phi_s12.fill( reader.getExtra(R::kS12), reader.getExtra(R::kPhiGJ), w);
+        phi_s1.fill(  reader.getExtra(R::kS1),  reader.getExtra(R::kPhiGJ), w);
+        phi_s2.fill(  reader.getExtra(R::kS2),  reader.getExtra(R::kPhiGJ), w);
+    };
+    plotter.combine({3,4}, {&hphi, &hcos, &hs12, &hs1, &hs2, &ht1, &ht2, &ht, &hEbeam, &phi_s1, &phi_s2, &phi_s12}, outfile + ".pdf");
 };

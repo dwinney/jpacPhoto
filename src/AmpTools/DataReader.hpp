@@ -47,7 +47,7 @@ namespace jpacPhoto
 
         inline Kinematics* getEvent()
         {
-            if (_nCounter > numEvents()) return nullptr;
+            if (_nCounter > numEvents() || _ERROR) return nullptr;
 
             _tree->GetEntry(_nCounter++);
             std::vector<TLorentzVector> particleList;
@@ -87,6 +87,7 @@ namespace jpacPhoto
             if (args.size() != N + 1)
             {
                 warning("DataReader::initialize()", "Unexpected number of arguments passes!");
+                _ERROR = true;
                 return;
             };  
 
@@ -105,7 +106,7 @@ namespace jpacPhoto
             if (!file_exists)
             {
                 warning("DataReader::initialize()", "Couldn't find input file " + infile_name);
-                _file = nullptr; _tree = nullptr;
+                _file = nullptr; _tree = nullptr; _ERROR = true;
                 return;
             };
 
@@ -116,6 +117,7 @@ namespace jpacPhoto
             {
                 warning("DataReader::initialize()", "Couldn't find tree " + default_treename + " in file " + infile_name);
                 _tree = nullptr;
+                _ERROR = true;
                 return;
             };
 
@@ -136,6 +138,9 @@ namespace jpacPhoto
         // Each implentation can allow additional branches to read from the file
         // This function is called at the end of initialize and does nothing by default
         virtual void setupExtras(){ print("noooo");};
+
+        // Whether sometihng went wrong inthe file opening
+        bool _ERROR = false; 
 
         // Particle labels to appear in branches
         std::array<std::string, N> _labels;
@@ -204,6 +209,7 @@ namespace jpacPhoto
         enum extras{ kS, kT, kS12, kS1, kS2, kT1, kT2, kCosGJ, kThetaGJ, kPhiGJ };
         inline double getExtra(extras var)
         {
+            if (_ERROR) return std::nan("");
             switch (var)
             {
                 case kS:       return _s;
