@@ -30,6 +30,7 @@
 #include "debug.hpp"
 #include "print.hpp"
 #include "constants.hpp"
+#include "plotter.hpp"
 #include "Experiment.hpp"
 
 namespace jpacPhoto
@@ -42,7 +43,7 @@ namespace jpacPhoto
         public: 
 
         EventGenerator( std::array<double, N> masses, std::array<std::string,N> particle_labels )
-        : _labels(particle_labels), _exp(new Experiment())
+        : _labels(particle_labels)
         {
             // Convert the input masses into a C-string
             for (int i = 0; i < N; i++)
@@ -51,22 +52,24 @@ namespace jpacPhoto
             };
         };
 
-        // Set a fixed beam energy to generate phase space / physics with
-        // This can later be replaced by a function of beam specturm
-        inline void setBeamEnergy(double Egam) 
+        EventGenerator( std::array<double, N> masses, std::array<std::string,N> particle_labels, Experiment * x)
+        : _labels(particle_labels), _exp(x)
         {
-            if (_exp != nullptr)
+            // Convert the input masses into a C-string
+            for (int i = 0; i < N; i++)
             {
-                warning("EventGenerator::setBeamEnergy", "setBeamEnergy called on when using a non-constant beam spectrum is ignored.");
-                return;
+                _masses[i] = masses[i];
             };
-
-            _constant_E = Egam;
         };
 
         inline void setExperiment(Experiment * exp)
         {
             _exp = exp;
+        };
+
+        inline void setSeed(int x)
+        {
+            _seed = x;
         };
 
         // ------------------------------------------------------------------------------
@@ -79,19 +82,21 @@ namespace jpacPhoto
         // https://github.com/mashephe/AmpTools/blob/master/Tutorials/Dalitz/DalitzExe/generatePhaseSpace.cc
         inline void generateWeightedPhaseSpace(int nEvents, std::string outfile = "out.root")
         {
+            if (_exp == nullptr) 
+            {
+                warning("generateWeightedPhaseSpace", "No experiment setup set!");
+                return;
+            }
+
             // Set random seeds
-            gRandom = new TRandom3(0);
+            gRandom = new TRandom3(_seed);
 
             Writer writer(_labels, outfile);
          
-           double egam = _exp->beam_energy();
-            TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
-            _generator.SetDecay(W, N, _masses);
-
             // Instead of accept reject just save weight
             for (int i = 0; i < nEvents; i++)
             {
-                double egam = (_exp) ? _exp->beam_energy() : _constant_E;
+                double egam = _exp->beam_energy();
                 TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
                 _generator.SetDecay(W, N, _masses);
                 double weight = _generator.Generate();
@@ -114,14 +119,21 @@ namespace jpacPhoto
         template<class A>
         inline void generateWeightedPhysics(int nEvents, std::string configfile, std::string outfile = "out.root")
         {
+            if (_exp == nullptr) 
+            {
+                warning("generateWeightedPhaseSpace", "No experiment setup set!");
+                return;
+            }
+
             // Set random seeds
-            gRandom = new TRandom3(0);
+            gRandom = new TRandom3(_seed);
 
             // Generate events
             line();
             divider();
             print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
-            print("Method:", "Weighted Phasespace");
+            print("Method:", "Weighted");
+            print("Beam setup:", _exp->id());
             print("cfg file:", configfile);
             print("Output file:", outfile);
             divider();
@@ -141,7 +153,7 @@ namespace jpacPhoto
             // Generate a phase-space data set
             for (int i = 0; i < nEvents; i++)
             {
-                double egam = (_exp) ? _exp->beam_energy() : _constant_E;
+                double egam = _exp->beam_energy();
                 TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
                 _generator.SetDecay(W, N, _masses);
                 double weight = _generator.Generate();
@@ -180,7 +192,7 @@ namespace jpacPhoto
             std::vector<Kinematics> out;
             for (int i = 0; i < _nBatch; i++)
             {
-                double egam = (_exp) ? _exp->beam_energy() : _constant_E;
+                double egam = _exp->beam_energy();
                 TLorentzVector W = TLorentzVector(0., 0., egam, egam + M_PROTON);
                 _generator.SetDecay(W, N, _masses);
                 double weight = _generator.Generate(); 
@@ -208,8 +220,14 @@ namespace jpacPhoto
 
         inline void generatePhaseSpace(int nEvents, std::string outfile = "out.root")
         {
+            if (_exp == nullptr) 
+            {
+                warning("generateWeightedPhaseSpace", "No experiment setup set!");
+                return;
+            }
+
             // Set random seeds
-            gRandom = new TRandom3(0);
+            gRandom = new TRandom3(_seed);
 
             Writer writer(_labels, outfile);
         
@@ -248,16 +266,23 @@ namespace jpacPhoto
 
         // Generate nEvents using hit-or-miss with a specified model intensity
         template<class A>
-        inline void generatePhysics(int nEvents, std::string configfile, std::string outfile = "out.root")
+        inline void generatePhysics(int nEvents, std::string configfile, std::string outfile = "out.root", double maxwt = -1)
         {
+            if (_exp == nullptr) 
+            {
+                warning("generateWeightedPhaseSpace", "No experiment setup set!");
+                return;
+            }
+
             // Set random seeds
-            gRandom = new TRandom3(0);
+            gRandom = new TRandom3(_seed);
 
             // Generate events
             line();
             divider();
             print("Generating " + std::to_string(nEvents) + " with amplitude: " + A().name());
             print("Method:", "Hit-or-Miss");
+            print("Beam setup:", _exp->id());
             print("cfg file:", configfile);
             print("Output file:", outfile);
             divider();
@@ -270,6 +295,7 @@ namespace jpacPhoto
             // AmpToolsInterface
             AmpToolsInterface::registerAmplitude( A() );
             AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kMCGeneration);
+            line();
 
             line();
             divider();
@@ -309,6 +335,8 @@ namespace jpacPhoto
                 // Loop over the loaded events and do a second hit-or-miss
                 // DO accept / reject
                 double maxIntensity = ATI.processEvents(reaction->reactionName());
+                if (maxwt > 0) maxIntensity = maxwt;
+
                 for (int i = 0; i < nPS; i++)
                 {
                     if ((nGenerated + nPass) >= nEvents) break;
@@ -316,10 +344,11 @@ namespace jpacPhoto
                     double Intensity = ATI.intensity(i); 
                     if (Intensity / maxIntensity > gRandom->Rndm())
                     {
-                        nPass++;
+                        if (Intensity > maxIntensity) continue;
                         Kinematics* kin = ATI.kinematics(i);
                         if (_exp->acceptance(kin)) writer.writeEvent(*kin);
                         delete kin;
+                        nPass++;
                     }
                 };
                 print("-- Pass " + std::to_string(Passes) + ": Generated " + std::to_string(nPass) + " events (" + std::to_string(nGenerated + nPass) + "/" + std::to_string(nEvents) + ")...");
@@ -332,8 +361,85 @@ namespace jpacPhoto
             line();
         };
 
+        template<class A>
+        inline void intensityProfile(std::string configfile, std::string outfile, int nEvents = 1E5)
+        {
+            if (_exp == nullptr) 
+            {
+                warning("generateWeightedPhaseSpace", "No experiment setup set!");
+                return;
+            }
+
+            // Set random seeds
+            gRandom = new TRandom3(_seed);
+
+            ConfigFileParser parser(configfile);
+            ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
+            // cfgInfo->display();
+            ReactionInfo* reaction = cfgInfo->reactionList()[0];
+
+            // AmpToolsInterface
+            AmpToolsInterface::registerAmplitude( A() );
+            AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kMCGeneration);
+            line();
+
+            TH1D * hw = new TH1D("weight", "weight", 150, 1, -1);
+            plotter plotter;
+            histogram_1D h = plotter.new_histogram_1D();
+            h.set_labels("Intensity", "Cumulative % of Events");
+
+            int nGenerated = 0;
+            int Passes = 1, nFailed = 0;
+            while (nGenerated < nEvents)
+            {
+                if (nFailed > 3)
+                {
+                    warning("EventGenerator::weightProfile", "Three passes with no events generated, possible infinite loop? Exiting...");
+                    exit(1);
+                };
+
+                int nPass = 0;
+                
+                // First generate a batch of phase space
+                auto batch       = generateBatch();
+                double maxWeight = getMaxWeight(batch);
+                int nPS = 0;  // Number of generated PS points
+
+                // Do hit-or-miss to generate phasespace
+                for (auto event : batch)
+                {
+                    double weight = event.weight(); 
+                    if (weight / maxWeight > gRandom->Rndm())
+                    {
+                        event.setWeight(1.); // Reset the weight to 1
+                        ATI.loadEvent(&event, nPS, batch.size()); // Instead of writing, load to AmpTools
+                        nPS++;
+                    };
+                };
+
+                // Instead of hit-or-miss we load all weights into a histogram
+                double maxIntensity = ATI.processEvents(reaction->reactionName());
+                for (int i = 0; i < nPS; i++)
+                {
+                    if ((nGenerated + nPass) >= nEvents) break;
+
+                    double Intensity = ATI.intensity(i); 
+                    h.fill(Intensity);
+                    nPass++;
+                };
+                nGenerated += nPass;
+                Passes++;
+                if (nPass == 0) nFailed++;
+                ATI.clearEvents();
+            };
+
+            h.save("test.pdf", true);
+            return;
+        };
+
         protected:
 
+        // Energy dependence
         Experiment * _exp = nullptr;
         double _constant_E = 9.0;
 
@@ -347,6 +453,7 @@ namespace jpacPhoto
         int _nBatch = 1E6;
 
         // Related to TGenPhaseSpace
+        int _seed = 0;
         TGenPhaseSpace _generator;
     };
 

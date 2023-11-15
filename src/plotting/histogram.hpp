@@ -31,8 +31,16 @@ namespace jpacPhoto
     {
         public:
 
+        ~histogram_1D()
+        {
+            if (_canvas)
+            {
+                _canvas->Close();
+            }
+        };
+
         // Outputting function, generates plot and saves it to file
-        void save(std::string filename);
+        void save(std::string filename, bool cumulative = false);
 
         // Fill the saved histogram
         inline void fill(double x, double w = 1){ _hist->Fill(x, w); };
@@ -51,13 +59,14 @@ namespace jpacPhoto
         histogram_1D(TCanvas* canvas, std::string label = "", std::array<double,2> bounds = {1., 0.})
         : _canvas(canvas), _xlabel(label)
         {
-            _hist = new TH1D("h", "h", 60, bounds[0], bounds[1]);
+            _hist = new TH1D("h", "h", 100, bounds[0], bounds[1]);
         };
 
         friend class plotter;
 
         // Draw the histogram onto whatver is the active canvas
         void draw();
+        void draw_cumulative();
         void combine_draw(double scale);
 
         // Canvas that the plot actually gets drawn on
@@ -102,6 +111,14 @@ namespace jpacPhoto
     class histogram_2D : public histogram_1D
     {
         public:
+
+        ~histogram_2D()
+        {
+            if (_canvas)
+            {
+                _canvas->Close();
+            }
+        };
 
         // Outputting function, generates plot and saves it to file
         void save(std::string filename);

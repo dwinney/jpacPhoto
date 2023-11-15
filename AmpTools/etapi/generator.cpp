@@ -1,10 +1,12 @@
 #include "EventGenerator.hpp"
+#include "Experiment.hpp"
 #include "GlueX.hpp"
 #include "jpacAmplitude.hpp"
 #include "ThreeBodyWriter.hpp"
 #include "DataReader.hpp"
 #include "plotter.hpp"
 #include "histogram.hpp"
+#include "cgamma.hpp"
 
 #include "double_regge/model_30.hpp"
 
@@ -30,20 +32,26 @@ namespace jpacPhoto
 void generator()
 {
     using namespace jpacPhoto;
-    using namespace jpacPhoto::two_meson;
     using R = ThreeBodyReader;
     
-    std::string outfile = "physics";
+    std::string outfile = "results";
 
     // ------------------------------------------------------------------------------
     // Generate phasespace
 
-    // GlueX g(8.0, 9.0);
-    // EventGenerator<ThreeBodyWriter,3> generator( {M_ETA, M_PION, M_PROTON}, {"eta", "pi", "p"} );
-    // generator.setExperiment(&g);
+    GlueX gluex(8.0, 9.0);
+    Monoenergetic mono(8.5);
+    
+    EventGenerator<ThreeBodyWriter,3> generator( {M_ETA, M_PION, M_PROTON}, {"eta", "pi", "p"} );
+    generator.setExperiment(&gluex);
 
-    // // Hit or miss MC using model
-    // generator.generatePhysics< jpacAmplitude<double_regge> >(1E6, "etapi.cfg", outfile + ".root");     
+    // Weighted MC
+    // generator.generatePhaseSpace(1E7, outfile + ".root");
+    generator.generateWeightedPhysics<two_meson::jpacAmplitude<double_regge>>(1E5, "etapi.cfg", outfile + ".root"); 
+
+    // Hit-or-miss MC
+    // generator.intensityProfile<two_meson::jpacAmplitude<double_regge>>("etapi.cfg", "intensities.pdf");
+    // generator.generatePhysics<two_meson::jpacAmplitude<double_regge>>(1E6, "etapi.cfg", outfile + ".root", 0.015); 
 
     // ------------------------------------------------------------------------------
     // Make histograms
@@ -74,7 +82,6 @@ void generator()
         double spip   = reader.getExtra(R::kS2);
 
         if (setapi < 4.0 || spip < 4.0) continue;
-
         ht.fill(   reader.getExtra(R::kT)    , w);
         hs12.fill( reader.getExtra(R::kS12)  , w);
         hs1.fill(  reader.getExtra(R::kS1)   , w);

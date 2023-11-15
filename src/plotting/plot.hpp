@@ -107,6 +107,15 @@ namespace jpacPhoto
     {
         public:
 
+        ~plot()
+        {
+            if (_canvas)
+            {
+                _canvas->Close();
+            }
+        };
+
+
         // Outputting function, generates plot and saves it to file
         void save(); 
 

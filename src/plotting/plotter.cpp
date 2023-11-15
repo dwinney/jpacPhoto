@@ -15,6 +15,22 @@ namespace jpacPhoto
     // Set up the colors we can use
     void plotter::initialize_colors()
     {
+        if (gROOT->GetColor(+jpacColor::Blue))
+        {
+            jpacBlue     = gROOT->GetColor(+jpacColor::Blue);
+            jpacRed      = gROOT->GetColor(+jpacColor::Red);
+            jpacGreen    = gROOT->GetColor(+jpacColor::Green);
+            jpacOrange   = gROOT->GetColor(+jpacColor::Orange);
+            jpacPurple   = gROOT->GetColor(+jpacColor::Purple);
+            jpacBrown    = gROOT->GetColor(+jpacColor::Brown);
+            jpacPink     = gROOT->GetColor(+jpacColor::Pink);
+            jpacGold     = gROOT->GetColor(+jpacColor::Gold);
+            jpacAqua     = gROOT->GetColor(+jpacColor::Aqua);
+            jpacGrey     = gROOT->GetColor(+jpacColor::Grey);
+            jpacDarkGrey = gROOT->GetColor(+jpacColor::DarkGrey);
+            return;
+        };
+
         // make sure each color gets a free index
         jpacBlue     = new TColor(+jpacColor::Blue,     0.12156862745098039, 0.4666666666666667,  0.7058823529411765);
         jpacRed      = new TColor(+jpacColor::Red,      0.8392156862745098,  0.15294117647058825, 0.1568627450980392);

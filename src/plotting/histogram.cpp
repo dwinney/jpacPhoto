@@ -40,6 +40,32 @@ namespace jpacPhoto
         add_logo();
     };
 
+    void histogram_1D::draw_cumulative()
+    {       
+        // Remove title and add axis labels
+        std::string labels = ";" + _xlabel + ";" + _ylabel;
+        auto hist_c = _hist->GetCumulative();
+        hist_c->Scale(1./_hist->GetEntries());
+
+        hist_c->SetTitle(labels.c_str());
+        
+        // Center the labels
+        hist_c->GetXaxis()->CenterTitle(true);
+        hist_c->GetYaxis()->CenterTitle(true);
+        hist_c->GetYaxis()->SetMaxDigits(2);
+
+        // Increase plot range by 20% to fit the logo lol
+        hist_c->SetLineColor(+jpacColor::Green);
+        hist_c->SetLineWidth(3);
+        gPad->Modified();
+
+        // Draw
+        hist_c->Draw();
+
+        add_logo();
+    };
+
+
     void histogram_1D::combine_draw(double x)
     {
         // Apply global settings to the pad
@@ -56,11 +82,13 @@ namespace jpacPhoto
 
     // ---------------------------------------------------------------------------
     // Outputting function, generates plot and saves it to file
-    void histogram_1D::save(std::string filename)
+    void histogram_1D::save(std::string filename, bool cumulative)
     {       
         _canvas->cd();
         // Draw the canvas
-        draw();
+        if (cumulative) draw_cumulative();
+        else draw();
+
         _canvas->Draw();
 
         // and print to file

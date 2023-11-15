@@ -25,7 +25,7 @@ namespace jpacPhoto
         {};
 
         // Sample a beam energy from whatever spectrum we want
-        virtual double beam_energy(){ return _constantEbeam; };
+        virtual double beam_energy() = 0;
 
         // Get the degree of polarization at a given energy
         virtual double polarization(double E){ return 0.; };
@@ -34,10 +34,22 @@ namespace jpacPhoto
         virtual bool acceptance(Kinematics * event){ return true; };
 
         // String id to identify the setup
-        std::string id(){ return _id; };
+        std::string id(){ return this->_id; };
+
+        std::string _id;
+    };
+
+    class Monoenergetic : public Experiment
+    {
+        public: 
+        Monoenergetic(double x)
+        : Experiment("Monoenergetic"), _constantEbeam(x)
+        {};
+
+        // Sample a beam energy from whatever spectrum we want
+        virtual double beam_energy(){ return _constantEbeam; };
 
         double _constantEbeam = 9.0;
-        std::string _id;
     };
 };
 

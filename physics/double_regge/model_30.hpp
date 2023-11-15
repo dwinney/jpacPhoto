@@ -25,7 +25,7 @@ namespace jpacPhoto
         model_30(two_meson::amplitude_key key, two_meson::kinematics xkinem, std::string id = "phase_space")
         : two_meson::raw_amplitude(key, xkinem, id)
         {
-            initialize(10);
+            initialize(13);
         };
 
         inline complex helicity_amplitude(std::array<int,3> helicities, double s, double t, double s12, double thetaGJ, double phiGJ)
@@ -51,18 +51,20 @@ namespace jpacPhoto
             double V1 = _v1[0] + _v1[1]*s1/_s0 + _v1[2]*s2/_s0;
             double V2 = _v2[0] + _v2[1]*s1/_s0 + _v2[2]*s2/_s0;
             
-            complex term1 = gamma(-alpha1) * pow(s/_s0, alpha1) * pow(s2/_s0, alpha2 - alpha1) * xi(-1, alpha1) * xi(+1, alpha2 - alpha1) * V1;
-            complex term2 = gamma(-alpha2) * pow(s/_s0, alpha2) * pow(s1/_s0, alpha1 - alpha2) * xi(-1, alpha2) * xi(+1, alpha1 - alpha2) * V2;
+            complex term1  = cgamma(-alpha1) * pow(s/_s0, alpha1) * xi(-1, alpha1) * pow(s2/_s0, alpha2 - alpha1) * xi(+1, alpha2 - alpha1) * V1;
+            complex term2  = cgamma(-alpha2) * pow(s/_s0, alpha2) * xi(-1, alpha2) * pow(s1/_s0, alpha1 - alpha2) * xi(+1, alpha1 - alpha2) * V2;
+            complex result = sin(thetaGJ) * (term1 + term2) * (1. + _f1*sin(phiGJ) + _f2*cos(phiGJ) + _f3*sin(phiGJ)*sin(phiGJ));
 
-            return sin(thetaGJ) * (term1 + term2);
+            return result;
         };
         
         inline void allocate_parameters(std::vector<double> pars)
         {
-            _az1   = pars[0]; _ap1 = pars[1];
-            _az2   = pars[2]; _ap2 = pars[3];
+            _az1   = pars[0]; _ap1   = pars[1];
+            _az2   = pars[2]; _ap2   = pars[3];
             _v1[0] = pars[4]; _v1[1] = pars[5]; _v1[2] = pars[6];
             _v2[0] = pars[7]; _v2[1] = pars[8]; _v2[2] = pars[9];
+            _f1    = pars[10]; _f2   = pars[11]; _f3   = pars[12];
         }
 
         // Use amplitude::set_option to choose which particle is the fast one
@@ -73,6 +75,7 @@ namespace jpacPhoto
         
         // Trajectories
         double _az1, _az2, _ap1, _ap2;
+        double _f1, _f2, _f3;
 
         // Vertex factors
         std::array<double,3> _v1, _v2;
