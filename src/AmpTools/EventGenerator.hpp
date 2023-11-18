@@ -433,7 +433,7 @@ namespace jpacPhoto
                 ATI.clearEvents();
             };
 
-            h.save("test.pdf", true);
+            h.save(outfile, true);
             return;
         };
 
