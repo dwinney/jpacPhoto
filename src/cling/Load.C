@@ -18,16 +18,12 @@ void Load()
     TString main_dir  = gSystem->Getenv("JPACPHOTO");
 
     // Load the main library files
-    TString core        = main_dir + "/src/core"; 
+    TString core        = main_dir + "/src"; 
     TString main_lib    = main_dir + "/lib/libJPACPHOTO." + lib_ext;
 
     // Supplementary header files 
-<<<<<<< HEAD
-    TString amplitudes  = main_dir + "/physics";
-=======
     TString physics  = main_dir + "/physics";
->>>>>>> master
-    TString data        = main_dir + "/data";
+    TString data     = main_dir + "/data";
 
     if (!gSystem->AccessPathName(main_lib.Data()))
     {
