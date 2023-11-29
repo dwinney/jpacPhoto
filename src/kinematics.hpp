@@ -138,7 +138,7 @@ namespace jpacPhoto
         // Quantum numbers of produced meson. 
         
         inline std::array<int,2> get_meson_JP(){ return _mjp; };
-        particle get_meson();
+        quantum_numbers get_meson();
 
         inline void set_meson_JP(int J, int P)
         { 
@@ -147,14 +147,14 @@ namespace jpacPhoto
             _nAmps = _helicities.size();
         };
         inline void set_meson_JP(std::array<int,2> jp){ set_meson_JP(jp[0], jp[1]); };
-        void set_meson_JP(particle x);
+        void set_meson_JP(quantum_numbers x);
         
         // ---------------------------------------------------------------------------
         // Quantum numbers of produced baryon.
         // The baryon spin (and only this quantity) is multiplied by 2 to be saves as an int
 
         inline std::array<int,2> get_baryon_JP(){ return _bjp; };
-        particle get_baryon();
+        quantum_numbers get_baryon();
 
 
         inline void set_baryon_JP(int J, int P)
@@ -164,7 +164,7 @@ namespace jpacPhoto
             _nAmps = _helicities.size();
         };
         inline void set_baryon_JP(std::array<int,2> jp){ set_baryon_JP(jp[0], jp[1]); };
-        void set_baryon_JP(particle x);
+        void set_baryon_JP(quantum_numbers x);
 
         // ---------------------------------------------------------------------------
         // Accessing the helicity combinations 

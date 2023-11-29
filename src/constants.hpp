@@ -153,12 +153,12 @@ namespace jpacPhoto
     // ------------------------------------------------------------------------------
     // Quantum number combinations
 
-    enum particle { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
+    enum quantum_numbers { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
                                     HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
         
     // Its possible to have a completely quantum number independent amplitude
     // in which case use this
-    inline std::vector<particle> any(){ return { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
+    inline std::vector<quantum_numbers> any(){ return { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
                                                                  HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS }; };
 
     // ------------------------------------------------------------------------------

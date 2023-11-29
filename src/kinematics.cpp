@@ -1,7 +1,7 @@
 // // Class to contain all relevant kinematic quantities. 
 // (e.g. angles, momenta, helicity info)
 //
-// Full kinematics of the process are entirely determiend by the masses of all particles:
+// Full kinematics of the process are entirely determiend by the masses of all quantum_numberss:
 // mB - beam mass 
 // mT - target (baryon) mass
 // mX - produced meson mass
@@ -23,7 +23,7 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Quantum number handling
 
-    particle raw_kinematics::get_meson()
+    quantum_numbers raw_kinematics::get_meson()
     {
         auto JP = get_meson_JP();
         int  qns =  10 * JP[0] + (JP[1] == 1);
@@ -37,7 +37,7 @@ namespace jpacPhoto
         return PARTICLE_ERROR;
     };
 
-    void raw_kinematics::set_meson_JP(particle x)
+    void raw_kinematics::set_meson_JP(quantum_numbers x)
     {
         int J, P;
         switch (x)
@@ -52,7 +52,7 @@ namespace jpacPhoto
         set_meson_JP(J, P);
     };
 
-    particle raw_kinematics::get_baryon()
+    quantum_numbers raw_kinematics::get_baryon()
     {
         auto JP = get_baryon_JP();
         int  qns =  10 * JP[0] + (JP[1] == 1);
@@ -66,7 +66,7 @@ namespace jpacPhoto
         return PARTICLE_ERROR;
     };
 
-    void raw_kinematics::set_baryon_JP(particle x)
+    void raw_kinematics::set_baryon_JP(quantum_numbers x)
     {
         int J, P;
         switch (x)

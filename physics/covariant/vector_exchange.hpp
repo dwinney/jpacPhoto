@@ -56,10 +56,10 @@ namespace jpacPhoto
             inline helicity_frame native_helicity_frame(){ return S_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
-            inline std::vector<particle> allowed_mesons(){  return { SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR }; };
+            inline std::vector<quantum_numbers> allowed_mesons(){  return { SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR }; };
 
             // And protons on the bottom vertex
-            inline std::vector<particle> allowed_baryons(){ return { HALFPLUS }; };
+            inline std::vector<quantum_numbers> allowed_baryons(){ return { HALFPLUS }; };
 
             // The options here are the type of form_factor used
             // Default assumed exponential

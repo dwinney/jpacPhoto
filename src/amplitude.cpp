@@ -250,12 +250,12 @@ namespace jpacPhoto
     void raw_amplitude::check_QNs(kinematics kinem)
     {
         // Get all the allowed JP's from the amplitude
-        std::vector<particle> allowed_mesons, allowed_baryons;
+        std::vector<quantum_numbers> allowed_mesons, allowed_baryons;
         allowed_mesons  = this->allowed_mesons();
         allowed_baryons = this->allowed_baryons();
 
         // Grab the requested JPs from the raw_kinematics
-        particle requested_meson, requested_baryon;
+        quantum_numbers requested_meson, requested_baryon;
         requested_meson  = kinem->get_meson();
         requested_baryon = kinem->get_baryon();
 

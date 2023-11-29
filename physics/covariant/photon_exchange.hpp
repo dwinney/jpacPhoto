@@ -65,8 +65,8 @@ namespace jpacPhoto
             inline helicity_frame native_helicity_frame(){  return S_CHANNEL; };
 
             // Specify which final state particles amplitude can acommodate
-            inline std::vector<particle> allowed_mesons() { return { AXIALVECTOR }; };
-            inline std::vector<particle> allowed_baryons(){ return { HALFPLUS    }; };
+            inline std::vector<quantum_numbers> allowed_mesons() { return { AXIALVECTOR }; };
+            inline std::vector<quantum_numbers> allowed_baryons(){ return { HALFPLUS    }; };
 
             inline void allocate_parameters(std::vector<double> pars)
             {

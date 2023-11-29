@@ -67,13 +67,13 @@ namespace jpacPhoto
             inline helicity_frame native_helicity_frame(){ return T_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
-            inline std::vector<particle> allowed_mesons()
+            inline std::vector<quantum_numbers> allowed_mesons()
             {
                 return { PSEUDOSCALAR, VECTOR, AXIALVECTOR };
             };
 
             // But only either parity spin-1/2
-            inline std::vector<particle> allowed_baryons()
+            inline std::vector<quantum_numbers> allowed_baryons()
             {
                 return { HALFPLUS };
             };

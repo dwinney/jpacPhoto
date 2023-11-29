@@ -74,8 +74,8 @@ namespace jpacPhoto
             };
 
             // We can have any quantum numbers
-            inline std::vector<particle> allowed_mesons() { return any(); };
-            inline std::vector<particle> allowed_baryons(){ return any(); };
+            inline std::vector<quantum_numbers> allowed_mesons() { return any(); };
+            inline std::vector<quantum_numbers> allowed_baryons(){ return any(); };
 
             // And helicity independent
             inline helicity_frame native_helicity_frame(){ return HELICITY_INDEPENDENT; };

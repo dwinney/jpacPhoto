@@ -49,8 +49,8 @@ namespace jpacPhoto
             inline helicity_frame native_helicity_frame(){ return HELICITY_INDEPENDENT; };
 
             // Vector mesons and half plus only
-            inline std::vector<particle> allowed_mesons() { return { VECTOR }; };
-            inline std::vector<particle> allowed_baryons(){ return { HALFPLUS }; };
+            inline std::vector<quantum_numbers> allowed_mesons() { return { VECTOR }; };
+            inline std::vector<quantum_numbers> allowed_baryons(){ return { HALFPLUS }; };
 
             // Parameter names are a[J] and b[J] for scattering length and normalization respectively
             inline std::vector<std::string> parameter_labels()

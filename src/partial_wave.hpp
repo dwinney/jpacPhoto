@@ -65,8 +65,8 @@ namespace jpacPhoto
             return helicity_frame::S_CHANNEL;
         };
 
-        virtual std::vector<particle> allowed_mesons(){  return (_amplitude == nullptr) ? std::vector<particle>() : _amplitude->allowed_mesons(); };
-        virtual std::vector<particle> allowed_baryons(){ return (_amplitude == nullptr) ? std::vector<particle>() : _amplitude->allowed_baryons(); };
+        virtual std::vector<quantum_numbers> allowed_mesons(){  return (_amplitude == nullptr) ? std::vector<quantum_numbers>() : _amplitude->allowed_mesons(); };
+        virtual std::vector<quantum_numbers> allowed_baryons(){ return (_amplitude == nullptr) ? std::vector<quantum_numbers>() : _amplitude->allowed_baryons(); };
         
         // Return the J-th term to the full amplitude by multiplying by angular function
         // These may be overloaded with an explicit model for the PWA
