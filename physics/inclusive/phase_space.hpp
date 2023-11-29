@@ -16,7 +16,7 @@
 
 namespace jpacPhoto
 {
-    namespace 
+    namespace inclusive
     {
         class phase_space : public raw_inclusive_process
         {

@@ -141,6 +141,34 @@ namespace jpacPhoto
         _entries.push_back(plot_entry(graph, style, true));
     };
 
+    // Add data by simply feeding it vectors 
+    void plot::add_data(std::vector<double> xin, std::vector<double> yin, std::array<std::vector<double>,2> errsin, std::string id)
+    {
+        // Check size of arrays
+        int N = xin.size();
+        if ((yin.size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
+            error("add_data", "Input vectors dont match! Returning...");
+
+        double *x, *y, *ex, *ey;
+
+        x  = &(xin[0]);        y  = &(yin[0]);
+        ex = &(errsin[0][0]);  ey = &(errsin[1][0]);
+         
+        TGraph *graph = new TGraphErrors(N, x, y, ex, ey);
+
+        entry_style style;
+        style._style = 20 + _Ndata;
+        style._color = jpacColor::DarkGrey;
+        style._draw_opt = "P";
+        style._label = id;
+        style._add_to_legend = !(id == "");
+
+        _Ndata++;
+        _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+
     // -----------------------------------------------------------------------
     // Add different curves from amplitudes / functions
 

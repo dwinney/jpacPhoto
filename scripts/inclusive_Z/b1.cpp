@@ -1,4 +1,5 @@
-// 
+// Comparison of b1 inclusive photoproduction near threshold.
+// Reproduces figs 6. and 7. of [1]
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2023)
@@ -20,13 +21,9 @@
 #include "Math/IntegrationTypes.h"
 #include "plotter.hpp"
 
-using namespace jpacPhoto;
-
 void b1()
 {
     using namespace jpacPhoto;
-    using complex = std::complex<double>;
-    using pion_exchange = fixed_spin::pion_exchange;
     
     plotter plotter;
 
@@ -37,7 +34,7 @@ void b1()
     double g_b1 = 0.24;
     double g_NN = sqrt(2.) * sqrt(4. * PI * 13.81); // Nucleon coupling same for all
     double g_delta = 18.5;
-    double LamPi = .9;  // 900 MeV cutoff for formfactor
+    double LamPi = .9;   // 900 MeV cutoff for formfactor
     
     // --------------------------------s-------------------------------------------
     // Exclusive amplitudes
@@ -74,6 +71,7 @@ void b1()
         return 2.*w/M_PI * sqrt(w*w - sth) *gamma / (pow(w*w-mass*mass, 2.) + pow(sqrt(w*w - sth)*gamma, 2.));
     };
 
+    // Exclusive b1 (delta -> pi N) using the Sill distribution 
     auto func_PiN = [&](double w)
     {
         auto dH = [&](double m)
@@ -94,60 +92,64 @@ void b1()
     // Inclusives
     // ---------------------------------------------------------------------------
 
-    inclusive_process b1p = new_inclusive_process<pion_exchange>(M_B1, +1, "b_{1}(1235)^{#plus}");
-    b1p->set_parameters({g_b1, LamPi});
+    inclusive_process b1p = new_inclusive_process<inclusive::pion_exchange>(M_B1, +1, "b_{1}(1235)^{#plus}");
+    b1p->set_parameters(g_b1);
     
-    inclusive_process b1m = new_inclusive_process<pion_exchange>(M_B1, -1, "b_{1}(1235)^{#minus}");
-    b1m->set_parameters({g_b1, LamPi});
+    inclusive_process b1m = new_inclusive_process<inclusive::pion_exchange>(M_B1, -1, "b_{1}(1235)^{#minus}");
+    b1m->set_parameters(g_b1);
 
     // ---------------------------------------------------------------------------
     // Make plot
     // ---------------------------------------------------------------------------
 
-    int N = 30;
-    std::array<double,2> bounds = {2, 4};
-
-    // b1 minus plot
+    // b1- sigma
     auto func_m = [&](double w)
     {
         return b1m->integrated_xsection(w*w) * 1E-3; // in mub
     };
 
-    // b1 plus plot
+    // b1+ sigma
     auto func_p = [&](double w)
     {
         return (b1p->integrated_xsection(w*w) + b1N->integrated_xsection(w*w)) * 1E-3; // in mub
     };
 
+    // Exclusive b1+ N only 
     auto func_N = [&](double w)
     {
         return b1N->integrated_xsection(w*w) * 1E-3; // in mub
     };
 
+    // Exclusive b1- delta 
     auto func_D = [&](double w)
     {
         return b1D->integrated_xsection(w*w) * 1E-3; // in mub
     };
 
+    // Plotting bounds
+    std::array<double,2> bounds = {2, 4};
+
+    // p1 = plot comparing the b1- inclusive with the delta++ contributions
     plot p1 = plotter.new_plot();
-    p1.set_curve_points(N);
     p1.set_legend(0.5, 0.7);
-    p1.set_ranges({2, 4}, {0, 10});
+    p1.set_ranges(bounds, {0, 10});
     p1.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
 
-    p1.add_curve( bounds, func_PiN, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW");
-    kb1D->set_recoil_mass(M_B1);
-    p1.add_dashed( bounds, func_D);
+    // p1.add_curve( bounds, func_PiN, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW");
+    // kb1D->set_recoil_mass(M_B1);
+    // p1.add_dashed( bounds, func_D);
 
-    b1m->set_option(pion_exchange::kPwave);
+    p1.set_curve_points(50);
+    b1m->set_option(inclusive::pion_exchange::kPwave);
     p1.add_curve( bounds, func_m, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from SAID");
-    b1m->set_option(pion_exchange::kJPAC);
+    b1m->set_option(inclusive::pion_exchange::kJPAC);
     p1.add_curve( bounds, func_m, "Inclusive b_{1}^{#minus}");
 
+    // p2 = comparison of total inclusive b1+ and b1-
     plot p2 = plotter.new_plot();
-    p2.set_curve_points(N);
-    p2.set_legend(0.5, 0.7);
-    p2.set_ranges({2, 5}, {0, 8});
+    p2.set_curve_points(50);
+    p2.set_legend(0.7, 0.7);
+    p2.set_ranges(bounds, {0, 8});
     p2.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
     p2.add_curve( bounds, func_p, b1p->id());
     p2.add_dashed(bounds, func_N);

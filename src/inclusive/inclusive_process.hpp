@@ -93,6 +93,11 @@ namespace jpacPhoto
         // This function is what a user actually calls
         // It wraps the protected vitual method allocate_parameters() with checks of correct size and caching
         void set_parameters( std::vector<double> x );
+        inline void set_parameters( double x )
+        { 
+            std::vector<double> pars = {x};
+            set_parameters(pars); 
+        };
 
         // Given a vector of double of appropriate length, allocate free parameters to model
         // By default we do nothing
@@ -100,6 +105,9 @@ namespace jpacPhoto
 
         // Pass a flag and make the appropriate changes, defaults to do nothing excpet save the flag
         virtual inline void set_option( int opt ){ _option = opt; };
+
+        // Specify whether our cross section is reggeized
+        virtual inline void reggeized(bool x){ _regge = x; };
         
         // ----------------------------------------------------------------------
         // Kinematics 
@@ -179,6 +187,9 @@ namespace jpacPhoto
 
         // Int flag used to signal desired changes to amplitude
         int _option = 0;
+
+        // Whether or not the inclusive process is reggeized
+        bool _regge = false;
         
         // Mass of the observed and target particles
         double _mX2 = 0, _mT2 = M2_PROTON;

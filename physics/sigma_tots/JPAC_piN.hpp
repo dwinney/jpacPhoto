@@ -17,19 +17,19 @@
 #include "cgamma.hpp"
 #include "constants.hpp"
 #include "data_set.hpp"
-#include "total_xsection.hpp"
+#include "inclusive_function.hpp"
 #include <Math/Interpolator.h>
 
 namespace jpacPhoto
 {
-    class JPAC_piN : public raw_total_xsection
+    class JPAC_piN : public raw_inclusive_function
     {
         public: 
 
         // Iso here refers to +-1 the sign of the PRODUCES MESON
         // this is the opposite of the exchanged pion
         JPAC_piN(int iso)
-        : raw_total_xsection({M_PION, M_PROTON}), _iso(iso)
+        : raw_inclusive_function({M_PION, M_PROTON}), _iso(iso)
         {
             for (int L = 0; L <= _Lmax; L++)
             {
@@ -38,7 +38,7 @@ namespace jpacPhoto
         };
 
         JPAC_piN(int iso, int L)
-        : raw_total_xsection({M_PION, M_PROTON}), _iso(iso)
+        : raw_inclusive_function({M_PION, M_PROTON}), _iso(iso)
         {
             _pws.push_back(std::make_shared<SAID_PW>(L));
         };

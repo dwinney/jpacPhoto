@@ -9,22 +9,22 @@
 //               dwinney@scnu.edu.cn
 // ------------------------------------------------------------------------------
 
-#ifndef PDG_HPP
-#define PDG_HPP
+#ifndef PDG_PIN_HPP
+#define PDG_PIN_HPP
 
 #include "constants.hpp"
-#include "total_xsection.hpp"
+#include "inclusive_function.hpp"
 
 namespace jpacPhoto
 {
     enum PDG_total_xsections { pipp, pimp };
 
-    class PDG : public raw_total_xsection
+    class PDG : public raw_inclusive_function
     {
         public: 
 
         PDG(std::array<double, 2> masses, int iso, std::array<double,4> pdgparams)
-        : raw_total_xsection(masses)
+        : raw_inclusive_function(masses)
         {
             _iso   = iso         ;  // isospin sign for pi+ or pi- dependence
             _delta = pdgparams[0];  // VMD/Quark counting paramter for photon 
@@ -51,7 +51,7 @@ namespace jpacPhoto
         double _M = 2.1206, _H = 0.2720, _eta1 = 0.4473, _eta2 = 0.5486;
     };
 
-    total_xsection new_PDG_sigmatot( PDG_total_xsections x )
+    inclusive_function new_PDG_sigmatot( PDG_total_xsections x )
     {
         int iso;
         std::array<double,2> masses;
@@ -63,7 +63,7 @@ namespace jpacPhoto
             case (pimp): { masses = {M_PION, M_PROTON}; iso = -1; pars = {1, 9.56, 1.767, 18.75}; break; } 
             default:     { masses = {     0,        0}; iso =  0; pars = {0, 9.56, 1.767, 18.75}; break; } 
         }
-        return new_total_xsection<PDG>(masses, iso, pars);
+        return new_inclusive_function<PDG>(masses, iso, pars);
     };
 };
 

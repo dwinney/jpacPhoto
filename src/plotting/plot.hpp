@@ -133,6 +133,9 @@ namespace jpacPhoto
             add_data(copy);
         };
 
+        // Add data by simply feeding it vectors 
+        void add_data(std::vector<double> x, std::vector<double> y, std::array<std::vector<double>,2> errs, std::string id = "");
+
         // Add a small offset to change the running color index
         inline void color_offset(unsigned n)
         {
@@ -169,6 +172,11 @@ namespace jpacPhoto
                 add_curve(opt, amp, bounds);
             }
         };
+        inline void add_curve(std::array<double,2> bounds, curve_type opt, amplitude to_plot)
+        {
+            add_curve(opt, to_plot, bounds);
+        };
+
 
         // Plot differential observable which requires one fixed variable
         void add_curve(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
@@ -179,12 +187,24 @@ namespace jpacPhoto
                 add_curve(opt, amp, fixed_val, bounds);
             }
         };
+        inline void add_curve(std::array<double,2> bounds, curve_type opt, amplitude to_plot, double fixed_val)
+        {
+            add_curve(opt, to_plot, fixed_val, bounds);
+        };
 
         // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
         void add_dashed(curve_type opt, amplitude to_plot, std::array<double,2> bounds);
+        inline void add_dashed(std::array<double,2> bounds, curve_type opt, amplitude to_plot)
+        {
+            add_dashed(opt, to_plot, bounds);
+        };
 
         // Plot differential observable which requires one fixed variable
         void add_dashed(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
+        inline void add_dashed(std::array<double,2> bounds, curve_type opt, amplitude to_plot, double fixed_val)
+        {
+            add_dashed(opt, to_plot, fixed_val, bounds);
+        };
 
         // -----------------------------------------------------------------------
         // Add an error band

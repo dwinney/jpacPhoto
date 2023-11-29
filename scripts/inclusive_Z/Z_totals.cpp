@@ -24,8 +24,6 @@
 void Z_totals()
 {
     using namespace jpacPhoto;
-    using complex = std::complex<double>;
-    using pion_exchange = fixed_spin::pion_exchange;
 
     plotter plotter;
 
@@ -60,32 +58,32 @@ void Z_totals()
     // ---------------------------------------------------------------------------
 
     // Zc(3900)-
-    inclusive_process Zcm = new_inclusive_process<pion_exchange>(M_ZC3900, -1, "#it{Z}_{c}(3900)^{#minus}");
-    Zcm->set_parameters({gc_gamma, lambda_pi});
+    inclusive_process Zcm = new_inclusive_process<inclusive::pion_exchange>(M_ZC3900, -1, "#it{Z}_{c}(3900)^{#minus}");
+    Zcm->set_parameters(gc_gamma);
 
     // Zb(10610)-
-    inclusive_process Zbm = new_inclusive_process<pion_exchange>(M_ZB10610, -1, "#it{Z}_{b}(10610)^{#minus}");
-    Zbm->set_parameters({gb_gamma, lambda_pi});
+    inclusive_process Zbm = new_inclusive_process<inclusive::pion_exchange>(M_ZB10610, -1, "#it{Z}_{b}(10610)^{#minus}");
+    Zbm->set_parameters(gb_gamma);
 
     // Zb'(10650)-
-    inclusive_process Zbpm = new_inclusive_process<pion_exchange>(M_ZB10650, -1, "#it{Z}_{b}(10650)^{#minus}");
-    Zbpm->set_parameters({gbp_gamma, lambda_pi});
+    inclusive_process Zbpm = new_inclusive_process<inclusive::pion_exchange>(M_ZB10650, -1, "#it{Z}_{b}(10650)^{#minus}");
+    Zbpm->set_parameters(gbp_gamma);
 
     // ---------------------------------------------------------------------------
     // Z plus production
     // ---------------------------------------------------------------------------
 
     // Zc(3900)-
-    inclusive_process Zcp = new_inclusive_process<pion_exchange>(M_ZC3900, +1, "#it{Z}_{c}(3900)^{#plus}");
-    Zcp->set_parameters({gc_gamma, lambda_pi});
+    inclusive_process Zcp = new_inclusive_process<inclusive::pion_exchange>(M_ZC3900, +1, "#it{Z}_{c}(3900)^{#plus}");
+    Zcp->set_parameters(gc_gamma);
 
     // Zb(10610)-
-    inclusive_process Zbp = new_inclusive_process<pion_exchange>(M_ZB10610, +1, "#it{Z}_{b}(10610)^{#plus}");
-    Zbp->set_parameters({gb_gamma, lambda_pi});
+    inclusive_process Zbp = new_inclusive_process<inclusive::pion_exchange>(M_ZB10610, +1, "#it{Z}_{b}(10610)^{#plus}");
+    Zbp->set_parameters(gb_gamma);
 
     // Zb'(10650)-
-    inclusive_process Zbpp = new_inclusive_process<pion_exchange>(M_ZB10650, +1, "#it{Z}_{b}(10650)^{#plus}");
-    Zbpp->set_parameters({gbp_gamma, lambda_pi});
+    inclusive_process Zbpp = new_inclusive_process<inclusive::pion_exchange>(M_ZB10650, +1, "#it{Z}_{b}(10650)^{#plus}");
+    Zbpp->set_parameters(gbp_gamma);
 
     // ---------------------------------------------------------------------------
     // Exclusive reactions 
@@ -119,39 +117,34 @@ void Z_totals()
     amplitude     to_plot_exc;
 
     int N = 50;
-    std::array<double,2> bounds = {5, 20};
+    std::array<double,2> bounds = {4.8, 20};
 
     // Z minus plot
     auto func_m = [&](double w)
     {
-        double xsec =  to_plot->integrated_xsection(w*w);
-        print(w, xsec);
-        return xsec;
+        return to_plot->integrated_xsection(w*w);
     };
 
     plot m = plotter.new_plot();
     m.set_curve_points(N);
-    m.set_legend(0.5, 0.7);
+    m.set_legend(0.6, 0.7);
     m.set_logscale(false, true);
-    m.set_ranges({5,20}, {2E-1, 1E2});
+    m.set_ranges({4.6,20}, {2E-1, 1E2});
     m.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [nb]");
 
     to_plot = Zcm;
     m.add_curve( bounds, func_m, to_plot->id());
-    to_plot->set_option( pion_exchange::kPwave );
+    to_plot->set_option( inclusive::pion_exchange::kPwave );
     m.add_dashed(bounds, func_m);
-    line();
 
     to_plot = Zbm;
     m.add_curve(bounds, func_m, to_plot->id());
-    to_plot->set_option( pion_exchange::kPwave );
+    to_plot->set_option( inclusive::pion_exchange::kPwave );
     m.add_dashed(bounds, func_m);
-    line();
 
     to_plot = Zbpm;
     m.add_curve(bounds, func_m, to_plot->id());
-    to_plot->set_option( pion_exchange::kPwave );
-    line();
+    to_plot->set_option( inclusive::pion_exchange::kPwave );
 
     // Z plus plot
     auto func_p = [&](double w)
@@ -161,25 +154,22 @@ void Z_totals()
 
     plot p = plotter.new_plot();
     p.set_curve_points(N);
-    p.set_legend(0.5, 0.7);
+    p.set_legend(0.6, 0.7);
     p.set_logscale(false, true);
-    p.set_ranges({4.9,20}, {2E-1, 1E2});
+    p.set_ranges({4.6,20}, {2E-1, 1E2});
     p.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [nb]");
 
     to_plot = Zcp; to_plot_exc = Zce;
     p.add_curve( bounds, func_p, to_plot->id());
     p.add_dashed(sigma_w, to_plot_exc, bounds);
-    line();
 
     to_plot = Zbp; to_plot_exc = Zbe;
     p.add_curve(bounds, func_p, to_plot->id());
     p.add_dashed(sigma_w, to_plot_exc, bounds);
-    line();
 
     to_plot = Zbpp; to_plot_exc = Zbpe;
     p.add_curve(bounds, func_p, to_plot->id());
     p.add_dashed(sigma_w, to_plot_exc, bounds);
-    line();
 
     // Combine plots together
     plotter.combine({2,1}, {m, p}, "Z_totals.pdf");

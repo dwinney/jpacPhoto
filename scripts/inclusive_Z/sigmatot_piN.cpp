@@ -12,24 +12,21 @@
 // [1] 	arXiv:2209.05882 [hep-ph]
 // ------------------------------------------------------------------------------
 
-#include "sigma_tot/PDG.hpp"
-#include "sigma_tot/JPAC_piN.hpp"
+#include "sigma_tots/PDG_piN.hpp"
+#include "sigma_tots/JPAC_piN.hpp"
 #include "plotter.hpp"
-
-using namespace jpacPhoto;
 
 void sigmatot_piN()
 {
     using namespace jpacPhoto;
-    using complex = std::complex<double>;
 
-    total_xsection PDG_pimp  = new_PDG_sigmatot(pimp);
-    total_xsection JPAC_pimp = new_total_xsection<JPAC_piN>(-1);
+    inclusive_function PDG_pimp  = new_PDG_sigmatot(pimp);
+    inclusive_function JPAC_pimp = new_inclusive_function<JPAC_piN>(-1);
 
-    total_xsection PDG_pipp  = new_PDG_sigmatot(pipp);
-    total_xsection JPAC_pipp = new_total_xsection<JPAC_piN>(+1);
+    inclusive_function PDG_pipp  = new_PDG_sigmatot(pipp);
+    inclusive_function JPAC_pipp = new_inclusive_function<JPAC_piN>(+1);
 
-    total_xsection to_plot;
+    inclusive_function to_plot;
     auto sig = [&](double w)
     {
         return to_plot->evaluate(w*w, M2_PION);
