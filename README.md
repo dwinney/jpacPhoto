@@ -27,7 +27,7 @@ setenv JPACPHOTO /path/to/jpacPhoto # for csh
 
 ##  USAGE
 
-The primary use case is to reproduce results from JPAC papers [[1-4]](#references). The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
+The primary use case is to reproduce results from recent [[1-4]](#references) and older analyses [[5]](#references) from the JPAC collaboration to have a unified framework for amplitude analysis in photorproduction. The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models imported at run-time as a header-only library. The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and compiled library into the cling interpeter to run. 
 
 This set up mimics a Python-like environment without requiring recompilation when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/amplitudes/`](./amplitudes/) and [`/scripts/`](./scripts) respectively.  To run a script located in the bin directory simply run 
 ```bash
@@ -49,6 +49,7 @@ The main object of interest in the core library is the abstract [`amplitude`](./
 |--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
 | Unpolarized probability distribution | $\sum_{\{\lambda\}} \|A_{\{\lambda\}}\|^2$ | `probability_distribution(double s, double t)       `                                                                |
 | Differential cross section \[nb/GeV $^2$\]          | $d\sigma/dt$                           | `differential_xsection(double s, double t)            `                                                              |
+| Polarized ifferential cross section \[nb/GeV $^2$\]          | $d\sigma_{\perp,\parallel}/dt$                           | `polarized_differential_xsection(double pm, double s, double t)            `                                                              |
 | Integrated total cross section \[nb\]     | $\sigma$                                 | `integrated_xsection(double s)      `                                                                                |
 | Double polarization asymmetries      | $A_{LL},K_{LL}$                                 | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)    `                                                              |
 | Meson spin density matrix elements   | $\rho^{a}_{\lambda,\lambda^\prime}$        | `SDME_H(int a, int lam, int lamp, double s, double t)` <br /> `SDME_GJ(int a, int lam, int lamp, double s, double t)` |
@@ -98,7 +99,8 @@ pwave->integrated_xsection(s); // Only P-wave contribution of sum
 + [2] [XYZ spectroscopy at electron-hadron facilities: Exclusive processes](https://arxiv.org/abs/2008.01001)
 + [3] [XYZ spectroscopy at electron-hadron facilities II: Semi-inclusive processes with pion exchange](https://arxiv.org/abs/2209.05882)
 + [4] [Dynamics in near-threshold J/ψ photoproduction](https://arxiv.org/abs/2305.01449)
-+ [5] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
++ [5] [Features of πΔ Photoproduction at High Energies](https://arxiv.org/abs/1710.09394)
++ [6] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
 
 <p align="center">
   <img width="275" src="./doc/JPAClogo.png">

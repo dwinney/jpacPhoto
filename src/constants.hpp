@@ -100,6 +100,9 @@ namespace jpacPhoto
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
 
+    template <typename T>
+    int sgn(T val) { return (T(0) < val) - (val < T(0)); };
+
     const complex IEPS(0., EPS);
 
     // PDG Meson masses in GeV
@@ -109,6 +112,7 @@ namespace jpacPhoto
     const double M_RHO       = 0.77526;
     const double M_OMEGA     = 0.78265;
     const double M_PHI       = 1.01956;
+    const double M_A2        = 1.3186;
     const double M_B1        = 1.229;
     const double M_JPSI      = 3.0969160;
     const double M_PSI2S     = 3.686;

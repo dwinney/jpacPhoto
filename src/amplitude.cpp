@@ -339,6 +339,41 @@ namespace jpacPhoto
         return ig.Integral(t_max, t_min);
     };
 
+
+    // Differential cross section dsigma_perp/para / dt
+    // in NANOBARN
+    double raw_amplitude::polarized_differential_xsection(int perp_or_para, double s, double t)
+    {
+        if (s < _kinematics->sth()) return 0.;
+        if (abs(perp_or_para) != 1) return std::nan("");
+        
+        // Check we have the right amplitudes cached
+        update_cache(s, t);
+
+        // Sum first half of amplitudes which are lam_gamma = +1
+        int n = _kinematics->N_amps()/2;
+
+        double sum = 0.;
+        for (int i = 0; i < n; i++)
+        {
+            sum += std::norm(_cached_helicity_amplitudes[i] + perp_or_para * _cached_helicity_amplitudes[n + i]);
+        };
+
+        double norm = 1.;
+        norm /= 64. * PI * s;
+        norm /= std::real(pow(_kinematics->initial_momentum(s), 2.));
+        norm /= (2.56819E-6); // Convert from GeV^-2 -> nb
+
+        // Average over initial helicities
+        if (native_helicity_frame() !=  HELICITY_INDEPENDENT)
+        {
+            norm /= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
+        }
+
+        return norm * sum;
+    };
+
+
     // Polarization asymmetry between beam and recoil baryon
     double raw_amplitude::K_LL(double s, double t)
     {
@@ -547,14 +582,13 @@ namespace jpacPhoto
         // Check we have the right amplitudes cached
         update_cache(s, t);
 
-        double rho100 = real(SDME(1, 0, 0, s, t));
-        double rho111 = real(SDME(1, 1, 1, s, t));
-        double rho122 = real(SDME(1, 2, 2, s, t));
-        double rho000 = real(SDME(0, 0, 0, s, t));
-        double rho011 = real(SDME(0, 1, 1, s, t));
-        double rho022 = real(SDME(0, 2, 2, s, t));
-        
-        return -(rho100 + 2 * rho111 + 2 * rho122) / (rho000 + 2 * rho011 + 2 * rho022);
+        int n = _kinematics->N_amps()/2;
+        double numerator = 0, denominator = probability_distribution(s, t);
+        for (int i = 0; i < n; i++)
+        {
+            numerator += 2.*std::real(_cached_helicity_amplitudes[i]*conj(_cached_helicity_amplitudes[i + n]));
+        }
+        return numerator / denominator;
     };
 
     // Beam asymmetry along y axis sigma_y 

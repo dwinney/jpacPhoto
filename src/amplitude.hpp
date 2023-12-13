@@ -258,15 +258,21 @@ namespace jpacPhoto
         // ---------------------------------------------------------------------------
         // Observables
         // Evaluatable in terms of s and t (not angle!)
+        
+        // Save a new cache and return it 
+        inline std::vector<complex> get_cache(double s, double t){ update_cache(s,t); return _cached_helicity_amplitudes; };
 
         // Modulus of the amplitude summed over all helicity combinations
         double probability_distribution(double s, double t);
 
-        // Differential and total cross-section
+        // (Unpolarized) Differential and total cross-section
         double differential_xsection(double s, double t);
 
         // integrated crossection
         double integrated_xsection(double s);
+
+        // Perp or parallel polarized photon differential cross sections
+        double polarized_differential_xsection(int perp_or_parallel, double s, double t);
 
         // Spin asymmetries
         double A_LL(double s, double t); // Beam and target
