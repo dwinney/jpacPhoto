@@ -22,8 +22,8 @@ namespace jpacPhoto
         {
             public: 
 
-            phase_space(inclusive_key key, double mX, double mMin, std::string id = "")
-            : raw_inclusive_process(key, mX, id), _mMin2(mMin*mMin)
+            phase_space(key k, double mX, double mMin, std::string id = "")
+            : raw_inclusive_process(k, mX, id), _mMin2(mMin*mMin)
             {
                 set_N_pars(0);
             };

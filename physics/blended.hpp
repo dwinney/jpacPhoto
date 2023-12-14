@@ -21,8 +21,8 @@ namespace jpacPhoto
     {
         public:
 
-        blended(amplitude_key key, kinematics xkinem, std::array<amplitude,2> amps, std::array<double,2> bounds, std::string id = "blended")
-        : raw_amplitude(key, xkinem, id), _low(amps[0]), _high(amps[1]), _bounds(bounds)
+        blended(key k, kinematics xkinem, std::array<amplitude,2> amps, std::array<double,2> bounds, std::string id = "blended")
+        : raw_amplitude(k, xkinem, id), _low(amps[0]), _high(amps[1]), _bounds(bounds)
         {
             initialize(0);
             if (bounds[0] > bounds[1]) warning("jpacPhoto::blended", "Lower limit bigger than upper limit!");

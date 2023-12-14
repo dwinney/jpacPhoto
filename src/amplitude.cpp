@@ -59,7 +59,7 @@ namespace jpacPhoto
         from_a.insert(from_a.end(), from_b.begin(), from_b.end());
 
         // Initialize and return a new amplitude
-        return std::make_shared<raw_amplitude>(amplitude_key(), from_a, id);
+        return std::make_shared<raw_amplitude>(key(), from_a, id);
     };
 
     // Take an existing sum and add a new amplitude

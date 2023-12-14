@@ -28,14 +28,14 @@ namespace jpacPhoto
         {
             public: 
 
-            photon_exchange(amplitude_key key, kinematics xkinem, std::string id = "photon_exchange")
-            : raw_amplitude(key, xkinem, id), _mEx(0)
+            photon_exchange(key k, kinematics xkinem, std::string id = "photon_exchange")
+            : raw_amplitude(k, xkinem, id), _mEx(0)
             {
                 initialize(3);
             };
 
-            photon_exchange(amplitude_key key, kinematics xkinem, double mEx, std::string id = "photon_exchange")
-            : raw_amplitude(key, xkinem, id), _mEx(mEx)
+            photon_exchange(key k, kinematics xkinem, double mEx, std::string id = "photon_exchange")
+            : raw_amplitude(k, xkinem, id), _mEx(mEx)
             {
                 initialize(3);
             };

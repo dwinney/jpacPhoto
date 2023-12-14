@@ -27,8 +27,8 @@ namespace jpacPhoto
         {
             public: 
 
-            pion_exchange(inclusive_key key, double mX, int pm, std::string id = "")
-            : raw_inclusive_process(key, mX, id), _pm(pm),
+            pion_exchange(key k, double mX, int pm, std::string id = "")
+            : raw_inclusive_process(k, mX, id), _pm(pm),
                 _sigma(new_inclusive_function<JPAC_piN>(-pm))
             {
                 set_N_pars(1);

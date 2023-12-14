@@ -33,7 +33,7 @@ namespace jpacPhoto
                          nullptr);
         }
 
-        amplitude amp_ptr = std::make_shared<raw_partial_wave>(amplitude_key(), J, to_project, true, id);
+        amplitude amp_ptr = std::make_shared<raw_partial_wave>(key(), J, to_project, true, id);
         return amp_ptr;
     };
 
@@ -47,7 +47,7 @@ namespace jpacPhoto
                          nullptr);
         }
 
-        amplitude amp_ptr = std::make_shared<raw_partial_wave>(amplitude_key(), J, to_project, false, id);
+        amplitude amp_ptr = std::make_shared<raw_partial_wave>(key(), J, to_project, false, id);
         return amp_ptr;
     };
 

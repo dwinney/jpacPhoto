@@ -24,7 +24,7 @@ namespace jpacPhoto
         {
             public: 
 
-            elastic_scattering(amplitude_key key, kinematics xkinem, int J, std::string id = "elastic_scattering")
+            elastic_scattering(key key, kinematics xkinem, int J, std::string id = "elastic_scattering")
             : raw_partial_wave(key, xkinem, J, id)
             {
                 initialize(2);

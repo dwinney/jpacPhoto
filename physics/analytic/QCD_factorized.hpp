@@ -28,8 +28,8 @@ namespace jpacPhoto
         {
             public: 
 
-            QCD_factorized(amplitude_key key, kinematics xkinem, std::string id = "QCD_factorized")
-            : raw_amplitude(key, xkinem, id)
+            QCD_factorized(key k, kinematics xkinem, std::string id = "QCD_factorized")
+            : raw_amplitude(k, xkinem, id)
             {
                 initialize(4);
             };

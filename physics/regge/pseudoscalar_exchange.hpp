@@ -25,8 +25,8 @@ namespace jpacPhoto
             public: 
 
             // Constructor calls the analytic one with no exchange mass
-            pseudoscalar_exchange(amplitude_key key, kinematics xkinem, std::string id)
-            : analytic::pseudoscalar_exchange(key, xkinem, 0, id)
+            pseudoscalar_exchange(key k, kinematics xkinem, std::string id)
+            : analytic::pseudoscalar_exchange(k, xkinem, 0, id)
             {
                 // Two additional parameters for regge trajectory
                 initialize(5);

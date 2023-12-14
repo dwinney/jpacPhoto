@@ -46,13 +46,13 @@ namespace jpacPhoto
         public:
 
         // This constructor should be used for any user defined derived classes
-        raw_partial_wave(amplitude_key key, kinematics xkinem, int J, std::string id)
+        raw_partial_wave(key key, kinematics xkinem, int J, std::string id)
         : raw_amplitude(key, xkinem, id), 
           _J(J)
         {};
 
         // This constructor is specifically for use with the project() function
-        raw_partial_wave(amplitude_key key, int J, amplitude to_project, bool if_halfint, std::string id)
+        raw_partial_wave(key key, int J, amplitude to_project, bool if_halfint, std::string id)
         : raw_amplitude(key, to_project->_kinematics, id), 
           _J(J), _halfinteger(if_halfint), _amplitude(to_project)
         {

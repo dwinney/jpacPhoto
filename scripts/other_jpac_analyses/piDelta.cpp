@@ -184,7 +184,6 @@ void piDelta()
     pimDpp(kPole); p1.add_dashed({0, 1.4}, dsig(11, total));
     pimDpp(kCut);  p1.add_curve( {0, 1.4}, dsig(16, total), "16 GeV");
     pimDpp(kPole); p1.add_dashed({0, 1.4}, dsig(16,  total));
-    p1.save("dxs.pdf");
 
     plot p2 = plotter.new_plot();
     p2.set_logscale(false, true);

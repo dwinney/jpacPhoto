@@ -14,6 +14,7 @@
 #include <memory>
 #include <string>
 
+#include "key.hpp"
 #include "constants.hpp"
 #include "helicities.hpp"
 #include "kinematics.hpp"
@@ -33,53 +34,18 @@ namespace jpacPhoto
     // This will allow our amplitudes to be added / passes around without issue
     using amplitude  = std::shared_ptr<raw_amplitude>;
 
-    // We require this private class to allow only the new_amplitude function from
-    // Creating amplitude objects
-    class amplitude_key
-    {
-        private: 
-        amplitude_key()
-        {};
-
-        // The only functions that can create new amplitudes
-        // are these friend functions
-
-        // Constructor with no free parameters
-        template<class A>
-        friend amplitude new_amplitude(kinematics);
-
-        // non-trivial id
-        template<class A>
-        friend amplitude new_amplitude(kinematics, std::string);
-
-        // One additional abitrary parameter
-        template<class A, typename B>
-        friend amplitude new_amplitude(kinematics, B, std::string);
-
-        // Two additional parameters
-        template<class A, typename B, typename C>
-        friend amplitude new_amplitude(kinematics, B, C, std::string);
-
-        // Add two amplitude together
-        friend amplitude operator+(amplitude a, amplitude b);
-
-        // Project an amplitude onto partial wave with integer or half-integer spin
-        friend amplitude project(int, amplitude, std::string);
-        friend amplitude helicity_project(int, amplitude, std::string);
-    };
-
     // This function serves as our "constructor"
     template<class A>
     inline amplitude new_amplitude(kinematics xkinem)
     {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem);
+        auto amp = std::make_shared<A>(key(), xkinem);
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
     template<class A>
     inline amplitude new_amplitude(kinematics xkinem, std::string id)
     {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem, id);
+        auto amp = std::make_shared<A>(key(), xkinem, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
@@ -87,7 +53,7 @@ namespace jpacPhoto
     template<class A, typename B>
     inline amplitude new_amplitude(kinematics xkinem, B extra, std::string id)
     {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra, id);
+        auto amp = std::make_shared<A>(key(), xkinem, extra, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
@@ -95,7 +61,7 @@ namespace jpacPhoto
     template<class A, typename B, typename C>
     inline amplitude new_amplitude(kinematics xkinem, B extra1, C extra2, std::string id)
     {
-        auto amp = std::make_shared<A>(amplitude_key(), xkinem, extra1, extra2, id);
+        auto amp = std::make_shared<A>(key(), xkinem, extra1, extra2, id);
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
@@ -147,15 +113,15 @@ namespace jpacPhoto
         public:
         
         // Public constructor as required to use make_shared
-        // but requires the amplitude_key as a parameter which is private
+        // but requires the key as a parameter which is private
         // So this constructor is actually not accessable other than through
         // new_amplitude
-        raw_amplitude(amplitude_key key, kinematics xkinem, std::string id = "amplitude")
+        raw_amplitude(key key, kinematics xkinem, std::string id = "amplitude")
         : _kinematics(xkinem), _id(id), _covariants(std::make_unique<covariants>(xkinem))
         {};        
 
         // Sum constructor 
-        raw_amplitude(amplitude_key key, std::vector<amplitude> subamps, std::string id)
+        raw_amplitude(key key, std::vector<amplitude> subamps, std::string id)
         : _id(id), _covariants(nullptr)
         {
             add(subamps);

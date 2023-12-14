@@ -24,8 +24,8 @@ namespace jpacPhoto
             public:
 
             // Constructor
-            vector_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id)
-            : raw_amplitude(key, xkinem, id),
+            vector_exchange(key k, kinematics xkinem, double exchange_mass, std::string id)
+            : raw_amplitude(k, xkinem, id),
               _mEx(exchange_mass)
             {
                 initialize(4);

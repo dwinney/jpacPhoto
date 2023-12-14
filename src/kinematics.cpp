@@ -99,12 +99,12 @@ namespace jpacPhoto
 
     double raw_kinematics::initial_momentum(double s)
     {
-        return sqrt(Kallen(s, _masses._mB2, _masses._mT2)) / sqrt(4.*s);
+        return sqrt(Kallen(s, _mB2, _mT2)) / sqrt(4.*s);
     };
 
     double raw_kinematics::final_momentum(double s)
     {
-        return sqrt(Kallen(s, _masses._mR2, _masses._mX2)) / sqrt(4.*s);
+        return sqrt(Kallen(s, _mR2, _mX2)) / sqrt(4.*s);
     };
 
     // ------------------------------------------------------------------------------
@@ -112,22 +112,22 @@ namespace jpacPhoto
 
     double raw_kinematics::beam_energy(double s)
     {
-        return (s - _masses._mT2 + _masses._mB2) / sqrt(4.*s);
+        return (s - _mT2 + _mB2) / sqrt(4.*s);
     };
 
     double raw_kinematics::target_energy(double s)
     {
-        return (s + _masses._mT2 - _masses._mB2) / sqrt(4.*s);
+        return (s + _mT2 - _mB2) / sqrt(4.*s);
     };
 
     double raw_kinematics::meson_energy(double s)
     {
-        return (s - _masses._mR2 + _masses._mX2) / sqrt(4.*s);
+        return (s - _mR2 + _mX2) / sqrt(4.*s);
     };
 
     double raw_kinematics::recoil_energy(double s)
     {
-        return (s + _masses._mR2 - _masses._mX2) / sqrt(4.*s);
+        return (s + _mR2 - _mX2) / sqrt(4.*s);
     };
 
     // ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace jpacPhoto
         complex qdotqp = initial_momentum(s) * final_momentum(s);
         complex E1E3   = beam_energy(s) * meson_energy(s);
 
-        double result = t - _masses._mX2 - _masses._mB2 + 2.*real(E1E3);
+        double result = t - _mX2 - _mB2 + 2.*real(E1E3);
         result /= 2. * real(qdotqp);
 
         return result;
@@ -162,7 +162,7 @@ namespace jpacPhoto
         complex qdotqp = initial_momentum(s) * final_momentum(s);
         complex E1E3   = beam_energy(s) * meson_energy(s);
 
-        return _masses._mX2 + _masses._mB2 - 2. * real(E1E3) + 2. * real(qdotqp) * cos(theta);
+        return _mX2 + _mB2 - 2. * real(E1E3) + 2. * real(qdotqp) * cos(theta);
     };
 
     // Scattering angles in t and u channel frames
@@ -172,15 +172,15 @@ namespace jpacPhoto
         double u = u_man(s, theta);
 
         double result;
-        result  = t * (s - u) + (_masses._mB2 - _masses._mX2) * (_masses._mT2 - _masses._mR2);
-        result /=  sqrt(Kallen(t, _masses._mX2, _masses._mB2) * Kallen(t, _masses._mT2, _masses._mR2));
+        result  = t * (s - u) + (_mB2 - _mX2) * (_mT2 - _mR2);
+        result /=  sqrt(Kallen(t, _mX2, _mB2) * Kallen(t, _mT2, _mR2));
 
         return result;
     };
 
     double raw_kinematics::u_man(double s, double theta)
     { 
-        return _masses._mX2 + _masses._mB2 + _masses._mT2 + _masses._mR2 - s - t_man(s, theta);
+        return _mX2 + _mB2 + _mT2 + _mR2 - s - t_man(s, theta);
     };
 
     double raw_kinematics::z_u(double s, double theta)
@@ -189,8 +189,8 @@ namespace jpacPhoto
         double u = u_man(s, theta);
 
         double result;
-        result  = u * (t - s) + (_masses._mB2 - _masses._mR2) * (_masses._mT2 - _masses._mX2);
-        result /=  sqrt(Kallen(u, _masses._mR2, _masses._mB2) * Kallen(u, _masses._mT2, _masses._mX2));
+        result  = u * (t - s) + (_mB2 - _mR2) * (_mT2 - _mX2);
+        result /=  sqrt(Kallen(u, _mR2, _mB2) * Kallen(u, _mT2, _mX2));
 
         return result;
     };
@@ -200,12 +200,12 @@ namespace jpacPhoto
     
     complex raw_kinematics::initial_momentum_tframe(double t)
     {
-        return csqrt(Kallen(t, _masses._mB2, _masses._mX2)/(4.*t) );
+        return csqrt(Kallen(t, _mB2, _mX2)/(4.*t) );
     };
 
     complex raw_kinematics::final_momentum_tframe(double t)
     {
-        return csqrt( Kallen(t, _masses._mR2, _masses._mT2)/(4.*t) );
+        return csqrt( Kallen(t, _mR2, _mT2)/(4.*t) );
     };
 
     // ------------------------------------------------------------------------------

@@ -29,8 +29,8 @@ namespace jpacPhoto
         public: 
 
         // Basic constructor
-        my_amplitude(amplitude_key key, kinematics xkinem, std::string id = "my_amplitude's default id")
-        : raw_amplitude(key, xkinem, id)
+        my_amplitude(key k, kinematics xkinem, std::string id = "my_amplitude's default id")
+        : raw_amplitude(k, xkinem, id)
         {
             // Constructor should initialize with number of parameters
             // this specifies 2 free parameters

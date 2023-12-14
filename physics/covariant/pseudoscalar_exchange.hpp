@@ -25,8 +25,8 @@ namespace jpacPhoto
             public:
 
             // Constructor we specify the exchange particle mass
-            pseudoscalar_exchange(amplitude_key key, kinematics xkinem, double exchange_mass, std::string id = "pseudoscalar_exchange")
-            : raw_amplitude(key, xkinem, id), _mEx(exchange_mass)
+            pseudoscalar_exchange(key k, kinematics xkinem, double exchange_mass, std::string id = "pseudoscalar_exchange")
+            : raw_amplitude(k, xkinem, id), _mEx(exchange_mass)
             {
                 initialize(3);
             }

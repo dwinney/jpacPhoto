@@ -207,6 +207,12 @@ namespace jpacPhoto
         return sqrt(M_PROTON * (2. * egam + M_PROTON));
     };
 
+    // Center of mass energy given beam energy
+    inline double s_cm(double egam)
+    {
+        return M_PROTON * (2. * egam + M_PROTON);
+    };
+
     // ---------------------------------------------------------------------------
     // Kallen Triangle function
 

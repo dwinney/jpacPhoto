@@ -1,10 +1,14 @@
-// Generic Reggeon exchange amplitude
+// Reggeized exchange of an unnatural parity particle
+// Adapted from the model considered in [1]
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2023)
 // Affiliation:  Joint Physics Analysis Center (JPAC),
 //               South China Normal Univeristy (SCNU)
 // Email:        dwinney@iu.alumni.edu
+// ------------------------------------------------------------------------------
+// References:
+// [1] - https://arxiv.org/abs/1710.09394
 // ------------------------------------------------------------------------------
 
 #ifndef UNNATURAL_EXCHANGE_HPP
@@ -23,8 +27,8 @@ namespace jpacPhoto
             public:
 
             // Constructor
-            unnatural_exchange(amplitude_key key, kinematics xkinem, int signature, std::string id)
-            : raw_amplitude(key, xkinem, id), _signature(signature)
+            unnatural_exchange(key k, kinematics xkinem, int signature, std::string id)
+            : raw_amplitude(k, xkinem, id), _signature(signature)
             {  initialize(6); };
 
             // ---------------------------------------------------------------------------

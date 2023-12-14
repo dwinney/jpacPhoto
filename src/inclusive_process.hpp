@@ -14,6 +14,7 @@
 #define INCLUSIVE_PROCESS_HPP
 
 #include "constants.hpp"
+#include "key.hpp"
 
 #include "Math/IntegratorMultiDim.h"
 #include "Math/GSLIntegrator.h"
@@ -32,32 +33,18 @@ namespace jpacPhoto
     // Similar to amplitudes, we only want our inclusive objects to exist as pointers 
     using inclusive_process = std::shared_ptr<raw_inclusive_process>;
 
-    // To make non-pointer objects forbidden we use a key idiom
-    class inclusive_key
-    {
-        private: 
-        inclusive_key(){};
-
-        // This function acts as the constructor for an inclusive 
-        template<class A>
-        friend inclusive_process new_inclusive_process(double, std::string);
-
-        template<class A, class B>
-        friend inclusive_process new_inclusive_process(double, B parameter, std::string);
-    };
-
     // Use these functions as our constructor
     template<class A>
     inline inclusive_process new_inclusive_process(double mX, std::string id)
     {
-        auto ptr = std::make_shared<A>(inclusive_key(), mX, id);
+        auto ptr = std::make_shared<A>(key(), mX, id);
         return std::static_pointer_cast<raw_inclusive_process>(ptr);
     };
 
     template<class A, class B>
     inline inclusive_process new_inclusive_process(double mX, B parameter, std::string id)
     {
-        auto ptr = std::make_shared<A>(inclusive_key(), mX, parameter, id);
+        auto ptr = std::make_shared<A>(key(), mX, parameter, id);
         return std::static_pointer_cast<raw_inclusive_process>(ptr);
     };
 
@@ -66,7 +53,7 @@ namespace jpacPhoto
         public: 
 
         // Set both observed particle and target masses
-        raw_inclusive_process(inclusive_key key, double mX, std::string id)
+        raw_inclusive_process(key k, double mX, std::string id)
         : _mX2(mX*mX), _id(id)
         {};
 

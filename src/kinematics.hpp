@@ -21,6 +21,7 @@
 
 #include "constants.hpp"
 #include "helicities.hpp"
+#include "key.hpp"
 
 #include "TMath.h"
 
@@ -46,40 +47,20 @@ namespace jpacPhoto
     class raw_kinematics;
     using kinematics = std::shared_ptr<jpacPhoto::raw_kinematics>;
 
-    // Constructors are made private to prevent raw_kinematics objects from being initialized
-    // All user interactions should be through the pointer class kinematics
-    class masses
-    {
-        private:
-        
-        friend kinematics new_kinematics(double, double);
-        friend kinematics new_kinematics(double, double, double, double);
-
-        explicit masses(std::array<double,4> m)
-        : _mB(m[0]), _mB2(m[0]*m[0]), _mT(m[1]), _mT2(m[1]*m[1]),
-          _mX(m[2]), _mX2(m[2]*m[2]), _mR(m[3]), _mR2(m[3]*m[3])
-        {};
-
-        public:
-
-        double _mB = 0.,       _mB2 = 0.;         // mass and mass squared of the "beam" 
-        double _mX = 0.,       _mX2 = 0.;         // mass and mass squared of the produced particle
-        double _mT = M_PROTON, _mT2 = M2_PROTON;  // mass of the target, assumed to be proton unless overriden
-        double _mR = M_PROTON, _mR2 = M2_PROTON;  // mass of the recoil baryon, assumed to be proton unless overriden
-    };
-
     // With array<double,4> this specifies all four masses in order
     // {beam, target, produced, recoil}
     inline kinematics new_kinematics(double m1, double m2, double m3, double m4)
     {
-        return std::make_shared<raw_kinematics>(masses{{m1, m2, m3, m4}});
+        std::array<double,4> m = {m1, m2, m3, m4};
+        return std::make_shared<raw_kinematics>(key(), m);
     };
     
     // // If only size 2 array is passes this specifies final state
     // // and initial state is assumed to be photon + proton
     inline kinematics new_kinematics(double m1, double m2 = M_PROTON)
     {
-        return std::make_shared<raw_kinematics>(masses{{0., M_PROTON, m1, m2}});
+        std::array<double,4> m = {0., M_PROTON, m1, m2};
+        return std::make_shared<raw_kinematics>(key(), m);
     };
 
     class raw_kinematics
@@ -91,8 +72,11 @@ namespace jpacPhoto
         // This is to prevent raw_kinematics objects from being created on the stack
         // We only want kinematics pointer objects to exist.
 
-        raw_kinematics(masses m)
-        : _masses(m),  _photon(!(m._mB>0.))
+        raw_kinematics(key k, std::array<double,4> m)
+        : _mB(m[0]), _mB2(m[0]*m[0]), _photon(!(m[0]>EPS)),
+          _mT(m[1]), _mT2(m[1]*m[1]), 
+          _mX(m[2]), _mX2(m[2]*m[2]),
+          _mR(m[3]), _mR2(m[3]*m[3])
         {};
 
         // Delete copy and move operators so this is only passable by pointer
@@ -105,20 +89,20 @@ namespace jpacPhoto
         // -----------------------------------------------------------------------
         // Accessors and setters for masses 
 
-        inline double Wth(){ return (_masses._mX + _masses._mR); }; // square root of the threshold
+        inline double Wth(){ return (_mX + _mR); }; // square root of the threshold
         inline double sth(){ return Wth() * Wth(); }; // final state threshold
 
         // Assessor functions for masses
-        inline double get_meson_mass() { return _masses._mX; };
-        inline double get_recoil_mass(){ return _masses._mR; };
-        inline double get_target_mass(){ return _masses._mT; };
-        inline double get_beam_mass()  { return _masses._mB; };
+        inline double get_meson_mass() { return _mX; };
+        inline double get_recoil_mass(){ return _mR; };
+        inline double get_target_mass(){ return _mT; };
+        inline double get_beam_mass()  { return _mB; };
         
         // Setters for masses
-        inline void set_meson_mass(double x) { _masses._mX = x; _masses._mX2 = x*x; };
-        inline void set_target_mass(double x){ _masses._mT = x; _masses._mT2 = x*x; };
-        inline void set_recoil_mass(double x){ _masses._mR = x; _masses._mR2 = x*x; };
-        inline void set_beam_mass(double x)  { _masses._mB = x; _masses._mB2 = x*x; };
+        inline void set_meson_mass(double x) { _mX = x; _mX2 = x*x; };
+        inline void set_target_mass(double x){ _mT = x; _mT2 = x*x; };
+        inline void set_recoil_mass(double x){ _mR = x; _mR2 = x*x; };
+        inline void set_beam_mass(double x)  { _mB = x; _mB2 = x*x; };
 
         // Get whether current kinematics has photon beam
         inline bool is_photon() { return _photon;  };
@@ -229,9 +213,11 @@ namespace jpacPhoto
         // -----------------------------------------------------------------------
         private:
 
-        // Container class holding all the masses of the system
-        // Additionally serves as a pass-key class in the constructor
-        masses _masses;
+        // Masses
+        double _mB = 0.,       _mB2 = 0.;         // mass and mass squared of the "beam" 
+        double _mX = 0.,       _mX2 = 0.;         // mass and mass squared of the produced particle
+        double _mT = M_PROTON, _mT2 = M2_PROTON;  // mass of the target, assumed to be proton unless overriden
+        double _mR = M_PROTON, _mR2 = M2_PROTON;  // mass of the recoil baryon, assumed to be proton unless overriden
 
         // Masses are private to prevent them from being changed mid calculation 
         // Instead should be manipulated with public accessor and settor above
