@@ -49,12 +49,13 @@ The main object of interest in the core library is the abstract [`amplitude`](./
 |--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
 | Unpolarized probability distribution | $\sum_{\{\lambda\}} \|A_{\{\lambda\}}\|^2$ | `probability_distribution(double s, double t)       `                                                                |
 | Differential cross section \[nb/GeV $^2$\]          | $d\sigma/dt$                           | `differential_xsection(double s, double t)            `                                                              |
-| Polarized ifferential cross section \[nb/GeV $^2$\]          | $d\sigma_{\perp,\parallel}/dt$                           | `polarized_differential_xsection(double pm, double s, double t)            `                                                              |
+| Polarized differential cross section \[nb/GeV $^2$\]          | $d\sigma_{\perp,\parallel}/dt$                           | `polarized_differential_xsection(double pm, double s, double t)            `                                                              |
 | Integrated total cross section \[nb\]     | $\sigma$                                 | `integrated_xsection(double s)      `                                                                                |
 | Double polarization asymmetries      | $A_{LL},K_{LL}$                                 | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)    `                                                              |
-| Meson spin density matrix elements   | $\rho^{a}_{\lambda,\lambda^\prime}$        | `SDME_H(int a, int lam, int lamp, double s, double t)` <br /> `SDME_GJ(int a, int lam, int lamp, double s, double t)` |
-| Beam asymmetries            | $\Sigma_{4\pi}, \Sigma_y$                                 | `beam_asymmetry_4pi(double s, double t)` <br />  `beam_asymmetry_y(double s, double t)  `                                                                       |
-| Parity asymmetry                     | $P_\sigma$                                      | `parity_asymmetry(double s, double t)            `                                                                   |
+| Meson spin density matrix elements   | $\rho^{\alpha}_{\lambda,\lambda^\prime}$        | `mSDME_H(int a, int lam, int lamp, double s, double t)` <br /> `mSDME_GJ(int a, int lam, int lamp, double s, double t)` |
+| Baryon spin density matrix elements   | $\rho^{\alpha}_{\frac{\lambda}{2},\frac{\lambda^\prime}{2}}$        | `bSDME_H(int a, int lam, int lamp, double s, double t)` <br /> `bSDME_GJ(int a, int lam, int lamp, double s, double t)` |
+| Beam asymmetry           | $\Sigma_{4\pi}$                                 | `beam_asymmetry_4pi(double s, double t)`                                                                       |
+
 
 
 All kinematics are passed around by the [`kinematics`](./src/core/kinematics.hpp) class which allows arbitrary masses for all particles and arbitrary quantum numbers for the produced final state meson & baryon.

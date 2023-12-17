@@ -230,8 +230,8 @@ namespace jpacPhoto
         // Helicity configurations
         // Defaults to spin-1 meson, spin-1/2 baryon
         // Beam [0], Target [1], Produced Meson [2], Recoil Baryon [3]
-        int _nAmps = SPIN_ONE_HELICITIES.size(); 
-        std::vector< std::array<int, 4> > _helicities = SPIN_ONE_HELICITIES;
+        int _nAmps = 24; 
+        std::vector< std::array<int, 4> > _helicities = get_helicities(1, 1);
     };
 };
 

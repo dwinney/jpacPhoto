@@ -139,16 +139,10 @@ namespace jpacPhoto
         // is the sum of individual amplitudes at fixed helicities
         virtual complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
         {
-            if (_subamplitudes.size() == 0)
-            {
-                return 0;
-            }
+            if (_subamplitudes.size() == 0) return 0;
 
             complex sum = 0;
-            for (amplitude amp : _subamplitudes)
-            {
-                sum += amp->helicity_amplitude(helicities, s, t);
-            }
+            for (amplitude amp : _subamplitudes) sum += amp->helicity_amplitude(helicities, s, t);
 
             return sum;
         };
@@ -173,10 +167,7 @@ namespace jpacPhoto
         virtual void set_option(int x)
         { 
             _option = x; 
-            for (auto amp : _subamplitudes)
-            {
-                amp->set_option(x);
-            };            
+            for (auto amp : _subamplitudes) amp->set_option(x);
         };
         
         // Give each parameter a name if you'd like
@@ -185,10 +176,7 @@ namespace jpacPhoto
             std::vector<std::string> labels;
             if (_subamplitudes.size() == 0)
             {
-                for (int i = 0; i < _N_pars; i++)
-                {
-                    labels.push_back("par[" + std::to_string(i) + "]");
-                }
+                for (int i = 0; i < _N_pars; i++) labels.push_back("par[" + std::to_string(i) + "]");
             }
             else
             {
@@ -244,26 +232,28 @@ namespace jpacPhoto
         double A_LL(double s, double t); // Beam and target
         double K_LL(double s, double t); // Beam and recoil
 
+        // Beam Asymmetries
+        // double beam_asymmetry_y(double s, double t);    // Along the y direction
+        double beam_asymmetry_4pi(double s, double t);  // integrated over decay angles
+
         // Spin density matrix elements
 
         // this calculates the SDME in the amplitudes 'natural' frame 
         // i.e. doesnt require any additional rotations
-        complex SDME(int alpha, int lam, int lamp, double s, double t);
-
-        // Rotate the SDMEs to another frame by and angle theta
-        complex rotated_SDME(int alpha, int lam, int lamp, double s, double t, double theta);
+        // Unless you know a priori which frame this is being calcualted, better to use bSDME_GJ and bSDME_H
+        complex bSDME(unsigned int alpha, int lam, int lamp, double s, double t);
+        complex rotated_bSDME(unsigned int alpha, int lam, int lamp, double s, double t, double theta);
        
         // These check what the natural frame and include rotations if required to ensure
         // SDME is defined in the Helicity or Gottfried-Jackson frames
-        complex SDME_H (int alpha, int lam, int lamp, double s, double t);
-        complex SDME_GJ(int alpha, int lam, int lamp, double s, double t);
+        complex bSDME_H (unsigned int alpha, int lam, int lamp, double s, double t);
+        complex bSDME_GJ(unsigned int alpha, int lam, int lamp, double s, double t);
 
-        // Beam Asymmetries
-        double beam_asymmetry_y(double s, double t);    // Along the y direction
-        double beam_asymmetry_4pi(double s, double t);  // integrated over decay angles
-
-        // Parity asymmetry
-        double parity_asymmetry(double s, double t);
+        // Same as above but for the meson in the final state
+        complex mSDME(unsigned int alpha, int lam, int lamp, double s, double t);
+        complex rotated_mSDME(unsigned int alpha, int lam, int lamp, double s, double t, double theta);
+        complex mSDME_H (unsigned int alpha, int lam, int lamp, double s, double t);
+        complex mSDME_GJ(unsigned int alpha, int lam, int lamp, double s, double t);
 
         // ---------------------------------------------------------------------------
         // Other miscellaneous getters and setters
@@ -276,10 +266,7 @@ namespace jpacPhoto
         inline void set_debug(int x)
         { 
             _debug = x;
-            for (auto amp : _subamplitudes)
-            {
-                amp->set_debug(x);
-            }
+            for (auto amp : _subamplitudes) amp->set_debug(x);
         };
 
         // Number of free parameters
@@ -330,11 +317,7 @@ namespace jpacPhoto
         // Each amplitude may have different options for evaluating their amplitude
         // they may be differenticated with this variable
         int _option = 0;
-        inline void option_error()
-        {
-            warning(id()+"::set_option", 
-                    "Unexpected option passed. Continuing without change..."); 
-        };
+        inline void option_error(){ warning(id()+"::set_option", "Unexpected option passed. Continuing without change...");  };
 
         // ---------------------------------------------------------------------------
         // Parameter handling 

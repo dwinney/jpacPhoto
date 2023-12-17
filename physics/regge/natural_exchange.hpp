@@ -54,8 +54,17 @@ namespace jpacPhoto
             // Internal data members 
 
             protected:
-
+            
+            // Fixed parameters
+            int _signature = +1;
             double _s0 = 1;
+            double _alpha0Pom = 1.08, _alphaPPom = 0.25; // Pomeron trajectory for cut model
+
+            // Free parameters
+            double _alpha0 = 0, _alphaP = 0;
+            double _gT = 0., _gB1 = 0., _gB2 = 0, _gB3 = 0;
+            double _b = 0.;
+
             // Set parameters
             inline void allocate_parameters(std::vector<double> x)
             {
@@ -67,9 +76,6 @@ namespace jpacPhoto
             };
 
             // Regge trajectory
-            int _signature = +1;
-            double _alpha0 = 0, _alphaP = 0;
-            double _alpha0Pom = 1.08, _alphaPPom = 0.25; // Pomeron trajectory for cut model
             inline double slope()     { return (_option == kCut) ? _alphaPPom * _alphaP / (_alphaPPom + _alphaP) : _alphaP; };
             inline double trajectory(){ return (_option == kCut) ? _alpha0Pom - _alphaP*M_RHO*M_RHO + slope()*_t : _alpha0 + slope()*_t; };
             inline complex propagator() // includes ghost killing factor
@@ -83,11 +89,9 @@ namespace jpacPhoto
             };
 
             // Top coupling
-            double _gT = 0.;
             double top(){ return sqrt(-_t)*_gT; };
 
             // Bottom coupling
-            double _gB1 = 0., _gB2 = 0, _gB3 = 0;
             double bottom()
             {
                 int phase = 1, sign = 1;
@@ -109,8 +113,7 @@ namespace jpacPhoto
                 return std::nan("");
             };
 
-            // Suppression 
-            double _b = 0.;
+            // Suppression factor
             double form_factor(){ return exp(_b*_t); };
 
             // Half ange factor

@@ -51,7 +51,15 @@ namespace jpacPhoto
 
             protected:
 
+            // Fixed parameters 
+            int _signature = +1;
             double _s0 = 1;
+
+            // Free parameters
+            double _alpha0 = 0, _alphaP = 0;
+            double _b = 0., _c = 0.;
+            double _gT = 0.,  _gB = 0.;
+
             // Set parameters
             inline void allocate_parameters(std::vector<double> x)
             {
@@ -63,8 +71,6 @@ namespace jpacPhoto
             };
 
             // Regge trajectory
-            int _signature = +1;
-            double _alpha0 = 0, _alphaP = 0;
             inline double trajectory(){ return _alpha0 + _alphaP * _t; };
             inline complex propagator() // includes ghost killing factor
             {
@@ -75,11 +81,9 @@ namespace jpacPhoto
             };
 
             // Top coupling
-            double _gT = 0.;
             double top(){ return (_signature == +1) ? _gT : sqrt(-_t)*_gT; };
 
             // Bottom coupling
-            double _gB = 0.;
             double bottom()
             {
                 int phase = 1, sign = 1;
@@ -103,8 +107,7 @@ namespace jpacPhoto
                 return std::nan("");
             };
 
-            // Suppression 
-            double _b = 0., _c = 0.;
+            // Suppression factor
             double form_factor(){ return _c*exp(_b*_t); };
 
             // Half ange factor
