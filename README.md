@@ -43,7 +43,7 @@ target_link_libraries( myTarget JPACPHOTO)
 ```
 
 ##  AMPLITUDES
-The main object of interest in the core library is the abstract [`amplitude`](./src/core/amplitude.hpp) and implementations defined by the user. Amplitudes implemented so may be found in [/amplitudes/](./amplitudes/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
+The main object of interest in the core library is the abstract [`amplitude`](./src/amplitude.hpp) and implementations defined by the user. Amplitudes implemented so may be found in [/amplitudes/](./amplitudes/) as well as a [template file](./amplitudes/template.hpp) with which to add new classes. Models are implemented and calculated on a per-helicity-amplitude basis which allows one to compute an array of observables:
 
 | Observable                           |                                                 | Callable `amplitude` function                                                                                                  |
 |--------------------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
@@ -58,7 +58,7 @@ The main object of interest in the core library is the abstract [`amplitude`](./
 
 
 
-All kinematics are passed around by the [`kinematics`](./src/core/kinematics.hpp) class which allows arbitrary masses for all particles and arbitrary quantum numbers for the produced final state meson & baryon.
+All kinematics are passed around by the [`kinematics`](./src/kinematics.hpp) class which allows arbitrary masses for all particles and arbitrary quantum numbers for the produced final state meson & baryon.
 
 The basic usage is:
 ```c++
@@ -76,7 +76,7 @@ myAmp2->set_parameters{ {/* couplings etc */} };
 
 // Evaluate observables
 myAmp1->integrated_xsection(s);
-myAmp2->SDME(0, 1, -1, s, t);
+myAmp2->mSDME_GJ(0, 1, -1, s, t);
 ```
 Multiple amplitudes may describe the same process sharing the same kinematics instance and
 incoherent (interfering) sums any combination of (compatible) amplitudes may be constructed. Partial wave projections onto Legendre and Wigner functions can be taken for any amplitude of combination of amplitudes. All of these are treated as amplitudes themselves and have access to observables are available with the same syntax:
@@ -93,6 +93,26 @@ amplitude pwave = project(1, sum);
 amp1->integrated_xsection(s);  // Individual term
 sum->integrated_xsection(s);   // Interfering sum
 pwave->integrated_xsection(s); // Only P-wave contribution of sum
+```
+
+## SEMI-INCLUSIVE DISTRIBUTIONS
+Methods to add models for inclusive processes can be added via the [`inclusive_process`](./src/inclusive_process.hpp) class. These are used for example in [[3]](#references) to investigate inclusive XYZ production. 
+Since semi-inclusive models lose helicity dependence only unpolarized observables are currently available: (Units of GeV and nb assumed where appropriate):
+| Observable                                       |   | Callable `inclusive_process` function |
+|--------------------------------------------------|---|---------------------------------------|
+| Invariant cross section | $E_{\mathcal{Q}} \, \frac{d^3\sigma}{d^3\mathbf{q}}$  | `invariant_xsection(double s, double t, double M2)`  |
+| Doubly-differential cross section | $\frac{d^2\sigma}{dt \, dM^2}$, <br /> $\frac{d^2\sigma}{dt \, dx}$ <br /> $\frac{d^2\sigma}{dx \, dy^2}$  | `dsigma_dtdM2(double s, double t, double M2)` <br />  `dsigma_dtdx(double s, double t, double x)`<br /> `dsigma_dxdy2(double s, double x, double y2)` |
+| Singly-differential cross section | $\frac{d\sigma}{dt}$, <br /> $\frac{d\sigma}{dM^2}$ <br /> $\frac{d\sigma}{dx}$ <br /> $\dots$ | `dsigma_dt(double s, double t)` <br />  `dsigma_dM2(double s, double M2)`<br /> `dsigma_dx(double s, double x)` <br /> $\dots$ |
+| Fully integrated cross section | $\sigma$ | `integrated_xsection(double s)`|
+
+Much of the syntax is the same as with exclusive amplitudes although models are implemented at the level of amplitude-squared. 
+``` c++
+// Inclusive Z production
+inclusive_process Z = new_inclusive_process<my_model>(M_Z, /* other parameter */);
+Z->set_parameters({ /* couplings, etc */ });
+
+// Get observables
+Z->integrated_xsection(double s);
 ```
 
 ##  REFERENCES
