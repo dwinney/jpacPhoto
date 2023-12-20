@@ -208,7 +208,8 @@ namespace jpacPhoto
         };
 
         // Wigner rotation angle connecting helicity and gottfried-jackson frames 
-        double H_to_GJ_angle(double s, double t);
+        double mH_to_GJ_angle(double s, double t);
+        double bH_to_GJ_angle(double s, double t);
 
         // -----------------------------------------------------------------------
         private:

@@ -45,6 +45,10 @@ namespace jpacPhoto
             inline helicity_frame native_helicity_frame()        { return   S_CHANNEL;      };
             inline std::vector<quantum_numbers> allowed_mesons() { return { PSEUDOSCALAR }; };
             inline std::vector<quantum_numbers> allowed_baryons(){ return { THREEPLUS    }; };
+            
+            // Options
+            static const int kYesPMA = 0;
+            static const int kNoPMA  = 1;
 
             // -----------------------------------------------------------------------
             // Internal data members 
@@ -81,7 +85,7 @@ namespace jpacPhoto
             };
 
             // Top coupling
-            double top(){ return (_signature == +1) ? _gT : sqrt(-_t)*_gT; };
+            double top(){ return _gT; };
 
             // Bottom coupling
             double bottom()
@@ -92,9 +96,15 @@ namespace jpacPhoto
                     phase = pow(-1, (_lamT - _lamR)/ 2); sign = -1;
                 }
 
-                int n = std::abs(-_lamB - (_lamR - _lamT)/2); 
-                int x = std::abs((_lamT - _lamR)/2) + abs(_lamB) - n;
-                double tfactor = phase * pow(sqrt(-_t), n) * pow(-M_PION*M_PION, x/2);
+                double tfactor;
+                if (_option == kYesPMA)
+                {
+                    int n = std::abs(-_lamB - (_lamR - _lamT)/2); 
+                    int x = std::abs((_lamT - _lamR)/2) + abs(_lamB) - n;
+                    tfactor = phase * pow(sqrt(-_t), n) * pow(-M_PION*M_PION, x/2);
+                }
+                else  tfactor = phase * pow(sqrt(-_t), std::abs((_lamT - _lamR)/2) + abs(_lamB));
+                
 
                 switch (sign*_lamR)
                 {

@@ -383,16 +383,12 @@ namespace jpacPhoto
         // First get the spin of the particle we're rotating
         int J = _kinematics->get_baryon_JP()[0];
 
-        // Sum over all the rest
         complex result = 0.;
-        for (int m = 1; m <= J; m += 2)
+        for (int m = -J; m <= J; m += 2)
         {
-            for (int mp = 1; mp <= J; mp += 2)
+            for (int mp = -J; mp <= J; mp += 2)
             {
-                result += wigner_d_half(J, lam,  m, theta) * bSDME(alpha,  m,  mp, s, t) * wigner_d_half(J, lamp,  mp, theta);
-                if (m  != 0) result += wigner_d_half(J, lam, -m, theta) * bSDME(alpha, -m,  mp, s, t) * wigner_d_half(J, lamp,  mp, theta);
-                if (mp != 0) result += wigner_d_half(J, lam, -m, theta) * bSDME(alpha, -m, -mp, s, t) * wigner_d_half(J, lamp, -mp, theta);
-                if (m  != 0 && mp != 0) result += wigner_d_half(J, lam,  m, theta) * bSDME(alpha,  m, -mp, s, t) * wigner_d_half(J, lamp, -mp, theta);
+                result += wigner_d_half(J, lam, m, -theta) * bSDME(alpha, m, mp, s, t) * wigner_d_half(J, mp, lamp, theta);
             };
         };
 
@@ -402,37 +398,28 @@ namespace jpacPhoto
     // Calculate the Helicity frame SDME
     complex raw_amplitude::bSDME_H(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        helicity_frame frame = this->native_helicity_frame();
-        
-        switch (frame)
+        switch (this->native_helicity_frame())
         {
             case S_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
-            case U_CHANNEL: 
-            {
-                return error("bSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", 0);
-            };
+            case T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->bH_to_GJ_angle(s, t));
+            case U_CHANNEL: return error("bSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
         };
 
-        return 0;
+        return std::nan("");
     };
 
     // Calculate the Gottfried-Jackson SDME
     complex raw_amplitude::bSDME_GJ(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        helicity_frame frame = this->native_helicity_frame();
-
-        switch (frame)
+        switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
+            case S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->bH_to_GJ_angle(s, t));
             case T_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: 
-            {
-                return error("bSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", 0);
-            };
+            case U_CHANNEL: return error("bSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            default: return std::nan("");
         };
 
-        return 0.;
+        return std::nan("");
     };
 
     // -------------------------------------------------------
@@ -496,53 +483,39 @@ namespace jpacPhoto
 
         // Sum over all the rest
         complex result = 0.;
-        for (int m = 0; m <= J; m++)
+        for (int m = -J; m <= J; m++)
         {
-            for (int mp = 0; mp <= J; mp++)
+            for (int mp = -J; mp <= J; mp++)
             {
-                result += wigner_d_int(J, lam,  m, theta) * mSDME(alpha,  m,  mp, s, t) * wigner_d_int(J, lamp,  mp, theta);
-                if (m  != 0) result += wigner_d_int(J, lam, -m, theta) * mSDME(alpha, -m,  mp, s, t) * wigner_d_int(J, lamp,  mp, theta);
-                if (mp != 0) result += wigner_d_int(J, lam, -m, theta) * mSDME(alpha, -m, -mp, s, t) * wigner_d_int(J, lamp, -mp, theta);
-                if (m  != 0 && mp != 0) result += wigner_d_int(J, lam,  m, theta) * mSDME(alpha,  m, -mp, s, t) * wigner_d_int(J, lamp, -mp, theta);
+                result += wigner_d_int(J, lam, m, -theta) * mSDME(alpha, m, mp, s, t) * wigner_d_int(J, mp, lamp, theta);
             };
         };
-
         return result;
     };
 
     // Calculate the Helicity frame SDME
     complex raw_amplitude::mSDME_H(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        helicity_frame frame = this->native_helicity_frame();
-        
-        switch (frame)
+        switch (this->native_helicity_frame())
         {
             case S_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->H_to_GJ_angle(s, t));
-            case U_CHANNEL: 
-            {
-                return error("mSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", 0);
-            };
+            case T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->mH_to_GJ_angle(s, t));
+            case U_CHANNEL: return error("mSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            default: return std::nan("");
         };
-
-        return 0;
+        return std::nan("");
     };
 
     // Calculate the Gottfried-Jackson SDME
     complex raw_amplitude::mSDME_GJ(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        helicity_frame frame = this->native_helicity_frame();
-
-        switch (frame)
+        switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->H_to_GJ_angle(s, t));
+            case S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->mH_to_GJ_angle(s, t));
             case T_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: 
-            {
-                return error("mSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", 0);
-            };
+            case U_CHANNEL: return error("mSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            default: return std::nan("");
         };
-
-        return 0.;
+        return std::nan("");
     };
 };
