@@ -56,8 +56,8 @@ namespace jpacPhoto
 
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                 : _FF->eval(_t);
+                complex FF = (_option == kExpFF && !_useT) ? _FF->eval(_t - _kinematics->t_min(s))
+                                                           : _FF->eval(_t);
 
                 // Multiply couplings with propagator
                 return FF * result;
@@ -83,6 +83,8 @@ namespace jpacPhoto
             static const int kExpFF      = 0;
             static const int kMonopoleFF = 1;
             static const int kNoFF       = 2;
+            static const int kUseT       = 3;
+            static const int kUseTprime  = 4;
             inline void set_option( int opt )
             {
                 switch (opt)
@@ -106,6 +108,8 @@ namespace jpacPhoto
                         set_N_pars(3);
                         return;
                     }
+                    case (kUseT):      { _useT = true; return; }
+                    case (kUseTprime): { _useT = false; return; }
                     default: 
                     {
                         option_error();
@@ -163,6 +167,7 @@ namespace jpacPhoto
             // We include a t-channel form-factor for the propagator
             // By default this is the exponential one
             form_factor _FF = new_FF<exponential>();
+            bool _useT = false;
 
             // Top coupling refers to the beam-exchange-meson interaction
             inline complex top_coupling()
@@ -182,7 +187,10 @@ namespace jpacPhoto
                     default: break;
                 };
 
-                return _gTop*_qi*result;
+                // Form factor
+                double FF = _mX*_mX/(_mX*_mX - _t);
+
+                return _gTop*_qi*FF*result;
             };
 
             // Bottom coupling refers to the target-exchange-recoil interation

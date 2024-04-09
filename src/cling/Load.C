@@ -36,4 +36,19 @@ void Load()
     {
         Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
     }
+
+    //----------------------------------------------------------------------
+    // IF dynamic AmpTools is found in lib, assume we want to load it too
+
+    TString AmpTools_dir  = gSystem->Getenv("AMPTOOLS");
+    TString AmpTools_lib  = main_dir + "/lib/libAMPTOOLS." + lib_ext;
+    TString AmpTools_inc = main_dir + "/AmpTools";
+
+    if (AmpTools_dir != "" && !gSystem->AccessPathName(AmpTools_lib.Data()))
+    {
+        gSystem->Load( AmpTools_lib.Data() );
+        gInterpreter->AddIncludePath( AmpTools_inc.Data() );
+        gInterpreter->AddIncludePath( AmpTools_dir.Data() );
+    };
+    
 }

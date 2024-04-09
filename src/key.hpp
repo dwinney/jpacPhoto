@@ -17,7 +17,7 @@ namespace jpacPhoto
 {
     class raw_kinematics;
     class raw_amplitude;
-    class raw_inclusive_process;
+    class raw_semi_inclusive;
 
     class key
     {
@@ -40,8 +40,10 @@ namespace jpacPhoto
         friend std::shared_ptr<raw_amplitude> helicity_project(int, std::shared_ptr<raw_amplitude>, std::string);
 
         // Inclusive factories     
-        template<class A>          friend std::shared_ptr<raw_inclusive_process> new_inclusive_process(double, std::string);
-        template<class A, class B> friend std::shared_ptr<raw_inclusive_process> new_inclusive_process(double, B parameter, std::string);
+        template<class A>          friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics>, std::string);
+        template<class A, class B> friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics>, B parameter, std::string);
+        friend std::shared_ptr<raw_semi_inclusive> operator+(std::shared_ptr<raw_semi_inclusive> a, std::shared_ptr<raw_semi_inclusive> b);
+        friend std::shared_ptr<raw_semi_inclusive> operator+(std::shared_ptr<raw_semi_inclusive> a, std::shared_ptr<raw_amplitude> b);
     };
 };
 

@@ -16,6 +16,6 @@
 #pragma link C++ defined_in "data_set.hpp";
 #pragma link C++ defined_in "plotter.hpp";
 #pragma link C++ defined_in "plot.hpp";
-#pragma link C++ defined_in "inclusive_process.hpp";
+#pragma link C++ defined_in "semi_inclusive.hpp";
 
 #endif

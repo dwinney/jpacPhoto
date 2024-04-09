@@ -14,6 +14,7 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
+#include "analytic/pomeron_exchange.hpp"
 
 namespace jpacPhoto
 {

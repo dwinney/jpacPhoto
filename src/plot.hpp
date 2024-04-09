@@ -31,7 +31,6 @@
 
 #include "data_set.hpp"
 #include "elementwise.hpp"
-#include "amplitude.hpp"
 #include "colors.hpp"
 
 namespace jpacPhoto
@@ -134,7 +133,10 @@ namespace jpacPhoto
         };
 
         // Add data by simply feeding it vectors 
-        void add_data(std::vector<double> x, std::vector<double> y, std::array<std::vector<double>,2> errs, std::string id = "");
+        void add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errs, std::string id = "");
+
+        // Add data by simply feeding it vectors 
+        void add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errs, jpacColor col);
 
         // Add a small offset to change the running color index
         inline void color_offset(unsigned n)
@@ -144,6 +146,8 @@ namespace jpacPhoto
 
         // -----------------------------------------------------------------------
         // Methods to add curves to your plot
+
+        inline void set_curve_points(int N){ _Npoints = N; };
 
         // Basic function which uses the raw vectors and a string id
         void add_curve(std::vector<double> x, std::vector<double> fx, entry_style style);
@@ -158,53 +162,10 @@ namespace jpacPhoto
         void add_dashed(std::vector<double> x, std::vector<double> fx);
         void add_dashed(std::array<double,2> bounds, std::function<double(double)> F);
 
-        // -----------------------------------------------------------------------
-        // Add curve directly from an amplitude
-
-        inline void set_curve_points(int N){ _Npoints = N; };
-
-        // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
-        void add_curve(curve_type opt, amplitude to_plot, std::array<double,2> bounds);
-        inline void add_curve(curve_type opt, std::vector<amplitude> to_plot, std::array<double,2> bounds)
-        {
-            for (auto amp : to_plot)
-            {
-                add_curve(opt, amp, bounds);
-            }
-        };
-        inline void add_curve(std::array<double,2> bounds, curve_type opt, amplitude to_plot)
-        {
-            add_curve(opt, to_plot, bounds);
-        };
-
-
-        // Plot differential observable which requires one fixed variable
-        void add_curve(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
-        inline void add_curve(curve_type opt, std::vector<amplitude> to_plot, double fixed_val, std::array<double,2> bounds)
-        {
-            for (auto amp : to_plot)
-            {
-                add_curve(opt, amp, fixed_val, bounds);
-            }
-        };
-        inline void add_curve(std::array<double,2> bounds, curve_type opt, amplitude to_plot, double fixed_val)
-        {
-            add_curve(opt, to_plot, fixed_val, bounds);
-        };
-
-        // Amplitudes which require only bounds of dependent variable (e.g. integrated cross-section)
-        void add_dashed(curve_type opt, amplitude to_plot, std::array<double,2> bounds);
-        inline void add_dashed(std::array<double,2> bounds, curve_type opt, amplitude to_plot)
-        {
-            add_dashed(opt, to_plot, bounds);
-        };
-
-        // Plot differential observable which requires one fixed variable
-        void add_dashed(curve_type opt, amplitude to_plot, double fixed_val, std::array<double,2> bounds);
-        inline void add_dashed(std::array<double,2> bounds, curve_type opt, amplitude to_plot, double fixed_val)
-        {
-            add_dashed(opt, to_plot, fixed_val, bounds);
-        };
+        // Curves added by these functions appear as dotted, not on the legend, and synced with the
+        // colors of the "full" curves
+        void add_dotted(std::vector<double> x, std::vector<double> fx);
+        void add_dotted(std::array<double,2> bounds, std::function<double(double)> F);
 
         // -----------------------------------------------------------------------
         // Add an error band
@@ -221,6 +182,16 @@ namespace jpacPhoto
             new_vert._color     = style[0];
             new_vert._linestyle = style[1];   
             _lines.push_back(new_vert);
+        };
+
+        inline void shade_region(std::array<double,2> xs, std::array<int,2> style = {+jpacColor::Grey, 1001})
+        {
+            shaded new_shaded;
+            new_shaded._xmin = xs[0];
+            new_shaded._xmax = xs[1];
+            new_shaded._color = style[0];
+            new_shaded._style = style[1];
+            _shaded.push_back(new_shaded);
         };
 
         // -----------------------------------------------------------------------
@@ -251,20 +222,14 @@ namespace jpacPhoto
         {
             _add_logo = x; _logo_coords = coords; _logo_scale = scale;
         };
-        inline void reset_logo()
-        {
-            _add_logo = true; _logo_coords =  {0.93, 0.885}; _logo_scale = 1;
-        };
+        inline void reset_logo(){ _add_logo = true; _logo_coords =  {0.93, 0.885}; _logo_scale = 1; };
+        inline void set_legend_spacing(double x){ _legendyscale = x; };
+        inline void preliminary(bool x){ _prelim = x; };
 
-        inline void set_legend_spacing(double x)
-        {
-            _legendyscale = x;
-        };
+        inline void print_to_terminal(bool x){ _print  = x; };
 
-        inline void preliminary(bool x)
-        {
-            _prelim = x;
-        };
+        inline void add_style_legend(std::array<std::string,3> labels){ _style_labels = labels; _add_style_legend = true; };
+        inline void set_style_legend(double x, double y){ _slegendx = x; _slegendy = y;};
 
         // -----------------------------------------------------------------------
         
@@ -276,6 +241,10 @@ namespace jpacPhoto
         {};
 
         friend class plotter;
+
+        // When add_curve/dashed is called if these are true
+        // print entries to terminal 
+        bool _print  = false;
 
         // Change linewidth and propagate it to all the curves in the plot
         inline void scale_linewidth(double x)
@@ -364,6 +333,11 @@ namespace jpacPhoto
         bool _addheader = false;
         std::string _header = "";
 
+        // If we want a second legend to dictate the styles
+        bool _add_style_legend = false;
+        double _slegendx = 0.3, _slegendy = 0.4;
+        std::array<std::string,3> _style_labels;
+
         // ------------------------------------------------------------------------
         // ENTRY MANAGEMENT
 
@@ -388,6 +362,20 @@ namespace jpacPhoto
         };
 
         std::vector<vertical> _lines;
+
+        // ------------------------------------------------------------------------
+        // Shaded regions
+
+        struct shaded 
+        {
+            double _xmin = 0, _xmax = 0.;
+            double _opacity = 0.3;
+            int _color   = kBlack;
+            int _style   = 3004;
+        };
+
+        std::vector<shaded> _shaded;
+
     };
 };
 

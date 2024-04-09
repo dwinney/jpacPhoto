@@ -12,9 +12,8 @@
 // [1] 	arXiv:2209.05882 [hep-ph]
 // ------------------------------------------------------------------------------
 
-#include "inclusive_process.hpp"
-#include "inclusive/pion_exchange.hpp"
-#include "inclusive/phase_space.hpp"
+#include "semi_inclusive.hpp"
+#include "semi_inclusive/pion_exchange.hpp"
 #include "analytic/pseudoscalar_exchange.hpp"
 
 #include "Math/GSLIntegrator.h"
@@ -81,7 +80,7 @@ void b1()
             return Sill(m)*b1D->integrated_xsection(w*w) * 1E-3; // in mub!
         };
 
-        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kNONADAPTIVE, ROOT::Math::Integration::kGAUSS15);
         ROOT::Math::Functor1D wH(dH);
         ig.SetFunction(wH);
         
@@ -92,39 +91,21 @@ void b1()
     // Inclusives
     // ---------------------------------------------------------------------------
 
-    inclusive_process b1p = new_inclusive_process<inclusive::pion_exchange>(M_B1, +1, "b_{1}(1235)^{#plus}");
-    b1p->set_parameters(g_b1);
+    semi_inclusive b1_piN = new_semi_inclusive<inclusive::pion_exchange>(kb1N, +1, "b_{1}(1235)^{#plus} semi-inclusive");
+    b1_piN->set_parameters(g_b1);
+
+    // Full semi-inclusive reaction for b1+ is the inclusive and exclusive together
+    semi_inclusive b1p = b1_piN + b1N;
+    b1p->set_id("b_{1}(1235)^{#plus}");
     
-    inclusive_process b1m = new_inclusive_process<inclusive::pion_exchange>(M_B1, -1, "b_{1}(1235)^{#minus}");
-    b1m->set_parameters(g_b1);
+    semi_inclusive b1m = new_semi_inclusive<inclusive::pion_exchange>(kb1N, -1, "b_{1}(1235)^{#minus}");
+    b1m->set_parameters(g_b1); 
+    
+    // The b1- doesnt have an exclusive analogue
 
     // ---------------------------------------------------------------------------
-    // Make plot
+    // Make plots
     // ---------------------------------------------------------------------------
-
-    // b1- sigma
-    auto func_m = [&](double w)
-    {
-        return b1m->integrated_xsection(w*w) * 1E-3; // in mub
-    };
-
-    // b1+ sigma
-    auto func_p = [&](double w)
-    {
-        return (b1p->integrated_xsection(w*w) + b1N->integrated_xsection(w*w)) * 1E-3; // in mub
-    };
-
-    // Exclusive b1+ N only 
-    auto func_N = [&](double w)
-    {
-        return b1N->integrated_xsection(w*w) * 1E-3; // in mub
-    };
-
-    // Exclusive b1- delta 
-    auto func_D = [&](double w)
-    {
-        return b1D->integrated_xsection(w*w) * 1E-3; // in mub
-    };
 
     // Plotting bounds
     std::array<double,2> bounds = {2, 4};
@@ -133,27 +114,26 @@ void b1()
     plot p1 = plotter.new_plot();
     p1.set_legend(0.5, 0.7);
     p1.set_ranges(bounds, {0, 10});
+    p1.set_curve_points(50);
     p1.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
 
-    // p1.add_curve( bounds, func_PiN, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW");
-    // kb1D->set_recoil_mass(M_B1);
-    // p1.add_dashed( bounds, func_D);
-
-    p1.set_curve_points(50);
+    p1.add_curve( bounds, func_PiN, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW");
+    kb1D->set_recoil_mass(M_DELTA);
+    p1.add_dashed( bounds, [&](double w){ return b1D->integrated_xsection(w*w) * 1E-3; });
     b1m->set_option(inclusive::pion_exchange::kPwave);
-    p1.add_curve( bounds, func_m, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from SAID");
+    p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from SAID");
     b1m->set_option(inclusive::pion_exchange::kJPAC);
-    p1.add_curve( bounds, func_m, "Inclusive b_{1}^{#minus}");
-
+    p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, "Inclusive b_{1}^{#minus}");
+    
     // p2 = comparison of total inclusive b1+ and b1-
     plot p2 = plotter.new_plot();
     p2.set_curve_points(50);
     p2.set_legend(0.7, 0.7);
     p2.set_ranges(bounds, {0, 8});
     p2.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
-    p2.add_curve( bounds, func_p, b1p->id());
-    p2.add_dashed(bounds, func_N);
-    p2.add_curve( bounds, func_m, b1m->id());
+    p2.add_curve( bounds, [&](double w){ return b1p->integrated_xsection(w*w) * 1E-3; }, b1p->id());
+    p2.add_dashed(bounds, [&](double w){ return b1N->integrated_xsection(w*w) * 1E-3; });
+    p2.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, b1m->id());
 
     plotter.combine({2,1}, {p1, p2}, "b1.pdf");
 };

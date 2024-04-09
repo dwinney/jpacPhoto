@@ -82,21 +82,18 @@ namespace jpacPhoto
                 switch (opt)
                 {
                     case (kExpFF): 
-                    {
-                        _FF = new_FF<exponential>();
-                        _FF->set_cutoff(_ffCutoff);
+                    { 
+                        _FF = new_FF<exponential>(); _FF->set_cutoff(_ffCutoff);
                         break;
                     };
                     case (kMonopoleFF):
                     {
-                        _FF = new_FF<monopole>(_mEx);
-                        _FF->set_cutoff(_ffCutoff);
+                        _FF = new_FF<monopole>(_mEx); _FF->set_cutoff(_ffCutoff);
                         break;
                     }
                     case (kNoFF):
                     {
-                        _FF = nullptr;
-                        set_N_pars(2);
+                        _FF = nullptr; set_N_pars(2);
                         break;
                     }
                     default: 
@@ -112,11 +109,7 @@ namespace jpacPhoto
             // Parameter names
             inline std::vector<std::string> parameter_labels()
             {
-                if (_option == kNoFF)
-                {
-                    return { "gPhoton", "gNucleon" };
-                }
-
+                if (_option == kNoFF) return { "gPhoton", "gNucleon" };
                 return { "gPhoton", "gNucleon", "Cutoff" };
             };
             
@@ -131,13 +124,11 @@ namespace jpacPhoto
             // [2] Form-factor cutoff
             inline void allocate_parameters(std::vector<double> x)
             {
-                _gTop     = x[0];
-                _gBot     = x[1];
+                _gTop     = x[0]; _gBot     = x[1];
                 
                 if (_option != kNoFF)
                 {
-                    _ffCutoff = x[2];
-                    _FF->set_cutoff(_ffCutoff);
+                    _ffCutoff = x[2]; _FF->set_cutoff(_ffCutoff);
                 }
                 return;
             };

@@ -99,6 +99,7 @@ namespace jpacPhoto
     const double EPS      = 1.e-7;
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
+    const double HBARC    = 389379; // nb/GeV^2
 
     template <typename T>
     int sgn(T val) { return (T(0) < val) - (val < T(0)); };
@@ -113,6 +114,7 @@ namespace jpacPhoto
     const double M_OMEGA     = 0.78265;
     const double M_PHI       = 1.01956;
     const double M_A2        = 1.3186;
+    const double M_F2        = 1.2754;
     const double M_B1        = 1.229;
     const double M_JPSI      = 3.0969160;
     const double M_PSI2S     = 3.686;
@@ -157,13 +159,8 @@ namespace jpacPhoto
     // ------------------------------------------------------------------------------
     // Quantum number combinations
 
-    enum quantum_numbers { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
-                                    HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
-        
-    // Its possible to have a completely quantum number independent amplitude
-    // in which case use this
-    inline std::vector<quantum_numbers> any(){ return { PARTICLE_ERROR, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR,
-                                                                 HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS }; };
+    enum quantum_numbers { PARTICLE_ERROR, ANY, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR, TENSOR, AXIALTENSOR,
+                                                HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
 
     // ------------------------------------------------------------------------------
     // // NaN's, 0, and 1 for throwing errors with custom data types

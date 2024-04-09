@@ -105,7 +105,9 @@ void Y_mesons()
     p_low.set_legend(0.3, 0.73);
     p_low.set_ranges({4, 10}, {0, 15});
     p_low.set_labels( "#it{W_{#gammap}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{Yp})  [nb]");
-    p_low.add_curve(sigma_w, {JpsiL, Psi2SL, YL}, {4, 10});
+    p_low.add_curve({4, 10}, [&](double W){ return JpsiL->integrated_xsection(W*W); },  "#it{J}/#psi");
+    p_low.add_curve({4, 10}, [&](double W){ return Psi2SL->integrated_xsection(W*W); }, "#psi(2#it{S})");
+    p_low.add_curve({4, 10}, [&](double W){ return YL->integrated_xsection(W*W); },     "#it{Y}(4230)");
 
     // High-energy plot
     plot p_high = plotter.new_plot();
@@ -113,7 +115,9 @@ void Y_mesons()
     p_high.set_legend(0.3, 0.73);
     p_high.set_ranges({30, 100}, {0, 100});
     p_high.set_labels( "#it{W_{#gammap}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{Yp})  [nb]");
-    p_high.add_curve(sigma_w, {JpsiH, Psi2SH, YH}, {30, 100});
+    p_high.add_curve({30, 100}, [&](double W){ return JpsiH->integrated_xsection(W*W); },  "#it{J}/#psi");
+    p_high.add_curve({30, 100}, [&](double W){ return Psi2SH->integrated_xsection(W*W); }, "#psi(2#it{S})");
+    p_high.add_curve({30, 100}, [&](double W){ return YH->integrated_xsection(W*W); },     "#it{Y}(4230)");
 
     // Combine these into a single plot 
     plotter.combine({2,1}, {p_low, p_high}, "Y_mesons.pdf");

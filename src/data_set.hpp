@@ -143,41 +143,47 @@ namespace jpacPhoto
         return N;
     };
 
-    // Define different archetypes of data
-    enum data_type { integrated_data, differential_data};
-
     struct data_set
-    {
+    {     
         // Number of data points
         int _N = 0;
 
         std::string _id = "data_set";
 
-        data_type _type;
+        // Each data set should specify what kind of data it is
+        // This should match whatever is expected for a particular fitter
+        int _type;
         
-        // Vectors to store energy and momentum transfer variables and observable
-        std::vector<double> _w, _t, _obs, _obserr;
+        // Save up to three data members for each "point"
+        // These can include s, t, dsig/dt for example
+        std::vector<double> _x, _y, _z;
 
         // Other possible vectors to store things like bin sizes, etc
-        std::array<std::vector<double>,2> _werr, _terr;
+        std::array<std::vector<double>, 2> _xerr, _yerr, _zerr;
 
-        // Whether the values stored in _w correspond to invariant energy W = sqrt(s) (false)
-        // or lab frame energy Egamma (true)
-        bool _lab = false;
+        // In additon, save any number of extra parameters that may be needed to 
+        // identify the data set
+        std::vector<double> _extras; 
 
-        // Whether the momentum transfer values stored in _t correspond to invariant t (false)
-        // or t' = t - t_min (true)
-        bool _tprime = false;
-
-        // Whether saves values in _t are positive or negative t
-        // i.e. -t (true) vs t (false)
-        bool _negt   = false;
-
-        // For a differential set it may be useful to have an average s 
-        double _avg_w = 0;
-
-        // If we want a data entry in t he legend
+        // If we want a data entry in the legend when plotting
         bool _add_to_legend = false;
+    };
+
+    // For plotters we'll always plot x as the independent variable and z as the dependent one
+    // This method swaps x and y
+    inline data_set swap_dependent_variable(data_set d)
+    {
+        data_set new_d;
+        new_d._N      = d._N;
+        new_d._id     = d._id;
+        new_d._type   = d._type;
+        new_d._extras = d._extras;
+        new_d._x    = d._y;    new_d._xerr = d._yerr;
+        new_d._y    = d._x;    new_d._yerr = d._xerr;
+        new_d._z    = d._z;    new_d._zerr = d._zerr;
+        new_d._add_to_legend = d._add_to_legend;
+
+        return new_d;
     };
 };
 

@@ -76,6 +76,29 @@ namespace jpacPhoto
         if (_addlegend) legend->Draw();
         if (!_addlegend && _addheader) { legend->Clear(); legend->SetHeader(("  " + _header).c_str(), "L"); legend->Draw();}
 
+        if (_add_style_legend)
+        {
+            // Set up legend
+            auto slegend = new TLegend(_slegendx,  _slegendy, 
+                                       _slegendx + 0.35, 
+                                       _slegendy + 0.12);
+            slegend->SetFillStyle(0); // Make legend transparent
+
+            // For each of the three style make an empty histogram
+            double y[1] = {1};
+            std::string sopt = "L";
+            for (int i = 0; i < 3; i++)
+            {
+                TGraph * sentry = new TGraph(1, y);
+                sentry->SetLineColorAlpha(+jpacColor::DarkGrey, 0.9);
+                sentry->SetLineStyle(1+i);
+                sentry->SetLineWidth(2.0);
+                slegend->AddEntry(sentry, _style_labels[i].c_str(), sopt.c_str());
+            }
+
+            slegend->Draw();
+        };
+
         mg->GetXaxis()->CenterTitle(true);
         mg->GetYaxis()->CenterTitle(true);
         _canvas->Modified();
@@ -89,6 +112,8 @@ namespace jpacPhoto
             mg->SetMaximum(_ybounds[1]);
             ylow = _ybounds[0]; yhigh = _ybounds[1];
         };
+        double xmin = mg->GetXaxis()->GetXmin();
+        double xmax = mg->GetXaxis()->GetXmax();
 
         for (auto line : _lines)
         {
@@ -99,6 +124,16 @@ namespace jpacPhoto
             vert->Draw();
         }
 
+        for (auto shade : _shaded)
+        {
+            double bmin = (shade._xmin < xmin) ? xmin : shade._xmin;
+            double bmax = (shade._xmax > xmax) ? xmax : shade._xmax;
+
+            TBox *b = new TBox(bmin, ylow, bmax, yhigh); 
+            b->SetFillColorAlpha(shade._color, 0.1); 
+            b->SetFillStyle(shade._style);
+            b->Draw();
+        }
     };
 
     // ---------------------------------------------------------------------------
@@ -106,27 +141,12 @@ namespace jpacPhoto
 
     void plot::add_data(data_set data)
     {
-        double *x, *y, *xl, *xh, *yl, *yh;
-        switch (data._type)
-        {
-            case integrated_data: 
-            {
-                x  = &(data._w[0]);        y  = &(data._obs[0]);
-                xl = &(data._werr[0][0]);  xh = &(data._werr[1][0]);
-                yl = &(data._obserr[0]);   yh = &(data._obserr[0]);
-                break;
-            };
-            case differential_data: 
-            {
-                x  = &(data._t[0]);        y  = &(data._obs[0]);
-                xl = &(data._terr[0][0]);  xh = &(data._terr[1][0]);
-                yl = &(data._obserr[0]);   yh = &(data._obserr[0]);
-                break;
-            };
-            default: return;
-        };
+        double *x, *z, *xl, *xh, *zl, *zh;
+        x  = &(data._x[0]);        z  = &(data._z[0]);
+        xl = &(data._xerr[0][0]);  xh = &(data._xerr[1][0]);
+        zl = &(data._zerr[0][0]);  zh = &(data._zerr[1][0]);
 
-        TGraph *graph = new TGraphAsymmErrors(data._N, x, y, xl, xh, yl, yh);
+        TGraph *graph = new TGraphAsymmErrors(data._N, x, z, xl, xh, zl, zh);
 
         entry_style style;
         style._label = data._id;
@@ -142,16 +162,16 @@ namespace jpacPhoto
     };
 
     // Add data by simply feeding it vectors 
-    void plot::add_data(std::vector<double> xin, std::vector<double> yin, std::array<std::vector<double>,2> errsin, std::string id)
+    void plot::add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errsin, std::string id)
     {
         // Check size of arrays
-        int N = xin.size();
-        if ((yin.size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
+        int N = dat[0].size();
+        if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
             error("add_data", "Input vectors dont match! Returning...");
 
         double *x, *y, *ex, *ey;
 
-        x  = &(xin[0]);        y  = &(yin[0]);
+        x  = &(dat[0][0]);        y  = &(dat[1][0]);
         ex = &(errsin[0][0]);  ey = &(errsin[1][0]);
          
         TGraph *graph = new TGraphErrors(N, x, y, ex, ey);
@@ -162,6 +182,33 @@ namespace jpacPhoto
         style._draw_opt = "P";
         style._label = id;
         style._add_to_legend = !(id == "");
+
+        _Ndata++;
+        _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+
+    // Add data by simply feeding it vectors 
+    void plot::add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errsin, jpacColor col)
+    {
+        // Check size of arrays
+        int N = dat[0].size();
+        if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
+            error("add_data", "Input vectors dont match! Returning...");
+
+        double *x, *y, *ex, *ey;
+
+        x  = &(dat[0][0]);        y  = &(dat[1][0]);
+        ex = &(errsin[0][0]);  ey = &(errsin[1][0]);
+         
+        TGraph *graph = new TGraphErrors(N, x, y, ex, ey);
+
+        entry_style style;
+        style._style = 20;
+        style._color = col;
+        style._draw_opt = "P";
+        style._add_to_legend = false;
 
         _Ndata++;
         _Nlegend++;
@@ -196,17 +243,18 @@ namespace jpacPhoto
     // Take in a lambda an evaluation range to get the vectors
     void plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, entry_style style)
     {
-        double step = (bounds[1] - bounds[0]) / double(_Npoints);
-
         std::vector<double> x, fx;
         for (int n = 0; n < _Npoints; n++)
         {
-            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
+            double xs  = (!_xlog) ? bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1)
+                                  : exp(log(bounds[0]) + double(n) * (log(bounds[1]) - log(bounds[0])) / double(_Npoints-1));
             double fxs = F(xs);
 
+            if (_print) print(n+1, xs, fxs);
             x.push_back(xs);
             fx.push_back(fxs);
         };
+        if (_print) line();
 
         add_curve(x, fx, style);
     };
@@ -244,209 +292,43 @@ namespace jpacPhoto
             double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
             double fxs = F(xs);
 
+            if (_print) print(n+1, xs, fxs);
             x.push_back(xs);
             fx.push_back(fxs);
         };
+        if (_print) line();
 
         add_dashed(x, fx);
     };
 
-    // -----------------------------------------------------------------------
-    // Add curve methods which take in an amplitude directly
-    void plot::add_curve(curve_type opt, amplitude to_plot, std::array<double,2> bounds)
+    void plot::add_dotted(std::vector<double> x, std::vector<double> fx)
     {
-        switch (opt)
-        {
-            case sigma_s: 
-            {
-                auto G = [&](double s)
-                {  
-                    return to_plot->integrated_xsection(s);
-                };
+        entry_style style;
+        style._color = JPACCOLORS[_Ncurve];
+        style._style = kDotted;
+        style._add_to_legend = false;
 
-                add_curve(bounds, G, to_plot->id());
-                return;
-            }
-            case sigma_w: 
-            {
-                auto G = [&](double w)
-                {  
-                    return to_plot->integrated_xsection(w*w);
-                };
-
-                add_curve(bounds, G, to_plot->id());
-                return;
-            };
-            case sigma_Egam: 
-            {
-                auto G = [&](double E)
-                {  
-                    double w = W_cm(E);
-                    return to_plot->integrated_xsection(w*w);
-                };
-
-                add_curve(bounds, G, to_plot->id());
-                return;
-            };
-            default:
-            {
-                warning("plot::add_curve", "Invalid curve_type passed as argument!");
-                return;
-            }
-        };
-        return;
+        TGraph *g = new TGraph(x.size(), &(x[0]), &(fx[0]));
+        _entries.push_back(plot_entry(g, style, false));
     };
 
-    void plot::add_curve(curve_type opt, amplitude to_plot, double fixed, std::array<double,2> bounds)
+    void plot::add_dotted(std::array<double,2> bounds, std::function<double(double)> F)
     {
-        switch (opt)
+        double step = (bounds[1] - bounds[0]) / double(_Npoints);
+
+        std::vector<double> x, fx;
+        for (int n = 0; n < _Npoints; n++)
         {
-            case dsigmadt_s: 
-            {
-                // Fixed variable is an s value
-                // Bounds are (-t)-values
-                auto G = [&](double mt)
-                {  
-                    double s = fixed;
-                    return to_plot->differential_xsection(s, -mt);
-                };
+            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
+            double fxs = F(xs);
 
-                add_curve(bounds, G, to_plot->id());
-                return;
-            }
-            case dsigmadt_w: 
-            {
-                // Fixed variable is an w value
-                // Bounds are (-t)-values
-                auto G = [&](double mt)
-                {  
-                    double s = fixed*fixed;
-                    return to_plot->differential_xsection(s, -mt);
-                };
-
-                add_curve(bounds, G, to_plot->id());
-                return;
-            };
-            case dsigmadt_Egam: 
-            {
-                // Fixed variable is an Egam value
-                // Bounds are (-t)-values
-                auto G = [&](double mt)
-                {  
-                    double w = W_cm(fixed);
-                    double s = w*w;
-                    return to_plot->differential_xsection(s, -mt);
-                };
-
-                add_curve(bounds, G, to_plot->id());
-                return;
-            };
-            default:
-            {
-                warning("plot::add_curve", "Invalid curve_type passed as argument!");
-                return;
-            }
+            if (_print) print(n+1, xs, fxs);
+            x.push_back(xs);
+            fx.push_back(fxs);
         };
-        return;
-    };
+        if (_print) line();
 
-    // -----------------------------------------------------------------------
-    // same as the add curve methods above but for dashed entries
-    void plot::add_dashed(curve_type opt, amplitude to_plot, std::array<double,2> bounds)
-    {
-        switch (opt)
-        {
-            case sigma_s: 
-            {
-                auto G = [&](double s)
-                {  
-                    return to_plot->integrated_xsection(s);
-                };
-
-                add_dashed(bounds, G);
-                return;
-            }
-            case sigma_w: 
-            {
-                auto G = [&](double w)
-                {  
-                    return to_plot->integrated_xsection(w*w);
-                };
-
-                add_dashed(bounds, G);
-                return;
-            };
-            case sigma_Egam: 
-            {
-                auto G = [&](double E)
-                {  
-                    double w = W_cm(E);
-                    return to_plot->integrated_xsection(w*w);
-                };
-
-                add_dashed(bounds, G);
-                return;
-            };
-            default:
-            {
-                warning("plot::add_dashed", "Invalid curve_type passed as argument!");
-                return;
-            }
-        };
-        return;
-    };
-
-    void plot::add_dashed(curve_type opt, amplitude to_plot, double fixed, std::array<double,2> bounds)
-    {
-        switch (opt)
-        {
-            case dsigmadt_s: 
-            {
-                // Fixed variable is an s value
-                // Bounds are (-t)-values
-                auto G = [&](double mt)
-                {  
-                    double s = fixed;
-                    return to_plot->differential_xsection(s, -mt);
-                };
-
-                add_dashed(bounds, G);
-                return;
-            }
-            case dsigmadt_w: 
-            {
-                // Fixed variable is an w value
-                // Bounds are (-t)-values
-                auto G = [&](double mt)
-                {  
-                    double s = fixed*fixed;
-                    return to_plot->differential_xsection(s, -mt);
-                };
-
-                add_dashed(bounds, G);
-                return;
-            };
-            case dsigmadt_Egam: 
-            {
-                // Fixed variable is an Egam value
-                // Bounds are (-t)-values
-                auto G = [&](double mt)
-                {  
-                    double w = W_cm(fixed);
-                    double s = w*w;
-                    return to_plot->differential_xsection(s, -mt);
-                };
-
-                add_dashed(bounds, G);
-                return;
-            };
-            default:
-            {
-                warning("plot::add_curve", "Invalid curve_type passed as argument!");
-                return;
-            }
-        };
-        return;
+        add_dotted(x, fx);
     };
 
     // -----------------------------------------------------------------------
@@ -473,7 +355,4 @@ namespace jpacPhoto
         style._add_to_legend = false;
         _entries.push_front(plot_entry(graph, style, false));
     };
-
-    // -----------------------------------------------------------------------
-    // Draw other things such as a vertical line at a certain x value
 };

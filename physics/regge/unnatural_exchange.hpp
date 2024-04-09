@@ -85,6 +85,8 @@ namespace jpacPhoto
             };
 
             // Top coupling
+            // note no sqr(-t), all powers of which have been collected in bottom()
+            // for a more clear implementation of PMA
             double top(){ return _gT; };
 
             // Bottom coupling
@@ -101,9 +103,9 @@ namespace jpacPhoto
                 {
                     int n = std::abs(-_lamB - (_lamR - _lamT)/2); 
                     int x = std::abs((_lamT - _lamR)/2) + abs(_lamB) - n;
-                    tfactor = phase * pow(sqrt(-_t), n) * pow(-M_PION*M_PION, x/2);
+                    tfactor  = phase * pow(sqrt(-_t), n) * pow(-M_PION*M_PION, x/2);
                 }
-                else  tfactor = phase * pow(sqrt(-_t), std::abs((_lamT - _lamR)/2) + abs(_lamB));
+                else tfactor = phase * pow(sqrt(-_t), std::abs((_lamT - _lamR)/2) + abs(_lamB));
                 
 
                 switch (sign*_lamR)

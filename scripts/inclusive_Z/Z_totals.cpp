@@ -16,9 +16,9 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "plotter.hpp"
-#include "inclusive_process.hpp"
-#include "inclusive/pion_exchange.hpp"
-#include "inclusive/phase_space.hpp"
+#include "semi_inclusive.hpp"
+#include "semi_inclusive/pion_exchange.hpp"
+#include "semi_inclusive/phase_space.hpp"
 #include "analytic/pseudoscalar_exchange.hpp"
 
 void Z_totals()
@@ -54,38 +54,6 @@ void Z_totals()
                          +  F_UPSILON3S * gbp_upsilon3S / M_UPSILON3S);  
 
     // ---------------------------------------------------------------------------
-    // Z minus production
-    // ---------------------------------------------------------------------------
-
-    // Zc(3900)-
-    inclusive_process Zcm = new_inclusive_process<inclusive::pion_exchange>(M_ZC3900, -1, "#it{Z}_{c}(3900)^{#minus}");
-    Zcm->set_parameters(gc_gamma);
-
-    // Zb(10610)-
-    inclusive_process Zbm = new_inclusive_process<inclusive::pion_exchange>(M_ZB10610, -1, "#it{Z}_{b}(10610)^{#minus}");
-    Zbm->set_parameters(gb_gamma);
-
-    // Zb'(10650)-
-    inclusive_process Zbpm = new_inclusive_process<inclusive::pion_exchange>(M_ZB10650, -1, "#it{Z}_{b}(10650)^{#minus}");
-    Zbpm->set_parameters(gbp_gamma);
-
-    // ---------------------------------------------------------------------------
-    // Z plus production
-    // ---------------------------------------------------------------------------
-
-    // Zc(3900)-
-    inclusive_process Zcp = new_inclusive_process<inclusive::pion_exchange>(M_ZC3900, +1, "#it{Z}_{c}(3900)^{#plus}");
-    Zcp->set_parameters(gc_gamma);
-
-    // Zb(10610)-
-    inclusive_process Zbp = new_inclusive_process<inclusive::pion_exchange>(M_ZB10610, +1, "#it{Z}_{b}(10610)^{#plus}");
-    Zbp->set_parameters(gb_gamma);
-
-    // Zb'(10650)-
-    inclusive_process Zbpp = new_inclusive_process<inclusive::pion_exchange>(M_ZB10650, +1, "#it{Z}_{b}(10650)^{#plus}");
-    Zbpp->set_parameters(gbp_gamma);
-
-    // ---------------------------------------------------------------------------
     // Exclusive reactions 
     // ---------------------------------------------------------------------------
 
@@ -110,19 +78,55 @@ void Z_totals()
     Zbpe->set_parameters({gbp_gamma, g_piNN, lambda_pi});
 
     // ---------------------------------------------------------------------------
-    // Make plot
+    // Z minus production
     // ---------------------------------------------------------------------------
 
-    inclusive_process to_plot;
-    amplitude     to_plot_exc;
+    // Zc(3900)-
+    semi_inclusive Zcm = new_semi_inclusive<inclusive::pion_exchange>(kZc, -1, "#it{Z}_{c}(3900)^{#minus}");
+    Zcm->set_parameters(gc_gamma);
+
+    // Zb(10610)-
+    semi_inclusive Zbm = new_semi_inclusive<inclusive::pion_exchange>(kZb, -1, "#it{Z}_{b}(10610)^{#minus}");
+    Zbm->set_parameters(gb_gamma);
+
+    // Zb'(10650)-
+    semi_inclusive Zbpm = new_semi_inclusive<inclusive::pion_exchange>(kZbp, -1, "#it{Z}_{b}(10650)^{#minus}");
+    Zbpm->set_parameters(gbp_gamma);
+
+    // ---------------------------------------------------------------------------
+    // Z plus production
+    // ---------------------------------------------------------------------------
+
+    // Zc(3900)+
+    semi_inclusive Zcp = new_semi_inclusive<inclusive::pion_exchange>(kZc, +1, "#it{Z}_{c}(3900)^{#plus}");
+    Zcp->set_parameters(gc_gamma);
+    Zcp += Zce;
+
+    // Zb(10610)+
+    semi_inclusive Zbp = new_semi_inclusive<inclusive::pion_exchange>(kZb, +1, "#it{Z}_{b}(10610)^{#plus}");
+    Zbp->set_parameters(gb_gamma);
+    Zbp += Zbe;
+
+    // Zb'(10650)+
+    semi_inclusive Zbpp = new_semi_inclusive<inclusive::pion_exchange>(kZbp, +1, "#it{Z}_{b}(10650)^{#plus}");
+    Zbpp->set_parameters(gbp_gamma);
+    Zbpp += Zbpe;
+
+    // ---------------------------------------------------------------------------
+    // Make plot
+    // ---------------------------------------------------------------------------
 
     int N = 50;
     std::array<double,2> bounds = {4.8, 20};
 
     // Z minus plot
-    auto func_m = [&](double w)
+    auto sig = [](semi_inclusive to_plot)
     {
-        return to_plot->integrated_xsection(w*w);
+        return [to_plot](double w){ return to_plot->integrated_xsection(w*w); };
+    };
+    auto sige = [](amplitude to_plot)
+    {
+        return [to_plot](double w){ return to_plot->integrated_xsection(w*w); };
     };
 
     plot m = plotter.new_plot();
@@ -132,25 +136,15 @@ void Z_totals()
     m.set_ranges({4.6,20}, {2E-1, 1E2});
     m.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [nb]");
 
-    to_plot = Zcm;
-    m.add_curve( bounds, func_m, to_plot->id());
-    to_plot->set_option( inclusive::pion_exchange::kPwave );
-    m.add_dashed(bounds, func_m);
-
-    to_plot = Zbm;
-    m.add_curve(bounds, func_m, to_plot->id());
-    to_plot->set_option( inclusive::pion_exchange::kPwave );
-    m.add_dashed(bounds, func_m);
-
-    to_plot = Zbpm;
-    m.add_curve(bounds, func_m, to_plot->id());
-    to_plot->set_option( inclusive::pion_exchange::kPwave );
-
-    // Z plus plot
-    auto func_p = [&](double w)
-    {
-        return to_plot->integrated_xsection(w*w) + to_plot_exc->integrated_xsection(w*w);
-    };
+    m.add_curve( bounds, sig(Zcm), Zcm->id());
+    Zcm->set_option( inclusive::pion_exchange::kPwave );
+    m.add_dashed(bounds, sig(Zcm));
+    m.add_curve( bounds, sig(Zbm), Zbm->id());
+    Zbm->set_option( inclusive::pion_exchange::kPwave );
+    m.add_dashed(bounds, sig(Zbm));
+    m.add_curve( bounds, sig(Zbpm), Zbpm->id());
+    Zbpm->set_option( inclusive::pion_exchange::kPwave );
+    m.add_dashed(bounds, sig(Zbpm));
 
     plot p = plotter.new_plot();
     p.set_curve_points(N);
@@ -159,17 +153,12 @@ void Z_totals()
     p.set_ranges({4.6,20}, {2E-1, 1E2});
     p.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [nb]");
 
-    to_plot = Zcp; to_plot_exc = Zce;
-    p.add_curve( bounds, func_p, to_plot->id());
-    p.add_dashed(sigma_w, to_plot_exc, bounds);
-
-    to_plot = Zbp; to_plot_exc = Zbe;
-    p.add_curve(bounds, func_p, to_plot->id());
-    p.add_dashed(sigma_w, to_plot_exc, bounds);
-
-    to_plot = Zbpp; to_plot_exc = Zbpe;
-    p.add_curve(bounds, func_p, to_plot->id());
-    p.add_dashed(sigma_w, to_plot_exc, bounds);
+    p.add_curve( bounds, sig(Zcp),  Zcp->id());
+    p.add_dashed(bounds, sige(Zce));
+    p.add_curve( bounds, sig(Zbp),  Zbp->id());
+    p.add_dashed(bounds, sige(Zbe));
+    p.add_curve( bounds, sig(Zbpp), Zbpp->id());
+    p.add_dashed(bounds, sige(Zbpe));
 
     // Combine plots together
     plotter.combine({2,1}, {m, p}, "Z_totals.pdf");

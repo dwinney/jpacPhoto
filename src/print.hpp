@@ -16,14 +16,17 @@
 #include <iomanip>
 #include <vector>
 #include <complex> 
+#include <functional>
+#include <fstream>
 
 namespace jpacPhoto
 {
     // Default values
     const int TEXT_WIDTH       = 62;
-    const int PRINT_SPACING    = 15;
+    const int PRINT_SPACING    = 18;
     const int PRINT_PRECISION  = 9;    
     const int STRING_PRECISION = 3;
+    const int PRINT_POINTS     = 100;
     const std::string UNIT_DIV = std::string(PRINT_SPACING, '-');
 
     // ---------------------------------------------------------------------------   
@@ -80,6 +83,21 @@ namespace jpacPhoto
         std::cout << std::endl;
     };
 
+    template<typename T>
+    inline void print_quit(T x)
+    {
+        std::cout << std::boolalpha << std::left << std::setprecision(9);  
+        std::cout << std::setw(PRINT_SPACING) << x << std::endl;
+        exit(1);
+    };
+    template <typename First, typename... Rest>
+    inline void print_quit(First first, Rest... rest)
+    {
+        std::cout << std::boolalpha << std::left << std::setprecision(9);  
+        std::cout << std::setw(PRINT_SPACING) << first;
+        print_quit(rest...);
+    } 
+
     // ---------------------------------------------------------------------------
     // String operations
 
@@ -100,6 +118,79 @@ namespace jpacPhoto
         int gap_width = (TEXT_WIDTH - x)/2;
         std::cout << std::left << std::setw(gap_width) << "" << std::setw(x) << words << std::setw(gap_width) << "" << std::endl;
     };
+
+    // ---------------------------------------------------------------------------
+    // Print things to file
+
+    inline void print_to_file(std::array<double, 2> bounds, std::function<double(double)> F, std::string file)
+    {
+        std::ofstream out;
+        out.open(file);
+        
+        for (int i = 0; i < PRINT_POINTS; i++)
+        {
+            double xi = bounds[0] + double(i) * (bounds[1] - bounds[0]) / double(PRINT_POINTS-1);
+            out << std::left << std::setw(PRINT_SPACING) << xi << std::setw(PRINT_SPACING) << F(xi) << "\n";
+        };
+        out.close();
+    }; 
+
+    inline void print_to_file(std::array<double, 2> bounds, std::vector<std::function<double(double)>> Fs, std::string file)
+    {
+        std::ofstream out;
+        out.open(file);
+        
+        for (int i = 0; i < PRINT_POINTS; i++)
+        {
+            double xi = bounds[0] + double(i) * (bounds[1] - bounds[0]) / double(PRINT_POINTS-1);
+            out << std::left << std::setw(PRINT_SPACING) << xi; 
+            for (auto F : Fs) out << std::setw(PRINT_SPACING) << F(xi);
+            out << "\n";
+        };
+        out.close();
+    }; 
+
+    inline void print_to_file(std::array<double,2> boundsx, std::array<double,2> boundsy, std::function<double(double,double)> F, std::string file)
+    {
+        std::ofstream out;
+        out.open(file);
+        
+        for (int i = 0; i < PRINT_POINTS; i++)
+        {
+            double xi = boundsx[0] + double(i) * (boundsx[1] - boundsx[0]) / double(PRINT_POINTS-1);
+            for (int j = 0; j < PRINT_POINTS; j++)
+            {
+                double xj = boundsy[0] + double(j) * (boundsy[1] - boundsy[0]) / double(PRINT_POINTS-1);
+                out << std::left;
+                out << std::setw(PRINT_SPACING) << xi;
+                out << std::setw(PRINT_SPACING) << xj;
+                out << std::setw(PRINT_SPACING) << F(xi, xj);
+                out << "\n";
+            };
+        };
+        out.close();
+    }; 
+
+    inline void print_to_file(std::array<double,2> boundsx, std::array<double,2> boundsy, std::vector<std::function<double(double,double)>> Fs, std::string file)
+    {
+        std::ofstream out;
+        out.open(file);
+        
+        for (int i = 0; i < PRINT_POINTS; i++)
+        {
+            double xi = boundsx[0] + double(i) * (boundsx[1] - boundsx[0]) / double(PRINT_POINTS-1);
+            for (int j = 0; j < PRINT_POINTS; j++)
+            {
+                double xj = boundsy[0] + double(j) * (boundsy[1] - boundsy[0]) / double(PRINT_POINTS-1);
+                out << std::left;
+                out << std::setw(PRINT_SPACING) << xi;
+                out << std::setw(PRINT_SPACING) << xj;
+                for (auto F : Fs) out << std::setw(PRINT_SPACING) << F(xi, xj);
+                out << "\n";
+            };
+        };
+        out.close();
+    }; 
 };
 
 #endif

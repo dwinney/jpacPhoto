@@ -29,6 +29,8 @@ namespace jpacPhoto
         int  qns =  10 * JP[0] + (JP[1] == 1);
         switch(qns)
         {
+            case (21): return TENSOR;
+            case (20): return AXIALTENSOR;
             case (11): return AXIALVECTOR;
             case (10): return VECTOR;
             case ( 0): return PSEUDOSCALAR;
@@ -42,6 +44,8 @@ namespace jpacPhoto
         int J, P;
         switch (x)
         {
+            case (      TENSOR): J = 2, P = +1; break;
+            case ( AXIALTENSOR): J = 2, P = -1; break;
             case ( AXIALVECTOR): J = 1, P = +1; break;
             case (      VECTOR): J = 1, P = -1; break;
             case (      SCALAR): J = 0, P = +1; break;

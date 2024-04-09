@@ -127,8 +127,8 @@ namespace jpacPhoto
             add(subamps);
         };
 
-        // Access to the kinematics object we have stored
-        kinematics _kinematics = nullptr;
+        // Access kinematics pointer;
+        kinematics get_kinematics(){ return _kinematics; };
 
         // ---------------------------------------------------------------------------
         // Virtual functions which must be defined by a given model
@@ -226,7 +226,7 @@ namespace jpacPhoto
         double integrated_xsection(double s);
 
         // Perp or parallel polarized photon differential cross sections
-        double polarized_differential_xsection(int perp_or_parallel, double s, double t);
+        double polarized_dxsection(int perp_or_parallel, double s, double t);
 
         // Spin asymmetries
         double A_LL(double s, double t); // Beam and target
@@ -307,6 +307,9 @@ namespace jpacPhoto
 
         // ---------------------------------------------------------------------------
         protected:
+
+        // Access to the kinematics object we have stored
+        kinematics _kinematics = nullptr;
         
         // String identifier
         std::string _id = "amplitude";

@@ -49,7 +49,7 @@ namespace jpacPhoto
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
                 complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                : _FF->eval(_t);
+                                                 : _FF->eval(_t);
 
                 // Multiply couplings with propagator
                 return FF * result;
@@ -89,7 +89,7 @@ namespace jpacPhoto
                 if (std::abs(alpha) > 20) return 0;
                 
                 std::complex<double> signature_factor = (1 + exp(-I*PI*alpha))/2;
-                return signature_factor * cgamma(-alpha) * pow(_s, alpha);
+                return _aP * signature_factor * cgamma(-alpha) * pow(_s, alpha);
             };  
         };
     };

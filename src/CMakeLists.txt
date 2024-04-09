@@ -2,6 +2,22 @@
 file(GLOB SRC "*.cpp") 
 include_directories($ENV{JPACPHOTO}/src)
 
+# Optional rebuild ampTools 
+if (DYNAMIC_AMPTOOLS)
+    # AmpTools by default is built as a static library
+    # This will build a local copy in a dynamic library
+    add_library(AMPTOOLS SHARED ${STATIC_AMPTOOLS})
+    set_target_properties(AMPTOOLS PROPERTIES LINKER_LANGUAGE CXX)
+    target_link_libraries(AMPTOOLS PUBLIC
+      -Wl,--whole-archive
+      ${STATIC_AMPTOOLS}
+      -Wl,--no-whole-archive
+    )
+    install(TARGETS AMPTOOLS
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
+endif()
+
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     amplitude.hpp
     partial_wave.hpp
@@ -11,7 +27,7 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     lorentz_tensor.hpp
     fitter.hpp
     data_set.hpp
-    inclusive_process.hpp
+    semi_inclusive.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )

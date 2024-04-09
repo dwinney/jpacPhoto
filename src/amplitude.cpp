@@ -23,7 +23,7 @@ namespace jpacPhoto
     {
         // Two amplitudes are compatible if they point to the same
         // kinematics object (i.e. are synced together)
-        bool same_kinem   = (a->_kinematics == b->_kinematics);
+        bool same_kinem   = (a->get_kinematics() == b->get_kinematics());
 
         // But also they must have helicites defined in the same frame
         // TODO: add helicity crossing relations so this is not a necessity
@@ -75,7 +75,7 @@ namespace jpacPhoto
     {
         // Two amplitudes are compatible if they point to the same
         // kinematics object (i.e. are synced together)
-        bool same_kinem   = (new_amp->_kinematics == _kinematics);
+        bool same_kinem   = (new_amp->get_kinematics() == _kinematics);
 
         // But also they must have helicites defined in the same frame
         // TODO: add helicity crossing relations so this is not a necessity
@@ -93,7 +93,7 @@ namespace jpacPhoto
         // If our list is empty, capture the first entry we encounter
         if (_subamplitudes.size() == 0)
         {
-            _kinematics = new_amp->_kinematics; _N_pars     = new_amp->N_pars();
+            _kinematics = new_amp->get_kinematics(); _N_pars     = new_amp->N_pars();
             _subamplitudes.push_back(new_amp);
             return;
         };
@@ -209,14 +209,19 @@ namespace jpacPhoto
         requested_meson  = kinem->get_meson(); requested_baryon = kinem->get_baryon();
 
         // Check if they are allowed
-        bool meson_fails, baryon_fails;
+        bool meson_fails, baryon_fails, not_any_meson, not_any_baryon;
+
+        // If ANY is contained in the allowed, we dont care about this check
+        not_any_meson    = std::find(allowed_mesons.begin(),  allowed_mesons.end(),  ANY) == allowed_mesons.end();
+        not_any_baryon   = std::find(allowed_baryons.begin(), allowed_baryons.end(), ANY) == allowed_baryons.end();
+
+        // Else we look for the specific requrested
         meson_fails  = std::find(allowed_mesons.begin(),  allowed_mesons.end(),  requested_meson)  == allowed_mesons.end();
         baryon_fails = std::find(allowed_baryons.begin(), allowed_baryons.end(), requested_baryon) == allowed_baryons.end();
     
         auto requested_meson_JP = kinem->get_meson_JP(); auto requested_baryon_JP = kinem->get_meson_JP();
-
-        if (meson_fails)  warning(id()+"::check_QNs", "Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
-        if (baryon_fails) warning(id()+"::check_QNs", "Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
+        if (meson_fails  && not_any_meson)  warning(id()+"::check_QNs", "Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
+        if (baryon_fails && not_any_baryon) warning(id()+"::check_QNs", "Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
     };
 
     // ------------------------------------------------------------------------------
@@ -228,6 +233,8 @@ namespace jpacPhoto
     // Square of the spin averaged amplitude squared
     double raw_amplitude::probability_distribution(double s, double t)
     {
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+
         // Check we have the right amplitudes cached
         double sum = 0.; auto cache = get_cache(s, t);
         for (auto amp : cache) sum += std::norm(amp);
@@ -241,12 +248,12 @@ namespace jpacPhoto
         if (s < _kinematics->sth()) return 0.;
 
         double sum = probability_distribution(s, t);
-        double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.) * (2.56819E-6); // Convert from GeV^-2 -> nb
+        double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
         if (native_helicity_frame() !=  HELICITY_INDEPENDENT) norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
 
-        return sum / norm;
+        return sum / norm * HBARC;
     };
 
     // Integrated total cross-section
@@ -266,9 +273,10 @@ namespace jpacPhoto
 
     // Differential cross section dsigma_perp/para / dt
     // in NANOBARN
-    double raw_amplitude::polarized_differential_xsection(int perp_or_para, double s, double t)
+    double raw_amplitude::polarized_dxsection(int perp_or_para, double s, double t)
     {
         if (s < _kinematics->sth()) return 0.;
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
         if (abs(perp_or_para) != 1) return std::nan("");
         
         // Sum first half of amplitudes which are lam_gamma = +1
@@ -290,6 +298,8 @@ namespace jpacPhoto
     // Polarization asymmetry between beam and recoil baryon
     double raw_amplitude::K_LL(double s, double t)
     {
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+
         double sum = 0; 
         auto cache = get_cache(s, t); int n = cache.size();
         for (int i = 0; i < n; i++)
@@ -304,6 +314,8 @@ namespace jpacPhoto
     // Polarization asymmetry between beam and target proton
     double raw_amplitude::A_LL(double s, double t)
     {
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+
         double sum = 0; 
         auto cache = get_cache(s, t); int n = cache.size();
         for (int i = 0; i < n; i++)
@@ -318,6 +330,8 @@ namespace jpacPhoto
     // Integrated beam asymmetry sigma_4pi
     double raw_amplitude::beam_asymmetry_4pi(double s, double t)
     {
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+
         double sum = 0;
         auto cache = get_cache(s, t); int n = cache.size()/2;
         for (int i = 0; i < n; i++) sum += 2.*std::real(cache[i]*conj(cache[i + n]));
@@ -331,6 +345,7 @@ namespace jpacPhoto
     complex raw_amplitude::bSDME(unsigned int alpha, int lam, int lamp, double s, double t)
     {
         if (alpha > 2) return error("amplitude::bSDME", "Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
 
         int J = _kinematics->get_baryon_JP()[0];
         if (std::abs(lam)  > J) return error("amplitude::bSDME", "Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
@@ -351,7 +366,7 @@ namespace jpacPhoto
             phase = pow(-1, (lam - lamp)/ 2 + (alpha == 2)); // Add phase at end
         };
 
-        auto cache = get_cache(s, t); int n = cache.size()/2;
+        auto cache = get_cache(s, t); int n = cache.size();
         complex sum = 0;
         for (int i = 0; i < n; i++)
         {
@@ -362,14 +377,12 @@ namespace jpacPhoto
             {
                 // First n amplitudes have lg = +1 second half have lg = -1
                 auto hj = _kinematics->helicities(j); 
-                if (hj[3] != lamp || hi[1] != hj[1]) continue;
+                if (hi[1] != hj[1] || hj[3] != lamp || hi[2] != hj[2] ) continue;
+                bool gam_fails = (alpha == 0) ? hi[0] != hj[0] : hi[0] == hj[0];
+                if (gam_fails) continue;
 
-                switch (alpha)
-                {
-                    case 0: sum += cache[i] * conj(cache[j])   + cache[i+n]*conj(cache[j+n]); break;
-                    case 1: sum += cache[i] * conj(cache[j+n]) + cache[i+n]*conj(cache[j]);   break;
-                    case 2: sum += cache[i] * conj(cache[j+n]) - cache[i+n]*conj(cache[j]);   break;
-                };
+                auto x = (alpha == 2) ? hi[0]*cache[j]*conj(cache[i]) : cache[j]*conj(cache[i]);
+                sum += x;
             };
         };
         
@@ -380,6 +393,8 @@ namespace jpacPhoto
 
     complex raw_amplitude::rotated_bSDME(unsigned int alpha, int lam, int lamp, double s, double t, double theta)
     {
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+
         // First get the spin of the particle we're rotating
         int J = _kinematics->get_baryon_JP()[0];
 
@@ -429,7 +444,8 @@ namespace jpacPhoto
     complex raw_amplitude::mSDME(unsigned int alpha, int lam, int lamp, double s, double t)
     {
         if (alpha > 2) return error("amplitude::mSDME", "Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
-
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+        
         int J = _kinematics->get_meson_JP()[0];
         if (std::abs(lam)  > J) return error("amplitude::mSDME", "Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
         if (std::abs(lamp) > J) return error("amplitude::mSDME", "Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
@@ -449,7 +465,7 @@ namespace jpacPhoto
             phase = pow(-1, (lam - lamp) + (alpha == 2)); // Add phase at end
         };
 
-        auto cache = get_cache(s, t); int n = cache.size()/2;
+        auto cache = get_cache(s, t); int n = cache.size();
         complex sum = 0;
         for (int i = 0; i < n; i++)
         {
@@ -460,14 +476,12 @@ namespace jpacPhoto
             {
                 // First n amplitudes have lg = +1 second half have lg = -1
                 auto hj = _kinematics->helicities(j); 
-                if (hj[2] != lamp || hi[1] != hj[1]) continue;
-
-                switch (alpha)
-                {
-                    case 0: sum += cache[i] * conj(cache[j])   + cache[i+n]*conj(cache[j+n]); break;
-                    case 1: sum += cache[i] * conj(cache[j+n]) + cache[i+n]*conj(cache[j]);   break;
-                    case 2: sum += cache[i] * conj(cache[j+n]) - cache[i+n]*conj(cache[j]);   break;
-                };
+                bool gam_fails = (alpha == 0) ? hi[0] != hj[0] : hi[0] != -hj[0];
+                if (gam_fails) continue;
+                if (hi[1] != hj[1] || hj[2] != lamp || hi[3] != hj[3]) continue;
+                
+                auto x = (alpha == 2) ? hi[0]*cache[j]*conj(cache[i]) : cache[j]*conj(cache[i]);
+                sum += x;
             };
         };
         
@@ -478,6 +492,8 @@ namespace jpacPhoto
 
     complex raw_amplitude::rotated_mSDME(unsigned int alpha, int lam, int lamp, double s, double t, double theta)
     {
+        if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
+
         // First get the spin of the particle we're rotating
         int J = _kinematics->get_meson_JP()[0];
 

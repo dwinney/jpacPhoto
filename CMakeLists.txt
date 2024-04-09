@@ -22,6 +22,10 @@ if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
 
+# Option whether or not to look for AmpTools
+# and build a dynamic library version
+option(DYNAMIC_AMPTOOLS "Build dynamic AmpTools library" "FALSE")
+
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting
 
@@ -54,10 +58,34 @@ else()
 endif()
 
 ##-----------------------------------------------------------------------
-## Look for BOOST needed for jpacBox
+## Look for BOOST
 
 set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+
+##-----------------------------------------------------------------------
+## If DYNAMIC_AMPTOOLS is set, look for the library
+
+if ( DYNAMIC_AMPTOOLS )
+    message("-- Building cling loadable Amptools")
+    ## First make sure the AMPTOOLS environment variable is set
+    if (DEFINED ENV{AMPTOOLS})
+        message("-- Environment variable AMPTOOLS found ($ENV{AMPTOOLS})")
+        set(AMPTOOLS_SRC  $ENV{AMPTOOLS})
+        set(AMPTOOLS_LIB  $ENV{AMPTOOLS}/lib)
+    else()
+        message(SEND_ERROR "-- AMPTOOLS environment variable not set")
+    endif()
+
+    find_library(STATIC_AMPTOOLS REQUIRED NAMES  AmpTools libAmpTools
+                                 HINTS "${AMPTOOLS_LIB}"  )
+
+    if ( STATIC_AMPTOOLS )
+        message("-- AmpTools found (${STATIC_AMPTOOLS})")
+    else()
+        message(SEND_ERROR "-- AmpTools not found")
+    endif()
+endif()
 
 ##-----------------------------------------------------------------------
 # Build core library 
