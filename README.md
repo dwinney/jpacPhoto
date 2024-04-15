@@ -26,7 +26,7 @@ setenv JPACPHOTO /path/to/jpacPhoto # for csh
 
 ##  USAGE
 
-The primary use case is to reproduce results from recent [[1-5]](#references) and older analyses [[5-7]](#references) from the JPAC collaboration in a general and unified framework for amplitude analysis in photoproduction. The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models needed to be imported at run-time as header-only libraries. 
+The primary use case is to reproduce results from recent [[1-5]](#references) and older analyses [[6-8]](#references) from the JPAC collaboration in a general and unified framework for amplitude analysis in photoproduction. The compiled library contains the framework of amplitudes and observables as abstract classes with specific amplitude models needed to be imported at run-time as header-only libraries. 
 
 The compiled jpacPhoto executable pipes an analysis script, relevent amplitude files, and the compiled library into ROOT's cling interpeter to run. 
 This set up mimics a Python-like environment without requiring recompilation of the whole library when changes are made to amplitude files. Amplitudes and scripts relevant for JPAC papers are located in [`/physics`](./physics) and [`/scripts`](./scripts) respectively. To run a script located in the bin directory simply run 
@@ -176,11 +176,11 @@ To run these scripts with the `jpacPhoto` executable requires having AmpTools to
 + [2] [XYZ spectroscopy at electron-hadron facilities: Exclusive processes](https://arxiv.org/abs/2008.01001)
 + [3] [XYZ spectroscopy at electron-hadron facilities II: Semi-inclusive processes with pion exchange](https://arxiv.org/abs/2209.05882)
 + [4] [XYZ spectroscopy at electron-hadron facilities III: Semi-inclusive processes with vector exchanges](https://arxiv.org/abs/2404.05326)
-+ [4] [Dynamics in near-threshold J/ψ photoproduction](https://arxiv.org/abs/2305.01449)
-+ [5] [Features of πΔ Photoproduction at High Energies](https://arxiv.org/abs/1710.09394)
-+ [6] [Vector Meson Photoproduction with a Linearly Polarized Beam](https://arxiv.org/abs/1802.09403)
-+ [7] [Exclusive Tensor Meson Photoproduction](https://arxiv.org/abs/2005.01617)
-+ [8] [JPAC Website](http://cgl.soic.indiana.edu/jpac/index.php)
++ [5] [Dynamics in near-threshold J/ψ photoproduction](https://arxiv.org/abs/2305.01449)
++ [6] [Features of πΔ Photoproduction at High Energies](https://arxiv.org/abs/1710.09394)
++ [7] [Vector Meson Photoproduction with a Linearly Polarized Beam](https://arxiv.org/abs/1802.09403)
++ [8] [Exclusive Tensor Meson Photoproduction](https://arxiv.org/abs/2005.01617)
++ [9] [JPAC Website](https://www.jpac-physics.org/)
 
 <p align="center">
   <img width="275" src="./doc/JPAClogo.png">
