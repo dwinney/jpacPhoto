@@ -17,7 +17,7 @@
 #include "plotter.hpp"
 
 #include "analytic/vector_exchange.hpp"
-#include "covariant/vector_exchange.hpp"
+#include "analytic/vector_exchange.hpp"
 #include "regge/vector_exchange.hpp"
 
 void X_mesons()
@@ -84,10 +84,10 @@ void X_mesons()
     ChiC1_L->set_id("#chi_{c1}");
 
     // X(3872)
-    amplitude X_omegaL = new_amplitude<covariant::vector_exchange>(kX, M_OMEGA, "#omega exchange");
+    amplitude X_omegaL = new_amplitude<analytic::vector_exchange>(kX, M_OMEGA, "#omega exchange");
     X_omegaL->set_parameters({gX_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude X_rhoL = new_amplitude<covariant::vector_exchange>(kX, M_RHO, "#rho exchange");
+    amplitude X_rhoL = new_amplitude<analytic::vector_exchange>(kX, M_RHO, "#rho exchange");
     X_rhoL->set_parameters({gX_rho, gV_rho, gT_rho, LamRho});
     
     // Total is the sum of the above exchanges
@@ -130,6 +130,7 @@ void X_mesons()
     p_low.set_logscale(false, true);
     p_low.set_curve_points(100);
     p_low.set_legend(0.3, 0.73);
+    p_low.print_to_terminal(true);
     p_low.set_ranges({4, 7}, {2E-3, 800});
     p_low.set_labels( "#it{W_{#gammap}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{Xp})  [nb]");
     p_low.add_curve({4, 7}, [&](double W){ return ChiC1_L->integrated_xsection(W*W); }, "#it{#chi}_{c1}");

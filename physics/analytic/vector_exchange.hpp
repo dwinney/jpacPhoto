@@ -80,11 +80,13 @@ namespace jpacPhoto
 
 
             // The options here are the type of form_factor used
-            static const int kExpFF      = 0;
-            static const int kMonopoleFF = 1;
-            static const int kNoFF       = 2;
-            static const int kUseT       = 3;
-            static const int kUseTprime  = 4;
+            static const int kExpFF       = 0;
+            static const int kMonopoleFF  = 1;
+            static const int kNoFF        = 2;
+            static const int kUseT        = 3;
+            static const int kUseTprime   = 4;
+            static const int kAddTopFF    = 5;
+            static const int kRemoveTopFF = 6;
             inline void set_option( int opt )
             {
                 switch (opt)
@@ -108,8 +110,10 @@ namespace jpacPhoto
                         set_N_pars(3);
                         return;
                     }
-                    case (kUseT):      { _useT = true; return; }
-                    case (kUseTprime): { _useT = false; return; }
+                    case (kUseT):        { _useT  = true;  return; }
+                    case (kUseTprime):   { _useT  = false; return; }
+                    case (kAddTopFF):    { _topFF = true;  return; }
+                    case (kRemoveTopFF): { _topFF = false; return; }
                     default: 
                     {
                         option_error();
@@ -169,6 +173,9 @@ namespace jpacPhoto
             form_factor _FF = new_FF<exponential>();
             bool _useT = false;
 
+            // Whether we include additional formfactor in the top vertex
+            bool _topFF = false;
+
             // Top coupling refers to the beam-exchange-meson interaction
             inline complex top_coupling()
             {
@@ -188,7 +195,7 @@ namespace jpacPhoto
                 };
 
                 // Form factor
-                double FF = _mX*_mX/(_mX*_mX - _t);
+                double FF = (_topFF) ? _mX*_mX/(_mX*_mX - _t) : 1.;
 
                 return _gTop*_qi*FF*result;
             };
