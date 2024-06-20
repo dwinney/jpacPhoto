@@ -1,3 +1,6 @@
+# WARNING: DEPRECATED VERSION!!!!
+This repo is held to redirect older links / citations but is no longer maintained. Please use the most up-to-date release in the [JPAC repo](https://github.com/JointPhysicsAnalysisCenter/jpacPhoto).
+
 #   jpacPhoto
 Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target. Focus on expandability and easy interfacing with other libraries / analysis code. 
 
