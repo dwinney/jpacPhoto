@@ -13,7 +13,6 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
-#include "cgamma.hpp"
 #include "analytic/vector_exchange.hpp"
 
 namespace jpacPhoto

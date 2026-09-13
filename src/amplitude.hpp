@@ -16,10 +16,8 @@
 
 #include "key.hpp"
 #include "utilities.hpp"
-#include "helicities.hpp"
 #include "kinematics.hpp"
 #include "covariants.hpp"
-#include "angular_functions.hpp"
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"

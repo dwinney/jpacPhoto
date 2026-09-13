@@ -19,9 +19,9 @@
 #ifndef KINEMATICS_HPP
 #define KINEMATICS_HPP
 
-#include "constants.hpp"
-#include "helicities.hpp"
 #include "key.hpp"
+#include "constants.hpp"
+#include "utilities.hpp"
 
 #include "TMath.h"
 
@@ -42,6 +42,21 @@ namespace jpacPhoto
     // amplitudes themselves
     // ---------------------------------------------------------------------------
     
+    // ------------------------------------------------------------------------------
+    // Things related to helicities
+
+    // Each amplitude needs to be able to tell which frame its helicities are defined in
+    enum helicity_frame{ HELICITY_ERROR, HELICITY_INDEPENDENT, S_CHANNEL, T_CHANNEL, U_CHANNEL };
+
+    // Output a string of a given helicity set in format e.g. {+,+,+,+}
+    std::string print_helicities(std::array<int,4> lam);
+
+    // Generate a vector containing all the helicity combinations
+    std::vector<std::array<int, 4>> get_helicities(int mJ, int bJ, bool is_massless = true);
+
+    // Given a set of helicities, find its helicity index
+    uint find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless = true);
+
     // ------------------------------------------------------------------------------
     // Quantum number combinations
 

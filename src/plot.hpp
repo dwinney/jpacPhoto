@@ -30,8 +30,8 @@
 #include <TLatex.h>
 #include <TLine.h>
 
+#include "utilities.hpp"
 #include "data_set.hpp"
-#include "elementwise.hpp"
 #include "colors.hpp"
 
 namespace jpacPhoto

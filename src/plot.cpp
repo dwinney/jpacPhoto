@@ -9,7 +9,6 @@
 // ------------------------------------------------------------------------------
 
 #include "plot.hpp"
-#include "colors.hpp"
 
 namespace jpacPhoto
 {

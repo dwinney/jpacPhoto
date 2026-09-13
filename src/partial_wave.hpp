@@ -11,7 +11,6 @@
 #define PARTIAL_WAVE_HPP
 
 #include "utilities.hpp"
-#include "helicities.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 
