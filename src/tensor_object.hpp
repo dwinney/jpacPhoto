@@ -11,7 +11,7 @@
 #ifndef METRIC_HPP
 #define METRIC_HPP
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "dirac_spinor.hpp"
 #include "dirac_matrix.hpp"
 
@@ -94,7 +94,7 @@ namespace jpacPhoto
 
         inline Type operator()(std::vector<lorentz_index> indices)
         {
-	  if (indices.size() != rank()) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<Type>());
+	  if (indices.size() != rank()) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<Type>());
             int mu = +indices[0];
             return _entries[mu];
         };
@@ -138,7 +138,7 @@ namespace jpacPhoto
 
         inline Type operator()(std::vector<lorentz_index> indices)
         {
-	  if (indices.size() != rank()) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<Type>());
+	  if (indices.size() != rank()) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<Type>());
             int mu = +indices[0], nu = +indices[1];
             return (mu == nu) ? complex((mu == 0) - (mu != 0)) * id : z;
         };
@@ -172,7 +172,7 @@ namespace jpacPhoto
 
         inline Type operator()(std::vector<lorentz_index> indices)
         {
-            if (indices.size() != rank()) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<Type>());
+            if (indices.size() != rank()) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<Type>());
 
             // Convert indices to their ints
             int a = +indices[0], b = +indices[1], c = +indices[2], d = +indices[3];

@@ -16,7 +16,7 @@
 #include <vector>
 #include <memory>
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "tensor_object.hpp"
 
 namespace jpacPhoto
@@ -67,7 +67,7 @@ namespace jpacPhoto
 
         inline virtual Type operator()(std::vector<lorentz_index> indices)
         {
-            if (indices.size() != Rank) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<Type>());
+            if (indices.size() != Rank) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<Type>());
             if (_is_sum)
             {
                 Type sum = zero<Type>();
@@ -172,7 +172,7 @@ namespace jpacPhoto
         {
             if (!_is_sum)
             {
-                warning("add_tensor()", "Cannot add tensor to pre-initialized one. Initilize a new tensor as the sum!");
+                warning("add_tensor() - Cannot add tensor to pre-initialized one. Initilize a new tensor as the sum!");
                 return;
             };
             _subtensors.push_back(std::make_shared<lorentz_tensor<Type,Rank>>(T)); 

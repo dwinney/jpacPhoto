@@ -8,8 +8,6 @@
 // ------------------------------------------------------------------------------
 
 #include "partial_wave.hpp"
-#include "amplitude.hpp"
-#include "angular_functions.hpp"
 
 namespace jpacPhoto
 {
@@ -28,8 +26,7 @@ namespace jpacPhoto
     {
         if (to_project->native_helicity_frame() != helicity_frame::S_CHANNEL)
         {
-            return error("project", 
-                         "Amplitude " + to_project->id() + " not an s-channel helicity amplitude!", 
+            return error("project - Amplitude " + to_project->id() + " not an s-channel helicity amplitude!", 
                          nullptr);
         }
 
@@ -42,8 +39,7 @@ namespace jpacPhoto
     {
         if (to_project->native_helicity_frame() != helicity_frame::HELICITY_INDEPENDENT)
         {
-            return error("project", 
-                         "Amplitude " + to_project->id() + " has helicity dependence, dont know how to handle yet!", 
+            return error("project - Amplitude " + to_project->id() + " has helicity dependence, dont know how to handle yet!", 
                          nullptr);
         }
 

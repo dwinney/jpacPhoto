@@ -10,7 +10,7 @@
 #ifndef DATA_SET_HPP
 #define DATA_SET_HPP
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "elementwise.hpp"
 
 #include <fstream>
@@ -28,7 +28,7 @@ namespace jpacPhoto
         char const * env = std::getenv("JPACPHOTO");
         if ( env == NULL || std::string(env) == "" )
         {
-            return error("import_data", "Cannot find environment variable JPACPHOTO!", "");
+            return error("import_data - Cannot find environment variable JPACPHOTO!", "");
         }
         return std::string(env);  
     };
@@ -49,7 +49,7 @@ namespace jpacPhoto
 
         if (!infile.is_open())
         {
-            return error("import_data", "Cannot open file " + file_path + "!", result);
+            return error("import_data - Cannot open file " + file_path + "!", result);
         };
 
         // Import data!
@@ -87,7 +87,7 @@ namespace jpacPhoto
 
         if (!infile.is_open())
         {
-            return error("import_data", "Cannot open file " + file_path + "!", result);
+            return error("import_data - Cannot open file " + file_path + "!", result);
         };
 
         // Import data!
@@ -135,7 +135,7 @@ namespace jpacPhoto
         {
             if (column.size() != N)
             {
-                warning("data_set", "Input vectors of " + id + " have mismatching sizes!");
+                warning("data_set - Input vectors of " + id + " have mismatching sizes!");
                 return 0;
             };
         };

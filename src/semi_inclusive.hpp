@@ -13,7 +13,7 @@
 #ifndef SEMI_INCLUSIVE_HPP
 #define SEMI_INCLUSIVE_HPP
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "key.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"

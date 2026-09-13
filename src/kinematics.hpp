@@ -42,6 +42,14 @@ namespace jpacPhoto
     // amplitudes themselves
     // ---------------------------------------------------------------------------
     
+    // ------------------------------------------------------------------------------
+    // Quantum number combinations
+
+    enum quantum_numbers { PARTICLE_ERROR, ANY, 
+                           SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR, TENSOR, AXIALTENSOR,
+                           HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
+
+
     // Forward declaration so we can rename ptr to kinematics as just kinematics
     // WE do this because we basically never want to work with a raw instance, but pass around a pointer
     class raw_kinematics;
@@ -111,7 +119,7 @@ namespace jpacPhoto
         {
             if (!is_photon()) 
             {
-                error("kinematics", "call to set_Q2() without initializing a photon beam first!");
+                warning("kinematics - call to set_Q2() without initializing a photon beam first!");
             }
 
             _virtual = true; 

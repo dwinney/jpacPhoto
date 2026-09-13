@@ -14,7 +14,7 @@
 #ifndef BILINEAR_HPP
 #define BILINEAR_HPP
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "contract.hpp"
 #include "lorentz_tensor.hpp"
 #include "dirac_matrix.hpp"
@@ -74,7 +74,7 @@ namespace jpacPhoto
 
         inline complex operator()(std::vector<lorentz_index> indices)
         {
-            if (indices.size() != Rank) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<complex>());          
+            if (indices.size() != Rank) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<complex>());          
 
             // begin producting all the matrices to get one 
             dirac_matrix M = _matrix(indices);

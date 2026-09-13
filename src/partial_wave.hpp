@@ -10,7 +10,7 @@
 #ifndef PARTIAL_WAVE_HPP
 #define PARTIAL_WAVE_HPP
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "helicities.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
@@ -88,8 +88,7 @@ namespace jpacPhoto
 
         virtual inline void allocate_parameters(int x)
         {
-            warning("partial_wave::allocate_parameters", 
-                    "Partial-waves created using project() cannot change parameters! Change them in the amplitude being projected");
+            warning("partial_wave::allocate_parameters - Partial-waves created using project() cannot change parameters! Change them in the amplitude being projected");
             return;
         };
 

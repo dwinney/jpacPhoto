@@ -81,7 +81,7 @@ namespace jpacPhoto
     void operator+=(semi_inclusive a, amplitude b)
     {
         std::string error_msg = "Attempted to add incompatible objects: " + a->id() + " and " + b->id() + "!";
-        if (!are_compatible(a, b)) return error("semi_inclusive::+=", error_msg + " (Contain different kinematics objects!)");
+        if (!are_compatible(a, b)) {warning ("semi_inclusive::+= - " + error_msg + " (Contain different kinematics objects!)"); return;};
         
         a->_exclusives.push_back(b);
     };
@@ -112,7 +112,7 @@ namespace jpacPhoto
 
     bool raw_semi_inclusive::correct_size(std::vector<double> pars)
     {
-        if (pars.size() != _N_pars) return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+        if (pars.size() != _N_pars) return error(id()+"::set_parameters - Number of parameters passed not the expected size!", false);
         return true;
     };
 

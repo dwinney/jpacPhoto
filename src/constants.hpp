@@ -14,9 +14,6 @@
 #include <complex>
 #include <limits>
 
-#include "print.hpp"
-#include "debug.hpp"
-
 namespace jpacPhoto
 {
     // ---------------------------------------------------------------------------
@@ -26,68 +23,6 @@ namespace jpacPhoto
     // Unit complex numbers
     const complex XR  (1., 0.);
     const complex I   (0., 1.);
-
-    // Additionally the complex type is a liitle dim in c++ so we need to define int & bool multiplication
-    inline complex operator*(const int& c, const complex& rhs)
-    {
-        return complex(c*rhs.real(), c*rhs.imag());
-    };
-
-    inline complex operator*(const complex& lhs, const int& c)
-    {
-        return complex(c*lhs.real(), c*lhs.imag());
-    };
-
-    inline complex operator*(const bool& c, const complex& rhs)
-    {
-        return (c) ? rhs : 0.;
-    };
-
-    inline complex operator*(const complex& lhs, const bool& c)
-    {
-        return (c) ? lhs : 0.;
-    };
-
-    inline complex operator/(const complex&c, const int& i)
-    {
-        return (1./i)*c;
-    };
-
-    inline complex operator/(const int& i, const complex&c)
-    {
-        return (1./c)*i;
-    };
-
-    inline complex operator+(const complex&c, const int& i)
-    {
-        return c + XR*i;
-    };
-
-    inline complex operator+(const int& i, const complex & c)
-    {
-        return XR*i + c;
-    };
-
-    inline complex operator-(const complex&c, const int& i)
-    {
-        return c - XR*i;
-    };
-
-    inline complex operator-(const int& i, const complex & c)
-    {
-        return XR*i - c;
-    };
-
-    // This makes it so we always default to complex regardless of whether the input is an int or double
-    template<typename T>
-    complex csqrt(T x){ return sqrt(x * XR); };
-
-    inline unsigned int factorial(unsigned int n) 
-    {
-        if (n == 0)
-        return 1;
-        return n * factorial(n - 1);
-    };
 
     // ---------------------------------------------------------------------------
     // Mathematical constants 
@@ -100,9 +35,6 @@ namespace jpacPhoto
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
     const double HBARC    = 389379; // nb/GeV^2
-
-    template <typename T>
-    int sgn(T val) { return (T(0) < val) - (val < T(0)); };
 
     const complex IEPS(0., EPS);
 
@@ -157,10 +89,16 @@ namespace jpacPhoto
     const double F_UPSILON3S = 0.1431;
 
     // ------------------------------------------------------------------------------
-    // Quantum number combinations
+    // Constants related to operating options
 
-    enum quantum_numbers { PARTICLE_ERROR, ANY, SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR, TENSOR, AXIALTENSOR,
-                                                HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
+    // Default values for printing things
+    const int TEXT_WIDTH       = 62;
+    const int PRINT_SPACING    = 18;
+    const int PRINT_PRECISION  = 9;    
+    const int STRING_PRECISION = 3;
+    const int PRINT_POINTS     = 100;
+
+    const std::string UNIT_DIV = std::string(PRINT_SPACING, '-');
 
     // ------------------------------------------------------------------------------
     // // NaN's, 0, and 1 for throwing errors with custom data types
@@ -189,87 +127,6 @@ namespace jpacPhoto
     template<>
     inline complex identity() { return 1; };
 
-    // ---------------------------------------------------------------------------
-    // Frame conversion methods (specifically for photoproduction)
-
-    // Photon lab energy
-    inline double E_beam(double W)
-    {
-        return (W*W / M_PROTON - M_PROTON) / 2.;
-    };
-
-    // Center of mass energy given beam energy
-    inline double W_cm(double egam)
-    {
-        return sqrt(M_PROTON * (2. * egam + M_PROTON));
-    };
-
-    // Center of mass energy given beam energy
-    inline double s_cm(double egam)
-    {
-        return M_PROTON * (2. * egam + M_PROTON);
-    };
-
-    // ---------------------------------------------------------------------------
-    // Kallen Triangle function
-
-    // Only way to get a double or int Kallen is if all inputs are double/int
-    template<typename T>
-    inline T Kallen(T x, T y, T z)
-    {
-        return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
-    };
-
-    // If any of them are complex, return complex
-    inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, XR*a, XR*b); };
-    inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(XR*a, z, XR*b); };
-    inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(XR*a, XR*b, z); };
-
-    // Kinematic function for 2->2 scattering (see eq. 5.23 in Byckling & Kajantie)
-    inline double G(double x, double y, double z, double u, double v, double w)
-    {
-        return  x*x*y + x*y*y + z*z*u + z*u*u + v*v*w + v*w*w 
-              + x*z*w + x*u*v + y*z*w + y*u*w + y*z*v - y*z*w
-              - x*y*(z + u + v + w) - z*u*(x + y + v + w) - v*w*(x + y + z + u);
-    };
-
-    // ---------------------------------------------------------------------------
-    // Function for easier comparison of doubles using the EPS value defined above
-    // be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate
-
-    inline bool are_equal(double a, double b)
-    {
-        return ( std::abs(a - b) < EPS );
-    }
-
-    inline bool are_equal(double a, double b, double tol)
-    {
-        return ( std::abs(a - b) < tol );
-    }
-
-    // Same thing for comparing complex doubles
-    inline bool are_equal(complex a, complex b)
-    {
-        return (are_equal(real(a), real(b)) && are_equal(imag(a), imag(b)));
-    };
-
-    // Same thing for comparing complex doubles
-    inline bool are_equal(complex a, complex b, double tol)
-    {
-        return (are_equal(real(a), real(b), tol) && are_equal(imag(a), imag(b), tol));
-    };
-
-    // Aliases for special cases of the above
-    inline bool is_zero(double a)
-    {
-        return (std::abs(a) < EPS);
-    };
-
-    // Aliases for special cases of the above
-    inline bool is_zero(double a, double tol)
-    {
-        return (std::abs(a) < tol);
-    };
 };
 // ---------------------------------------------------------------------------
 

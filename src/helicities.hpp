@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
-#include "debug.hpp"
+#include "utilities.hpp"
 
 namespace jpacPhoto
 {
@@ -25,7 +25,7 @@ namespace jpacPhoto
         std::array<std::string,4> lams;
         for (int i = 0; i < 4; i++)
         {
-            std::string sign = (sgn(lam[i]) == +1) ? "+" : "-";
+            std::string sign = std::to_string(lam[i]);
             lams[i] = sign + std::to_string(std::abs(lam[i]));
         };
         return "[ " + lams[0] + ", " + lams[1] + ", " + lams[2] + ", " + lams[3] + "]";
@@ -69,7 +69,7 @@ namespace jpacPhoto
             return iterator - hels.begin();
         }
         
-        return error("find_helicity", "Cannot find helicities: " + print_helicities(helicities) + "!", -1);
+        return error("find_helicity - Cannot find helicities: " + print_helicities(helicities) + "!", -1);
     };
 };
 

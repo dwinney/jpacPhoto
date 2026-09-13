@@ -99,7 +99,7 @@ namespace jpacPhoto
     lorentz_tensor<complex,1> covariants::eps()
     {
         // If helicity out of bounds return zero vector
-        if (std::abs(_lamB) > 1) return error("eps", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
+        if (std::abs(_lamB) > 1) return error("eps - Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
 
         // Check cases:
         bool transverse = ( std::abs(_lamB) == 1 );
@@ -114,10 +114,10 @@ namespace jpacPhoto
     lorentz_tensor<complex,1> covariants::eps_prime()
     {
         // If helicity out of bounds return zero vector
-        if (std::abs(_lamX) > 1) return error("eps_prime", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
+        if (std::abs(_lamX) > 1) return error("eps_prime - Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
 
         // Currently doubly massless particles (compton scattering) is not available 
-        if ( is_zero(_mX) ) return error("eps_prime", "Massless final state boson not supported yet!", lorentz_vector<complex>({{0,0,0,0}}));
+        if ( is_zero(_mX) ) return error("eps_prime - Massless final state boson not supported yet!", lorentz_vector<complex>({{0,0,0,0}}));
         
         // Check cases:
         bool transverse = ( std::abs(_lamX) == 1 );

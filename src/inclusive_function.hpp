@@ -14,7 +14,7 @@
 #define INCLUSIVE_FUNCTION_HPP
 
 #include <memory>
-#include "constants.hpp"
+#include "utilities.hpp"
 
 namespace jpacPhoto
 {

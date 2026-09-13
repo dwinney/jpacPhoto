@@ -93,7 +93,7 @@ namespace jpacPhoto
     {
         if (i < 0 || i >= _nAmps) 
         {
-            fatal("kinematics", "Can't find helicities with index " + std::to_string(i) + "!");
+            fatal("kinematics - Can't find helicities with index " + std::to_string(i) + "!");
         }
         return _helicities[i];
     };

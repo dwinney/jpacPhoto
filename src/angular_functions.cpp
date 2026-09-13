@@ -22,7 +22,7 @@ namespace jpacPhoto
             case 5: return z*(63.*z*z*z*z - 70.*z*z + 15.)/8.;
             default:
             {
-                error("legendre", "L value " + std::to_string(l) + " not available! Returning 0.", 0.);
+                error("legendre - L value " + std::to_string(l) + " not available! Returning 0.", 0.);
             }
         };
 
@@ -57,7 +57,7 @@ namespace jpacPhoto
         double phase = 1.;
         if ( j % 2 == 0 || (lam1 + lam2) % 2 != 0 )
         {
-            error("wigner_d_half", "Invalid arguments passed! Returning 0.", 0);
+            error("wigner_d_half - Invalid arguments passed! Returning 0.", 0);
         };
 
         // If first lam argument is smaller, switch them

@@ -13,7 +13,6 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "data_set.hpp"
-#include "print.hpp"
 
 #include <chrono>
 #include <string>
@@ -120,7 +119,7 @@ namespace jpacPhoto
         {
             if (labels.size() != _pars.size())
             {
-                warning("fitter::set_parameter_labels", "Labels vector does not match number of parameters!");
+                warning("fitter::set_parameter_labels - Labels vector does not match number of parameters!");
                 return;
             }
             for (int i = 0; i < _pars.size(); i++) _pars[i]._label = labels[i];
@@ -218,7 +217,7 @@ namespace jpacPhoto
         {
             if (starting_guess.size() != _Nfree) 
             {
-                warning("fitter::do_fit", "Starting guess not the correct size! Expected " + std::to_string(_Nfree) + " parameters!");
+                warning("fitter::do_fit - Starting guess not the correct size! Expected " + std::to_string(_Nfree) + " parameters!");
                 return;
             };
 
@@ -436,7 +435,7 @@ namespace jpacPhoto
         inline int find_parameter(std::string label)
         {
             for (auto par : _pars) if (par._label == label) return par._i;
-            return error("fitter::find_parameter", "Cannot find parameter labeled " + label + "!", -1);
+            return error("fitter::find_parameter - Cannot find parameter labeled " + label + "!", -1);
         };
 
         // Given a C-style array of size _Nfree
@@ -463,7 +462,7 @@ namespace jpacPhoto
                 result[j] = result[_pars[j]._sync_to];
             };
 
-            if (i != _Nfree) warning("fitter::convert", "Something went wrong in converting parameter vector.");
+            if (i != _Nfree) warning("fitter::convert - Something went wrong in converting parameter vector.");
             return result;
         };
 
@@ -477,7 +476,7 @@ namespace jpacPhoto
             
             if (_data.size() == 0)
             {
-                warning("fitter::data_info", "No data found!"); 
+                warning("fitter::data_info - No data found!"); 
                 return;
             };
 

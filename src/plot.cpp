@@ -19,7 +19,7 @@ namespace jpacPhoto
     {
         if (_entries.empty() ) 
         {
-            warning("plot::save()", "No entries added! Returning...");
+            warning("plot::save() - No entries added! Returning...");
             return;
         };
         
@@ -170,7 +170,7 @@ namespace jpacPhoto
         // Check size of arrays
         int N = dat[0].size();
         if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
-            error("add_data", "Input vectors dont match! Returning...");
+            { warning("add_data - Input vectors dont match! Returning..."); return; };
 
         double *x, *y, *ex, *ey;
 
@@ -198,7 +198,7 @@ namespace jpacPhoto
         // Check size of arrays
         int N = dat[0].size();
         if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
-            error("add_data", "Input vectors dont match! Returning...");
+            { warning("add_data - Input vectors dont match! Returning..."); return; };
 
         double *x, *y, *ex, *ey;
 

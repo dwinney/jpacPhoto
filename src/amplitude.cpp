@@ -59,8 +59,7 @@ namespace jpacPhoto
     {
         if ( !a->is_sum() )
         {
-            warning("amplitude::operator+= ", 
-                    "Attempting to sum two non-sums! \nPlease initialize a sum of amplitudes with = first (auto c = a + b;) then use the += operator (c += d;)!");
+            warning("amplitude::operator+= - Attempting to sum two non-sums! \nPlease initialize a sum of amplitudes with = first (auto c = a + b;) then use the += operator (c += d;)!");
             return;
         };  
 
@@ -168,7 +167,7 @@ namespace jpacPhoto
                 }
             };
 
-            if (_cached_helicity_amplitudes.size() != n) warning(id()+"::update_cache", "Cached size doesn't match expected number of helicity amplitude!");
+            if (_cached_helicity_amplitudes.size() != n) warning(id()+"::update_cache - Cached size doesn't match expected number of helicity amplitude!");
         };
 
         // Update the cache info as well
@@ -192,7 +191,7 @@ namespace jpacPhoto
     // Simple check that a given vector is of the expected size
     bool raw_amplitude::correct_size(std::vector<double> pars)
     {
-        if (pars.size() != _N_pars) return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+        if (pars.size() != _N_pars) return error(id()+"::set_parameters: Number of parameters passed not the expected size!", false);
         return true;
     };
 
@@ -222,8 +221,8 @@ namespace jpacPhoto
         baryon_fails = std::find(allowed_baryons.begin(), allowed_baryons.end(), requested_baryon) == allowed_baryons.end();
     
         auto requested_meson_JP = kinem->get_meson_JP(); auto requested_baryon_JP = kinem->get_meson_JP();
-        if (meson_fails  && not_any_meson)  warning(id()+"::check_QNs", "Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
-        if (baryon_fails && not_any_baryon) warning(id()+"::check_QNs", "Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
+        if (meson_fails  && not_any_meson)  warning(id()+"::check_QNs - Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
+        if (baryon_fails && not_any_baryon) warning(id()+"::check_QNs - Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
     };
 
     // ------------------------------------------------------------------------------
@@ -302,7 +301,7 @@ namespace jpacPhoto
     {
         if ((s < _kinematics->sth()) || (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)))
         {
-            return error("amplitude::K_LL", "Outside physical region!", NaN<double>());
+            return error("amplitude::K_LL - Outside physical region!", NaN<double>());
         };
 
         double sum = 0; 
@@ -321,7 +320,7 @@ namespace jpacPhoto
     {
         if ((s < _kinematics->sth()) || (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)))
         {
-            return error("amplitude::A_LL", "Outside physical region!", NaN<double>());
+            return error("amplitude::A_LL - Outside physical region!", NaN<double>());
         };
 
         double sum = 0; 
@@ -352,12 +351,12 @@ namespace jpacPhoto
     // Baryon SDME
     complex raw_amplitude::bSDME(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        if (alpha > 2) return error("amplitude::bSDME", "Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
+        if (alpha > 2) return error("amplitude::bSDME - Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
 
         int J = _kinematics->get_baryon_JP()[0];
-        if (std::abs(lam)  > J) return error("amplitude::bSDME", "Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
-        if (std::abs(lamp) > J) return error("amplitude::bSDME", "Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
+        if (std::abs(lam)  > J) return error("amplitude::bSDME - Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
+        if (std::abs(lamp) > J) return error("amplitude::bSDME - Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
 
         // Check lam > lamp and lam > 0
         bool CONJ = false; int phase = 1;
@@ -425,7 +424,7 @@ namespace jpacPhoto
         {
             case S_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
             case T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->bH_to_GJ_angle(s, t));
-            case U_CHANNEL: return error("bSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            case U_CHANNEL: return error("bSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
         };
 
         return std::nan("");
@@ -438,7 +437,7 @@ namespace jpacPhoto
         {
             case S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->bH_to_GJ_angle(s, t));
             case T_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: return error("bSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            case U_CHANNEL: return error("bSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
 
@@ -451,12 +450,12 @@ namespace jpacPhoto
     // "raw" SDME
     complex raw_amplitude::mSDME(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        if (alpha > 2) return error("amplitude::mSDME", "Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
+        if (alpha > 2) return error("amplitude::mSDME - Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
         
         int J = _kinematics->get_meson_JP()[0];
-        if (std::abs(lam)  > J) return error("amplitude::mSDME", "Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
-        if (std::abs(lamp) > J) return error("amplitude::mSDME", "Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
+        if (std::abs(lam)  > J) return error("amplitude::mSDME - Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
+        if (std::abs(lamp) > J) return error("amplitude::mSDME - Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
 
         // Check lam > lamp and lam > 0
         bool CONJ = false; int phase = 1;
@@ -524,7 +523,7 @@ namespace jpacPhoto
         {
             case S_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
             case T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->mH_to_GJ_angle(s, t));
-            case U_CHANNEL: return error("mSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            case U_CHANNEL: return error("mSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
         return std::nan("");
@@ -537,7 +536,7 @@ namespace jpacPhoto
         {
             case S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->mH_to_GJ_angle(s, t));
             case T_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: return error("mSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            case U_CHANNEL: return error("mSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
         return std::nan("");

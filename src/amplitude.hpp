@@ -15,7 +15,7 @@
 #include <string>
 
 #include "key.hpp"
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "helicities.hpp"
 #include "kinematics.hpp"
 #include "covariants.hpp"
@@ -42,56 +42,14 @@ namespace jpacPhoto
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
 
-    template<class A>
-    inline amplitude new_amplitude(kinematics xkinem, std::string id)
-    {
-        auto amp = std::make_shared<A>(key(), xkinem, id);
-        return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-
     // "constructor" specifying an extra parameter
+    // Use a struct to sneak in as man parameters as needed
     template<class A, typename B>
-    inline amplitude new_amplitude(kinematics xkinem, B extra, std::string id)
+    inline amplitude new_amplitude(kinematics xkinem, B extra)
     {
-        auto amp = std::make_shared<A>(key(), xkinem, extra, id);
+        auto amp = std::make_shared<A>(key(), xkinem, extra);
         return std::static_pointer_cast<raw_amplitude>(amp);
     };
-
-    // "constructor" specifying two extra parameters
-    template<class A, typename B, typename C>
-    inline amplitude new_amplitude(kinematics xkinem, B extra1, C extra2, std::string id)
-    {
-        auto amp = std::make_shared<A>(key(), xkinem, extra1, extra2, id);
-        return std::static_pointer_cast<raw_amplitude>(amp);
-    };
-
-    // ---------------------------------------------------------------------------
-    // Sometimes we dont want to output an amplitude object
-    // This will allow us to directly print out a pointer to the raw class
-
-    template<class A>
-    inline std::shared_ptr<A> new_raw_amplitude(kinematics xkinem)
-    {
-        return std::dynamic_pointer_cast<A>(new_amplitude<A>(xkinem));
-    }
-
-    template<class A>
-    inline std::shared_ptr<A> new_raw_amplitude(kinematics xkinem, std::string id)
-    {
-        return std::dynamic_pointer_cast<A>(new_amplitude<A>(xkinem, id));
-    }
-
-    template<class A, typename B>
-    inline std::shared_ptr<A> new_raw_amplitude(kinematics xkinem, B extra1, std::string id)
-    {
-        return std::dynamic_pointer_cast<A>(new_amplitude<A>(xkinem, extra1, id));
-    }
-
-    template<class A, typename B, typename C>
-    inline std::shared_ptr<A> new_raw_amplitude(kinematics xkinem, B extra1, C extra2, std::string id)
-    {
-        return std::dynamic_pointer_cast<A>(new_amplitude<A>(xkinem, extra1, extra2, id));
-    }
 
     // ---------------------------------------------------------------------------
     // Opreations to sum amplitudes together
@@ -320,7 +278,7 @@ namespace jpacPhoto
         // Each amplitude may have different options for evaluating their amplitude
         // they may be differenticated with this variable
         int _option = 0;
-        inline void option_error(){ warning(id()+"::set_option", "Unexpected option passed. Continuing without change...");  };
+        inline void option_error(){ warning(id()+"::set_option - Unexpected option passed. Continuing without change...");  };
 
         // ---------------------------------------------------------------------------
         // Parameter handling 
@@ -338,8 +296,7 @@ namespace jpacPhoto
         bool correct_size(std::vector<double> pars);
         inline void pars_error(int x)
         {
-            warning(id()+"::set_parameters", 
-                    "Unexpected number of parameters passed. Expected "+std::to_string(_N_pars)+" but recieved "+std::to_string(x)+").");
+            warning(id()+"::set_parameters - Unexpected number of parameters passed. Expected "+std::to_string(_N_pars)+" but recieved "+std::to_string(x)+").");
         };
 
         // ---------------------------------------------------------------------------
@@ -363,6 +320,8 @@ namespace jpacPhoto
 
         // Helicities
         int _lamB, _lamX, _lamR, _lamT;
+        // Net helicities
+        int _lam, _lamp;
 
         // Store of covariant quantities
         std::unique_ptr<covariants> _covariants;

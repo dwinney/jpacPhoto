@@ -10,7 +10,7 @@
 #ifndef COVARIANTS_HPP
 #define COVARIANTS_HPP
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "kinematics.hpp"
 #include "lorentz_tensor.hpp"
 #include "dirac_spinor.hpp"

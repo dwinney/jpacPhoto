@@ -32,9 +32,7 @@ namespace jpacPhoto
 
         // Amplitude factories        
         template<class A>                         friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>);
-        template<class A>                         friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, std::string);
-        template<class A, typename B>             friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, B, std::string);
-        template<class A, typename B, typename C> friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, B, C, std::string);
+        template<class A, typename B>             friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, B);
         friend std::shared_ptr<raw_amplitude> operator+(std::shared_ptr<raw_amplitude> a, std::shared_ptr<raw_amplitude> b);
         friend std::shared_ptr<raw_amplitude> project(int, std::shared_ptr<raw_amplitude>, std::string);
         friend std::shared_ptr<raw_amplitude> helicity_project(int, std::shared_ptr<raw_amplitude>, std::string);

@@ -14,7 +14,7 @@
 #include <complex>
 #include <algorithm>
 
-#include "constants.hpp"
+#include "utilities.hpp"
 
 namespace jpacPhoto
 {
