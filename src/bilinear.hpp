@@ -17,7 +17,6 @@
 #include "utilities.hpp"
 #include "contract.hpp"
 #include "lorentz_tensor.hpp"
-#include "dirac_matrix.hpp"
 #include "dirac_spinor.hpp"
 
 namespace jpacPhoto

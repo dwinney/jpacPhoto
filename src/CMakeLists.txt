@@ -23,7 +23,6 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     partial_wave.hpp
     kinematics.hpp
     dirac_spinor.hpp
-    dirac_matrix.hpp
     lorentz_tensor.hpp
     fitter.hpp
     semi_inclusive.hpp
