@@ -177,7 +177,7 @@ namespace jpacPhoto
             // Convert indices to their ints
             int a = +indices[0], b = +indices[1], c = +indices[2], d = +indices[3];
             int eps = (d - c) * (d - b) * (d - a) * (c - b) * (c - a) * (b - a);
-            complex result = (eps == 0) ? eps : eps / abs(eps);
+            complex result = (eps == 0) ? eps : eps / std::abs(eps);
 
             return result * identity<Type>();
         };

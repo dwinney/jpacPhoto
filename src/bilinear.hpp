@@ -58,16 +58,16 @@ namespace jpacPhoto
         public: 
 
         // Default tensor with nothing initialized
-        bilinear_tensor<Rank>(){};
+        bilinear_tensor(){};
 
         // Copy constructor
-        bilinear_tensor<Rank>(bilinear_tensor<Rank> const & old)
+        bilinear_tensor(bilinear_tensor<Rank> const & old)
         : _matrix(old._matrix),
           _lhs(old._lhs), _rhs(old._rhs)
         {};
 
         // Implicit constructor, stores pointers to constituent tensors of smaller rank
-        bilinear_tensor<Rank>(dirac_spinor L, lorentz_tensor<dirac_matrix, Rank> Ts, dirac_spinor R)
+        bilinear_tensor(dirac_spinor L, lorentz_tensor<dirac_matrix, Rank> Ts, dirac_spinor R)
         :   _lhs(L), _rhs(R),
             _matrix(Ts)
         {};

@@ -84,7 +84,7 @@ namespace jpacPhoto
 
         if (_halfinteger)
         {
-            if ( abs(lam) > _J || abs(lamp) > _J ) return 0; 
+            if ( std::abs(lam) > _J || std::abs(lamp) > _J ) return 0; 
         }
         else
         {

@@ -82,6 +82,6 @@ namespace jpacPhoto
         // Convert indices to their ints
         int a = +mu, b = +nu, c = +alpha, d = +beta;
         int result = (d - c) * (d - b) * (d - a) * (c - b) * (c - a) * (b - a);
-        return (result == 0) ? result : result / abs(result);
+        return (result == 0) ? result : result / std::abs(result);
     };
 };

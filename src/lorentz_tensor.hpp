@@ -33,10 +33,10 @@ namespace jpacPhoto
         public: 
 
         // Default tensor with nothing initialized
-        lorentz_tensor<Type,Rank>(){};
+        lorentz_tensor(){};
 
         // Copy constructor
-        lorentz_tensor<Type,Rank>(lorentz_tensor<Type,Rank> const & old)
+        lorentz_tensor(lorentz_tensor<Type,Rank> const & old)
         : _lhsN(old._lhsN), _rhsN(old._rhsN), 
           _conj(old._conj), 
           _subtensors(old._subtensors),
@@ -44,7 +44,7 @@ namespace jpacPhoto
         {};
 
         // Implicit constructor, stores pointers to constituent tensors of smaller rank
-        lorentz_tensor<Type,Rank>(std::vector<std::shared_ptr<tensor_object<Type>>> Ts, bool sum)
+        lorentz_tensor(std::vector<std::shared_ptr<tensor_object<Type>>> Ts, bool sum)
         : _subtensors(Ts), _is_sum(sum)
         {};
 

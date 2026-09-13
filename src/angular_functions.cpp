@@ -61,7 +61,7 @@ namespace jpacPhoto
         };
 
         // If first lam argument is smaller, switch them
-        if (abs(lam1) < abs(lam2))
+        if (std::abs(lam1) < std::abs(lam2))
         {
             int temp = lam1;
             lam1 = lam2;
@@ -81,7 +81,7 @@ namespace jpacPhoto
 
         double result = 0.;
 
-        int id = ((lam2 > 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + abs(lam2)); // negative sign refers to negative lam2
+        int id = ((lam2 > 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + std::abs(lam2)); // negative sign refers to negative lam2
         switch (id)
         {
             // spin 1/2 
@@ -194,7 +194,7 @@ namespace jpacPhoto
 
         double phase = 1.;
         // If first lam argument is smaller, switch them
-        if (abs(lam1) < abs(lam2))
+        if (std::abs(lam1) < std::abs(lam2))
         {
             int temp = lam1;
             lam1 = lam2;
@@ -215,7 +215,7 @@ namespace jpacPhoto
         // Output
         double result = 0.;
 
-        int id = ((lam2 >= 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + abs(lam2)); // negative sign refers to negative lam2
+        int id = ((lam2 >= 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + std::abs(lam2)); // negative sign refers to negative lam2
         switch (id)
         {   
             // Spin 1
@@ -257,7 +257,7 @@ namespace jpacPhoto
 
         double phase = 1.;
         // If first lam argument is smaller, switch them
-        if (abs(lam1) < abs(lam2))
+        if (std::abs(lam1) < std::abs(lam2))
         {
             int temp = lam1;
             lam1 = lam2;
@@ -276,7 +276,7 @@ namespace jpacPhoto
         }
 
         complex result = 0.;
-        int id = ((lam2 >= 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + abs(lam2)); // negative sign refers to negative lam2
+        int id = ((lam2 >= 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + std::abs(lam2)); // negative sign refers to negative lam2
         switch (id)
         {   
             // Spin 1

@@ -279,7 +279,7 @@ namespace jpacPhoto
     {
         if (s < _kinematics->sth()) return 0.;
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
-        if (abs(perp_or_para) != 1) return std::nan("");
+        if (std::abs(perp_or_para) != 1) return std::nan("");
         
         // Sum first half of amplitudes which are lam_gamma = +1
         auto cache = get_cache(s, t); int n = cache.size()/2;
@@ -310,7 +310,7 @@ namespace jpacPhoto
         for (int i = 0; i < n; i++)
         {
             auto hel = _kinematics->helicities(i);
-            int eta  = (1 - hel[0]*hel[3] / abs(hel[0]*hel[3])) / 2;
+            int eta  = (1 - hel[0]*hel[3] / std::abs(hel[0]*hel[3])) / 2;
             sum += pow(-1, eta) * std::norm(cache[i]);
         }
         return sum / probability_distribution(s, t);
@@ -329,7 +329,7 @@ namespace jpacPhoto
         for (int i = 0; i < n; i++)
         {
             auto hel = _kinematics->helicities(i);
-            int eta  = (1 - hel[0]*hel[1] / abs(hel[0]*hel[1])) / 2;
+            int eta  = (1 - hel[0]*hel[1] / std::abs(hel[0]*hel[1])) / 2;
             sum += pow(-1, eta) * std::norm(cache[i]);
         }
         return sum / probability_distribution(s, t);
@@ -362,7 +362,7 @@ namespace jpacPhoto
         // Check lam > lamp and lam > 0
         bool CONJ = false; int phase = 1;
 
-        if (std::abs(lam) < abs(lamp))
+        if (std::abs(lam) < std::abs(lamp))
         {
             int temp = lam; lam = lamp; lamp = temp; // Swap them
             CONJ = true; // Conjugate at the end
@@ -461,7 +461,7 @@ namespace jpacPhoto
         // Check lam > lamp and lam > 0
         bool CONJ = false; int phase = 1;
 
-        if (std::abs(lam) < abs(lamp))
+        if (std::abs(lam) < std::abs(lamp))
         {
             int temp = lam; lam = lamp; lamp = temp; // Swap them
             CONJ = true; // Conjugate at the end
