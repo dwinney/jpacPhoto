@@ -12,10 +12,7 @@
 #define AMPLITUDE_HPP
 
 #include <memory>
-#include <string>
 
-#include "key.hpp"
-#include "utilities.hpp"
 #include "kinematics.hpp"
 #include "covariants.hpp"
 

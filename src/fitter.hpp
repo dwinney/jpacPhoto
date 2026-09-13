@@ -10,9 +10,7 @@
 #ifndef FITTER_HPP
 #define FITTER_HPP
 
-#include "kinematics.hpp"
 #include "amplitude.hpp"
-#include "data_set.hpp"
 
 #include <chrono>
 #include <string>
@@ -25,6 +23,35 @@
 
 namespace jpacPhoto
 {
+    // ---------------------------------------------------------------------------
+    // This object is how we will feed our data to our fitter
+
+    struct data_set
+    {     
+        // Number of data points
+        int _N = 0;
+
+        std::string _id = "data_set";
+
+        // Each data set should specify what kind of data it is
+        // This should match whatever is expected for a particular fitter
+        int _type;
+        
+        // Save up to three data members for each "point"
+        // These can include s, t, dsig/dt for example
+        std::vector<double> _x, _y, _z;
+
+        // Other possible vectors to store things like bin sizes, etc
+        std::array<std::vector<double>, 2> _xerr, _yerr, _zerr;
+
+        // In additon, save any number of extra parameters that may be needed to 
+        // identify the data set
+        std::vector<double> _extras; 
+
+        // If we want a data entry in the legend when plotting
+        bool _add_to_legend = false;
+    };
+
     // ---------------------------------------------------------------------------
     // Structs for storing relevant info inside the fitter
 

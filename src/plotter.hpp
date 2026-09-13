@@ -13,7 +13,6 @@
 #define PLOTTER_HPP
 
 #include "plot.hpp"
-#include "colors.hpp"
 
 #include <array>
 

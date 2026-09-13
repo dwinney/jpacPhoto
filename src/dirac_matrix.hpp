@@ -11,9 +11,6 @@
 #ifndef DIRAC_MATRIX_HPP
 #define DIRAC_MATRIX_HPP
 
-#include <vector> 
-#include <array>
-
 #include "utilities.hpp"
 
 namespace jpacPhoto

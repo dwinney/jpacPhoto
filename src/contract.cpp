@@ -9,7 +9,6 @@
 // ------------------------------------------------------------------------------
 
 #include "contract.hpp"
-#include "lorentz_tensor.hpp"
 
 namespace jpacPhoto
 {

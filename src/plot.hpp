@@ -31,12 +31,33 @@
 #include <TLine.h>
 
 #include "utilities.hpp"
-#include "data_set.hpp"
-#include "colors.hpp"
 
 namespace jpacPhoto
 {
+    // Forward declaration
     class plotter;
+
+    //---------------------------------------------------------------------
+    // Give each jpacColor a ROOT TColor index name so it may be called globally after its initialized
+    enum class jpacColor: Int_t { Blue   = 2001, Red      = 2002, Green = 2003,
+                                  Orange = 2004, Purple   = 2005, Brown = 2006, 
+                                  Pink   = 2007, Gold     = 2008, Aqua  = 2009, 
+                                  Grey   = 2010, DarkGrey = 2011                };
+
+    // Convert from jpacColor to its underlying int
+    inline constexpr Int_t operator+(jpacColor x)
+    {
+        return static_cast<Int_t>(x);
+    };
+
+    constexpr std::array<jpacColor,11> JPACCOLORS = {jpacColor::Blue,   jpacColor::Red,    jpacColor::Green, 
+                                                     jpacColor::Orange, jpacColor::Purple, jpacColor::Brown, 
+                                                     jpacColor::Pink,   jpacColor::Gold,   jpacColor::Aqua, 
+                                                     jpacColor::Grey,   jpacColor::DarkGrey };
+
+
+    //---------------------------------------------------------------------
+    // Line styles 
 
     struct entry_style
     {
@@ -87,6 +108,9 @@ namespace jpacPhoto
         return custom;
     };
 
+    //---------------------------------------------------------------------
+    // Each plot is a collecion of plot_entries 
+
     // Each entry represents a curve to draw as a TGraph
     struct plot_entry 
     {
@@ -134,6 +158,7 @@ namespace jpacPhoto
         static constexpr double _default_markerwidth = 2;
     };  
 
+    //---------------------------------------------------------------------
     // This class contains the entries, data, and options of producing a single plot/file
     // These can be generated from the plotter->make_plot() method which applies
     // all global settings
@@ -155,18 +180,6 @@ namespace jpacPhoto
         
         // -----------------------------------------------------------------------
         // Methods to add data points to your plot
-
-        // Convert a data_set object to a plot_entry
-        void add_data(data_set data);
-
-        // This second function can be used if you want the data_set to have
-        // a different string id in the legend than the one saved in the data_set
-        inline void add_data(data_set data, std::string different_id)
-        {
-            data_set copy(data);
-            copy._id = different_id;
-            add_data(copy);
-        };
 
         // Add data by simply feeding it vectors 
         void add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errs, std::string id = "");

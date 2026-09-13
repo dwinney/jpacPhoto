@@ -26,7 +26,6 @@ ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
     dirac_matrix.hpp
     lorentz_tensor.hpp
     fitter.hpp
-    data_set.hpp
     semi_inclusive.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )

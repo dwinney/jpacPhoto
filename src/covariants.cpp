@@ -7,7 +7,6 @@
 // ---------------------------------------------------------------------------
 
 #include "covariants.hpp"
-#include "dirac_spinor.hpp"
 
 namespace jpacPhoto
 {

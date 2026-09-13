@@ -14,9 +14,6 @@
 #ifndef DIRAC_SPINOR_HPP
 #define DIRAC_SPINOR_HPP
 
-#include <vector> 
-#include <array>
-
 #include "utilities.hpp"
 #include "dirac_matrix.hpp"
 

@@ -139,29 +139,7 @@ namespace jpacPhoto
     };
 
     // ---------------------------------------------------------------------------
-    // Convert data_set and amplitude easily into plot_entries
-
-    void plot::add_data(data_set data)
-    {
-        double *x, *z, *xl, *xh, *zl, *zh;
-        x  = &(data._x[0]);        z  = &(data._z[0]);
-        xl = &(data._xerr[0][0]);  xh = &(data._xerr[1][0]);
-        zl = &(data._zerr[0][0]);  zh = &(data._zerr[1][0]);
-
-        TGraph *graph = new TGraphAsymmErrors(data._N, x, z, xl, xh, zl, zh);
-
-        entry_style style;
-        style._label = data._id;
-        style._style = 20 + _Ndata;
-        style._color = jpacColor::DarkGrey;
-        style._draw_opt = "P";
-        style._add_to_legend = data._add_to_legend;
-
-        _Ndata++;
-        _Nlegend++;
-
-        _entries.push_back(plot_entry(graph, style, true));
-    };
+    // Add data points to a plot
 
     // Add data by simply feeding it vectors 
     void plot::add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errsin, std::string id)

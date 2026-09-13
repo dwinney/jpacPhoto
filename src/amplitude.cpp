@@ -9,10 +9,6 @@
 // ------------------------------------------------------------------------------
 
 #include "amplitude.hpp"
-#include "constants.hpp"
-#include "kinematics.hpp"
-#include <cstddef>
-#include <string>
 
 namespace jpacPhoto
 {

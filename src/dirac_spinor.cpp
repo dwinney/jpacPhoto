@@ -12,7 +12,6 @@
 // ------------------------------------------------------------------------------
 
 #include "dirac_spinor.hpp"
-#include "dirac_matrix.hpp"
 
 namespace jpacPhoto
 {
