@@ -134,7 +134,8 @@ namespace jpacPhoto
     void raw_amplitude::update_cache(double s, double t)
     {
         bool st_changed   = !are_equal(_cached_s, s, _cache_tolerance) || !are_equal(_cached_t, t, _cache_tolerance);
-        bool mass_changed = !are_equal(_cached_mX, _kinematics->get_meson_mass(),  _cache_tolerance) && !are_equal(_cached_mR, _kinematics->get_recoil_mass(), _cache_tolerance);
+        bool mass_changed = !are_equal(_cached_mX, _kinematics->get_meson_mass(),  _cache_tolerance) 
+                         && !are_equal(_cached_mR, _kinematics->get_recoil_mass(), _cache_tolerance);
 
         bool need_update = _parameters_changed || st_changed || mass_changed;
 

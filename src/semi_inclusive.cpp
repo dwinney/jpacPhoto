@@ -134,7 +134,7 @@ namespace jpacPhoto
     // Max momentum of the produced particle
     double raw_semi_inclusive::pMax(double s)
     {
-        return sqrt(Kallen(s, _mX2, minimum_M2())) / (2*sqrt(s));
+        return sqrt(kallen(s, _mX2, minimum_M2())) / (2*sqrt(s));
     };
 
     // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ namespace jpacPhoto
     // momentum of produced at a fixed missing mass
     double raw_semi_inclusive::pXfromM2(double s, double M2)
     {
-        return sqrt(Kallen(s, _mX2, M2)) / (2*sqrt(s));
+        return sqrt(kallen(s, _mX2, M2)) / (2*sqrt(s));
     };  
 
     double raw_semi_inclusive::COSfromTM2(double s, double t, double M2)
@@ -281,8 +281,8 @@ namespace jpacPhoto
     // Also useful is M2 as a function of X and T
     double raw_semi_inclusive::M2fromTX(double s, double t, double x)
     {
-        double lami = Kallen(s, 0., _mT2);
-        double lamf = Kallen(s, _mX2, minimum_M2());
+        double lami = kallen(s, 0., _mT2);
+        double lamf = kallen(s, _mX2, minimum_M2());
         double num = _mT2 * _mX2 + _mT2 * s + _mX2 * s - s*s - 2*s*t + sqrt(lami*lamf)*x;
         return num / (_mT2 - s);
     };

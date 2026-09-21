@@ -469,12 +469,12 @@ namespace jpacPhoto
     };
 
     // ---------------------------------------------------------------------------
-    // Kallen Triangle function
+    // kallen Triangle function
 
     // If any of them are complex, return complex
-    complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, XR*a, XR*b); };
-    complex Kallen(double a, complex z, double b) { return Kallen<complex>(XR*a, z, XR*b); };
-    complex Kallen(double a, double b, complex z) { return Kallen<complex>(XR*a, XR*b, z); };
+    complex kallen(complex z, double a, double b) { return kallen<complex>(z, XR*a, XR*b); };
+    complex kallen(double a, complex z, double b) { return kallen<complex>(XR*a, z, XR*b); };
+    complex kallen(double a, double b, complex z) { return kallen<complex>(XR*a, XR*b, z); };
 
     // Kinematic function for 2->2 scattering (see eq. 5.23 in Byckling & Kajantie)
     double G(double x, double y, double z, double u, double v, double w)

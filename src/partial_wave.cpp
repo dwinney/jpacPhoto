@@ -22,28 +22,9 @@ namespace jpacPhoto
         return wa + wb;
     };
 
-    amplitude helicity_project(int J, amplitude to_project, std::string id)
+    amplitude project(int J, amplitude to_project)
     {
-        if (to_project->native_helicity_frame() != helicity_frame::S_CHANNEL)
-        {
-            return error("project - Amplitude " + to_project->id() + " not an s-channel helicity amplitude!", 
-                         nullptr);
-        }
-
-        amplitude amp_ptr = std::make_shared<raw_partial_wave>(key(), J, to_project, true, id);
-        return amp_ptr;
-    };
-
-    
-    amplitude project(int J, amplitude to_project, std::string id)
-    {
-        if (to_project->native_helicity_frame() != helicity_frame::HELICITY_INDEPENDENT)
-        {
-            return error("project - Amplitude " + to_project->id() + " has helicity dependence, dont know how to handle yet!", 
-                         nullptr);
-        }
-
-        amplitude amp_ptr = std::make_shared<raw_partial_wave>(key(), J, to_project, false, id);
+        amplitude amp_ptr = std::make_shared<raw_partial_wave>(key(), J, to_project);
         return amp_ptr;
     };
 
@@ -57,19 +38,24 @@ namespace jpacPhoto
         // s-channel scattering angle
         double theta = _kinematics->theta_s(s, t);
 
-        if (_halfinteger)
+        switch (_amplitude->native_helicity_frame())
         {
-            // Net helicities
-            int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
-            int lamp = 2 * helicities[2] - helicities[3]; // Meson  - Recoil
-            
-            return (_J + 1) * wigner_d_half(_J, lam, lamp, theta) * partial_wave(helicities, s);
-        }
-        else
-        {
-            return (2*_J+1) * legendre(_J, cos(theta)) * partial_wave(helicities, s);
-        }
+            case helicity_frame::S_CHANNEL: 
+            {
+                // Net helicities
+                int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
+                int lamp = 2 * helicities[2] - helicities[3]; // Meson  - Recoil
+                
+                return (_J + 1) * wigner_d_half(_J, lam, lamp, theta) * partial_wave(helicities, s);
+            }
+            case helicity_frame::HELICITY_INDEPENDENT:
+            {
+                return (2*_J+1) * legendre(_J, cos(theta)) * partial_wave(s);
+            };
+            default: return NaN<complex>();
+        };
     };
+
 
     // Evaluate the partial-wave projection integral numerically and return only the s-dependent piece
     complex raw_partial_wave::partial_wave(std::array<int,4> helicities, double s)
@@ -78,23 +64,29 @@ namespace jpacPhoto
         int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
         int lamp = 2 * helicities[2] - helicities[3]; // Meson  - Recoil
 
-        if (_halfinteger)
+        if (_amplitude->native_helicity_frame() == helicity_frame::S_CHANNEL)
         {
             if ( std::abs(lam) > _J || std::abs(lamp) > _J ) return 0; 
-        }
-        else
-        {
-            if (helicities != _kinematics->helicities(0)) return 0;
-        }
+            // if it is calculate the PWA integral
+            auto F = [&](double theta)
+            {
+                std::complex<double> integrand;
+                integrand  = sin(theta);
+                integrand *= wigner_d_half(_J, lam, lamp, theta);
+                integrand *= _amplitude->helicity_amplitude(helicities, s, _kinematics->t_man(s, theta));
+                return integrand/2;
+            };
+    
+            return boost::math::quadrature::gauss_kronrod<double, 15>::integrate(F, 0., PI, 0., 1.E-6, NULL);
+       }
 
         // if it is calculate the PWA integral
         auto F = [&](double theta)
         {
-            double t = _kinematics->t_man(s, theta);
             std::complex<double> integrand;
             integrand  = sin(theta);
-            integrand *= (_halfinteger) ? wigner_d_half(_J, lam, lamp, theta) : sqrt(2)*legendre(_J, cos(theta));
-            integrand *= _amplitude->helicity_amplitude(helicities, s, t);
+            integrand *= legendre(_J, theta);
+            integrand *= _amplitude->helicity_amplitude(helicities, s, _kinematics->t_man(s, theta));
             return integrand/2;
         };
 

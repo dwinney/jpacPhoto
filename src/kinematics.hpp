@@ -235,7 +235,7 @@ namespace jpacPhoto
         double bH_to_GJ_angle(double s, double t);
 
         // Lorentz invariant kibble polynomial
-        inline double Kibble(double s, double t){ return - G(s, t, _mR*_mR, _mB*_mB, _mT*_mT, _mX*_mX); };
+        inline double kibble(double s, double t){ return - G(s, t, _mR*_mR, _mB*_mB, _mT*_mT, _mX*_mX); };
 
         // -----------------------------------------------------------------------
         private:

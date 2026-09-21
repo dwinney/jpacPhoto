@@ -159,12 +159,12 @@ namespace jpacPhoto
 
     double raw_kinematics::initial_momentum(double s)
     {
-        return sqrt(Kallen(s, _mB2, _mT2)) / sqrt(4.*s);
+        return sqrt(kallen(s, _mB2, _mT2)) / sqrt(4.*s);
     };
 
     double raw_kinematics::final_momentum(double s)
     {
-        return sqrt(Kallen(s, _mR2, _mX2)) / sqrt(4.*s);
+        return sqrt(kallen(s, _mR2, _mX2)) / sqrt(4.*s);
     };
 
     // ------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ namespace jpacPhoto
 
         double result;
         result  = t * (s - u) + (_mB2 - _mX2) * (_mT2 - _mR2);
-        result /=  sqrt(Kallen(t, _mX2, _mB2) * Kallen(t, _mT2, _mR2));
+        result /=  sqrt(kallen(t, _mX2, _mB2) * kallen(t, _mT2, _mR2));
 
         return result;
     };
@@ -250,7 +250,7 @@ namespace jpacPhoto
 
         double result;
         result  = u * (t - s) + (_mB2 - _mR2) * (_mT2 - _mX2);
-        result /=  sqrt(Kallen(u, _mR2, _mB2) * Kallen(u, _mT2, _mX2));
+        result /=  sqrt(kallen(u, _mR2, _mB2) * kallen(u, _mT2, _mX2));
 
         return result;
     };
@@ -260,12 +260,12 @@ namespace jpacPhoto
     
     complex raw_kinematics::initial_momentum_tframe(double t)
     {
-        return csqrt(Kallen(t, _mB2, _mX2)/(4.*t) );
+        return csqrt(kallen(t, _mB2, _mX2)/(4.*t) );
     };
 
     complex raw_kinematics::final_momentum_tframe(double t)
     {
-        return csqrt( Kallen(t, _mR2, _mT2)/(4.*t) );
+        return csqrt( kallen(t, _mR2, _mT2)/(4.*t) );
     };
 
     // ------------------------------------------------------------------------------
@@ -349,14 +349,14 @@ namespace jpacPhoto
     // Wigner rotation angle connecting helicity and gottfried-jackson frames 
     double raw_kinematics::mH_to_GJ_angle(double s, double t)
     {
-        double cosAlpha = ((s - _mR2 + _mX2)*(t + _mX2 - _mB2) - 2*_mX2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( Kallen(s, _mR2, _mX2) * Kallen(t, _mX2, _mB2) );
+        double cosAlpha = ((s - _mR2 + _mX2)*(t + _mX2 - _mB2) - 2*_mX2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( kallen(s, _mR2, _mX2) * kallen(t, _mX2, _mB2) );
         return TMath::ACos( cosAlpha );
     };
 
     // Wigner rotation angle connecting helicity and gottfried-jackson frames 
     double raw_kinematics::bH_to_GJ_angle(double s, double t)
     {
-        double cosAlpha = ((s + _mR2 - _mX2)*(t + _mR2 - _mT2) + 2*_mR2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( Kallen(s, _mR2, _mX2) * Kallen(t, _mT2, _mR2) );
+        double cosAlpha = ((s + _mR2 - _mX2)*(t + _mR2 - _mT2) + 2*_mR2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( kallen(s, _mR2, _mX2) * kallen(t, _mT2, _mR2) );
         return TMath::ACos( cosAlpha );
     };
 };

@@ -1,4 +1,4 @@
-// Amplitude defining production via a spin-1 exchange in the t-channel
+// Amplitude for production via a spin-1 exchange in the t-channel
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2023)
@@ -7,8 +7,8 @@
 // Email:        dwinney@iu.alumni.edu
 // ------------------------------------------------------------------------------
 
-#ifndef ANALYTIC_VECTOR_EXCHANGE_HPP
-#define ANALYTIC_VECTOR_EXCHANGE_HPP
+#ifndef COVARIANT_VECTOR_EXCHANGE_HPP
+#define COVARIANT_VECTOR_EXCHANGE_HPP
 
 #include "constants.hpp"
 #include "kinematics.hpp"
@@ -17,7 +17,7 @@
 
 namespace jpacPhoto
 {
-    namespace analytic
+    namespace covariant
     {
         class vector_exchange : public raw_amplitude
         {
@@ -37,55 +37,34 @@ namespace jpacPhoto
             {
                 // Save inputs
                 store(helicities, s, t);
+                _covariants->update(helicities, s, t);
 
-                // t-channel kinematic quantities
-                _qi = _kinematics->initial_momentum_tframe(_t);
-                _qf = _kinematics->final_momentum_tframe(_t);
-                _zt = _kinematics->z_t(_s, _theta);
-
-                // Net helicities
-                _lam  =  _lamB - _lamX;
-                _lamp = (_lamT - _lamR) / 2;
-                
-                // Double flip is forbidden
-                if (std::abs(_lam) == 2) return 0;
-              
-                complex result = top_coupling() * propagator() * bottom_coupling();
+                complex result = contract(top_coupling(), propagator(), bottom_coupling());
                 if (_option == kNoFF) return result;
 
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == kExpFF && !_useT) ? _FF(_t - _kinematics->t_min(s))
-                                                           : _FF(_t);
+                complex FF = (_option == kExpFF) ? _FF(_t - _kinematics->t_min(s))
+                                                 : _FF(_t);
 
                 // Multiply couplings with propagator
                 return FF * result;
             };
 
-            // Explicitly require t-channel helicities
-            inline helicity_frame native_helicity_frame(){ return T_CHANNEL; };
+            // Explicitly require s-channel helicities
+            inline helicity_frame native_helicity_frame(){ return S_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
-            inline std::vector<quantum_numbers> allowed_mesons()
-            {
-                return { PSEUDOSCALAR, VECTOR, AXIALVECTOR };
-            };
+            inline std::vector<quantum_numbers> allowed_mesons(){  return { SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR }; };
 
-            // But only either parity spin-1/2
-            inline std::vector<quantum_numbers> allowed_baryons()
-            {
-                return { HALFPLUS };
-            };
-
+            // And protons on the bottom vertex
+            inline std::vector<quantum_numbers> allowed_baryons(){ return { HALFPLUS }; };
 
             // The options here are the type of form_factor used
-            static const int kExpFF       = 0;
-            static const int kMonopoleFF  = 1;
-            static const int kNoFF        = 2;
-            static const int kUseT        = 3;
-            static const int kUseTprime   = 4;
-            static const int kAddTopFF    = 5;
-            static const int kRemoveTopFF = 6;
+            // Default assumed exponential
+            static const int kExpFF      = 0;
+            static const int kMonopoleFF = 1;
+            static const int kNoFF       = 2;
             inline void set_option( int opt )
             {
                 switch (opt)
@@ -109,15 +88,7 @@ namespace jpacPhoto
                         set_N_pars(4);
                         return;
                     }
-                    case (kUseT):        { _useT  = true;  return; }
-                    case (kUseTprime):   { _useT  = false; return; }
-                    case (kAddTopFF):    { _topFF = true;  return; }
-                    case (kRemoveTopFF): { _topFF = false; return; }
-                    default: 
-                    {
-                        option_error();
-                        return;
-                    };
+                    default: { option_error(); return; };
                 };
             };
 
@@ -125,7 +96,7 @@ namespace jpacPhoto
             inline std::vector<std::string> parameter_labels()
             {
                 std::vector<std::string> labels = { "exchange_mass", "gPhoton", "gN_Vector", "gN_Tensor"};
-                if (_option != kNoFF)    labels.push_back("Cutoff");
+                if (_option != kNoFF)     labels.push_back("Cutoff");
                 return labels;
             };
             
@@ -150,72 +121,77 @@ namespace jpacPhoto
             };
 
             // Exchange mass
-            double _mEx, _zt;
+            double _mEx;
 
             // Free parameters: two couplings and a form-factor cutoff
             double _gTop = 0, _gBotV = 0, _gBotT = 0, _ffCutoff = 0;
 
-            // Net helicities
-            int _lam = 0, _lamp = 0, _M = 0;
-
-            // Initial & final momentum in the t-channel frame
-            complex _qi = 0, _qf = 0;
-
             // We include a t-channel form-factor for the propagator
             // By default this is the exponential one
             std::function<complex(double)> _FF;
-            bool _useT = false;
-
-            // Whether we include additional formfactor in the top vertex
-            bool _topFF = false;
 
             // Top coupling refers to the beam-exchange-meson interaction
-            inline complex top_coupling()
+            inline lorentz_tensor<complex,1> top_coupling()
             {
+                // Beam
+                auto q     = _covariants->q();
+                auto eps   = _covariants->eps();
+                
+                // Outgoing meson
+                auto q_p   = _covariants->q_prime();
+                auto eps_p = _covariants->eps_prime();
+
                 // Coupling function depends on
                 // the quantum numbers of the produced meson
-       
-                complex result = 0;
+                lorentz_tensor<complex,1> T;
                 switch ( _kinematics->get_meson() )
                 {
-                    case (AXIALVECTOR):  result = (abs(_lam) == 0) ? 1 : csqrt(_t) / _mX; break;
-                    
-                    case (VECTOR):       result = (abs(_lam) == 0) ? 1 + (1-abs(_lamB)*_mB/_mX) : (- csqrt(_t)/_mX); break;
+                    case (AXIALVECTOR):
+                    {
+                        T = levi_civita(q, eps, eps_p); 
+                        break;
+                    };
 
-                    case (PSEUDOSCALAR): result = (_kinematics->is_photon()) ? -4*csqrt(_t) : csqrt(_t); break;
-
-                    default: break;
+                    default: return NaN<lorentz_tensor<complex,1>>();
                 };
-
-                // Form factor
-                double FF = (_topFF) ? _mX*_mX/(_mX*_mX - _t) : 1.;
-
-                return _gTop*_qi*FF*result;
+                
+                return _gTop * T;
             };
 
             // Bottom coupling refers to the target-exchange-recoil interation
-            inline complex bottom_coupling()
+            inline lorentz_tensor<complex,1> bottom_coupling()
             {
+                auto u     = _covariants->u();    // Target spinor
+                auto ubar  = _covariants->ubar(); // Recoil spinor
+                auto k     = _covariants->k_t();  // t-channel exchange momentum
+
                 // This is also dependent on baryon quantum numbers
                 // We have two pieces for the vector and tensor currents
-                complex vector = 0, tensor = 0;
+                lorentz_tensor<complex,1> vector, tensor;
                 switch ( _kinematics->get_baryon() )
                 {
                     case (HALFPLUS):
                     {
-                        vector = (abs(_lamp) == 0) ? _mT + _mR    : csqrt(2*_t);
-                        tensor = (abs(_lamp) == 0) ? _t/(_mT+_mR) : csqrt(2*_t);
-                    };
-                    default: break;
-                };
+                        auto vector_current =  gamma_vector();
+                        auto tensor_current = (gamma_vector()*slash(k) - slash(k)* gamma_vector())/2;
 
-                return _lamT*(_gBotV * vector + _gBotT * tensor)*csqrt(1 - pow(_mT-_mR,2)/_t);
+                        vector = bilinear(ubar, vector_current, u); 
+                        tensor = bilinear(ubar, tensor_current, u);
+                        break;
+                    }
+                    
+                    default: return NaN<lorentz_tensor<complex,1>>();
+                };  
+
+                return is_zero(_gBotT) ? _gBotV*vector : _gBotV*vector - (_gBotT/(_mT+_mR))*tensor; 
             };
 
             // Spin-1 propagator in the t-channel
-            inline complex propagator()
+            inline lorentz_tensor<complex,2> propagator()
             {
-                return - I * wigner_d_int_cos(1, _lam, _lamp, _zt) / (_t - _mEx*_mEx);
+                auto k = _covariants->k_t();
+                auto projector = metric_tensor() - tensor_product(k, k)/_t;
+                return  -I*projector/(_t - std::norm(_mEx));
             };
             
         };

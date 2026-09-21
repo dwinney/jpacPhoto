@@ -31,11 +31,10 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // Methods to make partial_Waves from existing amplitudes
 
-    // "Constructor" function which projects an existing amplitude onto legendre polynomial
-    amplitude project(int J, amplitude to_project, std::string id = "");
-
-    // "Constructor" function which projects onto d-functions
-    amplitude helicity_project(int J, amplitude to_project, std::string id = "");
+    // "Constructor" function which projects an existing amplitude onto la partial wave
+    // We will automatically read the native_helicity_frame to determine whether 
+    // J should be interpreted as a whole integer or 2*half-integer
+    amplitude project(uint J, amplitude to_project);
 
     // ---------------------------------------------------------------------------
     // Raw_amplitude class
@@ -45,18 +44,20 @@ namespace jpacPhoto
         public:
 
         // This constructor should be used for any user defined derived classes
-        raw_partial_wave(key key, kinematics xkinem, int J, std::string id)
-        : raw_amplitude(key, xkinem, id), 
-          _J(J)
-        {};
-
-        // This constructor is specifically for use with the project() function
-        raw_partial_wave(key key, int J, amplitude to_project, bool if_halfint, std::string id)
-        : raw_amplitude(key, to_project->get_kinematics(), id), 
-          _J(J), _halfinteger(if_halfint), _amplitude(to_project)
+        raw_partial_wave(key key, int J, kinematics xkinem)
+        : raw_amplitude(key, xkinem, "partial_wave"), _J(J)
         {
             set_N_pars(0);
         };
+
+        // This constructor should be used for any user defined derived classes
+        raw_partial_wave(key key, uint J, amplitude to_project)
+        : raw_amplitude(key, to_project->get_kinematics(), "partial_wave"), 
+          _J(J)
+        {
+            set_N_pars(0);
+        };
+
 
         // These are always assumed to be s-channel helicities so this is fixed
         helicity_frame native_helicity_frame()
@@ -74,7 +75,7 @@ namespace jpacPhoto
         // By default we calculate the partial-wave projection integral numerically from 
         // the saved amplitude 
         virtual complex partial_wave(std::array<int,4> helicities, double s);
-        virtual complex partial_wave(double s){ return partial_wave( {_lamB, _lamT, _lamX, _lamR}, _s); };
+        virtual complex partial_wave(double s){ return partial_wave( _amplitude->get_kinematics()->helicities(0), _s); };
 
         
         // Output the J quantum number
@@ -98,7 +99,6 @@ namespace jpacPhoto
         // This may either be the whole-spin orbital angular momentum L
         // or half-integer total spin J
         int _J    = 0;
-        bool _halfinteger = false;
     };
 };
 
