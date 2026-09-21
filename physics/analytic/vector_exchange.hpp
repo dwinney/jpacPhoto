@@ -209,7 +209,7 @@ namespace jpacPhoto
                     default: break;
                 };
 
-                return _lamT*(_gBotV * vector + _gBotT * tensor)*csqrt(1 - pow(_mT-_mR,2)/_t);
+                return (_gBotV * vector + _gBotT * tensor)*csqrt(1 - pow(_mT-_mR,2)/_t);
             };
 
             // Spin-1 propagator in the t-channel

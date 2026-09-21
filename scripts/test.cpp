@@ -17,9 +17,8 @@
 #include "plotter.hpp"
 #include "crossing.hpp"
 
-#include "analytic/pseudoscalar_exchange.hpp"
-#include "covariant/pseudoscalar_exchange.hpp"
-#include "regge/pseudoscalar_exchange.hpp"
+#include "covariant/vector_exchange.hpp"
+#include "analytic/vector_exchange.hpp"
 
 void test()
 {
@@ -29,36 +28,44 @@ void test()
     // Couplings and constants
     // ---------------------------------------------------------------------------
 
-    // Bottom vertex coupling (pi - nucleon - nucleon)
-    double g_piNN = sqrt(2) * sqrt(4*PI*13.81); 
-
-    // Cutoff for exponential form factor
-    double lambda_pi = .900;  // MeV 
-
-    // Zc(3900) couplings 
-    double gc_jpsi  = 1.91; // psi coupling before VMD scaling
-    double gc_gamma = E * F_JPSI * gc_jpsi / M_JPSI;
+    // Nucleon couplings 
+    double gV_omega = 16.,    gT_omega = 0.;
+    double gV_rho   = 2.4,    gT_rho   = 14.6;
+    double gV_phi   = -6.2,   gT_phi   = 2.1;
+    double gV_psi   = 1.6E-3, gT_psi   = 0.;
+    
+    // Photon couplings
+    double gChi_omega   = 5.2E-4;
+    double gChi_rho     = 9.2E-4;
+    double gChi_phi     = 4.2E-4;
+    double gChi_psi     = 1.;
+    double gX_omega     = 8.2E-3;
+    double gX_rho       = 3.6E-3;
+    
+    // Form factor cutoffs
+    double LamOmega = 1.2;
+    double LamRho   = 1.4; 
 
     // ---------------------------------------------------------------------------
     // Kinematics
     // ---------------------------------------------------------------------------
 
-    kinematics kZc  = new_kinematics(M_ZC3900);
-    kZc->set_meson_JP(AXIALVECTOR);
+    kinematics kin  = new_kinematics(M_ZC3900);
+    kin->set_meson_JP(AXIALVECTOR);
 
     // ---------------------------------------------------------------------------
 
-    amplitude   x = new_amplitude<covariant::pseudoscalar_exchange>(kZc);
-    x->set_parameters({M_PION, gc_gamma, g_piNN, lambda_pi});
+    amplitude x = new_amplitude<covariant::vector_exchange>(kin);
+    x->set_parameters({M_OMEGA, gChi_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude   y = new_amplitude<analytic::pseudoscalar_exchange>(kZc);
-    y->set_parameters({M_PION, gc_gamma, g_piNN, lambda_pi});
+    amplitude y = new_amplitude<analytic::vector_exchange>(kin);
+    y->set_parameters({M_OMEGA, gChi_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude   z = cross_to<helicity_frame::T_CHANNEL>(x);
+    amplitude   z = cross_to<helicity_frame::S_CHANNEL>(y);
 
     double s = 36, t = -0.5;  
-    auto hels = kZc->helicities();
-    auto xamps = y->get_cache(s,t);
+    auto hels = kin->helicities();
+    auto xamps = x->get_cache(s,t);
     auto zamps = z->get_cache(s,t);
     for (int i = 0; i < 12; i++)
     {
