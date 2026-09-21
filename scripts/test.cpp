@@ -48,21 +48,17 @@ void test()
 
     // ---------------------------------------------------------------------------
 
-    // Covariant amplitudes always defined in the s-channel
-    amplitude  x  = new_amplitude<covariant::pseudoscalar_exchange>(kin);
-    // Analytic expressions usually defined in the t-channel
-    amplitude  y  = new_amplitude<analytic::pseudoscalar_exchange>(kin);
+    amplitude   x = new_amplitude<covariant::pseudoscalar_exchange>(kZc);
+    x->set_parameters({M_PION, gc_gamma, g_piNN, lambda_pi});
 
-    // We want to sum these so we can do:
-    amplitude z = x + y; // but this will produce an error because helicities in different channels
-    amplitude z = x + cross_to<helicity_frame::S_CHANNEL>(y); // Both defined in the s-channel
-    amplitude z = cross_to<helicity_frame::T_CHANNEL>(x) + y; // Both defined in the t-channel
+    amplitude   y = new_amplitude<analytic::pseudoscalar_exchange>(kZc);
+    y->set_parameters({M_PION, gc_gamma, g_piNN, lambda_pi});
 
-
+    amplitude   z = cross_to<helicity_frame::T_CHANNEL>(x);
 
     double s = 36, t = -0.5;  
     auto hels = kZc->helicities();
-    auto xamps = x->get_cache(s,t);
+    auto xamps = y->get_cache(s,t);
     auto zamps = z->get_cache(s,t);
     for (int i = 0; i < 12; i++)
     {
