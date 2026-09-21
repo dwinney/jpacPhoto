@@ -50,7 +50,8 @@ namespace jpacPhoto
     double wigner_d_int(int j, int lam1, int lam2, double theta);
 
     // Wigner d-function for integer spin in terms of the cosine of theta not theta
-    complex wigner_d_int_cos(int j, int lam1, int lam2, double cos);
+    complex wigner_d_int_cos( int j, int lam1, int lam2, complex cos);
+    complex wigner_d_half_cos(int j, int lam1, int lam2, complex cos);
 
     // Legendre function in terms of cosine theta
     double legendre(int l, double z);
@@ -80,19 +81,19 @@ namespace jpacPhoto
     double s_cm(double egam);
 
     // ---------------------------------------------------------------------------
-    // Kallen Triangle function
+    // kallen Triangle function
 
-    // Only way to get a double or int Kallen is if all inputs are double/int
+    // Only way to get a double or int kallen is if all inputs are double/int
     template<typename T>
-    inline T Kallen(T x, T y, T z)
+    inline T kallen(T x, T y, T z)
     {
         return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
     };
 
     // If any of them are complex, return complex
-    complex Kallen(complex z, double a, double b);
-    complex Kallen(double a, complex z, double b);
-    complex Kallen(double a, double b, complex z);
+    complex kallen(complex z, double a, double b);
+    complex kallen(double a, complex z, double b);
+    complex kallen(double a, double b, complex z);
 
     // Kinematic function for 2->2 scattering (see eq. 5.23 in Byckling & Kajantie)
     double G(double x, double y, double z, double u, double v, double w);

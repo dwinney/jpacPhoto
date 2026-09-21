@@ -46,7 +46,7 @@ namespace jpacPhoto
     // Things related to helicities
 
     // Each amplitude needs to be able to tell which frame its helicities are defined in
-    enum helicity_frame{ HELICITY_ERROR, HELICITY_INDEPENDENT, S_CHANNEL, T_CHANNEL, U_CHANNEL };
+    enum helicity_frame : uint { HELICITY_ERROR, HELICITY_INDEPENDENT, S_CHANNEL, T_CHANNEL, U_CHANNEL };
 
     // Output a string of a given helicity set in format e.g. {+,+,+,+}
     std::string print_helicities(std::array<int,4> lam);
@@ -60,7 +60,7 @@ namespace jpacPhoto
     // ------------------------------------------------------------------------------
     // Quantum number combinations
 
-    enum quantum_numbers { PARTICLE_ERROR, ANY, 
+    enum quantum_numbers : uint { PARTICLE_ERROR, ANY, 
                            SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR, TENSOR, AXIALTENSOR,
                            HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
 

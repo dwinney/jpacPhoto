@@ -144,7 +144,7 @@ namespace jpacPhoto
             _cached_helicity_amplitudes.clear();
 
             // Total number of amplitudes
-            int n = (native_helicity_frame() == HELICITY_INDEPENDENT) ? 1 : _kinematics->N_amps();
+            int n = (native_helicity_frame() == helicity_frame::HELICITY_INDEPENDENT) ? 1 : _kinematics->N_amps();
 
             if (n == 1)
             {
@@ -249,7 +249,7 @@ namespace jpacPhoto
         double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
-        if (native_helicity_frame() !=  HELICITY_INDEPENDENT) norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
+        if (native_helicity_frame() !=  helicity_frame::HELICITY_INDEPENDENT) norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
 
         return sum / norm * HBARC;
     };
@@ -285,7 +285,7 @@ namespace jpacPhoto
         double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.) * (2.56819E-6); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
-        if (native_helicity_frame() !=  HELICITY_INDEPENDENT) { norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon()); }
+        if (native_helicity_frame() !=  helicity_frame::HELICITY_INDEPENDENT) { norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon()); }
 
         return sum / norm;
     };
@@ -419,9 +419,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->bH_to_GJ_angle(s, t));
-            case U_CHANNEL: return error("bSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->bH_to_GJ_angle(s, t));
+            case helicity_frame::U_CHANNEL: return error("bSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
         };
 
         return std::nan("");
@@ -432,9 +432,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->bH_to_GJ_angle(s, t));
-            case T_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: return error("bSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->bH_to_GJ_angle(s, t));
+            case helicity_frame::T_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::U_CHANNEL: return error("bSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
 
@@ -518,9 +518,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->mH_to_GJ_angle(s, t));
-            case U_CHANNEL: return error("mSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->mH_to_GJ_angle(s, t));
+            case helicity_frame::U_CHANNEL: return error("mSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
         return std::nan("");
@@ -531,9 +531,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->mH_to_GJ_angle(s, t));
-            case T_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: return error("mSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->mH_to_GJ_angle(s, t));
+            case helicity_frame::T_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::U_CHANNEL: return error("mSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
         return std::nan("");

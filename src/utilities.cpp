@@ -110,7 +110,7 @@ namespace jpacPhoto
             case 5: return z*(63.*z*z*z*z - 70.*z*z + 15.)/8.;
             default:
             {
-                error("legendre - L value " + std::to_string(l) + " not available! Returning 0.", 0.);
+                error("legendre - L value " + std::to_string(l) + " not available! Returning 0.", NaN<double>());
             }
         };
 
@@ -146,7 +146,13 @@ namespace jpacPhoto
         double phase = 1.;
         if ( j % 2 == 0 || (lam1 + lam2) % 2 != 0 )
         {
-            error("wigner_d_half - Invalid arguments passed! Returning 0.", 0);
+            error("wigner_d_half - Invalid arguments passed! Returning 0.", NaN<double>());
+        };
+
+        if (theta < 0)
+        {
+            phase *= pow(-1., double(lam1 - lam2)/2.);
+            theta *= -1.;
         };
 
         // If first lam argument is smaller, switch them
@@ -155,8 +161,7 @@ namespace jpacPhoto
             int temp = lam1;
             lam1 = lam2;
             lam2 = temp;
-
-            phase *= pow(-1., double((lam1 - lam2)/ 2));
+            phase *= pow(-1., double((lam1 - lam2)/2.));
         };
 
         // If first lam is negative, switch them
@@ -164,8 +169,7 @@ namespace jpacPhoto
         {
             lam1 *= -1;
             lam2 *= -1;
-
-            phase *= pow(-1., double((lam1 - lam2)/ 2));
+            phase *= pow(-1., double((lam1 - lam2)/2.));
         }
 
         double result = 0.;
@@ -271,7 +275,7 @@ namespace jpacPhoto
                 break;
             }
 
-            default: return 0.;
+            default: return NaN<double>();
         };
 
         return phase * result;
@@ -281,13 +285,19 @@ namespace jpacPhoto
     {
 
         double phase = 1.;
+
+        if (theta < 0)
+        {
+            phase *= pow(-1., double(lam1 - lam2));
+            theta *= -1.;
+        };
+
         // If first lam argument is smaller, switch them
         if (std::abs(lam1) < std::abs(lam2))
         {
             int temp = lam1;
             lam1 = lam2;
             lam2 = temp;
-
             phase *= pow(-1., double(lam1 - lam2));
         };
 
@@ -296,13 +306,11 @@ namespace jpacPhoto
         {
             lam1 *= -1;
             lam2 *= -1;
-
             phase *= pow(-1., double(lam1 - lam2));
         }
 
         // Output
         double result = 0.;
-
         int id = ((lam2 >= 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + std::abs(lam2)); // negative sign refers to negative lam2
         switch (id)
         {   
@@ -334,13 +342,12 @@ namespace jpacPhoto
         return phase * result;
     };
 
-    complex wigner_d_int_cos(int j, int lam1, int lam2, double cosine)
+    // Wigner functions butn ow in terms of the costheta, this allows 
+    // an analytic continuation to complex angular polynomials
+    complex wigner_d_int_cos(int j, int lam1, int lam2, complex cosine)
     {
         // Careful because this loses the +- phase of the sintheta. 
         complex sine = sqrt(XR - cosine * cosine);
-
-        complex sinhalf =  sqrt((XR - cosine) / 2.);
-        complex coshalf =  sqrt((XR + cosine) / 2.);
 
         double phase = 1.;
         // If first lam argument is smaller, switch them
@@ -387,10 +394,148 @@ namespace jpacPhoto
                 result = cosine;
                 break;
             }
-
-            default: return 0.;
+            default: return NaN<complex>();
         }
 
+        return phase * result;
+    };
+
+     complex wigner_d_half_cos(int j, int lam1, int lam2, complex cosine)
+    {
+        // Careful because this loses the +- phase of the sintheta. 
+        complex sine = sqrt(XR - cosine * cosine);
+
+        // Also need the half-angle factors
+        complex sinhalf =  sqrt((XR - cosine) / 2.);
+        complex coshalf =  sqrt((XR + cosine) / 2.);
+
+        double phase = 1.;
+        if ( j % 2 == 0 || (lam1 + lam2) % 2 != 0 )
+        {
+            error("wigner_d_half - Invalid arguments passed! Returning 0.", NaN<complex>());
+        };
+
+        // If first lam argument is smaller, switch them
+        if (std::abs(lam1) < std::abs(lam2))
+        {
+            int temp = lam1;
+            lam1 = lam2;
+            lam2 = temp;
+            phase *= pow(-1., double((lam1 - lam2)/2.));
+        };
+
+        // If first lam is negative, switch them
+        if (lam1 < 0)
+        {
+            lam1 *= -1;
+            lam2 *= -1;
+            phase *= pow(-1., double((lam1 - lam2)/2.));
+        }
+
+        
+        int id = ((lam2 > 0) - (lam2 < 0)) * (j * 100 + lam1 * 10 + std::abs(lam2)); // negative sign refers to negative lam2
+        complex result = 0.;
+        switch (id)
+        {
+            // spin 1/2 
+            case  111: 
+            {
+                result =  coshalf; 
+                break;
+            };
+            case -111: 
+            {
+                result = -sinhalf; 
+                break;
+            };
+
+            // spin 3/2
+            case  333:       
+            {
+                result = coshalf / 2.;
+                result *= (1. + cosine);
+                break;
+            }
+            case  331:
+            {
+                result = - sqrt(3.) / 2.;
+                result *= coshalf;
+                result *= 1. + cosine;
+                break;
+            }
+            case -331:
+            {
+                result = sqrt(3.) / 2.;
+                result *= coshalf;
+                result *= 1. - cosine;
+                break;
+            }
+            case -333:
+            {
+                result = - sinhalf / 2.;
+                result *= 1. - cosine;
+                break;
+            }
+            case  311:
+            {
+                result = 1. / 2.;
+                result *= coshalf;
+                result *= 3. * cosine - 1.;
+                break;
+            }
+            case -311:
+            {
+                result = -1. / 2.;
+                result *= sinhalf;
+                result *= 3. * cosine + 1.;
+                break;
+            }
+
+            // Spin- 5/2
+            case  533:
+            {
+                result = -1. / 4.;
+                result *= coshalf;
+                result *= (1. + cosine) * (3. - 5. * cosine);
+                break;
+            }
+            case  531:
+            {
+                result = sqrt(2.) / 4.;
+                result *= sinhalf;
+                result *= (1. + cosine) * (1. - 5. * cosine);
+                break;
+            }
+            case -531:
+            {
+                result =  sqrt(2.) / 4.;
+                result *= coshalf;
+                result *= (1. - cosine) * (1. + 5. * cosine);
+                break;
+            }
+            case -533:
+            {
+                result = -1. / 4.;
+                result *= sinhalf;
+                result *= (1. - cosine) * (3. + 5. * cosine);
+                break;
+            }
+            case  511:
+            {
+                result = -1. / 2.;
+                result *= coshalf;
+                result *= (1. + 2. * cosine - 5. * cosine*cosine);
+                break;
+            }
+            case -511:
+            {
+                result = 1. / 2.;
+                result *= sinhalf;
+                result *= (1. - 2. * cosine - 5. * cosine*cosine);
+                break;
+            }
+            default: return NaN<complex>();
+        };
         return phase * result;
     };
 

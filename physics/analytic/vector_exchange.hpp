@@ -63,7 +63,7 @@ namespace jpacPhoto
             };
 
             // Explicitly require t-channel helicities
-            inline helicity_frame native_helicity_frame(){ return T_CHANNEL; };
+            inline helicity_frame native_helicity_frame(){ return helicity_frame::T_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
             inline std::vector<quantum_numbers> allowed_mesons()
