@@ -47,8 +47,8 @@ namespace jpacPhoto
             if (!are_equal(_cached_s, s, _cache_tolerance) || !are_equal(_cached_t, t, _cache_tolerance))
             {
                 _cached_amps = _amplitude->get_cache(s, t);
-                _coswa = -cos_wigner_a(s,t); _coswb = -cos_wigner_b(s,t);
-                _coswc = -cos_wigner_c(s,t); _coswd = -cos_wigner_d(s,t);
+                _coswa = cos_wigner_a(s,t); _coswb = cos_wigner_b(s,t);
+                _coswc = cos_wigner_c(s,t); _coswd = cos_wigner_d(s,t);
             };
 
             // Relabel helicities
@@ -109,7 +109,7 @@ namespace jpacPhoto
             _mb2 = std::norm(_mB); // Beam
             _mc2 = std::norm(_mR); // Produced baryon
             _md2 = std::norm(_mX); // Produced meson
-            _delta = _ma2 -_mb2 - _mc2 + _md2;
+            _delta = _mb2 -_ma2 - _md2 + _mc2;
         };
 
         private:
@@ -125,7 +125,7 @@ namespace jpacPhoto
         {
             complex Pab = csqrt(kallen(_s, _ma2, _mb2));
             complex Tac = csqrt(kallen(_t, _ma2, _mc2));
-            complex num = +(_s+_ma2-_mb2)*(_t+_ma2-_mc2)-2*_ma2*_delta;
+            complex num = -(_s+_ma2-_mb2)*(_t+_ma2-_mc2)-2*_ma2*_delta;
             return num/Pab/Tac;
         };
 
@@ -133,7 +133,7 @@ namespace jpacPhoto
         {
             complex Pab = csqrt(kallen(_s, _ma2, _mb2));
             complex Tbd = csqrt(kallen(_t, _mb2, _md2));
-            complex num = -(_s+_mb2-_ma2)*(_t+_mb2-_md2)-2*_mb2*_delta;
+            complex num = +(_s+_mb2-_ma2)*(_t+_mb2-_md2)-2*_mb2*_delta;
             return num/Pab/Tbd;
         };
 
@@ -141,7 +141,7 @@ namespace jpacPhoto
         {
             complex Pcd = csqrt(kallen(_s, _mc2, _md2));
             complex Tac = csqrt(kallen(_t, _ma2, _mc2));
-            complex num = -(_s+_mc2-_md2)*(_t+_mc2-_ma2)-2*_mc2*_delta;
+            complex num = +(_s+_mc2-_md2)*(_t+_mc2-_ma2)-2*_mc2*_delta;
             return num/Pcd/Tac;
         };
 
@@ -149,7 +149,7 @@ namespace jpacPhoto
         {
             complex Pcd = csqrt(kallen(_s, _mc2, _md2));
             complex Tbd = csqrt(kallen(_t, _mb2, _md2));
-            complex num = +(_s+_md2-_mc2)*(_t+_md2-_mb2)-2*_md2*_delta;
+            complex num = -(_s+_md2-_mc2)*(_t+_md2-_mb2)-2*_md2*_delta;
             return num/Pcd/Tbd;
         };
 
