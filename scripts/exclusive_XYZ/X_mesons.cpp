@@ -99,20 +99,20 @@ void X_mesons()
 
     // chi_c1
     amplitude ChiC1_omegaH = new_amplitude<regge::vector_exchange>(kChiC1);
-    ChiC1_omegaH->set_parameters({gChi_omega, gV_omega, gT_omega, LamOmega, inter, slope});
+    ChiC1_omegaH->set_parameters({inter, slope, gChi_omega, gV_omega, gT_omega, LamOmega});
 
     amplitude ChiC1_rhoH = new_amplitude<regge::vector_exchange>(kChiC1);
-    ChiC1_rhoH->set_parameters({gChi_rho, gV_rho, gT_rho, LamRho, inter, slope});
+    ChiC1_rhoH->set_parameters({inter, slope, gChi_rho, gV_rho, gT_rho, LamRho});
 
     amplitude ChiC1_H = ChiC1_omegaH + ChiC1_rhoH;
     ChiC1_H->set_id("#chi_{c1}");
 
     // X(3872)
     amplitude X_omegaH = new_amplitude<regge::vector_exchange>(kX);
-    X_omegaH->set_parameters({gX_omega, gV_omega, gT_omega, LamOmega, inter, slope});
+    X_omegaH->set_parameters({inter, slope, gX_omega, gV_omega, gT_omega, LamOmega});
 
     amplitude X_rhoH = new_amplitude<regge::vector_exchange>(kX);
-    X_rhoH->set_parameters({gX_rho, gV_rho, gT_rho, LamRho, inter, slope});
+    X_rhoH->set_parameters({inter, slope, gX_rho, gV_rho, gT_rho, LamRho});
     
     // Total is the sum of the above exchanges
     amplitude X_H = X_omegaH + X_rhoH;

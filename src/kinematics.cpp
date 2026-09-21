@@ -27,11 +27,7 @@ namespace jpacPhoto
     std::string print_helicities(std::array<int,4> lam)
     {
         std::array<std::string,4> lams;
-        for (int i = 0; i < 4; i++)
-        {
-            std::string sign = std::to_string(lam[i]);
-            lams[i] = sign + std::to_string(std::abs(lam[i]));
-        };
+        for (int i = 0; i < 4; i++) lams[i] = std::to_string(lam[i]);
         return "[ " + lams[0] + ", " + lams[1] + ", " + lams[2] + ", " + lams[3] + "]";
     };
 
@@ -285,7 +281,7 @@ namespace jpacPhoto
         {
             case helicity_frame::S_CHANNEL :
             {
-                s_b =  1;            eta_b = +1;         // proton
+                s_b =  1;            eta_b = +1;        // proton
                 s_c =  2*_mjp[0];    eta_c = _mjp[1];   // produced meson
                 s_d =  _bjp[0];      eta_d = _bjp[1];   // recoil baryon
                 break;
@@ -293,14 +289,14 @@ namespace jpacPhoto
             case helicity_frame::T_CHANNEL :
             {
                 s_b =  2*_mjp[0];   eta_b = _mjp[1];    // produced meson
-                s_c =  1;           eta_c = +1;          // proton
+                s_c =  1;           eta_c = -1;         // anti-proton
                 s_d =  _bjp[0];     eta_d = _bjp[1];    // recoil baryon
                 break;
             }
             case helicity_frame::U_CHANNEL :
             {
-                s_b =  _bjp[0];      eta_b = _bjp[1];    // recoil baryon
-                s_c =  1;            eta_c = +1;          // proton
+                s_b =  _bjp[0];      eta_b = -_bjp[1];   // recoil anti-baryon
+                s_c =  1;            eta_c = -1;         // anti-proton
                 s_d =  2*_mjp[0];    eta_d = _mjp[1];    // produced meson
                 break;
             }

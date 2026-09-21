@@ -61,7 +61,7 @@ namespace jpacPhoto
             // Parameter names
             inline std::vector<std::string> parameter_labels()
             {
-                return { "gPhoton", "gN_Vector", "gN_Tensor", "Intercept", "Slope"};
+                return { "Intercept", "Slope", "gPhoton", "gN_Vector", "gN_Tensor"};
             };
 
             // -----------------------------------------------------------------------
@@ -78,12 +78,12 @@ namespace jpacPhoto
             // [5] trajectory slope
             inline void allocate_parameters(std::vector<double> x)
             {
-                _gTop     = x[0];
-                _gBotV    = x[1];
-                _gBotT    = x[2];
-                _ffCutoff = x[3];
-                _inter    = x[4];
-                _slope    = x[5];
+                _inter    = x[0];
+                _slope    = x[1];
+                _gTop     = x[2];
+                _gBotV    = x[3];
+                _gBotT    = x[4];
+                _ffCutoff = x[5];
                 return;
             };
 

@@ -347,7 +347,7 @@ namespace jpacPhoto
     complex wigner_d_int_cos(int j, int lam1, int lam2, complex cosine)
     {
         // Careful because this loses the +- phase of the sintheta. 
-        complex sine = sqrt(XR - cosine * cosine);
+        complex sine = csqrt(1. - cosine * cosine);
 
         double phase = 1.;
         // If first lam argument is smaller, switch them
@@ -356,7 +356,6 @@ namespace jpacPhoto
             int temp = lam1;
             lam1 = lam2;
             lam2 = temp;
-
             phase *= pow(-1., double(lam1 - lam2));
         };
 
@@ -365,7 +364,6 @@ namespace jpacPhoto
         {
             lam1 *= -1;
             lam2 *= -1;
-
             phase *= pow(-1., double(lam1 - lam2));
         }
 
@@ -403,16 +401,16 @@ namespace jpacPhoto
      complex wigner_d_half_cos(int j, int lam1, int lam2, complex cosine)
     {
         // Careful because this loses the +- phase of the sintheta. 
-        complex sine = sqrt(XR - cosine * cosine);
+        complex sine = csqrt(1 - cosine * cosine);
 
         // Also need the half-angle factors
-        complex sinhalf =  sqrt((XR - cosine) / 2.);
-        complex coshalf =  sqrt((XR + cosine) / 2.);
+        complex sinhalf =  csqrt((1. - cosine) / 2.);
+        complex coshalf =  csqrt((1. + cosine) / 2.);
 
         double phase = 1.;
         if ( j % 2 == 0 || (lam1 + lam2) % 2 != 0 )
         {
-            error("wigner_d_half - Invalid arguments passed! Returning 0.", NaN<complex>());
+            error("wigner_d_half - Invalid arguments passed!", NaN<complex>());
         };
 
         // If first lam argument is smaller, switch them
