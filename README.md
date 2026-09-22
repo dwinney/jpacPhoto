@@ -1,11 +1,3 @@
-<style>
-  summary {
-    font-size: large;
-    font-weight: bold;
-    text-decoration-line: underline;
-  }
-</style>
-
 #   jpacPhoto
 Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target. Focus on expandability and easy interfacing with other libraries / analysis code. 
 
@@ -50,7 +42,7 @@ find_library(JPACPHOTO NAMES JPACPHOTO libJPACPHOTO
 target_link_libraries( myTarget JPACPHOTO)
 ```
 <details>
-<summary>Working with Amplitudes</summary>
+<summary>### Working with Amplitudes</summary>
 
 The main object of interest in the core library is the abstract [`amplitude`](./src/amplitude.hpp) and derived implementations defined by the user for specific physics models. All amplitudes available so far may be found in [/physics](./physics) as well as a [template file](./physics/template.hpp) to guide adding new classes. Amplitudes are calculated on a per-helicity basis which allows one to compute an array of observables (units of GeV and nb assumed where appropriate):
 
@@ -105,7 +97,7 @@ pwave->integrated_xsection(s); // Only P-wave contribution of sum
 </details>
 
 <details>
-<summary>Working with Semi-Inclusive Distributions</summary>
+<summary>### Working with Semi-Inclusive Distributions</summary>
 
 Methods for semi-inclusive processes can be added via the [`semi_inclusive`](./src/semi_inclusive.hpp) class. These are used for example in [[3-4]](#references) to investigate inclusive XYZ production. 
 Because semi-inclusive models are implemented at the cross section level and lose explicit helicity dependence, only unpolarized observables are available (Units of GeV and nb assumed where appropriate):
@@ -135,7 +127,7 @@ Z_inc->integrated_xsection(s);
 </details>
 
 <details>
-<summary> Analysis workflow </summary>
+<summary> ### Analysis tools </summary>
 
 Tools to fit amplitudes to experimental data are available through the [`fitter`](./src/fitter.hpp) and [`plotter`](./src/plotter.hpp) classes. Data may be imported using the [`data_set`](./src/data_set.hpp) class as interface. Arbitrarily many data sets may be imported into a fitter where one must specify the minimazition function per data type. An end-to-end example used in [[5]](#references) may be found in the appropriate [scripts directory](./scripts/jpsi_p/fit.cpp).
 
