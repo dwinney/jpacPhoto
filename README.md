@@ -1,3 +1,11 @@
+<style>
+  summary {
+    font-size: large;
+    font-weight: bold;
+    text-decoration-line: underline;
+  }
+</style>
+
 #   jpacPhoto
 Framework for amplitude analysis involving single meson production via quasi-elastic scattering on a nucleon target. Focus on expandability and easy interfacing with other libraries / analysis code. 
 
@@ -41,8 +49,9 @@ find_library(JPACPHOTO NAMES JPACPHOTO libJPACPHOTO
                        HINTS "$ENV{JPACPHOTO}/lib")
 target_link_libraries( myTarget JPACPHOTO)
 ```
+<details>
+<summary>Working with Amplitudes</summary>
 
-###  AMPLITUDES
 The main object of interest in the core library is the abstract [`amplitude`](./src/amplitude.hpp) and derived implementations defined by the user for specific physics models. All amplitudes available so far may be found in [/physics](./physics) as well as a [template file](./physics/template.hpp) to guide adding new classes. Amplitudes are calculated on a per-helicity basis which allows one to compute an array of observables (units of GeV and nb assumed where appropriate):
 
 | Observable                           |                                                                | Callable `amplitude` function                                                                             
@@ -93,8 +102,11 @@ amp1->integrated_xsection(s);  // Individual term
 sum->integrated_xsection(s);   // Interfering sum
 pwave->integrated_xsection(s); // Only P-wave contribution of sum
 ```
+</details>
 
-### SEMI-INCLUSIVE DISTRIBUTIONS
+<details>
+<summary>Working with Semi-Inclusive Distributions</summary>
+
 Methods for semi-inclusive processes can be added via the [`semi_inclusive`](./src/semi_inclusive.hpp) class. These are used for example in [[3-4]](#references) to investigate inclusive XYZ production. 
 Because semi-inclusive models are implemented at the cross section level and lose explicit helicity dependence, only unpolarized observables are available (Units of GeV and nb assumed where appropriate):
 | Observable                                       |   | Callable `semi_inclusive` function |
@@ -120,7 +132,11 @@ Z_inc += Z_exc; // Add to the purely inclusive distribution
 // Get observables
 Z_inc->integrated_xsection(s);
 ```
-### ANALYSIS TOOLS
+</details>
+
+<details>
+<summary> Analysis workflow </summary>
+
 Tools to fit amplitudes to experimental data are available through the [`fitter`](./src/fitter.hpp) and [`plotter`](./src/plotter.hpp) classes. Data may be imported using the [`data_set`](./src/data_set.hpp) class as interface. Arbitrarily many data sets may be imported into a fitter where one must specify the minimazition function per data type. An end-to-end example used in [[5]](#references) may be found in the appropriate [scripts directory](./scripts/jpsi_p/fit.cpp).
 
 A schematic analysis may look like:
@@ -171,7 +187,9 @@ In addition to the built-in analysis tools, the aim of this project is to be usa
 
 To run these scripts with the `jpacPhoto` executable requires having AmpTools to be built and the `AMPTOOLS` environment variable set to the top level install directory. Since the cling interpreter can only load _dynamic_ libraries (which is not the default installation mode of AmpTools), the optional cmake flag `-DDYNAMIC_AMPTOOLS=TRUE` is provided to repackage an existic static library to one shared version. 
 
-###  REFERENCES
+</details>
+
+##  REFERENCES
 + [1] [Double Polarization Observables in Pentaquark Photoproduction](https://arxiv.org/abs/1907.09393)
 + [2] [XYZ spectroscopy at electron-hadron facilities: Exclusive processes](https://arxiv.org/abs/2008.01001)
 + [3] [XYZ spectroscopy at electron-hadron facilities II: Semi-inclusive processes with pion exchange](https://arxiv.org/abs/2209.05882)
