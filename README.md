@@ -46,16 +46,16 @@ target_link_libraries( myTarget JPACPHOTO)
 
 The main object of interest in the core library is the abstract [`amplitude`](./src/amplitude.hpp) and derived implementations defined by the user for specific physics models. All amplitudes available so far may be found in [/physics](./physics) as well as a [template file](./physics/template.hpp) to guide adding new classes. Amplitudes are calculated on a per-helicity basis which allows one to compute an array of observables (units of GeV and nb assumed where appropriate):
 
-| Observable                           |                                                                | Callable `amplitude` function                                                                             
-|--------------------------------------|----------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| Unpolarized probability distribution | $\sum_{\{\lambda\}} \|A_{\{\lambda\}}\|^2$                     | `probability_distribution(double s, double t)`                                                                          | 
-| Differential cross section           | $d\sigma/dt$                                                   | `differential_xsection(double s, double t)`                                                                             |
-| Polarized differential cross section | $d\sigma_{\perp,\parallel}/dt$                                 | `polarized_dxsection(double pm, double s, double t)`                                                                    |
-| Integrated total cross section       | $\sigma$                                                       | `integrated_xsection(double s)`                                                                                         |
-| Double polarization asymmetries      | $A_{LL},K_{LL}$                                                | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)`                                                            |
-| Meson spin density matrix elements   | $\rho^{\alpha}_{\lambda,\lambda^\prime}$                       | `mSDME_H(int a, int lam, int lamp, double s, double t)` <br /> `mSDME_GJ(int a, int lam, int lamp, double s, double t)` |
-| Baryon spin density matrix elements  | $\rho^{\alpha}_{\frac{\lambda}{2},\frac{\lambda^\prime}{2}}$   | `bSDME_H(int a, int lam, int lamp, double s, double t)` <br /> `bSDME_GJ(int a, int lam, int lamp, double s, double t)` |
-| Beam asymmetry                       | $\Sigma_{4\pi}$                                                | `beam_asymmetry_4pi(double s, double t)`                                                                                |
+| Observable                           | Callable `amplitude` function                                                                             
+|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| Unpolarized probability distribution | `probability_distribution(double s, double t)`                                                                          | 
+| Differential cross section           | `differential_xsection(double s, double t)`                                                                             |
+| Polarized differential cross section | `polarized_dxsection(double pm, double s, double t)`                                                                    |
+| Integrated total cross section       | `integrated_xsection(double s)`                                                                                         |
+| Double polarization asymmetries      | `A_LL(double s, double t)` <br /> `K_LL(double s, double t)`                                                            |
+| Meson spin density matrix elements   | `mSDME_H(int a, int lam, int lamp, double s, double t)` <br /> `mSDME_GJ(int a, int lam, int lamp, double s, double t)` |
+| Baryon spin density matrix elements  | `bSDME_H(int a, int lam, int lamp, double s, double t)` <br /> `bSDME_GJ(int a, int lam, int lamp, double s, double t)` |
+| Integrated Beam asymmetry            | `beam_asymmetry_4pi(double s, double t)`                                                                                |
 
 All kinematics are passed around by the [`kinematics`](./src/kinematics.hpp) class which allows arbitrary masses for all particles and arbitrary quantum numbers for the produced final state meson & baryon. Multiple amplitudes may describe the same process and share the same kinematics instance.
 
@@ -101,12 +101,12 @@ pwave->integrated_xsection(s); // Only P-wave contribution of sum
 
 Methods for semi-inclusive processes can be added via the [`semi_inclusive`](./src/semi_inclusive.hpp) class. These are used for example in [[3-4]](#references) to investigate inclusive XYZ production. 
 Because semi-inclusive models are implemented at the cross section level and lose explicit helicity dependence, only unpolarized observables are available (Units of GeV and nb assumed where appropriate):
-| Observable                                       |   | Callable `semi_inclusive` function |
-|--------------------------------------------------|---|---------------------------------------|
-| Lorentz-invariant cross section | $E_{\mathcal{Q}} \frac{d^3\sigma}{d^3\mathbf{q}}$  | `invariant_xsection(double s, double t, double M2)`  |
-| Double-differential cross section | $\frac{d^2\sigma}{dt  dM^2}$, <br /> $\frac{d^2\sigma}{dt dx}$, <br /> $\frac{d^2\sigma}{dx dy^2}$,  | `dsigma_dtdM2(double s, double t, double M2)` <br />  `dsigma_dtdx(double s, double t, double x)`<br /> `dsigma_dxdy2(double s, double x, double y2)` |
-| Single-differential cross section | $\frac{d\sigma}{dt}$, <br /> $\frac{d\sigma}{dM^2}$, <br /> $\frac{d\sigma}{dx}$, <br /> $\dots$ | `dsigma_dt(double s, double t)` <br />  `dsigma_dM2(double s, double M2)`<br /> `dsigma_dx(double s, double x)` <br /> $\dots$ |
-| Fully integrated cross section | $\sigma$ | `integrated_xsection(double s)`|
+| Observable                                       |Callable `semi_inclusive` function |
+|--------------------------------------------------|---------------------------------------|
+| Lorentz-invariant cross section | `invariant_xsection(double s, double t, double M2)`  |
+| Double-differential cross section | `dsigma_dtdM2(double s, double t, double M2)` <br />  `dsigma_dtdx(double s, double t, double x)`<br /> `dsigma_dxdy2(double s, double x, double y2)` |
+| Single-differential cross section | `dsigma_dt(double s, double t)` <br />  `dsigma_dM2(double s, double M2)`<br /> `dsigma_dx(double s, double x)` <br /> $\dots$ |
+| Fully integrated cross section | `integrated_xsection(double s)`|
 
 Much of the syntax is the same as with exclusive amplitudes although models are implemented at the level of amplitude-squared. 
 ``` c++
