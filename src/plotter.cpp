@@ -173,7 +173,7 @@ namespace jpacPhoto
             int index = std::distance( plots.begin(), plot ) + 1;
             canvas->cd(index);
             
-            plot->add_logo(false);
+            // plot->add_logo(false);
 
             // If we have a lot of plots, adjust the linewidth so its readible
             // This formula is entirely made up but results are aesthetically fine
@@ -199,7 +199,7 @@ namespace jpacPhoto
             // Settings for the first entry
             if (plot == begin(plots))
             {
-                plot->add_logo(true);
+                // plot->add_logo(true);
 
                 gPad->SetTopMargin(0.05);
                 gPad->SetBottomMargin(0);
