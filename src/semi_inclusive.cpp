@@ -56,7 +56,7 @@ namespace jpacPhoto
         std::vector<amplitude>      exfrom_b = (b->is_sum()) ? b->_exclusives : std::vector<amplitude>();
         exfrom_a.insert(exfrom_a.end(), exfrom_b.begin(), exfrom_b.end());
 
-        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a, id);
+        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a);
     };
 
     // If summing one semi-inclusie and an exclusive amplitude
@@ -75,7 +75,7 @@ namespace jpacPhoto
         std::vector<amplitude>      exfrom_b = extract_subamplitudes(b);
         exfrom_a.insert(exfrom_a.end(), exfrom_b.begin(), exfrom_b.end());
 
-        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a, id);
+        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a);
     };
 
     void operator+=(semi_inclusive a, amplitude b)

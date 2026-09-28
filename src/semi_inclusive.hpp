@@ -38,19 +38,19 @@ namespace jpacPhoto
     //----------------------------------------------------------------------------------------------
     // Use these functions as our constructor
     template<class A>
-    inline semi_inclusive new_semi_inclusive(kinematics mX, std::string id)
+    inline semi_inclusive new_semi_inclusive(kinematics mX)
     {
-        auto ptr = std::make_shared<A>(key(), mX, id);
+        auto ptr = std::make_shared<A>(key(), mX);
         return std::static_pointer_cast<raw_semi_inclusive>(ptr);
     };
 
     template<class A, class B>
-    inline semi_inclusive new_semi_inclusive(kinematics mX, B parameter, std::string id)
+    inline semi_inclusive new_semi_inclusive(kinematics mX, B extra)
     {
-        auto ptr = std::make_shared<A>(key(), mX, parameter, id);
+        auto ptr = std::make_shared<A>(key(), mX, extra);
         return std::static_pointer_cast<raw_semi_inclusive>(ptr);
     };
-    
+
     //----------------------------------------------------------------------------------------------
     // Methods for adding terms together
 
@@ -70,12 +70,11 @@ namespace jpacPhoto
         public: 
 
         // Set both observed particle and target masses
-        raw_semi_inclusive(key k, kinematics kinem, std::string id)
-        : _kinematics(kinem), _mX2(_kinematics->get_meson_mass()*_kinematics->get_meson_mass()), 
-          _id(id)
+        raw_semi_inclusive(key k, kinematics kinem, std::string id = "semi_inclusive")
+        : _kinematics(kinem), _mX2(std::norm(_kinematics->get_meson_mass())), _id(id)
         {};
 
-        raw_semi_inclusive(key k, kinematics kinem, std::vector<semi_inclusive> x, std::vector<amplitude> y, std::string id)
+        raw_semi_inclusive(key k, kinematics kinem, std::vector<semi_inclusive> x, std::vector<amplitude> y, std::string id = "semi_inclusive")
         : _kinematics(kinem), _mX2(_kinematics->get_meson_mass()*_kinematics->get_meson_mass()),  
           _inclusives(x), _exclusives(y),
           _id(id)

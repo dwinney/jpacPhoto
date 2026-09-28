@@ -39,8 +39,8 @@ namespace jpacPhoto
         template<helicity_frame C> friend std::shared_ptr<raw_amplitude> cross_to(std::shared_ptr<raw_amplitude> to_cross);
 
         // Inclusive factories     
-        template<class A>          friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics>, std::string);
-        template<class A, class B> friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics>, B parameter, std::string);
+        template<class A>          friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics> kin);
+        template<class A, class B> friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics> kin, B extra);
         friend std::shared_ptr<raw_semi_inclusive> operator+(std::shared_ptr<raw_semi_inclusive> a, std::shared_ptr<raw_semi_inclusive> b);
         friend std::shared_ptr<raw_semi_inclusive> operator+(std::shared_ptr<raw_semi_inclusive> a, std::shared_ptr<raw_amplitude> b);
     };

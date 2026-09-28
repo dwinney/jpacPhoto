@@ -23,7 +23,7 @@ namespace jpacPhoto
         // quantum numbers  J = |jp|/2, P = sign(jp)
         // pole parameters  mass = mw[0], width = mw[1]
         baryon_BW(key k, kinematics xkinem, int jp)
-        : raw_amplitude(k, xkinem, id), 
+        : raw_amplitude(k, xkinem, "baryon_BW"), 
           _resJ(abs(jp)), _resP(sgn(jp)),
         { 
             initialize(5); // 2 free parameters
@@ -66,7 +66,7 @@ namespace jpacPhoto
             return residue;
         };
 
-        inline helicity_frame         native_helicity_frame(){ return S_CHANNEL; };
+        inline helicity_frame         native_helicity_frame(){ return helicity_frame::S_CHANNEL; };
         inline std::vector<quantum_numbers> allowed_mesons() { return { VECTOR }; };
         inline std::vector<quantum_numbers> allowed_baryons(){ return { HALFPLUS }; };
 

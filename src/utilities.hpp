@@ -308,15 +308,11 @@ namespace jpacPhoto
     // Import a set of data with N columns with relative path 
     // and full path jpacPhoto_dir/ + rel_path
     template<int N> 
-    inline std::array<std::vector<double>,N> import_data(std::string rel_path)
+    inline std::array<std::vector<double>,N> import_data(std::string abs_path)
     {
-        // Check if rel_path starts with a / or not
-        // if not we add one
-        if (rel_path.front() != '/') rel_path = "/" + rel_path;
-
         // Add the top level dir path to get full file path
         std::array<std::vector<double>, N> result;
-        std::string file_path = main_dir() + rel_path;
+        std::string file_path = abs_path;
         std::ifstream infile(file_path);
 
         if (!infile.is_open())
@@ -346,15 +342,11 @@ namespace jpacPhoto
     // Similar to above except that the data is transposed, i.e. rows are the "categories"
     // and the columns are data points. We specify the number of rows in this case
     template<int N>
-    inline std::array<std::vector<double>, N> import_transposed(std::string rel_path)
+    inline std::array<std::vector<double>, N> import_transposed(std::string abs_path)
     {
-        // Check if rel_path starts with a / or not
-        // if not we add one
-        if (rel_path.front() != '/') rel_path = "/" + rel_path;
-
         // Add the top level dir path to get full file path
         std::array<std::vector<double>, N> result;
-        std::string file_path = main_dir() + rel_path;
+        std::string file_path = abs_path;
         std::ifstream infile(file_path);
 
         if (!infile.is_open())
