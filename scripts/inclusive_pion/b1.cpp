@@ -103,6 +103,20 @@ void b1()
     // The b1- doesnt have an exclusive analogue
 
     // ---------------------------------------------------------------------------
+    // Omega Photon data
+    // ---------------------------------------------------------------------------
+    
+    double s = 75.9421;
+
+    std::vector<double> x, sig, dsig, dx;
+
+    x    = {0.65, 0.75, 0.85, 0.95};
+    dx   = {0.05, 0.05, 0.05, 0.05};
+    sig  = {1.80957, 2.15690, 1.3661, 0.65901};
+    dsig = {2.36188 - 1.80957, 2.47490 - 2.15690, 1.53345 - 1.36611, 0.76779 - 0.65901};
+
+
+    // ---------------------------------------------------------------------------
     // Make plots
     // ---------------------------------------------------------------------------
 
@@ -119,9 +133,9 @@ void b1()
     p1.add_curve( bounds, func_PiN, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW");
     kb1D->set_recoil_mass(M_DELTA);
     p1.add_dashed( bounds, [&](double w){ return b1D->integrated_xsection(w*w) * 1E-3; });
-    b1m->set_option(inclusive::pion_exchange::kPwave);
+    b1m->set_option(piN_xsection::kPwave);
     p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from SAID");
-    b1m->set_option(inclusive::pion_exchange::kJPAC);
+    b1m->set_option(piN_xsection::kJPAC);
     p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, "Inclusive b_{1}^{#minus}");
     
     // p2 = comparison of total inclusive b1+ and b1-
@@ -135,4 +149,28 @@ void b1()
     p2.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, b1m->id());
 
     plotter.combine({2,1}, {p1, p2}, "b1.pdf");
+
+    // Differential plot compared to the omega photon data
+
+    s = 75.9421;
+    bounds = {0.7, 1};
+    
+    plot p3 = plotter.new_plot();
+    p3.set_curve_points(1000);
+    p3.set_legend(0.3, 0.3);
+    p3.set_ranges({0.7,1}, {0, 2.5});
+    p3.set_labels("#it{W}_{#gamma#it{p}}  [GeV]", "d#sigma / d#it{x} [#mub]");
+
+    // Add data
+    p3.add_data({x, sig}, {dx, dsig}, "Omega Photon");
+
+    // Plot both the cross section with resonances 
+    b1_piN->reggeized(true);
+    b1_piN->set_option(piN_xsection::kJPAC);
+    p3.add_curve( bounds, [&](double x){ return b1_piN->dsigma_dx(s, x) * 1E-3; }, "Inclusive #it{b}_{1}(1235)^{#plus}");
+    // and without
+    b1_piN->set_option(piN_xsection::kPDG);
+    p3.add_dashed(bounds, [&](double x){ return b1_piN->dsigma_dx(s, x) * 1E-3; });
+
+    p3.save("b1_OmegaPhoton.pdf");
 };

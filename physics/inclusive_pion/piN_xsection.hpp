@@ -11,8 +11,8 @@
 // [1] - https://arxiv.org/abs/1506.01764
 // ------------------------------------------------------------------------------
 
-#ifndef JPAC_PIN_HPP
-#define JPAC_PIN_HPP
+#ifndef PIN_XSECTION_HPP
+#define PIN_XSECTION_HPP
 
 #include "constants.hpp"
 #include "utilities.hpp"
@@ -23,13 +23,13 @@ namespace jpacPhoto
     // Path to SAID data files from main_dir()
     const std::string DATA_RELPATH = "/physics/inclusive_pion/said";
 
-    class JPAC_piN
+    class piN_xsection
     {
         public: 
 
         // Iso here refers to +-1 the sign of the PRODUCES MESON
         // this is the opposite of the exchanged pion
-        JPAC_piN()
+        piN_xsection()
         {
             for (int L = 0; L <= _Lmax; L++)
             {
@@ -37,15 +37,21 @@ namespace jpacPhoto
             };
         };
 
-        JPAC_piN(int L)
-        {
-            _pws.push_back(std::make_shared<SAID_PW>(L));
-        };
+        static const int kJPAC  = 0;
+        static const int kPwave = 1;
+        static const int kPDG   = 2;
+        inline void set_option(int x){ _option = x; };
 
         // Only available for on-shell beams so no q2 dependence
-        inline double operator()(int iso, double s, double q2)
+        inline double operator()(int iso, double s, double q2 = M2_PION)
         {
             _iso = iso;
+
+            if (_option == piN_xsection::kPDG)
+            {
+                double sab = pow(M_PION + M_PROTON + _M, 2);
+                return _delta*(_H*pow(log(s/sab), 2) + _P) + _R1*pow(s/sab, -_eta1) - iso*_R2*pow(s/sab, -_eta2);
+            };
             
             double cutoff = 4.2;
             if ( sqrt(s) < (M_PROTON + M_PION) ) return 0;
@@ -55,11 +61,11 @@ namespace jpacPhoto
 
             if ( s <= x1 )
             {
-                return resonances(s, q2);
+                return resonances(s, q2, _option);
             }
             else if ( (s > x1) && (s < x2) )
             {
-                double fx1 = resonances(x1, q2);
+                double fx1 = resonances(x1, q2, _option);
                 double fx2 = regge(x2);
                 double y  = (s - x1) / (x2 - x1);
                 return fx1 *(1 - y) + fx2 * y;
@@ -68,6 +74,18 @@ namespace jpacPhoto
         };
 
         private:
+
+        int _option = 0;
+
+        // ----------------------------------------------------------------------
+        // In addition to the JPAC-SAID amplitudes we have the simple PDG ones here
+        // Process dependent constants
+        double _delta   = 1;
+        double _R1 = 9.56, _R2 = 1.767, _P = 18.75;
+
+        // Process independent constants        
+        double _M = 2.1206, _H = 0.2720, _eta1 = 0.4473, _eta2 = 0.5486;
+        // ----------------------------------------------------------------------
 
         int _iso = 0;
             
@@ -119,8 +137,7 @@ namespace jpacPhoto
                 double fp, fm, gp, gm;
                 double f1p, f1m, f2p, f2m;
                 double Ap, Am, Bp, Bm, Cp, Cm;
-
-
+                
                 // Assemble amplitudes from PWAs
                 f1 = ((_L+1)*imag(+1, s) + (_L)*imag(-1, s));
                 f3 = ((_L+1)*imag(+3, s) + (_L)*imag(-3, s));
@@ -189,12 +206,13 @@ namespace jpacPhoto
         int _Lmax = 7, _Lcut = 3;
         std::vector<std::shared_ptr<SAID_PW>> _pws;
 
-        inline double resonances(double s, double q2)
+        inline double resonances(double s, double q2, int opt)
         {
             double bfpi  = kallen(s, q2, M2_PROTON) / kallen(s, M2_PION, M2_PROTON);
             double sum = 0;
             for (auto wave : _pws)
             {
+                if (opt == piN_xsection::kPwave && wave->L() != 1) continue;
                 int L = (wave->L() < _Lcut) ? wave->L() : _Lcut;
                 if (L >= 3 && s < 1.18) continue;
                 if (L >= 4 && s < 1.3)  continue;
@@ -204,7 +222,6 @@ namespace jpacPhoto
 
                 sum += pow(bfpi, L) * pw ;
             };
-
             return sum;
         };
 

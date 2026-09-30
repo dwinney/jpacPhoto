@@ -13,7 +13,7 @@
 
 #include "constants.hpp"
 #include "semi_inclusive.hpp"
-#include "inclusive_pion/JPAC_piN.hpp"
+#include "inclusive_pion/piN_xsection.hpp"
 
 namespace jpacPhoto
 {
@@ -26,7 +26,7 @@ namespace jpacPhoto
 
             pion_exchange(key k, kinematics kinem, int pm)
             : raw_semi_inclusive(k, kinem, "pion_exchange"),
-                _pm(pm), _sigma(JPAC_piN())
+                _pm(pm)
             {
                 set_N_pars(1);
             };
@@ -70,20 +70,7 @@ namespace jpacPhoto
                 return K/(16*PI*PI*PI) * pow(coupling()*P_pi, 2) * sigmatot;
             };
 
-            // Options are the parameterization of the sigma_tot
-            static const int kJPAC  = 0;
-            static const int kPwave = 1;
-            inline void set_option (int opt)
-            {
-                switch (opt)
-                {
-                    case kJPAC:  { _sigma = JPAC_piN(); 
-                                    _option = opt; break; };
-                    case kPwave: { _sigma = JPAC_piN(1); 
-                                    _option = opt; break; };
-                    default: return;
-                };
-            }
+            inline void set_option (int opt){ _sigma.set_option(opt); };
 
             protected:
 
@@ -118,7 +105,7 @@ namespace jpacPhoto
 
             private:
             
-            JPAC_piN _sigma;
+            piN_xsection _sigma;
             int    _pm     = +1;    // Charge of the produced meson
             double _g      = 0;     // Top coupling
             double _lamPi  = 0.9;   // Exponential cut-off
