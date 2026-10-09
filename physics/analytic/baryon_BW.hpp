@@ -22,13 +22,11 @@ namespace jpacPhoto
         // Each resonance is specified by: 
         // quantum numbers  J = |jp|/2, P = sign(jp)
         // pole parameters  mass = mw[0], width = mw[1]
-        baryon_BW(key k, kinematics xkinem, 
-                  int jp, std::array<double,2> mw, std::string id = "baryon_BW")
-        : raw_amplitude(k, xkinem, id), 
+        baryon_BW(key k, kinematics xkinem, int jp)
+        : raw_amplitude(k, xkinem, "baryon_BW"), 
           _resJ(abs(jp)), _resP(sgn(jp)),
-          _mass(mw[0]),   _width(mw[1])
         { 
-            initialize(3); // 2 free parameters
+            initialize(5); // 2 free parameters
             
             // J^P dependent quantities
             _naturality = _resP*pow(-1, (_resJ-1)/2);
@@ -43,10 +41,6 @@ namespace jpacPhoto
                 default: warning("baryon_resonance", 
                                  "requested spin-parity combination not available!");
             };
-            
-            // save momentum for decay couplings
-            _pibar = real(xkinem->initial_momentum(_mass*_mass));
-            _pfbar = real(xkinem->final_momentum(_mass*_mass));
         }; 
 
         inline complex helicity_amplitude(std::array<int,4> helicities, double s, double t)
@@ -56,6 +50,10 @@ namespace jpacPhoto
 
             int lam_i = 2 * helicities[0] - helicities[1];
             int lam_f = 2 * helicities[2] - helicities[3];
+
+            // momentum for decay couplings
+            _pibar = real(xkinem->initial_momentum(_mass*_mass));
+            _pfbar = real(xkinem->final_momentum(_mass*_mass));
 
             std::complex<double> residue = 1.;
             residue  = photo_coupling(lam_i);
@@ -68,7 +66,7 @@ namespace jpacPhoto
             return residue;
         };
 
-        inline helicity_frame         native_helicity_frame(){ return S_CHANNEL; };
+        inline helicity_frame         native_helicity_frame(){ return helicity_frame::S_CHANNEL; };
         inline std::vector<quantum_numbers> allowed_mesons() { return { VECTOR }; };
         inline std::vector<quantum_numbers> allowed_baryons(){ return { HALFPLUS }; };
 
@@ -80,9 +78,11 @@ namespace jpacPhoto
         // [2] ratio of lambda = 1/2 to 3/2 photocoupling [0,1]
         inline void allocate_parameters(std::vector<double> pars)
         {
-            _xBR    = pars[0];
-            _fv     = pars[1];
-            _photoR = pars[2];
+            _mass   = pars[0];
+            _width  = pars[1];
+            _xBR    = pars[2];
+            _fv     = pars[3];
+            _photoR = pars[4];
         };
         
         private:

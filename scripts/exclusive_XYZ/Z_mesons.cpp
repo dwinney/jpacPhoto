@@ -71,32 +71,32 @@ void Z_mesons()
     // ---------------------------------------------------------------------------
 
     // Zc(3900)
-    amplitude   Zc = new_amplitude<analytic::pseudoscalar_exchange>(kZc,   M_PION, "#it{Z}_{c}(3900)");
-    Zc->set_parameters({gc_gamma, g_piNN, lambda_pi});
+    amplitude   Zc = new_amplitude<analytic::pseudoscalar_exchange>(kZc);
+    Zc->set_parameters({M_PION, gc_gamma, g_piNN, lambda_pi});
 
     // Zb(10610)
-    amplitude   Zb = new_amplitude<analytic::pseudoscalar_exchange>(kZb,   M_PION, "#it{Z}_{b}(10610)");
-    Zb->set_parameters({gb_gamma, g_piNN, lambda_pi});
+    amplitude   Zb = new_amplitude<analytic::pseudoscalar_exchange>(kZb);
+    Zb->set_parameters({M_PION, gb_gamma, g_piNN, lambda_pi});
 
     // Zb'(10650)
-    amplitude   Zbp = new_amplitude<analytic::pseudoscalar_exchange>(kZbp, M_PION, "#it{Z}_{b}'(10650)");
-    Zbp->set_parameters({gbp_gamma, g_piNN, lambda_pi});
+    amplitude   Zbp = new_amplitude<analytic::pseudoscalar_exchange>(kZbp);
+    Zbp->set_parameters({M_PION, gbp_gamma, g_piNN, lambda_pi});
 
     // ---------------------------------------------------------------------------
     // High Energy amplitudes (regge)
     // ---------------------------------------------------------------------------
     
     // Zc(3900)
-    amplitude   ZcR = new_amplitude<regge::pseudoscalar_exchange>(kZc, "#it{Z}_{c}(3900)");
-    ZcR->set_parameters({gc_gamma, g_piNN, lambda_pi, inter, slope});
+    amplitude   ZcR = new_amplitude<regge::pseudoscalar_exchange>(kZc);
+    ZcR->set_parameters({inter, slope, gc_gamma, g_piNN, lambda_pi});
 
     // Zb(10610)
-    amplitude   ZbR = new_amplitude<regge::pseudoscalar_exchange>(kZb, "#it{Z}_{b}(10610)");
-    ZbR->set_parameters({gb_gamma, g_piNN, lambda_pi, inter, slope});
+    amplitude   ZbR = new_amplitude<regge::pseudoscalar_exchange>(kZb);
+    ZbR->set_parameters({inter, slope, gb_gamma, g_piNN, lambda_pi});
 
     // Zb'(10650)
-    amplitude   ZbpR = new_amplitude<regge::pseudoscalar_exchange>(kZbp, "#it{Z}_{b}'(10650)");
-    ZbpR->set_parameters({gbp_gamma, g_piNN, lambda_pi, inter, slope});
+    amplitude   ZbpR = new_amplitude<regge::pseudoscalar_exchange>(kZbp);
+    ZbpR->set_parameters({inter, slope, gbp_gamma, g_piNN, lambda_pi});
 
     // ---------------------------------------------------------------------------
     // Plot results
@@ -111,9 +111,9 @@ void Z_mesons()
     p_low.set_legend(0.7, 0.65);
     p_low.set_ranges({4, 20}, {2E-2, 2E2});
     p_low.set_labels( "#it{W_{#gammap}}  [GeV]", "#it{#sigma(#gamma p #rightarrow Z n)}  [nb]");
-    p_low.add_curve({4, 20}, [&](double W){ return Zc->integrated_xsection(W*W); },  Zc->id());
-    p_low.add_curve({4, 20}, [&](double W){ return Zb->integrated_xsection(W*W); },  Zb->id());
-    p_low.add_curve({4, 20}, [&](double W){ return Zbp->integrated_xsection(W*W); }, Zbp->id());
+    p_low.add_curve({4, 20}, [&](double W){ return Zc->integrated_xsection(W*W); },  "Z_{c}(3900)");
+    p_low.add_curve({4, 20}, [&](double W){ return Zb->integrated_xsection(W*W); },  "Z_{b}(10610)");
+    p_low.add_curve({4, 20}, [&](double W){ return Zbp->integrated_xsection(W*W); }, "Z_{b}(10650)");
 
     // High-energy plot
     plot p_high = plotter.new_plot();
@@ -122,9 +122,9 @@ void Z_mesons()
     p_high.set_legend(0.3, 0.2);
     p_high.set_ranges({20, 70}, {1E-4, 2});
     p_high.set_labels( "#it{W_{#gammap}}  [GeV]", "#it{#sigma(#gamma p #rightarrow Z n)}  [nb]");
-    p_high.add_curve({20, 70}, [&](double W){ return ZcR->integrated_xsection(W*W); },   ZcR->id());
-    p_high.add_curve({20, 70}, [&](double W){ return ZbR->integrated_xsection(W*W); },   ZbR->id());
-    p_high.add_curve({20, 70}, [&](double W){ return ZbpR->integrated_xsection(W*W); },  ZbpR->id());
+    p_high.add_curve({20, 70}, [&](double W){ return ZcR->integrated_xsection(W*W); });
+    p_high.add_curve({20, 70}, [&](double W){ return ZbR->integrated_xsection(W*W); });
+    p_high.add_curve({20, 70}, [&](double W){ return ZbpR->integrated_xsection(W*W); });
 
     // Combine these into a single plot 
     plotter.combine({2,1}, {p_low, p_high}, "Z_mesons.pdf");

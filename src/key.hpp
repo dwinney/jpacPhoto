@@ -17,7 +17,9 @@ namespace jpacPhoto
 {
     class raw_kinematics;
     class raw_amplitude;
+    class raw_partial_wave;
     class raw_semi_inclusive;
+    enum helicity_frame : uint;
 
     class key
     {
@@ -31,17 +33,19 @@ namespace jpacPhoto
         friend std::shared_ptr<raw_kinematics> new_kinematics(double, double);
 
         // Amplitude factories        
-        template<class A>                         friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>);
-        template<class A>                         friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, std::string);
-        template<class A, typename B>             friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, B, std::string);
-        template<class A, typename B, typename C> friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, B, C, std::string);
-        friend std::shared_ptr<raw_amplitude> operator+(std::shared_ptr<raw_amplitude> a, std::shared_ptr<raw_amplitude> b);
-        friend std::shared_ptr<raw_amplitude> project(int, std::shared_ptr<raw_amplitude>, std::string);
-        friend std::shared_ptr<raw_amplitude> helicity_project(int, std::shared_ptr<raw_amplitude>, std::string);
+        template<class A>             friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>);
+        template<class A, typename B> friend std::shared_ptr<raw_amplitude> new_amplitude(std::shared_ptr<raw_kinematics>, B);
+        friend std::shared_ptr<raw_amplitude> operator+(std::shared_ptr<raw_amplitude>, std::shared_ptr<raw_amplitude>);
+        template<helicity_frame C> friend std::shared_ptr<raw_amplitude> cross_to(std::shared_ptr<raw_amplitude>);
+
+        // Partial wave factories
+        template<class A>             friend std::shared_ptr<raw_partial_wave> new_partial_wave(std::shared_ptr<raw_kinematics>, uint);
+        template<class A, typename B> friend std::shared_ptr<raw_partial_wave> new_partial_wave(std::shared_ptr<raw_kinematics>, uint, B);
+        friend std::shared_ptr<raw_partial_wave> project(uint, std::shared_ptr<raw_amplitude>);
 
         // Inclusive factories     
-        template<class A>          friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics>, std::string);
-        template<class A, class B> friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics>, B parameter, std::string);
+        template<class A>          friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics> kin);
+        template<class A, class B> friend std::shared_ptr<raw_semi_inclusive> new_semi_inclusive(std::shared_ptr<raw_kinematics> kin, B extra);
         friend std::shared_ptr<raw_semi_inclusive> operator+(std::shared_ptr<raw_semi_inclusive> a, std::shared_ptr<raw_semi_inclusive> b);
         friend std::shared_ptr<raw_semi_inclusive> operator+(std::shared_ptr<raw_semi_inclusive> a, std::shared_ptr<raw_amplitude> b);
     };

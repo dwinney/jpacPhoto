@@ -11,7 +11,7 @@
 #ifndef GLUEX_PLOTS_HPP
 #define GLUEX_PLOTS_HPP
 
-#include "data_set.hpp"
+#include "utilities.hpp"
 #include "plotter.hpp"
 #include "data.hpp"
 
@@ -54,7 +54,7 @@ namespace jpacPhoto
             double tmax = slice._x.back() + slice._xerr[1].back();
 
             plot pdif = p.new_plot();
-            pdif.add_data(slice);
+            pdif.add_data( slice );
             pdif.set_logscale(false, true);
             pdif.set_legend(0.6, 0.4+(i!=0)*0.23);
             pdif.set_ranges({0, 10}, {3E-4, 6});

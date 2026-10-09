@@ -20,6 +20,58 @@
 
 namespace jpacPhoto
 {
+    // ------------------------------------------------------------------------------
+    // Things related to helicities
+
+    // Output a string of a given helicity set in format e.g. {+,+,+,+}
+    std::string print_helicities(std::array<int,4> lam)
+    {
+        std::array<std::string,4> lams;
+        for (int i = 0; i < 4; i++) lams[i] = std::to_string(lam[i]);
+        return "[ " + lams[0] + ", " + lams[1] + ", " + lams[2] + ", " + lams[3] + "]";
+    };
+
+    // Generate a vector containing all the helicity combinations
+    std::vector<std::array<int, 4>> get_helicities(int mJ, int bJ, bool is_massless)
+    {
+        std::vector<std::array<int,4>> output;
+
+        // Inital state is always the same
+        std::vector<int> hg = (is_massless) ? std::vector<int>({1, -1}) : std::vector<int>({1, 0, -1});
+        std::vector<int> ht = {1, -1};
+
+        // Final state depends on the spins 
+        std::vector<int> hx, hr; 
+        for (int i = 0;  mJ +   i >= - mJ; i--) hx.push_back(mJ +   i);
+        for (int i = 0;  bJ + 2*i >= - bJ; i--) hr.push_back(bJ + 2*i);
+
+        for (auto g : hg){
+            for (auto t : ht){
+                for (auto x : hx){
+                    for (auto r : hr){
+                        output.push_back({g, t, x, r});
+                    };
+                };
+            };
+        };
+        return output;
+    };
+
+    // Given a set of helicities, find its helicity index
+    uint find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless)
+    {
+        std::vector<std::array<int,4>> hels = get_helicities(mj, bj, is_massless);
+
+        auto iterator = std::find(hels.begin(), hels.end(), helicities);
+        
+        if (iterator != hels.end())
+        {
+            return iterator - hels.begin();
+        }
+        
+        return error("find_helicity - Cannot find helicities: " + print_helicities(helicities) + "!", -1);
+    };
+
     // ---------------------------------------------------------------------------
     // Quantum number handling
 
@@ -93,7 +145,7 @@ namespace jpacPhoto
     {
         if (i < 0 || i >= _nAmps) 
         {
-            fatal("kinematics", "Can't find helicities with index " + std::to_string(i) + "!");
+            fatal("kinematics - Can't find helicities with index " + std::to_string(i) + "!");
         }
         return _helicities[i];
     };
@@ -103,12 +155,12 @@ namespace jpacPhoto
 
     double raw_kinematics::initial_momentum(double s)
     {
-        return sqrt(Kallen(s, _mB2, _mT2)) / sqrt(4.*s);
+        return sqrt(kallen(s, _mB2, _mT2)) / sqrt(4.*s);
     };
 
     double raw_kinematics::final_momentum(double s)
     {
-        return sqrt(Kallen(s, _mR2, _mX2)) / sqrt(4.*s);
+        return sqrt(kallen(s, _mR2, _mX2)) / sqrt(4.*s);
     };
 
     // ------------------------------------------------------------------------------
@@ -177,7 +229,7 @@ namespace jpacPhoto
 
         double result;
         result  = t * (s - u) + (_mB2 - _mX2) * (_mT2 - _mR2);
-        result /=  sqrt(Kallen(t, _mX2, _mB2) * Kallen(t, _mT2, _mR2));
+        result /=  sqrt(kallen(t, _mX2, _mB2) * kallen(t, _mT2, _mR2));
 
         return result;
     };
@@ -194,7 +246,7 @@ namespace jpacPhoto
 
         double result;
         result  = u * (t - s) + (_mB2 - _mR2) * (_mT2 - _mX2);
-        result /=  sqrt(Kallen(u, _mR2, _mB2) * Kallen(u, _mT2, _mX2));
+        result /=  sqrt(kallen(u, _mR2, _mB2) * kallen(u, _mT2, _mX2));
 
         return result;
     };
@@ -204,12 +256,12 @@ namespace jpacPhoto
     
     complex raw_kinematics::initial_momentum_tframe(double t)
     {
-        return csqrt(Kallen(t, _mB2, _mX2)/(4.*t) );
+        return csqrt(kallen(t, _mB2, _mX2)/(4.*t) );
     };
 
     complex raw_kinematics::final_momentum_tframe(double t)
     {
-        return csqrt( Kallen(t, _mR2, _mT2)/(4.*t) );
+        return csqrt( kallen(t, _mR2, _mT2)/(4.*t) );
     };
 
     // ------------------------------------------------------------------------------
@@ -229,7 +281,7 @@ namespace jpacPhoto
         {
             case helicity_frame::S_CHANNEL :
             {
-                s_b =  1;            eta_b = +1;         // proton
+                s_b =  1;            eta_b = +1;        // proton
                 s_c =  2*_mjp[0];    eta_c = _mjp[1];   // produced meson
                 s_d =  _bjp[0];      eta_d = _bjp[1];   // recoil baryon
                 break;
@@ -237,14 +289,14 @@ namespace jpacPhoto
             case helicity_frame::T_CHANNEL :
             {
                 s_b =  2*_mjp[0];   eta_b = _mjp[1];    // produced meson
-                s_c =  1;           eta_c = +1;          // proton
+                s_c =  1;           eta_c = -1;         // anti-proton
                 s_d =  _bjp[0];     eta_d = _bjp[1];    // recoil baryon
                 break;
             }
             case helicity_frame::U_CHANNEL :
             {
-                s_b =  _bjp[0];      eta_b = _bjp[1];    // recoil baryon
-                s_c =  1;            eta_c = +1;          // proton
+                s_b =  _bjp[0];      eta_b = -_bjp[1];   // recoil anti-baryon
+                s_c =  1;            eta_c = -1;         // anti-proton
                 s_d =  2*_mjp[0];    eta_d = _mjp[1];    // produced meson
                 break;
             }
@@ -293,14 +345,14 @@ namespace jpacPhoto
     // Wigner rotation angle connecting helicity and gottfried-jackson frames 
     double raw_kinematics::mH_to_GJ_angle(double s, double t)
     {
-        double cosAlpha = ((s - _mR2 + _mX2)*(t + _mX2 - _mB2) - 2*_mX2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( Kallen(s, _mR2, _mX2) * Kallen(t, _mX2, _mB2) );
+        double cosAlpha = ((s - _mR2 + _mX2)*(t + _mX2 - _mB2) - 2*_mX2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( kallen(s, _mR2, _mX2) * kallen(t, _mX2, _mB2) );
         return TMath::ACos( cosAlpha );
     };
 
     // Wigner rotation angle connecting helicity and gottfried-jackson frames 
     double raw_kinematics::bH_to_GJ_angle(double s, double t)
     {
-        double cosAlpha = ((s + _mR2 - _mX2)*(t + _mR2 - _mT2) + 2*_mR2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( Kallen(s, _mR2, _mX2) * Kallen(t, _mT2, _mR2) );
+        double cosAlpha = ((s + _mR2 - _mX2)*(t + _mR2 - _mT2) + 2*_mR2*(_mT2 + _mX2 - _mR2 - _mB2)) / sqrt( kallen(s, _mR2, _mX2) * kallen(t, _mT2, _mR2) );
         return TMath::ACos( cosAlpha );
     };
 };

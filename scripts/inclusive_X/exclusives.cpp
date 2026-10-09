@@ -39,28 +39,31 @@ void exclusives()
     // -----------------------------------------
     // X(3872) amplitudes
 
-    amplitude X_gam = new_amplitude<photon_exchange>(kX, "#gamma^{*}");
+    amplitude X_gam = new_amplitude<photon_exchange>(kX);
     X_gam->set_parameters({3.2E-3, 1, 0});
 
     // VMD rescaled amplitudes 
-    amplitude X_rho_VMD   = new_amplitude<photon_exchange>(kX, M_RHO, "#rho");
-    amplitude X_omega_VMD = new_amplitude<photon_exchange>(kX, M_OMEGA, "#omega");
+    amplitude X_rho_VMD   = new_amplitude<photon_exchange>(kX);
+    X_rho_VMD->set_option(photon_exchange::kVMD);
+    X_rho_VMD->set_parameters(  {M_RHO,   0.0879857, gamma_rho/2,   1.4});
 
-    // // Just taking the hadronic couplings and VMD'd
-    X_rho_VMD->set_parameters(  {0.0879857, gamma_rho/2, 1.4});
-    X_omega_VMD->set_parameters({0.199228, gamma_omega/2, 1.2});
+    amplitude X_omega_VMD = new_amplitude<photon_exchange>(kX);
+    X_omega_VMD->set_option(photon_exchange::kVMD);
+    X_omega_VMD->set_parameters({M_OMEGA, 0.199228,  gamma_omega/2, 1.2});
+
+    // Just taking the hadronic couplings and VMD'd
 
     amplitude X_sum_VMD   = X_rho_VMD + X_omega_VMD;
     X_sum_VMD->set_id("Rescaled");
 
     // Compare with the explicitly meson exchange amplitudes
 
-    amplitude X_rho   = new_amplitude<vector_exchange>(kX, M_RHO, "#rho exchange");
-    X_rho->set_parameters({3.6E-3, 2.4, 14.6, 1.4});
+    amplitude X_rho   = new_amplitude<vector_exchange>(kX);
+    X_rho->set_parameters({M_RHO, 3.6E-3, 2.4, 14.6, 1.4});
     X_rho->set_option(vector_exchange::kAddTopFF);
 
-    amplitude X_omega = new_amplitude<vector_exchange>(kX, M_OMEGA, "#omega exchange");
-    X_omega->set_parameters({8.2E-3, 16, 0, 1.2});
+    amplitude X_omega = new_amplitude<vector_exchange>(kX);
+    X_omega->set_parameters({M_OMEGA, 8.2E-3, 16, 0, 1.2});
     X_omega->set_option(vector_exchange::kAddTopFF);
 
     amplitude X_sum = X_rho + X_omega;
@@ -69,20 +72,22 @@ void exclusives()
     // -----------------------------------------
     // chi_c1 amplitudes
 
-    amplitude C_omega_VMD = new_amplitude<photon_exchange>(kC, M_OMEGA, "#omega exchange");
-    C_omega_VMD->set_parameters({10.46E-3, gamma_omega/2, 1.2});
+    amplitude C_omega_VMD = new_amplitude<photon_exchange>(kC);
+    C_omega_VMD->set_option(photon_exchange::kVMD);
+    C_omega_VMD->set_parameters({M_OMEGA, 10.46E-3, gamma_omega/2, 1.2});
 
-    amplitude C_rho_VMD   = new_amplitude<photon_exchange>(kC, M_RHO, "#rho exchange");
-    C_rho_VMD->set_parameters({18.87E-3, gamma_rho/2, 1.4});
+    amplitude C_rho_VMD   = new_amplitude<photon_exchange>(kC);
+    C_rho_VMD->set_option(photon_exchange::kVMD);
+    C_rho_VMD->set_parameters({M_RHO, 18.87E-3, gamma_rho/2, 1.4});
 
     amplitude C_sum_VMD = C_omega_VMD + C_rho_VMD;
 
-    amplitude C_omega = new_amplitude<vector_exchange>(kC, M_OMEGA, "#omega exchange");
-    C_omega->set_parameters({5.2E-4, 16., 0., 1.2});
+    amplitude C_omega = new_amplitude<vector_exchange>(kC);
+    C_omega->set_parameters({M_OMEGA, 5.2E-4, 16., 0., 1.2});
     C_omega->set_option(vector_exchange::kAddTopFF);
 
-    amplitude C_rho = new_amplitude<vector_exchange>(kC, M_RHO, "#rho exchange");
-    C_rho->set_parameters({9.2E-4, 2.4, 14.6, 1.4});
+    amplitude C_rho = new_amplitude<vector_exchange>(kC);
+    C_rho->set_parameters({M_RHO, 9.2E-4, 2.4, 14.6, 1.4});
     C_rho->set_option(vector_exchange::kAddTopFF);
 
     amplitude C_sum = C_omega + C_rho;
@@ -135,12 +140,12 @@ void exclusives()
     p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  "VMD 1");
     p3.add_dashed({kX->Wth(), 7}, [&](double W){ return X_sum->integrated_xsection(W*W);     });
 
-    X_rho_VMD->set_parameters(  {-0.199228*gamma_rho/gamma_omega, gamma_rho/2, 1.4});
-    X_omega_VMD->set_parameters({ 0.199228, gamma_omega/2, 1.2});
+    X_rho_VMD->set_parameters(  {M_RHO, -0.199228*gamma_rho/gamma_omega, gamma_rho/2, 1.4});
+    X_omega_VMD->set_parameters({M_OMEGA, 0.199228, gamma_omega/2, 1.2});
     p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  "VMD 2");
 
-    X_rho_VMD->set_parameters(  { 0.0879857, gamma_rho/2, 1.4});
-    X_omega_VMD->set_parameters({-0.0879857*gamma_omega/gamma_rho, gamma_omega/2, 1.2});
+    X_rho_VMD->set_parameters(  {M_RHO, 0.0879857, gamma_rho/2, 1.4});
+    X_omega_VMD->set_parameters({M_OMEGA, -0.0879857*gamma_omega/gamma_rho, gamma_omega/2, 1.2});
     p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  "VMD 3");
 
     plotter.combine({2,1}, {p3,p1}, "NT_compare.pdf");

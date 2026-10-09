@@ -9,10 +9,6 @@
 // ------------------------------------------------------------------------------
 
 #include "amplitude.hpp"
-#include "constants.hpp"
-#include "kinematics.hpp"
-#include <cstddef>
-#include <string>
 
 namespace jpacPhoto
 {
@@ -59,8 +55,7 @@ namespace jpacPhoto
     {
         if ( !a->is_sum() )
         {
-            warning("amplitude::operator+= ", 
-                    "Attempting to sum two non-sums! \nPlease initialize a sum of amplitudes with = first (auto c = a + b;) then use the += operator (c += d;)!");
+            warning("amplitude::operator+= - Attempting to sum two non-sums! \nPlease initialize a sum of amplitudes with = first (auto c = a + b;) then use the += operator (c += d;)!");
             return;
         };  
 
@@ -139,7 +134,8 @@ namespace jpacPhoto
     void raw_amplitude::update_cache(double s, double t)
     {
         bool st_changed   = !are_equal(_cached_s, s, _cache_tolerance) || !are_equal(_cached_t, t, _cache_tolerance);
-        bool mass_changed = !are_equal(_cached_mX, _kinematics->get_meson_mass(),  _cache_tolerance) && !are_equal(_cached_mR, _kinematics->get_recoil_mass(), _cache_tolerance);
+        bool mass_changed = !are_equal(_cached_mX, _kinematics->get_meson_mass(),  _cache_tolerance) 
+                         && !are_equal(_cached_mR, _kinematics->get_recoil_mass(), _cache_tolerance);
 
         bool need_update = _parameters_changed || st_changed || mass_changed;
 
@@ -148,7 +144,7 @@ namespace jpacPhoto
             _cached_helicity_amplitudes.clear();
 
             // Total number of amplitudes
-            int n = (native_helicity_frame() == HELICITY_INDEPENDENT) ? 1 : _kinematics->N_amps();
+            int n = (native_helicity_frame() == helicity_frame::HELICITY_INDEPENDENT) ? 1 : _kinematics->N_amps();
 
             if (n == 1)
             {
@@ -168,7 +164,7 @@ namespace jpacPhoto
                 }
             };
 
-            if (_cached_helicity_amplitudes.size() != n) warning(id()+"::update_cache", "Cached size doesn't match expected number of helicity amplitude!");
+            if (_cached_helicity_amplitudes.size() != n) warning(id()+"::update_cache - Cached size doesn't match expected number of helicity amplitude!");
         };
 
         // Update the cache info as well
@@ -192,7 +188,7 @@ namespace jpacPhoto
     // Simple check that a given vector is of the expected size
     bool raw_amplitude::correct_size(std::vector<double> pars)
     {
-        if (pars.size() != _N_pars) return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+        if (pars.size() != _N_pars) return error(id()+"::set_parameters: Number of parameters passed not the expected size!", false);
         return true;
     };
 
@@ -222,8 +218,8 @@ namespace jpacPhoto
         baryon_fails = std::find(allowed_baryons.begin(), allowed_baryons.end(), requested_baryon) == allowed_baryons.end();
     
         auto requested_meson_JP = kinem->get_meson_JP(); auto requested_baryon_JP = kinem->get_meson_JP();
-        if (meson_fails  && not_any_meson)  warning(id()+"::check_QNs", "Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
-        if (baryon_fails && not_any_baryon) warning(id()+"::check_QNs", "Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
+        if (meson_fails  && not_any_meson)  warning(id()+"::check_QNs - Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
+        if (baryon_fails && not_any_baryon) warning(id()+"::check_QNs - Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
     };
 
     // ------------------------------------------------------------------------------
@@ -253,7 +249,7 @@ namespace jpacPhoto
         double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
-        if (native_helicity_frame() !=  HELICITY_INDEPENDENT) norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
+        if (native_helicity_frame() !=  helicity_frame::HELICITY_INDEPENDENT) norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon());
 
         return sum / norm * HBARC;
     };
@@ -279,7 +275,7 @@ namespace jpacPhoto
     {
         if (s < _kinematics->sth()) return 0.;
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
-        if (abs(perp_or_para) != 1) return std::nan("");
+        if (std::abs(perp_or_para) != 1) return std::nan("");
         
         // Sum first half of amplitudes which are lam_gamma = +1
         auto cache = get_cache(s, t); int n = cache.size()/2;
@@ -289,7 +285,7 @@ namespace jpacPhoto
         double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.) * (2.56819E-6); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
-        if (native_helicity_frame() !=  HELICITY_INDEPENDENT) { norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon()); }
+        if (native_helicity_frame() !=  helicity_frame::HELICITY_INDEPENDENT) { norm *= 4*(_kinematics->is_photon()) + 6*(!_kinematics->is_photon()); }
 
         return sum / norm;
     };
@@ -302,7 +298,7 @@ namespace jpacPhoto
     {
         if ((s < _kinematics->sth()) || (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)))
         {
-            return error("amplitude::K_LL", "Outside physical region!", NaN<double>());
+            return error("amplitude::K_LL - Outside physical region!", NaN<double>());
         };
 
         double sum = 0; 
@@ -310,7 +306,7 @@ namespace jpacPhoto
         for (int i = 0; i < n; i++)
         {
             auto hel = _kinematics->helicities(i);
-            int eta  = (1 - hel[0]*hel[3] / abs(hel[0]*hel[3])) / 2;
+            int eta  = (1 - hel[0]*hel[3] / std::abs(hel[0]*hel[3])) / 2;
             sum += pow(-1, eta) * std::norm(cache[i]);
         }
         return sum / probability_distribution(s, t);
@@ -321,7 +317,7 @@ namespace jpacPhoto
     {
         if ((s < _kinematics->sth()) || (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)))
         {
-            return error("amplitude::A_LL", "Outside physical region!", NaN<double>());
+            return error("amplitude::A_LL - Outside physical region!", NaN<double>());
         };
 
         double sum = 0; 
@@ -329,7 +325,7 @@ namespace jpacPhoto
         for (int i = 0; i < n; i++)
         {
             auto hel = _kinematics->helicities(i);
-            int eta  = (1 - hel[0]*hel[1] / abs(hel[0]*hel[1])) / 2;
+            int eta  = (1 - hel[0]*hel[1] / std::abs(hel[0]*hel[1])) / 2;
             sum += pow(-1, eta) * std::norm(cache[i]);
         }
         return sum / probability_distribution(s, t);
@@ -352,17 +348,17 @@ namespace jpacPhoto
     // Baryon SDME
     complex raw_amplitude::bSDME(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        if (alpha > 2) return error("amplitude::bSDME", "Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
+        if (alpha > 2) return error("amplitude::bSDME - Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
 
         int J = _kinematics->get_baryon_JP()[0];
-        if (std::abs(lam)  > J) return error("amplitude::bSDME", "Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
-        if (std::abs(lamp) > J) return error("amplitude::bSDME", "Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
+        if (std::abs(lam)  > J) return error("amplitude::bSDME - Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
+        if (std::abs(lamp) > J) return error("amplitude::bSDME - Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
 
         // Check lam > lamp and lam > 0
         bool CONJ = false; int phase = 1;
 
-        if (std::abs(lam) < abs(lamp))
+        if (std::abs(lam) < std::abs(lamp))
         {
             int temp = lam; lam = lamp; lamp = temp; // Swap them
             CONJ = true; // Conjugate at the end
@@ -423,9 +419,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->bH_to_GJ_angle(s, t));
-            case U_CHANNEL: return error("bSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::T_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, -_kinematics->bH_to_GJ_angle(s, t));
+            case helicity_frame::U_CHANNEL: return error("bSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
         };
 
         return std::nan("");
@@ -436,9 +432,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->bH_to_GJ_angle(s, t));
-            case T_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: return error("bSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return rotated_bSDME(alpha, lam, lamp, s, t, _kinematics->bH_to_GJ_angle(s, t));
+            case helicity_frame::T_CHANNEL: return bSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::U_CHANNEL: return error("bSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
 
@@ -451,17 +447,17 @@ namespace jpacPhoto
     // "raw" SDME
     complex raw_amplitude::mSDME(unsigned int alpha, int lam, int lamp, double s, double t)
     {
-        if (alpha > 2) return error("amplitude::mSDME", "Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
+        if (alpha > 2) return error("amplitude::mSDME - Invalid SDME (alpha = " + std::to_string(alpha) + ") requested!", std::nan(""));
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
         
         int J = _kinematics->get_meson_JP()[0];
-        if (std::abs(lam)  > J) return error("amplitude::mSDME", "Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
-        if (std::abs(lamp) > J) return error("amplitude::mSDME", "Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
+        if (std::abs(lam)  > J) return error("amplitude::mSDME - Invalid SDME (lam = "  + std::to_string(lam)  + ") requested!", std::nan(""));
+        if (std::abs(lamp) > J) return error("amplitude::mSDME - Invalid SDME (lam' = " + std::to_string(lamp) + ") requested!", std::nan(""));
 
         // Check lam > lamp and lam > 0
         bool CONJ = false; int phase = 1;
 
-        if (std::abs(lam) < abs(lamp))
+        if (std::abs(lam) < std::abs(lamp))
         {
             int temp = lam; lam = lamp; lamp = temp; // Swap them
             CONJ = true; // Conjugate at the end
@@ -522,9 +518,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->mH_to_GJ_angle(s, t));
-            case U_CHANNEL: return error("mSDME_H", "Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::T_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, -_kinematics->mH_to_GJ_angle(s, t));
+            case helicity_frame::U_CHANNEL: return error("mSDME_H - Rotations from u-channel CM frame to Helicty frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
         return std::nan("");
@@ -535,9 +531,9 @@ namespace jpacPhoto
     {
         switch (this->native_helicity_frame())
         {
-            case S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->mH_to_GJ_angle(s, t));
-            case T_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
-            case U_CHANNEL: return error("mSDME_GJ", "Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
+            case helicity_frame::S_CHANNEL: return rotated_mSDME(alpha, lam, lamp, s, t, _kinematics->mH_to_GJ_angle(s, t));
+            case helicity_frame::T_CHANNEL: return mSDME(alpha, lam, lamp, s, t);
+            case helicity_frame::U_CHANNEL: return error("mSDME_GJ - Rotations from u-channel CM frame to Gottfried-Jackson frame not yet implemented... Returning 0.", std::nan(""));
             default: return std::nan("");
         };
         return std::nan("");

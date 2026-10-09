@@ -56,7 +56,7 @@ namespace jpacPhoto
         std::vector<amplitude>      exfrom_b = (b->is_sum()) ? b->_exclusives : std::vector<amplitude>();
         exfrom_a.insert(exfrom_a.end(), exfrom_b.begin(), exfrom_b.end());
 
-        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a, id);
+        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a);
     };
 
     // If summing one semi-inclusie and an exclusive amplitude
@@ -75,13 +75,13 @@ namespace jpacPhoto
         std::vector<amplitude>      exfrom_b = extract_subamplitudes(b);
         exfrom_a.insert(exfrom_a.end(), exfrom_b.begin(), exfrom_b.end());
 
-        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a, id);
+        return std::make_shared<raw_semi_inclusive>(key(), kinem, infrom_a, exfrom_a);
     };
 
     void operator+=(semi_inclusive a, amplitude b)
     {
         std::string error_msg = "Attempted to add incompatible objects: " + a->id() + " and " + b->id() + "!";
-        if (!are_compatible(a, b)) return error("semi_inclusive::+=", error_msg + " (Contain different kinematics objects!)");
+        if (!are_compatible(a, b)) {warning ("semi_inclusive::+= - " + error_msg + " (Contain different kinematics objects!)"); return;};
         
         a->_exclusives.push_back(b);
     };
@@ -112,7 +112,7 @@ namespace jpacPhoto
 
     bool raw_semi_inclusive::correct_size(std::vector<double> pars)
     {
-        if (pars.size() != _N_pars) return error(id()+"::set_parameters", "Number of parameters passed not the expected size!", false);
+        if (pars.size() != _N_pars) return error(id()+"::set_parameters - Number of parameters passed not the expected size!", false);
         return true;
     };
 
@@ -134,7 +134,7 @@ namespace jpacPhoto
     // Max momentum of the produced particle
     double raw_semi_inclusive::pMax(double s)
     {
-        return sqrt(Kallen(s, _mX2, minimum_M2())) / (2*sqrt(s));
+        return sqrt(kallen(s, _mX2, minimum_M2())) / (2*sqrt(s));
     };
 
     // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ namespace jpacPhoto
     // momentum of produced at a fixed missing mass
     double raw_semi_inclusive::pXfromM2(double s, double M2)
     {
-        return sqrt(Kallen(s, _mX2, M2)) / (2*sqrt(s));
+        return sqrt(kallen(s, _mX2, M2)) / (2*sqrt(s));
     };  
 
     double raw_semi_inclusive::COSfromTM2(double s, double t, double M2)
@@ -281,8 +281,8 @@ namespace jpacPhoto
     // Also useful is M2 as a function of X and T
     double raw_semi_inclusive::M2fromTX(double s, double t, double x)
     {
-        double lami = Kallen(s, 0., _mT2);
-        double lamf = Kallen(s, _mX2, minimum_M2());
+        double lami = kallen(s, 0., _mT2);
+        double lamf = kallen(s, _mX2, minimum_M2());
         double num = _mT2 * _mX2 + _mT2 * s + _mX2 * s - s*s - 2*s*t + sqrt(lami*lamf)*x;
         return num / (_mT2 - s);
     };

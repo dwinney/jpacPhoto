@@ -29,32 +29,14 @@ namespace jpacPhoto
         public: 
 
         // Basic constructor
-        my_amplitude(key k, kinematics xkinem, std::string id = "my_amplitude's default id")
-        : raw_amplitude(k, xkinem, id)
+        my_amplitude(key k, kinematics xkinem)
+        : raw_amplitude(k, xkinem, "default_id")
         {
             // Constructor should initialize with number of parameters
             // this specifies 2 free parameters
             initialize(2);
 
             // Do anything else you want at construction
-        };
-
-        // Additional constructors can be used with up to three additional parameters of arbitrary type
-        // Thes should always come after kinematics but before the id which always comes last
-        my_amplitude(amplitude_key key, kinematics xkinem, sometype local_data, std::string id = "my_amplitude's default id")
-        : raw_amplitude(key, xkinem, id)
-        {
-            initialize(2);
-
-            // Do something with local_data
-        };
-
-        my_amplitude(amplitude_key key, kinematics xkinem, sometype data1, othertype data2, std::string id = "my_amplitude's default id")
-        : raw_amplitude(key, xkinem, id)
-        {
-            initialize(2);
-
-            // Do something 
         };
 
         // -----------------------------------------------------------------------
@@ -80,8 +62,8 @@ namespace jpacPhoto
         inline helicity_channel native_helicity_frame(){ return helicity_channel::S_CHANNEL; };
 
         // Specify which final state particles amplitude can acommodate
-        inline std::vector<particle> allowed_mesons() { return { vector, axialvector }; };
-        inline std::vector<particle> allowed_baryons(){ return { halfplus, halfminus }; };
+        inline std::vector<particle> allowed_mesons() { return { VECTOR, AXIALVECTOR }; };
+        inline std::vector<particle> allowed_baryons(){ return { HALFPLUS, HALFMINUS }; };
 
         // Given a std::vector<double> of size N_pars
         // save parameters to local variables with which to calculate amplitude

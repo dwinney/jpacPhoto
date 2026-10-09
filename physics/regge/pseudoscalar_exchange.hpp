@@ -10,10 +10,6 @@
 #ifndef REGGE_PSEUDOSCALAR_EXCHANGE_HPP
 #define REGGE_PSEUDOSCALAR_EXCHANGE_HPP
 
-#include "constants.hpp"
-#include "kinematics.hpp"
-#include "amplitude.hpp"
-#include "cgamma.hpp"
 #include "analytic/pseudoscalar_exchange.hpp"
 
 namespace jpacPhoto
@@ -25,8 +21,8 @@ namespace jpacPhoto
             public: 
 
             // Constructor calls the analytic one with no exchange mass
-            pseudoscalar_exchange(key k, kinematics xkinem, std::string id)
-            : analytic::pseudoscalar_exchange(k, xkinem, 0, id)
+            pseudoscalar_exchange(key k, kinematics xkinem)
+            : analytic::pseudoscalar_exchange(k, xkinem)
             {
                 // Two additional parameters for regge trajectory
                 initialize(5);
@@ -48,8 +44,8 @@ namespace jpacPhoto
 
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                 : _FF->eval(_t);
+                complex FF = (_option == kExpFF) ? _FF(_t - _kinematics->t_min(s))
+                                                 : _FF(_t);
 
                 // Multiply couplings with propagator
                 return FF * result;
@@ -68,14 +64,11 @@ namespace jpacPhoto
             // [4] trajectory slope
             inline void allocate_parameters(std::vector<double> x)
             {
-                _gTop     = x[0];
-                _gBot     = x[1];
-                _ffCutoff = x[2];
-                _a0       = x[3];
-                _aP       = x[4];
-
-                // Pass cutoff to FF as well
-                _FF->set_cutoff(_ffCutoff);
+                _a0       = x[0];
+                _aP       = x[1];
+                _gTop     = x[2];
+                _gBot     = x[3];
+                _ffCutoff = x[4];
                 return;
             };
 

@@ -17,7 +17,6 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
-#include "cgamma.hpp"
 
 namespace jpacPhoto
 {
@@ -27,21 +26,11 @@ namespace jpacPhoto
         {
             public:
 
-            // Constructor
-            reggeon_exchange(key k, kinematics xkinem, int naturality, std::string id)
-            : raw_amplitude(k, xkinem, id), _naturality(naturality), _signature(+1)
+            // At construction need to specify the naturality and signature of the exchange in a 2-array
+            reggeon_exchange(key k, kinematics xkinem, std::array<int,2> nat_and_sig)
+            : raw_amplitude(k, xkinem, "reggeon_exchange"), 
+              _naturality(nat_and_sig[0]), _signature(nat_and_sig[1])
             {  
-                if (abs(naturality) > 1) warning("reggeon_exchange", "Invalid naturality passed to constructor!");
-
-                _J = xkinem->get_meson_JP()[0];
-                initialize(6 + 2*_J);
-            };
-
-            reggeon_exchange(key k, kinematics xkinem, int naturality, int signature, std::string id)
-            : raw_amplitude(k, xkinem, id), _naturality(naturality), _signature(signature)
-            {  
-                if (abs(naturality) > 1) warning("reggeon_exchange", "Invalid naturality passed to constructor!");
-
                 _J = xkinem->get_meson_JP()[0];
                 initialize(6 + 2*_J);
             };
@@ -66,7 +55,6 @@ namespace jpacPhoto
             static const int k2020_Minimal = 1;
             static const int k2020_TMD     = 2;
             static const int kRemoveZero   = 3;
-            static const int kDefault = k2018_Model;
 
             inline void set_option(int x)
             {

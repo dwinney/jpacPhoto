@@ -18,6 +18,7 @@
 #include <sstream> 
 #include <functional>
 
+#include <TImage.h>
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <TAxis.h>
@@ -29,13 +30,34 @@
 #include <TLatex.h>
 #include <TLine.h>
 
-#include "data_set.hpp"
-#include "elementwise.hpp"
-#include "colors.hpp"
+#include "utilities.hpp"
 
 namespace jpacPhoto
 {
+    // Forward declaration
     class plotter;
+
+    //---------------------------------------------------------------------
+    // Give each jpacColor a ROOT TColor index name so it may be called globally after its initialized
+    enum class jpacColor: Int_t { Blue   = 2001, Red      = 2002, Green = 2003,
+                                  Orange = 2004, Purple   = 2005, Brown = 2006, 
+                                  Pink   = 2007, Gold     = 2008, Aqua  = 2009, 
+                                  Grey   = 2010, DarkGrey = 2011                };
+
+    // Convert from jpacColor to its underlying int
+    inline constexpr Int_t operator+(jpacColor x)
+    {
+        return static_cast<Int_t>(x);
+    };
+
+    constexpr std::array<jpacColor,11> JPACCOLORS = {jpacColor::Blue,   jpacColor::Red,    jpacColor::Green, 
+                                                     jpacColor::Orange, jpacColor::Purple, jpacColor::Brown, 
+                                                     jpacColor::Pink,   jpacColor::Gold,   jpacColor::Aqua, 
+                                                     jpacColor::Grey,   jpacColor::DarkGrey };
+
+
+    //---------------------------------------------------------------------
+    // Line styles 
 
     struct entry_style
     {
@@ -43,7 +65,7 @@ namespace jpacPhoto
         int  _style           = 0;                    // Either linestyle or markerstyle code
         bool _add_to_legend   = true;                 // Whether to add this curve to the legend
         std::string _label    = "";                   // Label to add to Legend
-        std::string _draw_opt = "L";                // string which enters ROOT::Draw() 
+        std::string _draw_opt = "L";                  // string which enters ROOT::Draw() 
     };
 
     inline entry_style dashed(jpacColor color, std::string id = "")
@@ -85,6 +107,9 @@ namespace jpacPhoto
         custom._add_to_legend = (custom._label != "");
         return custom;
     };
+
+    //---------------------------------------------------------------------
+    // Each plot is a collecion of plot_entries 
 
     // Each entry represents a curve to draw as a TGraph
     struct plot_entry 
@@ -133,6 +158,7 @@ namespace jpacPhoto
         static constexpr double _default_markerwidth = 2;
     };  
 
+    //---------------------------------------------------------------------
     // This class contains the entries, data, and options of producing a single plot/file
     // These can be generated from the plotter->make_plot() method which applies
     // all global settings
@@ -155,23 +181,15 @@ namespace jpacPhoto
         // -----------------------------------------------------------------------
         // Methods to add data points to your plot
 
-        // Convert a data_set object to a plot_entry
-        void add_data(data_set data);
-
-        // This second function can be used if you want the data_set to have
-        // a different string id in the legend than the one saved in the data_set
-        inline void add_data(data_set data, std::string different_id)
-        {
-            data_set copy(data);
-            copy._id = different_id;
-            add_data(copy);
-        };
-
         // Add data by simply feeding it vectors 
+        
         void add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errs, std::string id = "");
-
+        
         // Add data by simply feeding it vectors 
         void add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errs, jpacColor col);
+
+        // Add data from a data_set
+        void add_data(data_set x);
 
         // Add a small offset to change the running color index
         inline void color_offset(unsigned n)
@@ -254,11 +272,7 @@ namespace jpacPhoto
             _addheader = true; 
         };
 
-        inline void add_logo(bool x, std::array<double, 2> coords = {0.93, 0.885}, double scale = 1)
-        {
-            _add_logo = x; _logo_coords = coords; _logo_scale = scale;
-        };
-        inline void reset_logo(){ _add_logo = true; _logo_coords =  {0.93, 0.885}; _logo_scale = 1; };
+        inline void add_logo(bool x){ _add_logo = x; };
         inline void preliminary(bool x){ _prelim = x; };
 
         inline void print_to_terminal(bool x){ _print  = x; };
@@ -306,25 +320,19 @@ namespace jpacPhoto
         // Filename of where to produce the desired plot
         std::string _filename;
 
-        bool _add_logo = true;
-        std::array<double,2> _logo_coords = {0.93, 0.885};
-        double _logo_scale = 1;
+        // Stuff related to drawing the jpac logo
+        bool _add_logo = false;
+        TImage *logo = TImage::Open((main_dir()+"/doc/JPAClogo.png").c_str());
         inline void add_logo()
         {
-            int red  = +jpacColor::Red;
-            int blue = +jpacColor::Blue;
-            
-            std::string JPAC = "#scale[1.3]{#font[32]{#color[" + std::to_string(blue) + "]{J}}"
-                      + "^{#scale[0.8]{#font[32]{" + "#color[" + std::to_string(blue) + "]{P}"
-                                                   + "#color[" + std::to_string(red) +  "]{A}"
-                                                   + "#color[" + std::to_string(blue) + "]{C}}}}}";
-
-            TLatex *logo = new TLatex(_logo_coords[0], _logo_coords[1], JPAC.c_str());
-
-            logo->SetNDC();
-            logo->SetTextSize(2/30. * _logo_scale);
-            logo->SetTextAlign(32);
+            double xcoord = 0.73;
+            double ycoord = 0.80;
+            TPad *l = new TPad("l","l", xcoord, ycoord , xcoord+0.24, ycoord+0.13);
+            l->SetFillStyle(4000);
+            l->Draw();
+            l->cd();
             logo->Draw();
+            _canvas->cd();
         };
 
         bool _prelim = false;

@@ -19,9 +19,9 @@
 #ifndef KINEMATICS_HPP
 #define KINEMATICS_HPP
 
-#include "constants.hpp"
-#include "helicities.hpp"
 #include "key.hpp"
+#include "constants.hpp"
+#include "utilities.hpp"
 
 #include "TMath.h"
 
@@ -42,6 +42,29 @@ namespace jpacPhoto
     // amplitudes themselves
     // ---------------------------------------------------------------------------
     
+    // ------------------------------------------------------------------------------
+    // Things related to helicities
+
+    // Each amplitude needs to be able to tell which frame its helicities are defined in
+    enum helicity_frame : uint { HELICITY_ERROR, HELICITY_INDEPENDENT, S_CHANNEL, T_CHANNEL, U_CHANNEL };
+
+    // Output a string of a given helicity set in format e.g. {+,+,+,+}
+    std::string print_helicities(std::array<int,4> lam);
+
+    // Generate a vector containing all the helicity combinations
+    std::vector<std::array<int, 4>> get_helicities(int mJ, int bJ, bool is_massless = true);
+
+    // Given a set of helicities, find its helicity index
+    uint find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless = true);
+
+    // ------------------------------------------------------------------------------
+    // Quantum number combinations
+
+    enum quantum_numbers : uint { PARTICLE_ERROR, ANY, 
+                           SCALAR, PSEUDOSCALAR, VECTOR, AXIALVECTOR, TENSOR, AXIALTENSOR,
+                           HALFPLUS, HALFMINUS, THREEPLUS, THREEMINUS };
+
+
     // Forward declaration so we can rename ptr to kinematics as just kinematics
     // WE do this because we basically never want to work with a raw instance, but pass around a pointer
     class raw_kinematics;
@@ -111,7 +134,7 @@ namespace jpacPhoto
         {
             if (!is_photon()) 
             {
-                error("kinematics", "call to set_Q2() without initializing a photon beam first!");
+                warning("kinematics - call to set_Q2() without initializing a photon beam first!");
             }
 
             _virtual = true; 
@@ -212,7 +235,7 @@ namespace jpacPhoto
         double bH_to_GJ_angle(double s, double t);
 
         // Lorentz invariant kibble polynomial
-        inline double Kibble(double s, double t){ return - G(s, t, _mR*_mR, _mB*_mB, _mT*_mT, _mX*_mX); };
+        inline double kibble(double s, double t){ return - G(s, t, _mR*_mR, _mB*_mB, _mT*_mT, _mX*_mX); };
 
         // -----------------------------------------------------------------------
         private:

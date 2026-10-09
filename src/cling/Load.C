@@ -25,6 +25,7 @@ void Load()
     TString physics  = main_dir + "/physics";
     TString data     = main_dir + "/data";
 
+    
     if (!gSystem->AccessPathName(main_lib.Data()))
     {
         Int_t pholib = gSystem->Load( main_lib.Data());
@@ -36,6 +37,10 @@ void Load()
     {
         Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
     }
+    
+    // If Eigen is requested / searhcable add it
+    TString eigen    = gSystem->Getenv("EIGEN");
+    gInterpreter->AddIncludePath( eigen.Data());
 
     //----------------------------------------------------------------------
     // IF dynamic AmpTools is found in lib, assume we want to load it too

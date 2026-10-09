@@ -9,7 +9,6 @@
 // ------------------------------------------------------------------------------
 
 #include "plot.hpp"
-#include "colors.hpp"
 
 namespace jpacPhoto
 {
@@ -19,7 +18,7 @@ namespace jpacPhoto
     {
         if (_entries.empty() ) 
         {
-            warning("plot::save()", "No entries added! Returning...");
+            warning("plot::save() - No entries added! Returning...");
             return;
         };
         
@@ -140,7 +139,7 @@ namespace jpacPhoto
     };
 
     // ---------------------------------------------------------------------------
-    // Convert data_set and amplitude easily into plot_entries
+    // Add data points to a plot
 
     void plot::add_data(data_set data)
     {
@@ -170,7 +169,7 @@ namespace jpacPhoto
         // Check size of arrays
         int N = dat[0].size();
         if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
-            error("add_data", "Input vectors dont match! Returning...");
+            { warning("add_data - Input vectors dont match! Returning..."); return; };
 
         double *x, *y, *ex, *ey;
 
@@ -198,7 +197,7 @@ namespace jpacPhoto
         // Check size of arrays
         int N = dat[0].size();
         if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
-            error("add_data", "Input vectors dont match! Returning...");
+            { warning("add_data - Input vectors dont match! Returning..."); return; };
 
         double *x, *y, *ex, *ey;
 

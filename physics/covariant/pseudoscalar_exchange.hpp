@@ -13,8 +13,8 @@
 
 #include "constants.hpp"
 #include "kinematics.hpp"
-#include "form_factor.hpp"
 #include "amplitude.hpp"
+#include "contract.hpp"
 
 namespace jpacPhoto
 {
@@ -25,10 +25,10 @@ namespace jpacPhoto
             public:
 
             // Constructor we specify the exchange particle mass
-            pseudoscalar_exchange(key k, kinematics xkinem, double exchange_mass, std::string id = "pseudoscalar_exchange")
-            : raw_amplitude(k, xkinem, id), _mEx(exchange_mass)
+            pseudoscalar_exchange(key k, kinematics xkinem)
+            : raw_amplitude(k, xkinem, "pseudoscalar_exchange")
             {
-                initialize(3);
+                initialize(4);
             }
             
             // ---------------------------------------------------------------------------
@@ -41,20 +41,20 @@ namespace jpacPhoto
                 _covariants->update(helicities, s, t);
 
                 complex result = top_coupling() * propagator() * bottom_coupling();
+                
                 if (_option == kNoFF) return result;
 
-                
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                : _FF->eval(_t);
+                complex FF = (_option == kExpFF) ? _FF(_t - _kinematics->t_min(s))
+                                                 : _FF(_t);
                 
                 // Multiply couplings with propagator
                 return FF * result;
             }
 
             // Covariants are s-channel amplitudes
-            inline helicity_frame native_helicity_frame(){ return S_CHANNEL; };
+            inline helicity_frame native_helicity_frame(){ return helicity_frame::S_CHANNEL; };
 
             // We can have pseudo-scalar, vector, and axial-vector
             inline std::vector<quantum_numbers> allowed_mesons()
@@ -78,21 +78,22 @@ namespace jpacPhoto
                 {
                     case (kExpFF): 
                     {
-                        _FF = new_FF<exponential>();
-                        _FF->set_cutoff(_ffCutoff);
+                        _FF = [this](double t){ return exp(XR* t / std::norm(_ffCutoff));  };
+                        _option = opt;
                         break;
                     };
                     case (kMonopoleFF):
                     {
-                        _FF = new_FF<monopole>(_mEx);
-                        _FF->set_cutoff(_ffCutoff);
+                        _FF = [this](double t){ return (std::norm(_ffCutoff )-std::norm(_mEx))/(std::norm(_ffCutoff )-t); };
+                        _option = opt;
                         break;
                     }
                     case (kNoFF):
                     {
-                        _FF = nullptr;
-                        set_N_pars(2);
-                        break;
+                        _FF = [](double t){ return 1; };
+                        _option = opt;
+                        set_N_pars(4);
+                        return;
                     }
                     default: 
                     {
@@ -107,6 +108,7 @@ namespace jpacPhoto
             // Parameter names
             inline std::vector<std::string> parameter_labels()
             {
+                if (_option == kNoFF) return { "exchange_mass", "gPhoton", "gNucleon" };
                 return { "gPhoton", "gNucleon", "Cutoff" };
             };
             
@@ -121,14 +123,10 @@ namespace jpacPhoto
             // [2] Form-factor cutoff
             inline void allocate_parameters(std::vector<double> x)
             {
-                _gTop     = x[0];
-                _gBot     = x[1];
-                
-                if (_option != kNoFF)
-                {
-                    _ffCutoff = x[2];
-                    _FF->set_cutoff(_ffCutoff);
-                }
+                _mEx      = x[0];
+                _gTop     = x[1];
+                _gBot     = x[2];
+                if (_option != kNoFF) _ffCutoff = x[3];
                 return;
             };
 
@@ -140,15 +138,9 @@ namespace jpacPhoto
 
             // We include a t-channel form-factor for the propagator
             // By default this is the exponential one
-            form_factor _FF = new_FF<exponential>();
+            std::function<complex(double)> _FF;
 
             // COVARIANT PIECES
-
-            // Scalar propagator in the t-channel
-            inline complex propagator()
-            {
-                return - I / (_t - _mEx*_mEx);
-            };
 
             inline complex top_coupling()
             {
@@ -161,11 +153,10 @@ namespace jpacPhoto
                 auto eps_p = _covariants->eps_prime();
 
                 complex result = 0;
-
                 switch (_kinematics->get_meson())
                 {
-                    case (AXIALVECTOR):  { result = contract(eps,   eps_p) * contract(q,   q_p) 
-                                                  - contract(eps, q_p)     * contract(eps_p, q);
+                    case (AXIALVECTOR):  { result = contract(eps, eps_p) * contract(q,   q_p) 
+                                                  - contract(eps, q_p)   * contract(eps_p, q);
                                            result /= _mX; 
                                            break;};                                          
                     
@@ -176,7 +167,7 @@ namespace jpacPhoto
                     case (PSEUDOSCALAR): { result = - contract(eps, q - 2 * q_p); 
                                            break;}
 
-                    default: break;
+                    default: return NaN<complex>();
                 };
 
                 return _gTop * result; 
@@ -190,6 +181,12 @@ namespace jpacPhoto
                 complex result = contract(ubar, gamma_5() * u);
             
                 return _gBot * result;
+            };
+
+            // Scalar propagator in the t-channel
+            inline complex propagator()
+            {
+                return - I / (_t - _mEx*_mEx);
             };
 
         };

@@ -16,7 +16,7 @@
 #include "kinematics.hpp"
 #include "plotter.hpp"
 
-#include "analytic/vector_exchange.hpp"
+#include "covariant/vector_exchange.hpp"
 #include "analytic/vector_exchange.hpp"
 #include "regge/vector_exchange.hpp"
 
@@ -29,10 +29,10 @@ void X_mesons()
     // ---------------------------------------------------------------------------'
 
     // Nucleon couplings 
-    double gV_omega = 16., gT_omega = 0.;
-    double gV_rho = 2.4,  gT_rho = 14.6;
-    double gV_phi = -6.2, gT_phi = 2.1;
-    double gV_psi = 1.6E-3, gT_psi = 0.;
+    double gV_omega = 16.,    gT_omega = 0.;
+    double gV_rho   = 2.4,    gT_rho   = 14.6;
+    double gV_phi   = -6.2,   gT_phi   = 2.1;
+    double gV_psi   = 1.6E-3, gT_psi   = 0.;
     
     // Photon couplings
     double gChi_omega   = 5.2E-4;
@@ -65,30 +65,29 @@ void X_mesons()
     // ---------------------------------------------------------------------------
 
     // chi_c1
-    amplitude ChiC1_omegaL = new_amplitude<analytic::vector_exchange>(kChiC1, M_OMEGA, "#omega exchange");
-    ChiC1_omegaL->set_parameters({gChi_omega, gV_omega, gT_omega, LamOmega});
+    amplitude ChiC1_omegaL = new_amplitude<covariant::vector_exchange>(kChiC1);
+    ChiC1_omegaL->set_parameters({M_OMEGA, gChi_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude ChiC1_rhoL = new_amplitude<analytic::vector_exchange>(kChiC1, M_RHO, "#rho exchange");
-    ChiC1_rhoL->set_parameters({gChi_rho, gV_rho, gT_rho, LamRho});
+    amplitude ChiC1_rhoL = new_amplitude<covariant::vector_exchange>(kChiC1);
+    ChiC1_rhoL->set_parameters({M_RHO, gChi_rho, gV_rho, gT_rho, LamRho});
 
-    amplitude ChiC1_phiL = new_amplitude<analytic::vector_exchange>(kChiC1, M_PHI, "#phi exchange");
+    amplitude ChiC1_phiL = new_amplitude<covariant::vector_exchange>(kChiC1);
     ChiC1_phiL->set_option(analytic::vector_exchange::kNoFF);
-    ChiC1_phiL->set_parameters({gChi_phi, gV_phi, gT_phi});
+    ChiC1_phiL->set_parameters({M_PHI, gChi_phi, gV_phi, gT_phi});
 
-    amplitude ChiC1_psiL = new_amplitude<analytic::vector_exchange>(kChiC1, M_JPSI, "#it{J}/#psi exchange");
+    amplitude ChiC1_psiL = new_amplitude<covariant::vector_exchange>(kChiC1);
     ChiC1_psiL->set_option(analytic::vector_exchange::kNoFF);
-
-    ChiC1_psiL->set_parameters({gChi_psi, gV_psi, gT_psi});
+    ChiC1_psiL->set_parameters({M_JPSI, gChi_psi, gV_psi, gT_psi});
     
     amplitude ChiC1_L = ChiC1_omegaL + ChiC1_rhoL + ChiC1_phiL + ChiC1_psiL;
     ChiC1_L->set_id("#chi_{c1}");
 
     // X(3872)
-    amplitude X_omegaL = new_amplitude<analytic::vector_exchange>(kX, M_OMEGA, "#omega exchange");
-    X_omegaL->set_parameters({gX_omega, gV_omega, gT_omega, LamOmega});
+    amplitude X_omegaL = new_amplitude<covariant::vector_exchange>(kX);
+    X_omegaL->set_parameters({M_OMEGA, gX_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude X_rhoL = new_amplitude<analytic::vector_exchange>(kX, M_RHO, "#rho exchange");
-    X_rhoL->set_parameters({gX_rho, gV_rho, gT_rho, LamRho});
+    amplitude X_rhoL = new_amplitude<covariant::vector_exchange>(kX);
+    X_rhoL->set_parameters({M_RHO, gX_rho, gV_rho, gT_rho, LamRho});
     
     // Total is the sum of the above exchanges
     amplitude X_L = X_omegaL + X_rhoL;
@@ -99,21 +98,21 @@ void X_mesons()
     // ---------------------------------------------------------------------------
 
     // chi_c1
-    amplitude ChiC1_omegaH = new_amplitude<regge::vector_exchange>(kChiC1, "#omega exchange");
-    ChiC1_omegaH->set_parameters({gChi_omega, gV_omega, gT_omega, LamOmega, inter, slope});
+    amplitude ChiC1_omegaH = new_amplitude<regge::vector_exchange>(kChiC1);
+    ChiC1_omegaH->set_parameters({inter, slope, gChi_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude ChiC1_rhoH = new_amplitude<regge::vector_exchange>(kChiC1,  "#rho exchange");
-    ChiC1_rhoH->set_parameters({gChi_rho, gV_rho, gT_rho, LamRho, inter, slope});
+    amplitude ChiC1_rhoH = new_amplitude<regge::vector_exchange>(kChiC1);
+    ChiC1_rhoH->set_parameters({inter, slope, gChi_rho, gV_rho, gT_rho, LamRho});
 
     amplitude ChiC1_H = ChiC1_omegaH + ChiC1_rhoH;
     ChiC1_H->set_id("#chi_{c1}");
 
     // X(3872)
-    amplitude X_omegaH = new_amplitude<regge::vector_exchange>(kX, "#omega exchange");
-    X_omegaH->set_parameters({gX_omega, gV_omega, gT_omega, LamOmega, inter, slope});
+    amplitude X_omegaH = new_amplitude<regge::vector_exchange>(kX);
+    X_omegaH->set_parameters({inter, slope, gX_omega, gV_omega, gT_omega, LamOmega});
 
-    amplitude X_rhoH = new_amplitude<regge::vector_exchange>(kX, "#rho exchange");
-    X_rhoH->set_parameters({gX_rho, gV_rho, gT_rho, LamRho, inter, slope});
+    amplitude X_rhoH = new_amplitude<regge::vector_exchange>(kX);
+    X_rhoH->set_parameters({inter, slope, gX_rho, gV_rho, gT_rho, LamRho});
     
     // Total is the sum of the above exchanges
     amplitude X_H = X_omegaH + X_rhoH;
@@ -135,6 +134,7 @@ void X_mesons()
     p_low.set_labels( "#it{W_{#gammap}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{Xp})  [nb]");
     p_low.add_curve({4, 7}, [&](double W){ return ChiC1_L->integrated_xsection(W*W); }, "#it{#chi}_{c1}");
     p_low.add_curve({4, 7}, [&](double W){ return X_L->integrated_xsection(W*W); },     "#it{X}(3872)");
+    p_low.save("X_mesons.pdf");
 
     // High-energy plot
     plot p_high = plotter.new_plot();

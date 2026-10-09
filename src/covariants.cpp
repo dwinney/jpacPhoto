@@ -7,7 +7,6 @@
 // ---------------------------------------------------------------------------
 
 #include "covariants.hpp"
-#include "dirac_spinor.hpp"
 
 namespace jpacPhoto
 {
@@ -99,31 +98,31 @@ namespace jpacPhoto
     lorentz_tensor<complex,1> covariants::eps()
     {
         // If helicity out of bounds return zero vector
-        if (abs(_lamB) > 1) return error("eps", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
+        if (std::abs(_lamB) > 1) return error("eps - Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
 
         // Check cases:
-        bool transverse = ( abs(_lamB) == 1 );
+        bool transverse = ( std::abs(_lamB) == 1 );
         bool massive    = !_kinematics->is_photon();
         
-        if ( transverse ) return - lorentz_vector<complex>({{  0, _lamB,  I,   0}}) / sqrt(2);
-        if ( massive )    return   lorentz_vector<complex>({{_qi,     0,  0, _EB}}) / _mB;
-        else              return   lorentz_vector<complex>({{  0,     0,  0,   0}});
+        if ( transverse ) return lorentz_vector<complex>({{  0, -_lamB,  -I,   0}}) / sqrt(2);
+        if ( massive )    return lorentz_vector<complex>({{_qi,     0,  0, _EB}}) / _mB;
+        else              return lorentz_vector<complex>({{  0,     0,  0,   0}});
     };
 
     // Outgoing, meson polarization vector
     lorentz_tensor<complex,1> covariants::eps_prime()
     {
         // If helicity out of bounds return zero vector
-        if (abs(_lamX) > 1) return error("eps_prime", "Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
+        if (std::abs(_lamX) > 1) return error("eps_prime - Invalid helicity passed!", lorentz_vector<complex>({{0,0,0,0}}));
 
         // Currently doubly massless particles (compton scattering) is not available 
-        if ( is_zero(_mX) ) return error("eps_prime", "Massless final state boson not supported yet!", lorentz_vector<complex>({{0,0,0,0}}));
+        if ( is_zero(_mX) ) return error("eps_prime - Massless final state boson not supported yet!", lorentz_vector<complex>({{0,0,0,0}}));
         
         // Check cases:
-        bool transverse = ( abs(_lamX) == 1 );
+        bool transverse = ( std::abs(_lamX) == 1 );
             
-        if ( transverse ) return - lorentz_vector<complex>({{  0, _lamX*_cos,  I, -_lamX*_sin}}) / sqrt(2);
-        else              return   lorentz_vector<complex>({{_qf,   _EX*_sin,  0,    _EX*_cos}}) / _mX;
+        if ( transverse ) return lorentz_vector<complex>({{0, -_lamX*_cos, I, _lamX*_sin}}) / sqrt(2);
+        else              return lorentz_vector<complex>({{_qf, _EX*_sin, 0, _EX*_cos}}) / _mX;
     };
 
     // ---------------------------------------------------------------------------
@@ -134,8 +133,8 @@ namespace jpacPhoto
     {
         complex wp = csqrt(_ET + _mT), wm = csqrt(_ET - _mT);
 
-        if (_lamT == 1) return - dirac_spinor({{{0, wp,  0, wm}}});
-        else            return   dirac_spinor({{{wp, 0, -wm, 0}}});
+        if (_lamT == 1) return dirac_spinor({{{0, wp,  0, wm}}});
+        else            return dirac_spinor({{{wp, 0, -wm, 0}}});
     };
 
     // outgoing (recoil) spinor
@@ -143,9 +142,7 @@ namespace jpacPhoto
     {
         complex wp = csqrt(_ER + _mR), wm = csqrt(_ER - _mR);
         
-        dirac_spinor u = (_lamR == 1) ? dirac_spinor({{{wp*_sinhalf, -wp*_coshalf,  wm*_sinhalf, -wm*_coshalf}}}) 
-                                      : dirac_spinor({{{wp*_coshalf,  wp*_sinhalf, -wm*_coshalf, -wm*_sinhalf}}});
-
-        return u.adjoint();
+        if (_lamR == 1) return dirac_spinor({{{-wp*_sinhalf, wp*_coshalf, wm*_sinhalf, -wm*_coshalf}}});
+        else            return dirac_spinor({{{wp*_coshalf,  wp*_sinhalf, wm*_coshalf, wm*_sinhalf}}});
     };
 };

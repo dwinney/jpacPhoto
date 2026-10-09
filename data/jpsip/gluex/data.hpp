@@ -10,7 +10,7 @@
 #ifndef GLUEX_DATA_HPP
 #define GLUEX_DATA_HPP
 
-#include "data_set.hpp"
+#include "fitter.hpp"
 #include "constants.hpp"
 #include "kinematics.hpp"
 
@@ -23,7 +23,7 @@ namespace jpacPhoto
         {
             std::string id = "GlueX (2023)";
 
-            auto raw  = import_data<6>("/data/jpsip/gluex/gluex2022_int.tsv");
+            auto raw  = import_data<6>(main_dir()+"/data/jpsip/gluex/gluex2022_int.tsv");
             int  N    = check<6>(raw, id);
         
             data_set wrapped;
@@ -60,21 +60,21 @@ namespace jpacPhoto
                 case 0: 
                 {
                     id = "GlueX (E = 8.93 GeV)";
-                    filename = "/data/jpsip/gluex/gluex2022_diff_E0893.tsv";
+                    filename = main_dir()+"/data/jpsip/gluex/gluex2022_diff_E0893.tsv";
                     Eavg = 8.92877;
                     break;
                 }
                 case 1:
                 {
                     id = "GlueX (E = 9.85 GeV)";
-                    filename = "/data/jpsip/gluex/gluex2022_diff_E0985.tsv";
+                    filename = main_dir()+"/data/jpsip/gluex/gluex2022_diff_E0985.tsv";
                     Eavg = 9.8583;
                     break;
                 }
                 case 2:
                 {
                     id = "GlueX (E = 10.82 GeV)";
-                    filename = "/data/jpsip/gluex/gluex2022_diff_E1082.tsv";
+                    filename = main_dir()+"/data/jpsip/gluex/gluex2022_diff_E1082.tsv";
                     Eavg = 10.8205;
                     break;
                 }

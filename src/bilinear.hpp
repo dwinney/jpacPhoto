@@ -17,7 +17,6 @@
 #include "constants.hpp"
 #include "contract.hpp"
 #include "lorentz_tensor.hpp"
-#include "dirac_matrix.hpp"
 #include "dirac_spinor.hpp"
 
 namespace jpacPhoto
@@ -58,23 +57,23 @@ namespace jpacPhoto
         public: 
 
         // Default tensor with nothing initialized
-        bilinear_tensor<Rank>(){};
+        bilinear_tensor(){};
 
         // Copy constructor
-        bilinear_tensor<Rank>(bilinear_tensor<Rank> const & old)
+        bilinear_tensor(bilinear_tensor<Rank> const & old)
         : _matrix(old._matrix),
           _lhs(old._lhs), _rhs(old._rhs)
         {};
 
         // Implicit constructor, stores pointers to constituent tensors of smaller rank
-        bilinear_tensor<Rank>(dirac_spinor L, lorentz_tensor<dirac_matrix, Rank> Ts, dirac_spinor R)
+        bilinear_tensor(dirac_spinor L, lorentz_tensor<dirac_matrix, Rank> Ts, dirac_spinor R)
         :   _lhs(L), _rhs(R),
             _matrix(Ts)
         {};
 
         inline complex operator()(std::vector<lorentz_index> indices)
         {
-            if (indices.size() != Rank) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<complex>());          
+            if (indices.size() != Rank) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<complex>());          
 
             // begin producting all the matrices to get one 
             dirac_matrix M = _matrix(indices);

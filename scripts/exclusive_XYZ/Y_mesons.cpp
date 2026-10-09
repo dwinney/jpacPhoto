@@ -16,8 +16,7 @@
 #include "kinematics.hpp"
 #include "plotter.hpp"
 
-#include "analytic/pomeron_exchange.hpp"
-#include "covariant/pomeron_exchange.hpp"
+#include "regge/pomeron_exchange.hpp"
 
 void Y_mesons()
 {
@@ -66,15 +65,18 @@ void Y_mesons()
     // ---------------------------------------------------------------------------
     
     // Jpsi
-    amplitude   JpsiL = new_amplitude<covariant::pomeron_exchange>(kJpsi, "#it{J}/#psi");
+    amplitude   JpsiL = new_amplitude<regge::pomeron_exchange>(kJpsi);
+    JpsiL->set_option(regge::pomeron_exchange::kVecPom);
     JpsiL->set_parameters({AL*R_Jpsi, bL, alpha_0L, alpha_PL});
 
     // Psi(2S)
-    amplitude   Psi2SL= new_amplitude<covariant::pomeron_exchange>(kPsi2S, "#psi(2#it{S})");
+    amplitude   Psi2SL= new_amplitude<regge::pomeron_exchange>(kPsi2S);
+    Psi2SL->set_option(regge::pomeron_exchange::kVecPom);
     Psi2SL->set_parameters({AL*R_Psi2S, bL, alpha_0L, alpha_PL});
 
     // Y(4260)
-    amplitude   YL = new_amplitude<covariant::pomeron_exchange>(kY, "#it{Y}(4260)");
+    amplitude   YL = new_amplitude<regge::pomeron_exchange>(kY);
+    YL->set_option(regge::pomeron_exchange::kVecPom);
     YL->set_parameters({AL*R_Y, bL, alpha_0L, alpha_PL});
 
     // ---------------------------------------------------------------------------
@@ -82,15 +84,18 @@ void Y_mesons()
     // ---------------------------------------------------------------------------
     
     // Jpsi
-    amplitude   JpsiH = new_amplitude<analytic::pomeron_exchange>(kJpsi, "#it{J}/#psi");
+    amplitude   JpsiH = new_amplitude<regge::pomeron_exchange>(kJpsi);
+    JpsiH->set_option(regge::pomeron_exchange::kHelCon);
     JpsiH->set_parameters({AH*R_Jpsi, bH, alpha_0H, alpha_PH});
 
     // Psi(2S)
-    amplitude   Psi2SH = new_amplitude<analytic::pomeron_exchange>(kPsi2S, "#psi(2#it{S})");
+    amplitude   Psi2SH = new_amplitude<regge::pomeron_exchange>(kPsi2S);
+    Psi2SH->set_option(regge::pomeron_exchange::kHelCon);
     Psi2SH->set_parameters({AH*R_Psi2S, bH, alpha_0H, alpha_PH});
 
     // Y(4260)
-    amplitude   YH = new_amplitude<analytic::pomeron_exchange>(kY, "#it{Y}(4260)");
+    amplitude   YH = new_amplitude<regge::pomeron_exchange>(kY);
+    YH->set_option(regge::pomeron_exchange::kHelCon);
     YH->set_parameters({AH*R_Y, bH, alpha_0H, alpha_PH});
 
     // ---------------------------------------------------------------------------

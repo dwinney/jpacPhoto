@@ -13,7 +13,6 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
-#include "cgamma.hpp"
 #include "analytic/vector_exchange.hpp"
 
 namespace jpacPhoto
@@ -25,8 +24,8 @@ namespace jpacPhoto
             public: 
 
             // Constructor calls the analytic one with no exchange mass
-            vector_exchange(key k, kinematics xkinem, std::string id)
-            : analytic::vector_exchange(k, xkinem, 0, id)
+            vector_exchange(key k, kinematics xkinem)
+            : analytic::vector_exchange(k, xkinem)
             {
                 // Two additional parameters for regge trajectory
                 initialize(6);
@@ -45,15 +44,15 @@ namespace jpacPhoto
                 // Net helicities
                 _lam  =  _lamB - _lamX;
                 _lamp = (_lamT - _lamR) / 2;
-                _M    = std::max(abs(_lam), abs(_lamp));
+                _M    = std::max( std::abs(_lam), std::abs(_lamp));
 
                 // Double flip is forbidden
                 if (_M == 2) return 0;
                 
                 // Parse which argument should go into the form-factor
                 // The exponential takes t' = t - tmin while monopole takes just t
-                complex FF = (_option == kExpFF) ? _FF->eval(_t - _kinematics->t_min(s))
-                                                 : _FF->eval(_t);
+                complex FF = (_option == kExpFF) ? _FF(_t - _kinematics->t_min(s))
+                                                 : _FF(_t);
 
                 // Multiply couplings with propagator
                 return FF * top_coupling() * propagator() * bottom_coupling();
@@ -62,7 +61,7 @@ namespace jpacPhoto
             // Parameter names
             inline std::vector<std::string> parameter_labels()
             {
-                return { "gPhoton", "gN_Vector", "gN_Tensor", "Intercept", "Slope"};
+                return { "Intercept", "Slope", "gPhoton", "gN_Vector", "gN_Tensor"};
             };
 
             // -----------------------------------------------------------------------
@@ -79,15 +78,12 @@ namespace jpacPhoto
             // [5] trajectory slope
             inline void allocate_parameters(std::vector<double> x)
             {
-                _gTop     = x[0];
-                _gBotV    = x[1];
-                _gBotT    = x[2];
-                _ffCutoff = x[3];
-                _inter    = x[4];
-                _slope    = x[5];
-
-                // Pass cutoff to FF as well
-                _FF->set_cutoff(_ffCutoff);
+                _inter    = x[0];
+                _slope    = x[1];
+                _gTop     = x[2];
+                _gBotV    = x[3];
+                _gBotT    = x[4];
+                _ffCutoff = x[5];
                 return;
             };
 
@@ -107,8 +103,8 @@ namespace jpacPhoto
 
                 complex signature_factor  = (-1 + exp(-I*PI*alpha))/2;
 
-                complex half_angle_factor = pow( csqrt((1-_zt)/2), abs(_lam - _lamp)) 
-                                          * pow( csqrt((1+_zt)/2), abs(_lam + _lamp));
+                complex half_angle_factor = pow( csqrt((1-_zt)/2), std::abs(_lam - _lamp)) 
+                                          * pow( csqrt((1+_zt)/2), std::abs(_lam + _lamp));
 
                 complex barrier_factor = pow(2*_qi*_qf, 1 - _M);
 

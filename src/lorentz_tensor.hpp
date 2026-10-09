@@ -16,7 +16,7 @@
 #include <vector>
 #include <memory>
 
-#include "constants.hpp"
+#include "utilities.hpp"
 #include "tensor_object.hpp"
 
 namespace jpacPhoto
@@ -33,10 +33,10 @@ namespace jpacPhoto
         public: 
 
         // Default tensor with nothing initialized
-        lorentz_tensor<Type,Rank>(){};
+        lorentz_tensor(){};
 
         // Copy constructor
-        lorentz_tensor<Type,Rank>(lorentz_tensor<Type,Rank> const & old)
+        lorentz_tensor(lorentz_tensor<Type,Rank> const & old)
         : _lhsN(old._lhsN), _rhsN(old._rhsN), 
           _conj(old._conj), 
           _subtensors(old._subtensors),
@@ -44,7 +44,7 @@ namespace jpacPhoto
         {};
 
         // Implicit constructor, stores pointers to constituent tensors of smaller rank
-        lorentz_tensor<Type,Rank>(std::vector<std::shared_ptr<tensor_object<Type>>> Ts, bool sum)
+        lorentz_tensor(std::vector<std::shared_ptr<tensor_object<Type>>> Ts, bool sum)
         : _subtensors(Ts), _is_sum(sum)
         {};
 
@@ -67,7 +67,7 @@ namespace jpacPhoto
 
         inline virtual Type operator()(std::vector<lorentz_index> indices)
         {
-            if (indices.size() != Rank) return error("lorentz_tensor", "Incorrect number of indices passed!", NaN<Type>());
+            if (indices.size() != Rank) return error("lorentz_tensor - Incorrect number of indices passed!", NaN<Type>());
             if (_is_sum)
             {
                 Type sum = zero<Type>();
@@ -172,7 +172,7 @@ namespace jpacPhoto
         {
             if (!_is_sum)
             {
-                warning("add_tensor()", "Cannot add tensor to pre-initialized one. Initilize a new tensor as the sum!");
+                warning("add_tensor() - Cannot add tensor to pre-initialized one. Initilize a new tensor as the sum!");
                 return;
             };
             _subtensors.push_back(std::make_shared<lorentz_tensor<Type,Rank>>(T)); 
@@ -406,6 +406,21 @@ namespace jpacPhoto
     inline lorentz_tensor<T,R> operator-(lorentz_tensor<T,R> lhs, lorentz_tensor<T,R> rhs)
     {
         return lhs + (-rhs);
+    };
+
+    // ---------------------------------------------------------------------------
+    // Covariant NaN
+
+    template<>
+    inline lorentz_tensor<complex,1> zero()
+    {
+        return lorentz_vector<complex>({0,0,0,0});
+    };
+
+    template<>
+    inline lorentz_tensor<complex,1> NaN()
+    {
+        return lorentz_vector<complex>({NaN<complex>(),NaN<complex>(),NaN<complex>(),NaN<complex>()});
     };
 };
 
