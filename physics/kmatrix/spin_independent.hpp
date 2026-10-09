@@ -143,17 +143,6 @@ namespace jpacPhoto
             // we can have up to two additional channels
             std::vector<std::array<double,2>> _thresholds;
             
-            // Chew-Mandelstam phase-space 
-            inline complex i_rho(double m1, double m2)
-            {
-                complex rho, xi;
-                complex result;
-
-                rho    = csqrt(kallen(_s, m1*m1, m2*m2)) / _s;
-                xi     = 1. - (m1+m2)*(m1+m2)/_s;
-                result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
-                return - result / (16.*PI);
-            };
             inline complex i_rho(unsigned i){ return i_rho(_thresholds[i][0], _thresholds[i][1]); };
 
             // Incoming break-up momentum (define it with a threshold index but we only need i=0)

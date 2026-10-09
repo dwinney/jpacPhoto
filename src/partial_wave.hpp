@@ -27,16 +27,16 @@ namespace jpacPhoto
     using partial_wave = std::shared_ptr<raw_partial_wave>;
 
     template<class A>
-    inline partial_wave new_partial_wave(kinematics xkinem, uint J)
+    inline partial_wave new_partial_wave(kinematics xkinem)
     {
-        auto amp = std::make_shared<A>(key(), xkinem, J);
+        auto amp = std::make_shared<A>(key(), xkinem);
         return std::static_pointer_cast<raw_partial_wave>(amp);
     };
 
     template<class A, class B>
-    inline partial_wave new_partial_wave(kinematics xkinem, uint J, B extra)
+    inline partial_wave new_partial_wave(kinematics xkinem, B args)
     {
-        auto amp = std::make_shared<A>(key(), xkinem, J, extra);
+        auto amp = std::make_shared<A>(key(), xkinem, args);
         return std::static_pointer_cast<raw_partial_wave>(amp);
     };
 
@@ -97,6 +97,19 @@ namespace jpacPhoto
         inline int J(){ return _J; };
         
         protected:
+
+        // Chew-Mandelstam phase-space 
+        inline complex i_rho(double m1, double m2)
+        {
+            complex rho, xi;
+            complex result;
+
+            rho    = csqrt(kallen(_s, m1*m1, m2*m2)) / _s;
+            xi     = 1. - (m1+m2)*(m1+m2)/_s;
+            result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
+            return - result / (16.*PI);
+        };
+
 
         // Produce a string of a parameter name which appends the J quantum number to it, i.e. "name[J]"
         inline std::string J_label(std::string name){ return name + "[" + std::to_string(_J) + "]"; };

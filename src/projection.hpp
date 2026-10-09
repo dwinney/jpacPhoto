@@ -13,6 +13,7 @@
 #define PROJECTION_HPP
 
 #include "partial_wave.hpp"
+#include "tuple.hpp"
 
 namespace jpacPhoto
 {
@@ -20,15 +21,15 @@ namespace jpacPhoto
 
     partial_wave project(uint J, amplitude to_project)
     {
-        partial_wave amp_ptr = std::make_shared<projected_amplitude>(key(), J, to_project);
+        partial_wave amp_ptr = std::make_shared<projected_amplitude>(key(), std::make_tuple(J, to_project));
         return amp_ptr;
     };
 
     class projected_amplitude : public raw_partial_wave
     {
-        projected_amplitude(key k, uint J, amplitude to_project)
-        : raw_partial_wave(k, to_project->get_kinematics(), J, "projected_amplitude"),
-        _amplitude(to_project)
+        projected_amplitude(key k, std::tuple<uint,amplitude> args)
+        : raw_partial_wave(k, std::get<1>(args)->get_kinematics(), std::get<0>(args), "projected_amplitude"),
+        _amplitude(std::get<1>(args))
         {
             switch (to_project->native_helicity_frame())
             {
