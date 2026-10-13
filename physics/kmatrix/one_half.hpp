@@ -55,21 +55,24 @@ namespace jpacPhoto
                 bool need_to_recalculate =  !are_equal(sqrt(_s), _cached_sqrts, _cache_tolerance) || _pars_changed;
                 if ( need_to_recalculate ) recalculate();
 
+                auto hels = helicities;
+                bool barred = (2*helicities[2] - helicities[3] < 0);
+                if (barred) { hels[2] *= -1; hels[3] *= -1; };
+
                 // Many years ago, I didnt think very hard about the order the helicities should be arranged
                 // Because of that we need to remap them to match our matrices....
-                int hi = _kinematics->helicity_index(helicities);
-                switch (hi)
+                // is there a more elegant way to do this? probably but idc
+                int h = _kinematics->helicity_index(hels), i;
+                switch (h)
                 {   
                     // {+1, +1, +1, +1}
-                    case 0: return _Fp(0) + _Fm(0);
-                    // {+1, +1, -1, -1}
-                    case 5: return _Fp(0) - _Fm(0);
+                    case 0: i = 0; break;
                     // {+1, +1,  0, -1}
-                    case 3: return _Fp(1) + _Fm(1);
-                    // {+1, +1,  0, +1}
-                    case 2: return _Fp(1) - _Fp(1);
+                    case 3: i = 1; break;
                     default: return 0;
                 };
+
+                return (!barred) ? _Fp(i) + _Fm(i) : _Fp(i) - _Fm(i); 
             };
 
             protected:
