@@ -77,6 +77,7 @@ namespace jpacPhoto
                     // Net helicities
                     int lam  = 2 * helicities[0] - helicities[1]; // Photon - Target
                     int lamp = 2 * helicities[2] - helicities[3]; // Meson  - Recoil
+                    if ( std::abs(lam) > _J || std::abs(lamp) > _J ) return 0.;
                     
                     return (_J + 1) * wigner_d_half(_J, lam, lamp, _theta) * this->partial_wave(helicities, s);
                 }
@@ -109,6 +110,7 @@ namespace jpacPhoto
             result = (rho*log((xi + rho) / (xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1)) / PI;
             return - result / (16.*PI);
         };
+        inline complex i_rho(){ return i_rho(_mX, _mR); };
 
 
         // Produce a string of a parameter name which appends the J quantum number to it, i.e. "name[J]"
