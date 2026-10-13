@@ -145,21 +145,21 @@ namespace jpacPhoto
                 Eigen::Matrix2cd N = Eigen::Matrix2cd::Zero();
 
                 // Factors of (2 p_s \sqrt{s}) 
-                double lamf = sqrt(kallen(sqrt_s*sqrt_s,_mX*_mX, _mR*_mR));
+                double ps = sqrt(kallen(sqrt_s*sqrt_s,_mX*_mX, _mR*_mR))/2/sqrt_s;
 
                 switch (n)
                 {
                     case 0: 
                     {
                         N(1,1) = 1;
-                        N *= lamf *lamf;
+                        N *= pow(ps*sqrt_s, 2);
                         N *= omega_f(+1, sqrt_s) * omega_f(+1, sqrt_s);
                         return N;
                     };
                     case 1:
                     {
                         N(0,1) = 1; N(1,0) = 1;
-                        N *= lamf;
+                        N *= pow(ps*sqrt_s, 2);
                         N *= omega_f(+1, sqrt_s) * omega_f(-1, sqrt_s);
                         return N;
                     };
