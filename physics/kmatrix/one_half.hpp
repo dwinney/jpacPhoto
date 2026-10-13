@@ -72,7 +72,7 @@ namespace jpacPhoto
                     default: return 0;
                 };
 
-                return (!barred) ? _Fp(i) + _Fm(i) : _Fp(i) - _Fm(i); 
+                return (!barred) ? (_Fp(i)+_Fm(i))/2 : (_Fp(i)-_Fm(i))/2; 
             };
 
             protected:
@@ -104,20 +104,22 @@ namespace jpacPhoto
             {
                 // Work in terms of \pm \sqrt{s}
                 _cached_sqrts = sqrt(_s);
-                
+
                 Eigen::Matrix2cd One  = Eigen::Matrix2cd::Identity();
                 // Unitarized K-matrix form for elastic amplitude
-                Eigen::Matrix2cd K_p  = k_matrix(+1);
+                Eigen::Matrix2cd K_p  = K_matrix(+1);
                 Eigen::Matrix2cd T_p  = (One - i_rho()*K_p).inverse() *K_p;
                 // Mixing matrix for production amplitude
-                Eigen::Matrix2cd M_p  = mixing_matrix(+1);
+                Eigen::Matrix2cd M_p  = M_matrix(+1);
+
                 // Unitarized with the Q-vector of production parameters
                 _Fp = (M_p + i_rho()*T_p*M_p)*_Q;
 
                 // Now we do the exact same but with \eta = -1
-                Eigen::Matrix2cd K_m  = k_matrix(-1);
+                Eigen::Matrix2cd K_m  = K_matrix(-1);
                 Eigen::Matrix2cd T_m  = (One - i_rho()*K_m).inverse() *K_m;
-                Eigen::Matrix2cd M_m  = mixing_matrix(+1);
+                Eigen::Matrix2cd M_m  = M_matrix(-1);
+
                 _Fm = (M_m + i_rho()*T_m*M_m)*_Q;
             };  
 
@@ -136,52 +138,54 @@ namespace jpacPhoto
                 return csqrt(Ef+pm*M_PROTON+_ieps);
             };
 
-            // Calculate 2x2 K-matrices
-            Eigen::Matrix2cd k_matrix(uint n, int eta)
+            // Calculate 2x2 N-matrices
+            Eigen::Matrix2cd N_matrix(uint n, int eta)
             {              
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
-                Eigen::Matrix2cd K = Eigen::Matrix2cd::Zero();
+                Eigen::Matrix2cd N = Eigen::Matrix2cd::Zero();
 
                 // Factors of (2 p_s \sqrt{s}) 
                 double lamf = sqrt(kallen(sqrt_s*sqrt_s,_mX*_mX, _mR*_mR));
-               
+
                 switch (n)
                 {
                     case 0: 
                     {
-                        K(1,1) = 1;
-                        K *= lamf *lamf;
-                        K *= omega_f(+1, sqrt_s) * omega_f(+1, sqrt_s);
-                        return K;
+                        N(1,1) = 1;
+                        N *= lamf *lamf;
+                        N *= omega_f(+1, sqrt_s) * omega_f(+1, sqrt_s);
+                        return N;
                     };
                     case 1:
                     {
-                        K(0,1) = 1; K(1,0) = 1;
-                        K *= lamf;
-                        K *= omega_f(+1, sqrt_s) * omega_f(-1, sqrt_s);
-                        return K;
+                        N(0,1) = 1; N(1,0) = 1;
+                        N *= lamf;
+                        N *= omega_f(+1, sqrt_s) * omega_f(-1, sqrt_s);
+                        return N;
                     };
                     case 2:
                     {
                         double ep = M_PROTON + sqrt_s;
-                        K(0,0) = 2*_mX*_mX;       K(0,1) = sqrt(2)*_mX*ep;
-                        K(1,0) = sqrt(2)*_mX*ep;  K(1,1) = ep*ep;   
-                        K *= omega_f(-1, sqrt_s) * omega_f(-1, sqrt_s);
-                        return K;
+                        N(0,0) = 2*_mX*_mX;       N(0,1) = sqrt(2)*_mX*ep;
+                        N(1,0) = sqrt(2)*_mX*ep;  N(1,1) = ep*ep;   
+                        N *= omega_f(-1, sqrt_s) * omega_f(-1, sqrt_s);
+                        return N;
                     };
-                    default: return K;
+                    default: return N;
                     // No eta dependence because macdowell phase is trivial
                 };
             };
-            Eigen::Matrix2cd k_matrix(int eta)
+
+            // 2x2 K-matrix is sum of N's multiplied by the scattering lengths
+            Eigen::Matrix2cd K_matrix(int eta)
             {
                 Eigen::Matrix2cd K = Eigen::Matrix2cd::Zero();
-                for (int n = 0; n < 3; n++) K += k_matrix(n, eta) * _elastic_pars[n];
+                for (int n = 0; n < 3; n++) K += N_matrix(n, eta) * _elastic_pars[n];
                 return K;
             };
             
             // Mixing matrix between helicities and the 2 possible helicity structures
-            Eigen::Matrix2cd mixing_matrix(int eta)
+            Eigen::Matrix2cd M_matrix(int eta)
             {
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
 
