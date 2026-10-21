@@ -25,6 +25,8 @@ namespace jpacPhoto
 {
     namespace kmatrix
     {
+        using matrix = Eigen::MatrixXcd;
+
         class three_halfs : public raw_partial_wave
         {
             public: 
@@ -86,7 +88,7 @@ namespace jpacPhoto
             protected:
 
             // Save the different parameters
-            Eigen::VectorXcd _Q = Eigen::VectorXcd::Zero(6);
+            matrix _Q = Eigen::VectorXcd::Zero(6);
             std::array<double,6> _elastic_pars;
             inline void allocate_parameters(std::vector<double> pars)
             {
@@ -105,7 +107,7 @@ namespace jpacPhoto
             double _cached_sqrts = -1, _cache_tolerance = 1E-4;
 
             // Partial wave matrices
-            Eigen::VectorXcd _Fp = Eigen::VectorXcd::Zero(6), _Fm = Eigen::VectorXcd::Zero(6);
+            matrix _Fp = Eigen::VectorXcd::Zero(6), _Fm = Eigen::VectorXcd::Zero(6);
 
             // Recalculate cached partial-waves if needed
             void recalculate()
@@ -113,19 +115,19 @@ namespace jpacPhoto
                 // Work in terms of \pm \sqrt{s}
                 _cached_sqrts = sqrt(_s);
                 
-                Eigen::MatrixXcd One  = Eigen::MatrixXcd::Identity(6,6);
+                matrix One  = Eigen::MatrixXcd::Identity(6,6);
                 // Unitarized K-matrix form for elastic amplitude
-                Eigen::MatrixXcd K_p  = K_matrix(+1);
-                Eigen::MatrixXcd T_p  = (One - i_rho()*K_p).inverse() *K_p;
+                matrix K_p  = K_matrix(+1);
+                matrix T_p  = (One - i_rho()*K_p).inverse() *K_p;
                 // Mixing matrix for production amplitude
-                Eigen::MatrixXcd M_p  = M_matrix(+1);
+                matrix M_p  = M_matrix(+1);
                 // Unitarized with the Q-vector of production parameters
                 _Fp = (M_p + i_rho()*T_p*M_p)*_Q;
 
                 // Now we do the exact same but with \eta = -1
-                Eigen::MatrixXcd K_m  = K_matrix(-1);
-                Eigen::MatrixXcd T_m  = (One - i_rho()*K_m).inverse() *K_m;
-                Eigen::MatrixXcd M_m  = M_matrix(+1);
+                matrix K_m  = K_matrix(-1);
+                matrix T_m  = (One - i_rho()*K_m).inverse() *K_m;
+                matrix M_m  = M_matrix(+1);
                 _Fm = (M_m + i_rho()*T_m*M_m)*_Q;
             };  
 
@@ -145,13 +147,13 @@ namespace jpacPhoto
             };
 
             // Calculate 3x3 (little) n-matrices
-            Eigen::Matrix3cd n_matrix(uint i, int eta)
+            matrix n_matrix(uint i, int eta)
             {              
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
                 double mV = _mX, mN = M_PROTON;
                 double ps = sqrt(kallen(sqrt_s*sqrt_s, mV*mV, mN*mN))/2/sqrt_s;
                 
-                Eigen::Matrix3cd n = Eigen::Matrix3cd::Zero();
+                matrix n = Eigen::Matrix3cd::Zero();
                 switch (i)
                 {
                     case 0: 
@@ -222,18 +224,18 @@ namespace jpacPhoto
             };
 
             // Assemble the 3x3 (little) k-matrix into a 6x6 block diagonal (big) K-matrix
-            Eigen::MatrixXcd K_matrix(int eta)
+            matrix K_matrix(int eta)
             {
-                Eigen::Matrix3cd k = Eigen::Matrix3cd::Zero();
+                matrix k = Eigen::Matrix3cd::Zero();
                 for (int n = 0; n < 6; n++) k += n_matrix(n, eta) * _elastic_pars[n];
 
-                Eigen::MatrixXcd K = Eigen::MatrixXcd::Zero(6,6);
+                matrix K = Eigen::MatrixXcd::Zero(6,6);
                 K.block<3,3>(0,0) = k; K.block<3,3>(3,3) = k;
                 return K;
             };
             
             // Mixing matrix between helicities and the 2 possible helicity structures
-            Eigen::MatrixXcd M_matrix(int eta)
+            matrix M_matrix(int eta)
             {
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
                 double mV = _mX, mN = M_PROTON;
@@ -241,7 +243,7 @@ namespace jpacPhoto
                 double ps = sqrt(kallen(sqrt_s*sqrt_s, mV*mV, mN*mN))/2/sqrt_s;
                 double EV = (sqrt_s*sqrt_s+mV*mV-mN*mN)/2/sqrt_s;
 
-                Eigen::MatrixXcd A = Eigen::MatrixXcd::Zero(6,6);
+                matrix A = Eigen::MatrixXcd::Zero(6,6);
                 A(0,0) = ps*ps*qs*pow(sqrt_s,3);
                 A(1,1) = qs*sqrt_s*(pow(mN-sqrt_s, 2) - mV*mV);
                 A(2,2) = qs*sqrt_s*sqrt_s;
@@ -249,7 +251,7 @@ namespace jpacPhoto
                 A(4,4) = (pow(mN-sqrt_s, 2) - mV*mV);
                 A(5,5) = sqrt_s;
 
-                Eigen::MatrixXcd C = Eigen::MatrixXcd::Zero(6,6);
+                matrix C = Eigen::MatrixXcd::Zero(6,6);
                 C(0,0) = mV;
                 C(1,1) = 1;
                 C(2,2) = sqrt(3)*mV;
@@ -257,7 +259,7 @@ namespace jpacPhoto
                 C(4,4) = sqrt(3)*sqrt_s;
                 C(5,5) = 3*mV*sqrt_s;
 
-                Eigen::MatrixXcd B = Eigen::MatrixXcd::Zero(6,6);
+                matrix B = Eigen::MatrixXcd::Zero(6,6);
                 B(0,1) = 1;
                 B(1,0) = sqrt(2); B(1,1) = (mN+sqrt_s);
                 B(2,0) = 1; B(2,1) = sqrt(2)*EV; B(2,2) = 1;
@@ -265,7 +267,7 @@ namespace jpacPhoto
                 B(4,0) = sqrt(2)*mN; B(4,1) = mN*(mN+sqrt_s); B(4,3) = sqrt(2); B(4,4) = (mN+sqrt_s);
                 B(5,0) = mN; B(5,1) = sqrt(2)*EV*mN; B(5,2) = mN; B(5,3) = 1; B(5,4) = sqrt(2)*EV; B(5,5) = 1; 
 
-                Eigen::MatrixXcd M = (A*B*C).adjoint();
+                matrix M = (A*B*C).adjoint();
                 M *= omega_i(+1, sqrt_s) * omega_f(+1, sqrt_s) * (mN - sqrt_s)/sqrt_s/sqrt_s;
 
                 if (eta == -1) 
