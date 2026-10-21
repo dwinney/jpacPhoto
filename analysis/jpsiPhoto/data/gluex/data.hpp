@@ -1,10 +1,12 @@
 // Methods for quickly parsing Gluex 2022 data files into the data_set format
-//
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2022)
 // Affiliation:  Joint Physics Analysis Center (JPAC),
 //               South China Normal Univeristy (SCNU)
 // Email:        dwinney@iu.alumni.edu
+// ------------------------------------------------------------------------------
+// References:
+// [1] - 10.1103/PhysRevC.108.025201 
 // ------------------------------------------------------------------------------
 
 #ifndef GLUEX_DATA_HPP
@@ -98,7 +100,7 @@ namespace jpacPhoto
             wrapped._z         = raw[2]; // dsig/dt
             wrapped._zerr[0]   = raw[3];
             wrapped._zerr[1]   = raw[3];
-            wrapped._extras.push_back(Eavg);
+            wrapped._extras["Eavg"] = Eavg;
 
             return wrapped;
         };

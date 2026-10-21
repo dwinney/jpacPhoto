@@ -23,7 +23,7 @@ void Load()
 
     // Supplementary header files 
     TString physics  = main_dir + "/physics";
-    TString data     = main_dir + "/data";
+    TString data     = main_dir + "/analysis";
 
     
     if (!gSystem->AccessPathName(main_lib.Data()))
