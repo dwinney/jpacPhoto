@@ -18,6 +18,7 @@
 #include <vector>
 #include <functional>
 #include <fstream>
+#include <map>
 
 #include "constants.hpp"
 
@@ -299,6 +300,7 @@ namespace jpacPhoto
 
     std::vector<double> multiply_elementwise(std::vector<double> in1, std::vector<double> in2);
     std::vector<double> square_elementwise(std::vector<double> in);
+    std::vector<double> add_in_quadrature(std::vector<double> x, std::vector<double> y);
     std::vector<double> real(std::vector<complex> vx);
     std::vector<double> imag(std::vector<complex> vx);
    
@@ -559,7 +561,7 @@ namespace jpacPhoto
 
         // In additon, save any number of extra parameters that may be needed to 
         // identify the data set
-        std::vector<double> _extras; 
+        std::map<std::string,double> _extras; 
 
         // If we want a data entry in the legend when plotting
         bool _add_to_legend = false;
