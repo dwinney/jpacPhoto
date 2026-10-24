@@ -162,7 +162,7 @@ namespace jpacPhoto
         // Get dimensions of the parition we're making
         int ydim = plots.size();
 
-        TCanvas *canvas = new TCanvas(filename.c_str(), filename.c_str(), 600, 460*ydim);
+        TCanvas *canvas = new TCanvas(filename.c_str(), filename.c_str(), 600, 460*ydim+50);
         gROOT->SetStyle("jpacStyle");
 
         canvas->Divide(1, ydim, 0, 0);
@@ -173,8 +173,6 @@ namespace jpacPhoto
             int index = std::distance( plots.begin(), plot ) + 1;
             canvas->cd(index);
             
-            // plot->add_logo(false);
-
             // If we have a lot of plots, adjust the linewidth so its readible
             // This formula is entirely made up but results are aesthetically fine
             double scale = pow(0.9, ydim);
@@ -199,8 +197,7 @@ namespace jpacPhoto
             // Settings for the first entry
             if (plot == begin(plots))
             {
-                // plot->add_logo(true);
-
+                gPad->SetFixedAspectRatio();
                 gPad->SetTopMargin(0.05);
                 gPad->SetBottomMargin(0);
                 
@@ -212,6 +209,7 @@ namespace jpacPhoto
             // And last entry
             if (plot == end(plots)-1)
             {
+                gPad->SetFixedAspectRatio();
                 gPad->SetTopMargin(0);
                 gPad->SetBottomMargin(0.15);
 
