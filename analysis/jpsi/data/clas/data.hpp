@@ -53,23 +53,26 @@ namespace jpacPhoto
             inline data_set slice(int sliceid)
             {
                 std::string id, filename;
-    
+                double Eavg;
                 switch (sliceid)
                 {
                     case 0:
                     {
+                        Eavg = 8.91;
                         id = "CLAS (E = 8.91 GeV)";
                         filename = data_dir()+"/clas/clas2026_diff_E0891.tsv";
                         break;
                     };
                     case 1:
                     {
+                        Eavg = 9.67;
                         id = "CLAS (E = 9.67 GeV)";
                         filename = data_dir()+"/clas/clas2026_diff_E0967.tsv";
                         break;
                     };
                     case 2:
                     {
+                        Eavg = 10.27;
                         id = "CLAS (E = 10.27 GeV)";
                         filename = data_dir()+"/clas/clas2026_diff_E1027.tsv";
                         break;
@@ -93,6 +96,7 @@ namespace jpacPhoto
                 out._z       = raw[6];
                 out._zerr[0] = add_in_quadrature(raw[7], raw[8]);
                 out._zerr[1] = add_in_quadrature(raw[7], raw[8]);
+                out._extras["Eavg"] = Eavg;
     
                 return out;
             };

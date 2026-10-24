@@ -131,7 +131,7 @@ namespace jpacPhoto
             gPad->SetTopMargin(0.05);
             gPad->SetRightMargin(0.03);
             gPad->SetLeftMargin(0.16);
-            gPad->SetBottomMargin(0.12);
+            gPad->SetBottomMargin(0.15);
 
             // Apply logscale settings
             gPad->SetLogx(plot._xlog);
