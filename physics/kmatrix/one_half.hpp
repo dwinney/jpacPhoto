@@ -91,6 +91,11 @@ namespace jpacPhoto
                 };
                 _pars_changed = true;
             };
+            inline std::vector<std::string> parameter_labels()
+            {
+                return {"f_1/2[0]", "f_1/2[1]", 
+                        "a_1/2[0]", "a_1/2[1]", "a_1/2[2]"};
+            };
 
             // Small imaginary part to help control cut structures
             complex _ieps = I*1E-10;

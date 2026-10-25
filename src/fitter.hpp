@@ -331,9 +331,12 @@ namespace jpacPhoto
             print_results(false);
         };
 
-        // // Repeat do_fit N times and find the best fit
-        // // Parameters are randomly initialized each time on the interval [-5, 5] unless custom limits are set
-        // void do_fit(int N);
+        // If a filename is added, we look for F::import_parameters to use as a starting guess
+        inline void do_fit(std::string filename)
+        {
+            std::vector<double> pars = F::import_parameters(filename);
+            do_fit(pars);
+        };
 
         // Return a vector of best-fit parameters from last fit
         inline std::vector<double> pars(){ return (_fit) ? _fit_pars : std::vector<double>(); };
@@ -344,6 +347,19 @@ namespace jpacPhoto
 
         // Return the pointer to the amp being fit at its current state
         inline amplitude get_amplitude(){ return _amplitude; };
+
+        // Export the latest fit result
+        inline void export_fit(std::string filename, std::string extra_description = "")
+        {
+            std::string description = "fcn/dof = " + jpacPhoto::to_string(fcn_dof());
+            description += ", Nfree = " + std::to_string(_minuit->NFree());
+            description += ", Ndata = " + std::to_string(_N); 
+            if (!extra_description.empty())
+            {
+                description = extra_description + "\n# " + description;
+            };
+            F::export_parameters(pars(), filename, description);
+        };
 
         private:
 
@@ -373,7 +389,7 @@ namespace jpacPhoto
         inline void set_up(std::vector<double> starting_guess)
         {
             _minuit->Clear();
-            _minuit->SetTolerance(_tolerance);
+            _minuit->SetTolerance(_tolerance/2*1E3);
             _minuit->SetPrintLevel(_print_level);
             _minuit->SetMaxFunctionCalls(_max_calls);
 

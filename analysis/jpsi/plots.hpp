@@ -28,7 +28,7 @@ namespace jpacPhoto
 
         // Take in a plotter (just to prove colors have been initialized)
         // and produce the pot for the integrated cross_section
-        inline plot plot_integrated(plotter& p, amplitude amp = nullptr)
+        inline void plot_integrated(plotter& p, amplitude amp = nullptr, std::string filename = "integrated.pdf")
         {
             data_set integrated_gluex = gluex::integrated(); 
             data_set integrated_clas  = clas::integrated(); 
@@ -46,8 +46,7 @@ namespace jpacPhoto
             pint.set_ranges({8, 12}, {1E-2, 10});
             pint.set_labels("#it{E}_{#gamma}  [GeV]", 
                             "#sigma(#gamma #it{p} #rightarrow #it{J}/#psi #it{p})  [nb]");
-    
-            return pint;
+            pint.save(filename);
         };
     
         // ------------------------------------------------------------------------------

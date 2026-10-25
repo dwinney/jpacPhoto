@@ -60,7 +60,7 @@ namespace jpacPhoto
                 // Wrap the vectors above in a data_set object
                 data_set wrapped;
     
-                wrapped._id        = "Jpsi-007 (E" + jpacPhoto::to_string(Eavg) + "GeV)";
+                wrapped._id        = "Jpsi-007 (E = " + jpacPhoto::to_string(Eavg, 3) + " GeV)";
                 wrapped._N         = N;
                 wrapped._x         = reduced[1];
                 wrapped._xerr[0]   = reduced[2];
