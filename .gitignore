@@ -1,12 +1,11 @@
 /build/
 *.cmake
 /gnuplot/
-/examples/tests
+/scripts/tests
 /tests/
 /.vscode/
 /bin/
 /lib/
 /temp/
 *.pdf
-
-/data/piDelta/*.txt
+/scripts/*.dat
