@@ -25,8 +25,6 @@ namespace jpacPhoto
 {
     namespace kmatrix
     {
-        using matrix = Eigen::MatrixXcd;
-
         class one_half : public raw_partial_wave
         {
             public: 
@@ -80,7 +78,7 @@ namespace jpacPhoto
             protected:
 
             // Save the different parameters
-            matrix _Q = Eigen::Vector2cd::Zero();
+            Eigen::Vector2cd _Q = Eigen::Vector2cd::Zero();
             std::array<double,3> _elastic_pars;
             inline void allocate_parameters(std::vector<double> pars)
             {
@@ -104,7 +102,7 @@ namespace jpacPhoto
             double _cached_sqrts = -1, _cache_tolerance = 1E-4;
 
             // Partial wave matrices
-            matrix _Fp = Eigen::Vector2cd::Zero(), _Fm = Eigen::Vector2cd::Zero();
+            Eigen::Vector2cd _Fp = Eigen::Vector2cd::Zero(), _Fm = Eigen::Vector2cd::Zero();
 
             // Recalculate cached partial-waves if needed
             void recalculate()
@@ -112,20 +110,20 @@ namespace jpacPhoto
                 // Work in terms of \pm \sqrt{s}
                 _cached_sqrts = sqrt(_s);
 
-                matrix One  = Eigen::Matrix2cd::Identity();
+                Eigen::Matrix2cd One  = Eigen::Matrix2cd::Identity();
                 // Unitarized K-matrix form for elastic amplitude
-                matrix K_p  = K_matrix(+1);
-                matrix T_p  = (One - i_rho()*K_p).inverse() *K_p;
+                Eigen::Matrix2cd K_p  = K_matrix(+1);
+                Eigen::Matrix2cd T_p  = (One-i_rho()*K_p).inverse()*K_p;
                 // Mixing matrix for production amplitude
-                matrix M_p  = M_matrix(+1);
+                Eigen::Matrix2cd M_p  = M_matrix(+1);
                 // Unitarized with the Q-vector of production parameters
-                _Fp = (M_p + i_rho()*T_p*M_p)*_Q;
+                _Fp = (One+i_rho()*T_p)*M_p*_Q;
 
                 // Now we do the exact same but with \eta = -1
-                matrix K_m  = K_matrix(-1);
-                matrix T_m  = (One - i_rho()*K_m).inverse() *K_m;
-                matrix M_m  = M_matrix(-1);
-                _Fm = (M_m + i_rho()*T_m*M_m)*_Q;
+                Eigen::Matrix2cd K_m  = K_matrix(-1);
+                Eigen::Matrix2cd T_m  = (One-i_rho()*K_m).inverse()*K_m;
+                Eigen::Matrix2cd M_m  = M_matrix(-1);
+                _Fm = (One+i_rho()*T_m)*M_m*_Q;
             };  
 
             // Initial fermion factor as function of sqrts
@@ -144,10 +142,10 @@ namespace jpacPhoto
             };
 
             // Calculate 2x2 N-matrices
-            inline matrix N_matrix(uint n, int eta)
+            inline Eigen::Matrix2cd N_matrix(uint n, int eta)
             {              
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
-                matrix N = Eigen::Matrix2cd::Zero();
+                Eigen::Matrix2cd N = Eigen::Matrix2cd::Zero();
 
                 // Factors of (2 p_s \sqrt{s}) 
                 double ps = sqrt(kallen(sqrt_s*sqrt_s,_mX*_mX, _mR*_mR))/2/sqrt_s;
@@ -182,19 +180,19 @@ namespace jpacPhoto
             };
 
             // 2x2 K-matrix is sum of N's multiplied by the scattering lengths
-            inline matrix K_matrix(int eta)
+            inline Eigen::Matrix2cd K_matrix(int eta)
             {
-                matrix K = Eigen::Matrix2cd::Zero();
+                Eigen::Matrix2cd K = Eigen::Matrix2cd::Zero();
                 for (int n = 0; n < 3; n++) K += N_matrix(n, eta) * _elastic_pars[n];
                 return K;
             };
             
             // Mixing matrix between helicities and the 2 possible helicity structures
-            inline matrix M_matrix(int eta)
+            inline Eigen::Matrix2cd M_matrix(int eta)
             {
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
 
-                matrix M = Eigen::Matrix2cd::Zero();
+                Eigen::Matrix2cd M = Eigen::Matrix2cd::Zero();
                 double ep = M_PROTON + sqrt_s, em = M_PROTON - sqrt_s;
 
                 M(0,0) = 0;                M(0,1) = 2*sqrt(2)*_mX;

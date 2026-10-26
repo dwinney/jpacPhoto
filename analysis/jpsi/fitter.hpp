@@ -52,7 +52,6 @@ namespace jpacPhoto
             // Function being minimized, sum of chi2's of each data set
             static double fcn(const std::vector<data_set> &data_sets, amplitude amp)
             {
-                return 30;
                 double chi2 = 0;
                 for (auto data : data_sets)
                 {
