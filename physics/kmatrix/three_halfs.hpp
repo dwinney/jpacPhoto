@@ -156,7 +156,7 @@ namespace jpacPhoto
             };
 
             // Calculate 3x3 (little) n-matrices
-            Eigen::Matrix3cd n_matrix(uint i, int eta)
+            Eigen::Matrix3cd n_matrix(unsigned int i, int eta)
             {              
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
                 double mV = _mX, mN = M_PROTON;

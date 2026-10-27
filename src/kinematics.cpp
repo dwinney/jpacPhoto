@@ -58,7 +58,7 @@ namespace jpacPhoto
     };
 
     // Given a set of helicities, find its helicity index
-    uint find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless)
+    unsigned int find_helicity(std::array<int, 4> helicities, int mj, int bj, bool is_massless)
     {
         std::vector<std::array<int,4>> hels = get_helicities(mj, bj, is_massless);
 

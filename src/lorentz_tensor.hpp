@@ -87,7 +87,7 @@ namespace jpacPhoto
             Type prod = _subtensors[0]->operator()(ind0);
             running_index += subrank0;
 
-            for (uint i = 1; i < _subtensors.size(); i++)
+            for (unsigned int i = 1; i < _subtensors.size(); i++)
             {
                 int subrank = _subtensors[i]->rank();
                 prod *= _subtensors[i]->operator()( std::vector<lorentz_index>(running_index, running_index + subrank));

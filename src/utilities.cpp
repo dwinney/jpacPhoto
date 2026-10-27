@@ -742,7 +742,7 @@ namespace jpacPhoto
     // ---------------------------------------------------------------------------
     // String operations
 
-    std::string to_string(double d, uint precision)
+    std::string to_string(double d, unsigned int precision)
     {
         std::stringstream ss;
         ss << std::setprecision(precision) << d;
@@ -818,7 +818,7 @@ namespace jpacPhoto
         if (in1.size() != in2.size()) warning("multiply_elementwise() - Input vectors not the same size!");
 
         std::vector<double> out;
-        for (uint i = 0; i < in1.size(); i++)
+        for (unsigned int i = 0; i < in1.size(); i++)
         {
             out.push_back(in1[i]*in2[i]);
         }
@@ -832,7 +832,7 @@ namespace jpacPhoto
         if (x.size() != y.size()) return error("add_in_quadrature - Input vectors not the same size!", std::vector<double>());
 
         std::vector<double> out;
-        for (uint i = 0; i < x.size(); i++)
+        for (unsigned int i = 0; i < x.size(); i++)
         {
             double z = sqrt(x[i]*x[i] + y[i]*y[i]);
             out.push_back(z);

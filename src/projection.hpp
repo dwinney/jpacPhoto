@@ -19,7 +19,7 @@ namespace jpacPhoto
 {
     class projected_amplitude; 
 
-    partial_wave project(uint J, amplitude to_project)
+    partial_wave project(unsigned int J, amplitude to_project)
     {
         partial_wave amp_ptr = std::make_shared<projected_amplitude>(key(), std::make_tuple(J, to_project));
         return amp_ptr;
@@ -27,7 +27,7 @@ namespace jpacPhoto
 
     class projected_amplitude : public raw_partial_wave
     {
-        projected_amplitude(key k, std::tuple<uint,amplitude> args)
+        projected_amplitude(key k, std::tuple<unsigned int,amplitude> args)
         : raw_partial_wave(k, std::get<1>(args)->get_kinematics(), std::get<0>(args), "projected_amplitude"),
         _amplitude(std::get<1>(args))
         {

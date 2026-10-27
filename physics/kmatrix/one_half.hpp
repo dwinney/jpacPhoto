@@ -142,7 +142,7 @@ namespace jpacPhoto
             };
 
             // Calculate 2x2 N-matrices
-            inline Eigen::Matrix2cd N_matrix(uint n, int eta)
+            inline Eigen::Matrix2cd N_matrix(unsigned int n, int eta)
             {              
                 double sqrt_s = (eta == +1) ? + _cached_sqrts : - _cached_sqrts;
                 Eigen::Matrix2cd N = Eigen::Matrix2cd::Zero();

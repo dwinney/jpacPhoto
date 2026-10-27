@@ -22,9 +22,9 @@ namespace jpacPhoto
         std::string data_dir(){ return main_dir()+"/analysis/jpsi/data"; };
     
         // data_set stypes
-        const uint kIntegrated      = 0; // sigma     vs Egam
-        const uint kDifferential    = 1; // dsigma/dt vs -t
-        const uint kDifferential_tp = 2; // dsigma/dt vs -t'
+        const unsigned int kIntegrated      = 0; // sigma     vs Egam
+        const unsigned int kDifferential    = 1; // dsigma/dt vs -t
+        const unsigned int kDifferential_tp = 2; // dsigma/dt vs -t'
 
         // Actual implementation of the fitter
         struct unpolarized
