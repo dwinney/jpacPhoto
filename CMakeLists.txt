@@ -12,17 +12,6 @@ set(CMAKE_INSTALL_BINDIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 
-# Make sure executables are always built with the install RPATH 
-# else things get linked to the .so in the build directory and not the one in lib
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
-endif("${isSystemDir}" STREQUAL "-1")
-
 # Option whether or not to look for AmpTools
 # and build a dynamic library version
 option(DYNAMIC_AMPTOOLS "Build dynamic AmpTools library" "FALSE")
@@ -63,6 +52,13 @@ endif()
 
 set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
+if (Boost_FOUND)
+    message("-- Found Boost: ${Boost_INCLUDE_DIRS}")
+    include_directories(${Boost_INCLUDE_DIRS})
+else()
+    message(SEND_ERROR "-- Boost not found!")
+endif()
+
 
 ##-----------------------------------------------------------------------
 ## If DYNAMIC_AMPTOOLS is set, look for the library
