@@ -11,7 +11,6 @@
 #ifndef JPSI_FITTER_HPP
 #define JPSI_FITTER_HPP
 
-#include "jpsi/fitter.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
 
@@ -108,7 +107,7 @@ namespace jpacPhoto
                 std::ofstream out;
                 out.open(filename);
                 int  precision = 12, spacing = precision+10;
-                out << setprecision(precision);
+                out << std::setprecision(precision);
                 out << std::showpos;
 
                 // Preamble info
