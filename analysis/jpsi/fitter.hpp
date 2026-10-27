@@ -109,6 +109,7 @@ namespace jpacPhoto
                 out.open(filename);
                 int  precision = 12, spacing = precision+10;
                 out << setprecision(precision);
+                out << std::showpos;
 
                 // Preamble info
                 if (!description.empty()) out << left << "# " + description << endl;

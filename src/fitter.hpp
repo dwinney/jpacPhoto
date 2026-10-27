@@ -199,7 +199,7 @@ namespace jpacPhoto
         // Methods related to fit options
 
         // Set the maximum number of calls minuit will do
-        inline void set_max_calls(int n){ print(n); _max_calls = n; };
+        inline void set_max_calls(int n){ _max_calls = n; };
         
         // Message level for minuit (0-4)
         inline void set_print_level(int n){ _print_level = n; };
@@ -351,12 +351,11 @@ namespace jpacPhoto
         // Export the latest fit result
         inline void export_fit(std::string filename, std::string extra_description = "")
         {
-            std::string description = "fcn/dof = " + jpacPhoto::to_string(fcn_dof());
-            description += ", Nfree = " + std::to_string(_minuit->NFree());
-            description += ", Ndata = " + std::to_string(_N); 
+            std::string description = "fcn/dof = " + jpacPhoto::to_string(fcn()) + ", fcn/dof = " + jpacPhoto::to_string(fcn_dof());
+            description += "\n# Nfree = " + std::to_string(_minuit->NFree()) + ", Ndata = " + std::to_string(_N);
             if (!extra_description.empty())
             {
-                description = extra_description + "\n# " + description;
+                description = extra_description + "\n#\n# " + description;
             };
             F::export_parameters(pars(), filename, description);
         };

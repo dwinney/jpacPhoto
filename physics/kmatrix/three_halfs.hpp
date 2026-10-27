@@ -123,7 +123,7 @@ namespace jpacPhoto
                 // Work in terms of \pm \sqrt{s}
                 _cached_sqrts = sqrt(_s);
                 
-                Eigen::Matrix3cd One = Eigen::Matrix3cd::Identity(), one_minus_irho;
+                Eigen::Matrix3cd One = Eigen::Matrix3cd::Identity(), one_minus_irhot;
                 std::array<Eigen::Matrix3cd,4> m;
                 
                 // First we calculate the Natural case (\eta_s = +1 or \sqrt{s}>1)
