@@ -138,6 +138,9 @@ namespace jpacPhoto
                 _FU.head<3>() = one_minus_irhot*(m[0]*_fp+m[1]*_fm);
                 _FU.tail<3>() = one_minus_irhot*(/* m[2]*_fp+ */m[3]*_fm);
 
+                // Reset flag
+                _pars_changed = false;
+
             };  
 
             // Initial fermion factor as function of sqrts

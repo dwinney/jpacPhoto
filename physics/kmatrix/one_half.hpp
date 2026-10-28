@@ -124,6 +124,9 @@ namespace jpacPhoto
                 Eigen::Matrix2cd T_m  = (One-i_rho()*K_m).inverse()*K_m;
                 Eigen::Matrix2cd M_m  = M_matrix(-1);
                 _Fm = (One+i_rho()*T_m)*M_m*_Q;
+
+                // Once recalculated reset the pars changed flag
+                _pars_changed = false;
             };  
 
             // Initial fermion factor as function of sqrts
@@ -162,7 +165,7 @@ namespace jpacPhoto
                     case 1:
                     {
                         N(0,1) = 1; N(1,0) = 1;
-                        N *= pow(ps*sqrt_s, 2);
+                        N *= ps*sqrt_s;
                         N *= omega_f(+1, sqrt_s) * omega_f(-1, sqrt_s);
                         return N;
                     };
