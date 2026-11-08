@@ -148,6 +148,17 @@ namespace jpacPhoto
             make_positive_definite(_pars[index], x);
         };
 
+        inline void fix_parameter(unsigned int i, double val)
+        {
+            if (i > _pars.size()) return;
+            // If parameter is already fixed, just update the fixed val
+            // otherwise flip the fixed flag and update the number of free pars
+            if (!_pars[i]._fixed) _Nfree--;
+            _pars[i]._fixed = true;
+            _pars[i]._value = val;
+            _fit = false;
+        };
+
         inline void fix_parameter(parameter& par, double val)
         {
             // If parameter is already fixed, just update the fixed val
