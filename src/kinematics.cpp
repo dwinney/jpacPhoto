@@ -162,11 +162,13 @@ namespace jpacPhoto
 
     double raw_kinematics::initial_momentum(double s)
     {
+        if (are_equal(sqrt(s), (_mB+_mT))) return 0;
         return sqrt(kallen(s, _mB2, _mT2)) / sqrt(4.*s);
     };
 
     double raw_kinematics::final_momentum(double s)
     {
+        if (are_equal(sqrt(s), (_mR+_mX))) return 0;
         return sqrt(kallen(s, _mR2, _mX2)) / sqrt(4.*s);
     };
 
