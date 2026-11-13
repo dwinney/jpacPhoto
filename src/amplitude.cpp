@@ -196,7 +196,7 @@ namespace jpacPhoto
     // Compatability checks
 
     // At construction, check the kinematics with set quantum numbers is compatable
-    void raw_amplitude::check_QNs(kinematics kinem)
+    bool raw_amplitude::check_QNs(kinematics kinem)
     {
         // Get all the allowed JP's from the amplitude
         std::vector<quantum_numbers> allowed_mesons, allowed_baryons;
@@ -218,8 +218,9 @@ namespace jpacPhoto
         baryon_fails = std::find(allowed_baryons.begin(), allowed_baryons.end(), requested_baryon) == allowed_baryons.end();
     
         auto requested_meson_JP = kinem->get_meson_JP(); auto requested_baryon_JP = kinem->get_meson_JP();
-        if (meson_fails  && not_any_meson)  warning(id()+"::check_QNs - Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!");
-        if (baryon_fails && not_any_baryon) warning(id()+"::check_QNs - Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!");
+        if (meson_fails  && not_any_meson)  return error(id()+"::check_QNs - Requested meson quantum numbers (J=" + std::to_string(requested_meson_JP[0]) + ", P=" + std::to_string(requested_meson_JP[1])+") not available!", false);
+        if (baryon_fails && not_any_baryon) return error(id()+"::check_QNs - Requested baryon quantum numbers (J=" + std::to_string(requested_baryon_JP[0]) + "/2, P=" + std::to_string(requested_baryon_JP[1])+") not available!", false);
+        return true;
     };
 
     // ------------------------------------------------------------------------------

@@ -150,9 +150,13 @@ namespace jpacPhoto
 
         inline void initialize(int Npars = 0)
         {
-            set_N_pars(Npars);
-            check_QNs(_kinematics);
-            set_option(0);
+            if (check_QNs(_kinematics))
+            {
+                set_N_pars(Npars);
+                set_option(0);
+                _mB = _kinematics->get_beam_mass();  _mT = _kinematics->get_target_mass();
+                _mX = _kinematics->get_meson_mass(); _mR = _kinematics->get_recoil_mass();
+            };
         };
 
         // ---------------------------------------------------------------------------
@@ -299,7 +303,7 @@ namespace jpacPhoto
 
         // At construction, check the kinematics with set quantum numbers
         // is compatable with the amplitude
-        void check_QNs(kinematics kinem);
+        bool check_QNs(kinematics kinem);
 
         // ---------------------------------------------------------------------------
         // Each amplitude may also store copies of all kinematic variables
