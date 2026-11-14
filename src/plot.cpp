@@ -18,9 +18,11 @@ namespace jpacPhoto
     {
         if (_entries.empty() ) 
         {
-            warning("plot::save() - No entries added! Returning...");
+            warning("plot::save(): No entries added! Returning...");
             return;
         };
+
+        _canvas->cd();
         
         // Logscale settings are global canvas settings so do that first
         _canvas->SetLogx(_xlog); _canvas->SetLogy(_ylog);
@@ -35,8 +37,16 @@ namespace jpacPhoto
         _canvas->Print(_filename.c_str());
     };
 
-    void plot::draw(bool close)
+    void plot::draw(bool if_close)
     {
+        bool add_padding = _customyrange && std::abs(_ybounds[0]) < 0.09 && std::abs(_ybounds[1]) < 0.09;
+        if (add_padding) 
+        {
+            auto style = gROOT->GetStyle("jpacStyle");
+            style->SetTitleOffset(1.8, "y");
+            _canvas->UseCurrentStyle();
+        };
+
         TMultiGraph * mg = new TMultiGraph("mg", "mg");
 
         // Set up the axes by grabbing them from the first entry
@@ -48,7 +58,7 @@ namespace jpacPhoto
 
         // Set up legend
         _legendxoffset  = 0.3;
-        _legendyoffset  = _legendyscale*(0.036)*(_Nlegend + _addheader);
+        _legendyoffset  = _legendyscale*(_Nlegend + _addheader);
         auto legend = new TLegend(_legendxcord,  _legendycord, 
                                   _legendxcord + _legendxoffset, 
                                   _legendycord + _legendyoffset);
@@ -75,59 +85,56 @@ namespace jpacPhoto
         if (_addlegend) legend->Draw();
         if (!_addlegend && _addheader) { legend->Clear(); legend->SetHeader(("  " + _header).c_str(), "L"); legend->Draw();}
 
-        if (_add_style_legend)
-        {
-            // Set up legend
-            auto slegend = new TLegend(_slegendx,  _slegendy, 
-                                       _slegendx + 0.35, 
-                                       _slegendy + 0.17*_slegendscale);
-            slegend->SetFillStyle(0); // Make legend transparent
-
-            // For each of the three style make an empty histogram
-            double y[1] = {1};
-            std::string sopt = "L";
-            for (int i = 0; i < 4; i++)
-            {
-                if (_style_labels[i] == "") continue;
-                TGraph * sentry = new TGraph(1, y);
-                sentry->SetLineColorAlpha(+jpacColor::DarkGrey, 0.9);
-                sentry->SetLineStyle(1+i);
-                sentry->SetLineWidth(2.0);
-                slegend->AddEntry(sentry, _style_labels[i].c_str(), sopt.c_str());
-            }
-
-            slegend->Draw();
-        };
-
         mg->GetXaxis()->CenterTitle(true);
         mg->GetYaxis()->CenterTitle(true);
+        mg->GetYaxis()->SetMaxDigits(_max_digits);
         _canvas->Modified();
 
-        double ylow, yhigh;
-        if (_customranges)
+        double ylow, yhigh, xlow, xhigh;
+        if (_customxrange)
         {
-            mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
+            mg->GetXaxis()->SetLimits(_xbounds[0], _xbounds[1]);
+            xlow = _xbounds[0]; xhigh = _xbounds[1];
+        };
+
+        if (_customyrange)
+        {
             mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
             mg->SetMinimum(_ybounds[0]);
             mg->SetMaximum(_ybounds[1]);
             ylow = _ybounds[0]; yhigh = _ybounds[1];
-        };
-        double xmin = mg->GetXaxis()->GetXmin();
-        double xmax = mg->GetXaxis()->GetXmax();
-
-        for (auto line : _lines)
+        }
+        else
         {
-            auto vert = new TLine(line._xvalue, ylow, line._xvalue, yhigh);
-            vert->SetLineWidth(plot_entry::_default_linewidth);
-            vert->SetLineColorAlpha(line._color, 0.7);
-            vert->SetLineStyle(line._linestyle);
+            ylow  = mg->GetYaxis()->GetXmin();
+            yhigh = mg->GetYaxis()->GetXmax();
+        };
+
+        xlow  = mg->GetXaxis()->GetXmin();
+        xhigh = mg->GetXaxis()->GetXmax();
+        
+        for (auto vline : _vlines)
+        {
+            auto vert = new TLine(vline._value, ylow, vline._value, yhigh);
+            vert->SetLineWidth(0.7*_scale*plot_entry::_default_linewidth);
+            vert->SetLineStyle(vline._linestyle);
+            vert->SetLineColorAlpha(vline._color, 0.7);
             vert->Draw();
+        }
+
+        for (auto hline : _hlines)
+        {
+            auto hori = new TLine(xlow, hline._value, xhigh, hline._value);
+            hori->SetLineWidth(0.7*_scale*plot_entry::_default_linewidth);
+            hori->SetLineStyle(hline._linestyle);
+            hori->SetLineColorAlpha(hline._color, 0.7);
+            hori->Draw();
         }
 
         for (auto shade : _shaded)
         {
-            double bmin = (shade._xmin < xmin) ? xmin : shade._xmin;
-            double bmax = (shade._xmax > xmax) ? xmax : shade._xmax;
+            double bmin = (shade._xmin < xlow) ?  xlow  : shade._xmin;
+            double bmax = (shade._xmax > xhigh) ? xhigh : shade._xmax;
 
             TBox *b = new TBox(bmin, ylow, bmax, yhigh); 
             b->SetFillColorAlpha(shade._color, 0.1); 
@@ -135,100 +142,68 @@ namespace jpacPhoto
             b->Draw();
         }
 
-        if (close) _canvas->Close();
+        // Remove padding at the end
+        if (add_padding) 
+        {
+            auto style = gROOT->GetStyle("jpacStyle");
+            style->SetTitleOffset(1.5, "y");
+            _canvas->UseCurrentStyle();
+        };
+
+        if (if_close) _canvas->Close();
     };
 
     // ---------------------------------------------------------------------------
-    // Add data points to a plot
+    // Convert data_set and amplitude easily into plot_entries
 
-    void plot::add_data(data_set data)
+    void plot::add_data(std::array<std::vector<double>,2> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
-        double *x, *z, *xl, *xh, *zl, *zh;
-        x  = &(data._x[0]);        z  = &(data._z[0]);
-        xl = &(data._xerr[0][0]);  xh = &(data._xerr[1][0]);
-        zl = &(data._zerr[0][0]);  zh = &(data._zerr[1][0]);
-
-        TGraph *graph = new TGraphAsymmErrors(data._N, x, z, xl, xh, zl, zh);
-
-        entry_style style;
-        style._label = data._id;
-        style._style = 20 + _Ndata;
-        style._color = jpacColor::DarkGrey;
-        style._draw_opt = "P";
-        style._add_to_legend = data._add_to_legend;
+        double *x, *y, *dx, *dy;
+        x  = &(vx[0][0]);        y  = &(vy[0][0]);
+        dx = &(vx[1][0]);       dy  = &(vy[1][0]);
+        TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, dy);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+    
+    void plot::add_data(std::array<std::vector<double>,2> vx, std::vector<double> vy, entry_style style)
+    {
+        double *x, *y, *dx;
+        x  = &(vx[0][0]);        y  = &(vy[0]);
+        dx = &(vx[1][0]);
+        TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, nullptr);
+
+        _Ndata++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_back(plot_entry(graph, style, true));
     };
 
-    void plot::add_data(data_set data, entry_style style)
-    {
-        double *x, *z, *xl, *xh, *zl, *zh;
-        x  = &(data._x[0]);        z  = &(data._z[0]);
-        xl = &(data._xerr[0][0]);  xh = &(data._xerr[1][0]);
-        zl = &(data._zerr[0][0]);  zh = &(data._zerr[1][0]);
 
-        TGraph *graph = new TGraphAsymmErrors(data._N, x, z, xl, xh, zl, zh);
+    void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, entry_style style)
+    {
+        double *x, *y, *dy;
+        x  = &(vx[0]);        y  = &(vy[0][0]);
+                             dy  = &(vy[1][0]);
+        TGraph *graph = new TGraphErrors(vx.size(), x, y, nullptr, dy);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_back(plot_entry(graph, style, true));
     };
 
-    // Add data by simply feeding it vectors 
-    void plot::add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errsin, std::string id)
+        void plot::add_data(std::vector<double> vx, std::vector<double> vy, entry_style style)
     {
-        // Check size of arrays
-        int N = dat[0].size();
-        if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
-            { warning("add_data - Input vectors dont match! Returning..."); return; };
-
-        double *x, *y, *ex, *ey;
-
-        x  = &(dat[0][0]);        y  = &(dat[1][0]);
-        ex = &(errsin[0][0]);  ey = &(errsin[1][0]);
-         
-        TGraph *graph = new TGraphErrors(N, x, y, ex, ey);
-
-        entry_style style;
-        style._style = 20 + _Ndata;
-        style._color = jpacColor::DarkGrey;
-        style._draw_opt = "P";
-        style._label = id;
-        style._add_to_legend = !(id == "");
+        double *x, *y;
+        x  = &(vx[0]);        y  = &(vy[0]);
+        TGraph *graph = new TGraph(vx.size(), x, y);
 
         _Ndata++;
-        _Nlegend++;
-
-        _entries.push_back(plot_entry(graph, style, true));
-    };
-
-    // Add data by simply feeding it vectors 
-    void plot::add_data(std::array<std::vector<double>,2> dat, std::array<std::vector<double>,2> errsin, jpacColor col)
-    {
-        // Check size of arrays
-        int N = dat[0].size();
-        if ((dat[1].size() != N) || (errsin[0].size() != N) || (errsin[1].size() != N))
-            { warning("add_data - Input vectors dont match! Returning..."); return; };
-
-        double *x, *y, *ex, *ey;
-
-        x  = &(dat[0][0]);        y  = &(dat[1][0]);
-        ex = &(errsin[0][0]);  ey = &(errsin[1][0]);
-         
-        TGraph *graph = new TGraphErrors(N, x, y, ex, ey);
-
-        entry_style style;
-        style._style = 20;
-        style._color = col;
-        style._draw_opt = "P";
-        style._add_to_legend = false;
-
-        _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_back(plot_entry(graph, style, true));
     };
@@ -258,8 +233,10 @@ namespace jpacPhoto
     };
 
     // Take in a lambda an evaluation range to get the vectors
-    void plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, entry_style style)
+    std::array<std::vector<double>,2> plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, entry_style style)
     {
+        double step = (bounds[1] - bounds[0]) / double(_Npoints);
+
         std::vector<double> x, fx;
         for (int n = 0; n < _Npoints; n++)
         {
@@ -267,16 +244,18 @@ namespace jpacPhoto
                                   : exp(log(bounds[0]) + double(n) * (log(bounds[1]) - log(bounds[0])) / double(_Npoints-1));
             double fxs = F(xs);
 
-            if (_print) print(n+1, xs, fxs);
             x.push_back(xs);
             fx.push_back(fxs);
+
+            if (_print) print(xs, fxs);
         };
-        if (_print) line();
 
         add_curve(x, fx, style);
+
+        return std::array<std::vector<double>,2>({x, fx});
     };
 
-    void plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, std::string id)
+    std::array<std::vector<double>,2> plot::add_curve(std::array<double,2> bounds, std::function<double(double)> F, std::string id)
     {
         _Ncurve++;
         entry_style style;
@@ -285,7 +264,7 @@ namespace jpacPhoto
         style._label = id;
         style._add_to_legend = (id != "");
 
-        add_curve(bounds, F, style);
+        return add_curve(bounds, F, style);
     };
     
     void plot::add_dashed(std::vector<double> x, std::vector<double> fx)
@@ -299,53 +278,24 @@ namespace jpacPhoto
         _entries.push_back(plot_entry(g, style, false));
     };
 
-    void plot::add_dashed(std::array<double,2> bounds, std::function<double(double)> F)
+     std::array<std::vector<double>,2> plot::add_dashed(std::array<double,2> bounds, std::function<double(double)> F)
     {
         double step = (bounds[1] - bounds[0]) / double(_Npoints);
 
         std::vector<double> x, fx;
         for (int n = 0; n < _Npoints; n++)
         {
-            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
+            double xs  = (!_xlog) ? bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1)
+                                  : exp(log(bounds[0]) + double(n) * (log(bounds[1]) - log(bounds[0])) / double(_Npoints-1));
             double fxs = F(xs);
 
-            if (_print) print(n+1, xs, fxs);
             x.push_back(xs);
             fx.push_back(fxs);
+            if (_print) print(xs, fxs);
         };
-        if (_print) line();
 
         add_dashed(x, fx);
-    };
-
-    void plot::add_dotted(std::vector<double> x, std::vector<double> fx)
-    {
-        entry_style style;
-        style._color = JPACCOLORS[_Ncurve];
-        style._style = kDotted;
-        style._add_to_legend = false;
-
-        TGraph *g = new TGraph(x.size(), &(x[0]), &(fx[0]));
-        _entries.push_back(plot_entry(g, style, false));
-    };
-
-    void plot::add_dotted(std::array<double,2> bounds, std::function<double(double)> F)
-    {
-        double step = (bounds[1] - bounds[0]) / double(_Npoints);
-
-        std::vector<double> x, fx;
-        for (int n = 0; n < _Npoints; n++)
-        {
-            double xs  = bounds[0] + double(n) * (bounds[1] - bounds[0]) / double(_Npoints-1);
-            double fxs = F(xs);
-
-            if (_print) print(n+1, xs, fxs);
-            x.push_back(xs);
-            fx.push_back(fxs);
-        };
-        if (_print) line();
-
-        add_dotted(x, fx);
+        return std::array<std::vector<double>,2>({x, fx});
     };
 
     // -----------------------------------------------------------------------

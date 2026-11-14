@@ -202,7 +202,6 @@ namespace jpacPhoto
                 gPad->SetBottomMargin(0);
                 
                 // Apply the linewidth 
-                plot->set_legend_spacing(1.6);
                 plot->draw();
                 continue;
             };
