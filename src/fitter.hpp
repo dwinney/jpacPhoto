@@ -234,13 +234,10 @@ namespace jpacPhoto
             set_up(starting_guess);
 
             auto start = std::chrono::high_resolution_clock::now();
-            if (_print_level >= 0)
-            {
-                if (show_data) { line(); data_info(); };
-                parameter_info(starting_guess);
-                
-                std::cout << "Beginning fit..." << std::flush; 
-            };
+            if (show_data) { line(); data_info(); };
+            parameter_info(starting_guess);
+            
+            std::cout << "Beginning fit..." << std::flush; 
 
             if (_print_level > 0) line();   
             _minuit->Minimize();
@@ -249,12 +246,10 @@ namespace jpacPhoto
             auto stop     = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
 
-            if(_print_level >= 0)
-            {
-                std::cout << "Done! \n";
-                // Timing info
-                std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
-            };
+            std::cout << "Done! \n";
+            // Timing info
+            std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
+            
             line();
             print_results();
         };
