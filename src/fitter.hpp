@@ -233,23 +233,28 @@ namespace jpacPhoto
 
             set_up(starting_guess);
 
-            if (show_data) { line(); data_info(); };
-            parameter_info(starting_guess);
-
             auto start = std::chrono::high_resolution_clock::now();
-            std::cout << "Beginning fit..." << std::flush; 
+            if (_print_level >= 0)
+            {
+                if (show_data) { line(); data_info(); };
+                parameter_info(starting_guess);
+                
+                std::cout << "Beginning fit..." << std::flush; 
+            };
 
-            if (_print_level != 0) line();   
+            if (_print_level > 0) line();   
             _minuit->Minimize();
-            if (_print_level != 0) line();   
-
-            std::cout << "Done! \n";
-
-            // Timing info
+            if (_print_level > 0) line();   
+            
             auto stop     = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast< std::chrono::seconds>(stop - start);
-            std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
 
+            if(_print_level >= 0)
+            {
+                std::cout << "Done! \n";
+                // Timing info
+                std::cout << std::left << "Finished in " << duration.count() << " s" << std::endl;
+            };
             line();
             print_results();
         };
@@ -608,29 +613,31 @@ namespace jpacPhoto
             std::vector<double> pars = (last_fit) ? convert(_minuit->X())             : _best_pars;
             std::vector<double> errs = (last_fit) ? convert(_minuit->Errors())        : _best_errs;
 
-
-            divider();
-            std::cout << std::left << std::setw(5) << "fcn = "       << std::setw(15) << fcn     << std::setw(5) << "";
-            std::cout << std::left << std::setw(10) << "fcn/dof = "  << std::setw(15) << fcn_dof << "\n";
-
-            line();
-
-            cout << left << setw(10) << "i"     << setw(16) << "PARAMETER"  << setw(18) << "FIT VALUE"    << setw(18) << "ERROR"        << endl;
-            cout << left << setw(10) << "-----" << setw(16) << "----------" << setw(18) << "------------" << setw(18) << "------------" << endl;
-
-            for (int i = 0; i < pars.size(); i++) _pars[i]._value = pars[i];
-
-            for (auto par : _pars)
+            if (_print_level >= 0)
             {
-                double val;
-
-                std::stringstream ss;
-                ss << std::setprecision(8) << errs[par._i];
-                std::string err = !(par._fixed || par._synced) ? ss.str() : par._message;
-
-                cout << left << setw(10) << par._i << setw(16) << par._label << setw(18) << par._value << setw(18) << err << endl;
+                divider();
+                std::cout << std::left << std::setw(5) << "fcn = "       << std::setw(15) << fcn     << std::setw(5) << "";
+                std::cout << std::left << std::setw(10) << "fcn/dof = "  << std::setw(15) << fcn_dof << "\n";
+    
+                line();
+    
+                cout << left << setw(10) << "i"     << setw(16) << "PARAMETER"  << setw(18) << "FIT VALUE"    << setw(18) << "ERROR"        << endl;
+                cout << left << setw(10) << "-----" << setw(16) << "----------" << setw(18) << "------------" << setw(18) << "------------" << endl;
+    
+                for (int i = 0; i < pars.size(); i++) _pars[i]._value = pars[i];
+    
+                for (auto par : _pars)
+                {
+                    double val;
+    
+                    std::stringstream ss;
+                    ss << std::setprecision(8) << errs[par._i];
+                    std::string err = !(par._fixed || par._synced) ? ss.str() : par._message;
+    
+                    cout << left << setw(10) << par._i << setw(16) << par._label << setw(18) << par._value << setw(18) << err << endl;
+                };
+                line(); divider(); line();
             };
-            line(); divider(); line();
             
             // At the end update the amplitude parameters to include the fit results
             _amplitude->set_parameters(pars);
