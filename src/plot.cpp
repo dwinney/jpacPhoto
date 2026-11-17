@@ -182,7 +182,6 @@ namespace jpacPhoto
         _entries.push_back(plot_entry(graph, style, true));
     };
 
-
     void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
         double *x, *y, *dy;
@@ -208,6 +207,43 @@ namespace jpacPhoto
         _entries.push_back(plot_entry(graph, style, true));
     };
 
+    void plot::add_data(data_set data)
+    {
+        double *x, *z, *xl, *xh, *zl, *zh;
+        x  = &(data._x[0]);        z  = &(data._z[0]);
+        xl = &(data._xerr[0][0]);  xh = &(data._xerr[1][0]);
+        zl = &(data._zerr[0][0]);  zh = &(data._zerr[1][0]);
+
+        TGraph *graph = new TGraphAsymmErrors(data._N, x, z, xl, xh, zl, zh);
+
+        entry_style style;
+        style._label = data._id;
+        style._style = 20 + _Ndata;
+        style._color = jpacColor::DarkGrey;
+        style._draw_opt = "P";
+        style._add_to_legend = data._add_to_legend;
+
+        _Ndata++;
+        _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+
+    void plot::add_data(data_set data, entry_style style)
+    {
+        double *x, *z, *xl, *xh, *zl, *zh;
+        x  = &(data._x[0]);        z  = &(data._z[0]);
+        xl = &(data._xerr[0][0]);  xh = &(data._xerr[1][0]);
+        zl = &(data._zerr[0][0]);  zh = &(data._zerr[1][0]);
+
+        TGraph *graph = new TGraphAsymmErrors(data._N, x, z, xl, xh, zl, zh);
+
+        _Ndata++;
+        _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+    
     // -----------------------------------------------------------------------
     // Add different curves from amplitudes / functions
 

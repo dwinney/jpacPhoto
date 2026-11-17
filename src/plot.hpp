@@ -242,12 +242,13 @@ namespace jpacPhoto
         void add_data(std::array<std::vector<double>,2> x, std::vector<double> y, entry_style style);
         void add_data(std::vector<double> x, std::array<std::vector<double>,2> y, entry_style style);
         void add_data(std::vector<double> x, std::vector<double> y, entry_style style);
+        // Add data from a data_set
+        void add_data(data_set x);
+        void add_data(data_set x, entry_style style);
+
 
         // Add a small offset to change the running color index
-        inline void color_offset(unsigned n)
-        {
-            _Ncurve += n;
-        };
+        inline void color_offset(unsigned n){ _Ncurve += n; };
 
         // -----------------------------------------------------------------------
         // Methods to add curves to your plot
