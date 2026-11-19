@@ -67,7 +67,7 @@ namespace jpacPhoto
         // Axis titles
         _style->SetNdivisions(  506, "xy");
         _style->SetTitleSize(  .045, "xyz");
-        _style->SetTitleOffset(1.25, "xz");
+        _style->SetTitleOffset(1.1,  "xz");
 
         // More space for y-axis to avoid clashing with big numbers
         _style->SetTitleOffset(1.5, "y");

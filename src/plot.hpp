@@ -438,7 +438,7 @@ namespace jpacPhoto
 
         bool   _addlegend     = true;
         double _legendxcord   = 0.3, _legendycord   = 0.7;
-        double _legendxoffset = 0.3, _legendyoffset = 0.15, _legendyscale = 0.04;
+        double _legendxoffset = 0.3, _legendyoffset = 0.15, _legendyscale = 1.;
 
         // Number of entries to expect on the legend
         // used to calculate the offset to be visually appealing
