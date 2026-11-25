@@ -18,6 +18,7 @@
 void sigmatot_piN()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using namespace jpacPhoto::inclusive;
 
     piN_xsection sigma;
@@ -27,14 +28,14 @@ void sigmatot_piN()
 
     double Wth = M_PION + M_PROTON + 1E-3;
     sigma.set_option(piN_xsection::kPI_PLUS);
-    p.add_curve({ Wth, 2.5}, [&](double w){ return sigma(w*w); }, "#pi^{#plus} #it{p}");
+    p.add_curve({ Wth, 2.5}, [&](double w){ return sigma(w*w); }, solid(jpacColor::Blue, "#pi^{#plus} #it{p}"));
     sigma.set_option(piN_xsection::kPDG);
-    p.add_dashed({Wth, 2.5}, [&](double w){ return sigma(w*w); });
+    p.add_curve({Wth, 2.5}, [&](double w){ return sigma(w*w); }, dashed(jpacColor::Blue));
     sigma.set_option(piN_xsection::kPI_MINUS);
     sigma.set_option(piN_xsection::kJPAC); 
-    p.add_curve( {Wth, 2.5}, [&](double w){ return sigma(w*w); }, "#pi^{#minus} #it{p}");
+    p.add_curve( {Wth, 2.5}, [&](double w){ return sigma(w*w); }, solid(jpacColor::Red, "#pi^{#minus} #it{p}"));
     sigma.set_option(piN_xsection::kPDG);
-    p.add_dashed({Wth, 2.5}, [&](double w){ return sigma(w*w); });
+    p.add_curve({Wth, 2.5}, [&](double w){ return sigma(w*w); }, dashed(jpacColor::Red));
 
     p.set_ranges({1, 2.5}, {6, 400});
     p.set_logscale(false, true);

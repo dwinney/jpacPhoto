@@ -23,6 +23,7 @@
 void structure_Fs()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using complex = std::complex<double>;
 
     auto structure = structure_functions(); 
@@ -38,12 +39,12 @@ void structure_Fs()
     p1.set_ranges({1, 3.0}, {0, 0.5});
     p1.set_labels("#it{M}_{#it{X}} [GeV]", "#it{F}_{2}(#it{x}_{B}, #it{t})");
     p1.set_legend(0.35,0.75);
-    p1.add_curve( {Wth, 3}, [&](double w){ return structure.F2(w*w, -0.1);}, "#it{t} = #minus 0.1 GeV^{2}");
-    p1.add_dashed({Wth, 3}, [&](double w){ return 2*xB(w, -0.1)*structure.F1( w*w, -0.1);});
-    p1.add_curve( {Wth, 3}, [&](double w){ return structure.F2(w*w, -2.0);}, "#it{t} = #minus 2.0 GeV^{2}");
-    p1.add_dashed({Wth, 3}, [&](double w){ return 2*xB(w, -2.0)*structure.F1(w*w, -2.0);});
-    p1.add_curve( {Wth, 3}, [&](double w){ return structure.F2(w*w, -10);}, "#it{t} = #minus 10 GeV^{2}");
-    p1.add_dashed({Wth, 3}, [&](double w){ return 2*xB(w, -10 )*structure.F1(w*w, -10);});
+    p1.add_curve( {Wth, 3}, [&](double w){ return structure.F2(w*w, -0.1);}, solid(jpacColor::Blue, "#it{t} = #minus 0.1 GeV^{2}"));
+    p1.add_curve({Wth, 3}, [&](double w){ return 2*xB(w, -0.1)*structure.F1( w*w, -0.1);}, dashed(jpacColor::Blue));
+    p1.add_curve( {Wth, 3}, [&](double w){ return structure.F2(w*w, -2.0);}, solid(jpacColor::Red, "#it{t} = #minus 2.0 GeV^{2}"));
+    p1.add_curve({Wth, 3}, [&](double w){ return 2*xB(w, -2.0)*structure.F1(w*w, -2.0);},  dashed(jpacColor::Red));
+    p1.add_curve( {Wth, 3}, [&](double w){ return structure.F2(w*w, -10);}, solid(jpacColor::Green, "#it{t} = #minus 10 GeV^{2}"));
+    p1.add_curve({Wth, 3}, [&](double w){ return 2*xB(w, -10 )*structure.F1(w*w, -10);}, dashed(jpacColor::Green));
     p1.save("CB_Fs.pdf");
 
     // D&L F1 plot
@@ -54,9 +55,8 @@ void structure_Fs()
     p2.set_legend(0.25,0.75);
 
     structure.set_option(structure_functions::kDL);
-    p2.add_curve(  {Wth, 30}, [&](double w){ return structure.F2(w*w, -0.1);}, "#it{t} = #minus 0.1 GeV^{2}");
-    p2.add_dashed( {Wth, 30}, [&](double w){ return structure.F2(w*w, -2);});
-    p2.add_dashed( {Wth, 30}, [&](double w){ return structure.F2(w*w, -10);});
+    p2.add_curve(  {Wth, 30}, [&](double w){ return structure.F2(w*w, -0.1);},  solid(jpacColor::Blue,"#it{t} = #minus 0.1 GeV^{2}"));
+    p2.add_curve(  {Wth, 30}, [&](double w){ return structure.F2(w*w, -2);},    solid(jpacColor::Red, "#it{t} = #minus 2 GeV^{2}"));
+    p2.add_curve(  {Wth, 30}, [&](double w){ return structure.F2(w*w, -10);},   solid(jpacColor::Green,"#it{t} = #minus 10 GeV^{2}"));
     p2.save("DL_Fs.pdf");
-
 };

@@ -17,9 +17,10 @@
 #include "constants.hpp"
 #include "regge/reggeon_exchange.hpp"
 
-void a2_f2()
+void tensor_photoproduction()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using namespace regge;
     using jpacPhoto::complex;
 
@@ -165,15 +166,17 @@ void a2_f2()
 
     plotter plotter;
 
-    auto print_dxs = [](plot& p, double Egam, amplitude amp, bool legend = false)
+    int i = 2;
+    auto print_dxs = [&](plot& p, double Egam, amplitude amp, bool legend = false)
     {
         double s = s_cm(Egam);
         auto dsig = [amp,s](double mt)
         {
             return amp->differential_xsection(s, -mt) * 1E-3; // in mub
         };
-        if (!legend) p.add_curve({-amp->get_kinematics()->t_min(s), 2}, dsig);
-        else         p.add_curve({-amp->get_kinematics()->t_min(s), 2}, dsig, "#it{E}_{#gamma} "+ jpacPhoto::to_string(Egam) + " GeV");
+        if (!legend) p.add_curve({-amp->get_kinematics()->t_min(s), 2}, dsig, solid(JPACCOLORS[i]));
+        else         p.add_curve({-amp->get_kinematics()->t_min(s), 2}, dsig, solid(JPACCOLORS[i],"#it{E}_{#gamma} "+ jpacPhoto::to_string(Egam) + " GeV"));
+        i++;
     };
 
     double s;
@@ -182,41 +185,42 @@ void a2_f2()
     plot p1 = plotter.new_plot();
     p1.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p1.set_ranges({0, 2.0}, {0.0, 0.6});
-    p1.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p1.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p1.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p1.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     print_dxs(p1, 4,   a2_MIN);
     print_dxs(p1, 5,   a2_MIN);
     print_dxs(p1, 8.5, a2_MIN);
 
-
+    i = 2;
     plot p2 = plotter.new_plot();
     p2.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p2.set_ranges({0, 2.0}, {0, 0.6});
-    p2.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p2.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p2.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p2.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     print_dxs(p2, 4,   a2_TMD);
     print_dxs(p2, 5,   a2_TMD);
     print_dxs(p2, 8.5, a2_TMD);
 
-
+    i = 2;
     plot p3 = plotter.new_plot();
     p3.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p3.set_ranges({0, 2.0}, {0.0, 1.5});
-    p3.add_data({mt3, sig3}, {mte3, err3}, jpacColor::Purple);
+    p3.add_data({mt3, mte3}, {sig3, err3}, dot(jpacColor::Purple));
     print_dxs(p3, 4,   f2_MIN);
     print_dxs(p3, 5,   f2_MIN);
     print_dxs(p3, 8.5, f2_MIN);
-    p3.color_offset(1);
+    i++;
     print_dxs(p3, 3.4, f2_MIN);
 
+    i = 2;
     plot p4 = plotter.new_plot();
     p4.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p4.set_ranges({0, 2.0}, {0, 1.5});
-    p4.add_data({mt3, sig3}, {mte3, err3}, jpacColor::Purple);
+    p4.add_data({mt3, mte3}, {sig3, err3}, dot(jpacColor::Purple));
     print_dxs(p4, 4,   f2_TMD);
     print_dxs(p4, 5,   f2_TMD);
     print_dxs(p4, 8.5, f2_TMD);
-    p4.color_offset(1);
+    i++;
     print_dxs(p4, 3.4, f2_TMD);
 
     plotter.combine({2,2}, {p1,p2,p3,p4}, "fig4.pdf");
@@ -227,28 +231,28 @@ void a2_f2()
     p5.set_ranges({0, 2.0}, {0.0, 0.6});
     p5.add_header("Minimal");
     p5.set_legend(0.65, 0.65, 0.9);
-    p5.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p5.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p5.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p5.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     s = s_cm(4);
-    p5.add_curve( {0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt)    * 1E-3; }, "#it{E}_{#gamma} = 4 GeV");
-    p5.add_dashed({0.07, 2}, [&](double mt){ return a2h1_MIN->differential_xsection(s, -mt) * 1E-3; });
+    p5.add_curve( {0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt)    * 1E-3; }, solid(jpacColor::Green, "#it{E}_{#gamma} = 4 GeV"));
+    p5.add_curve({0.07, 2}, [&](double mt){ return a2h1_MIN->differential_xsection(s, -mt) * 1E-3; }, dashed(jpacColor::Green));
     s = s_cm(5);
-    p5.add_curve( {0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt)    * 1E-3; }, "#it{E}_{#gamma} = 5 GeV");
-    p5.add_dashed({0.07, 2}, [&](double mt){ return a2h1_MIN->differential_xsection(s, -mt) * 1E-3; });
+    p5.add_curve( {0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt)    * 1E-3; }, solid(jpacColor::Orange, "#it{E}_{#gamma} = 5 GeV"));
+    p5.add_curve({0.07, 2}, [&](double mt){ return a2h1_MIN->differential_xsection(s, -mt) * 1E-3; }, dashed(jpacColor::Orange));
 
     plot p6 = plotter.new_plot();
     p6.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p6.set_ranges({0, 2.0}, {0, 0.6});
     p6.add_header("TMD");
     p6.set_legend(0.65, 0.65, 0.9);
-    p6.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p6.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p6.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p6.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     s = s_cm(4);
-    p6.add_curve( {0.07, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt)    * 1E-3; });
-    p6.add_dashed({0.07, 2}, [&](double mt){ return a2h1_TMD->differential_xsection(s, -mt) * 1E-3; });
+    p6.add_curve( {0.07, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt)    * 1E-3; }, solid(jpacColor::Green));
+    p6.add_curve({0.07, 2}, [&](double mt){ return a2h1_TMD->differential_xsection(s, -mt) * 1E-3; }, dashed(jpacColor::Green));
     s = s_cm(5);
-    p6.add_curve( {0.07, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt)    * 1E-3; });
-    p6.add_dashed({0.07, 2}, [&](double mt){ return a2h1_TMD->differential_xsection(s, -mt) * 1E-3; });
+    p6.add_curve( {0.07, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt)    * 1E-3; }, solid(jpacColor::Orange));
+    p6.add_curve({0.07, 2}, [&](double mt){ return a2h1_TMD->differential_xsection(s, -mt) * 1E-3; }, dashed(jpacColor::Orange));
 
     plotter.combine({2,1}, {p5,p6}, "fig3.pdf");
 
@@ -258,24 +262,24 @@ void a2_f2()
     p7.set_ranges({0, 2.0}, {0, 0.6});
     p7.add_header("Minimal");
     p7.set_legend(0.65, 0.65, 0.9);
-    p7.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p7.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p7.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p7.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     s = s_cm(4);
-    p7.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, "#it{E}_{#gamma} = 4 GeV");
+    p7.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green,"#it{E}_{#gamma} = 4 GeV"));
     s = s_cm(5);
-    p7.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, "#it{E}_{#gamma} = 5 GeV");
+    p7.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Orange,"#it{E}_{#gamma} = 5 GeV"));
 
     plot p8 = plotter.new_plot();
     p8.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p8.set_ranges({0, 2.0}, {0, 2.2});
     p8.add_header("TMD");
     p8.set_legend(0.65, 0.65, 0.9);
-    p8.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p8.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p8.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p8.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     s = s_cm(4);
-    p8.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; });
+    p8.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green));
     s = s_cm(5);
-    p8.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; });
+    p8.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Orange));
 
     a2rho_MIN->set_option(reggeon_exchange::kRemoveZero);
     a2rho_TMD->set_option(reggeon_exchange::kRemoveZero);
@@ -284,30 +288,31 @@ void a2_f2()
     p9.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p9.set_ranges({0, 2.0}, {0, 0.6});
     p9.add_header("Minimal w/o zero");
-    p9.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p9.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p9.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p9.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     p9.set_legend(0.65, 0.65);
     s = s_cm(4);
-    p9.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, "#it{E}_{#gamma} = 4 GeV");
+    p9.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green,"#it{E}_{#gamma} = 4 GeV"));
     s = s_cm(5);
-    p9.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, "#it{E}_{#gamma} = 5 GeV");
+    p9.add_curve({0.07, 2}, [&](double mt){ return a2_MIN->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Orange,"#it{E}_{#gamma} = 5 GeV"));
 
     plot p10 = plotter.new_plot();
     p10.set_labels("#minus#it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p10.set_ranges({0, 2.0}, {0, 2.2});
     p10.add_header("TMD w/o zero");
-    p10.add_data({mt4, sig4}, {mte4, err4}, jpacColor::Blue);
-    p10.add_data({mt5, sig5}, {mte5, err5}, jpacColor::Red);
+    p10.add_data({mt4, mte4}, {sig4, err4}, dot(jpacColor::Blue));
+    p10.add_data({mt5, mte5}, {sig5, err5}, dot(jpacColor::Red));
     p10.set_legend(0.55, 0.65);
     s = s_cm(4);
-    p10.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; });
+    p10.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green));
     s = s_cm(5);
-    p10.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; });
+    p10.add_curve({0.1, 2}, [&](double mt){ return a2_TMD->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green));
 
     plotter.combine({2,2}, {p7,p8,p9,p10}, "fig2.pdf");
 
     // FIG 5
-    auto print_asym = [](plot& p, double Egam, amplitude amp, bool legend = false)
+    i = 0;
+    auto print_asym = [&](plot& p, double Egam, amplitude amp, bool legend = false)
     {
         double s = s_cm(Egam);
         auto Psig = [amp,s](double mt)
@@ -317,8 +322,9 @@ void a2_f2()
             complex rho100  = amp->mSDME_H(1, 0, -0, s, -mt);
             return std::real(2*rho11m1 - 2*rho12m2 - rho100);
         };
-        if (!legend) p.add_curve({-amp->get_kinematics()->t_min(s), 2}, Psig);
-        else         p.add_curve({-amp->get_kinematics()->t_min(s), 2}, Psig, "#it{E}_{#gamma} " + jpacPhoto::to_string(Egam)+" GeV");
+        if (!legend) p.add_curve({-amp->get_kinematics()->t_min(s), 2}, Psig, solid(JPACCOLORS[i]));
+        else         p.add_curve({-amp->get_kinematics()->t_min(s), 2}, Psig, solid(JPACCOLORS[i], "#it{E}_{#gamma} " + jpacPhoto::to_string(Egam)+" GeV"));
+        i++;
     };
 
     plot p11 = plotter.new_plot();
@@ -330,6 +336,7 @@ void a2_f2()
     print_asym(p11, 5,   a2_MIN);
     print_asym(p11, 8.5, a2_MIN);
 
+    i=0;
     plot p12 = plotter.new_plot();
     p12.set_labels("#minus#it{t}  [GeV^{2}]", "P_{#sigma}");
     p12.add_header("TMD  #it{a}_{2}");
@@ -339,6 +346,7 @@ void a2_f2()
     print_asym(p12, 5,   a2_TMD);
     print_asym(p12, 8.5, a2_TMD);
 
+    i=0;
     plot p13 = plotter.new_plot();
     p13.set_labels("#minus#it{t}  [GeV^{2}]", "P_{#sigma}");
     p13.add_header("minimal  #it{f}_{2}");
@@ -347,9 +355,10 @@ void a2_f2()
     print_asym(p13, 4,   f2_MIN);
     print_asym(p13, 5,   f2_MIN);
     print_asym(p13, 8.5, f2_MIN);
-    p13.color_offset(1);
+    i++;
     print_asym(p13, 3.4, f2_MIN);
 
+    i=0;
     plot p14 = plotter.new_plot();
     p14.set_labels("#minus#it{t}  [GeV^{2}]", "P_{#sigma}");
     p14.add_header("TMD  #it{f}_{2}");
@@ -358,7 +367,7 @@ void a2_f2()
     print_asym(p14, 4,   f2_TMD, true);
     print_asym(p14, 5,   f2_TMD, true);
     print_asym(p14, 8.5, f2_TMD, true);
-    p14.color_offset(1);
+    i++;
     print_asym(p14, 3.4, f2_TMD, true);
     
     plotter.combine({2,2}, {p11, p12, p13, p14}, "fig5.pdf");

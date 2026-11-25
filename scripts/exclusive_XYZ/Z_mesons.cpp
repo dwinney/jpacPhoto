@@ -23,6 +23,7 @@
 void Z_mesons()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
 
     // ---------------------------------------------------------------------------
     // Couplings and constants
@@ -111,9 +112,9 @@ void Z_mesons()
     p_low.set_legend(0.7, 0.65);
     p_low.set_ranges({4, 20}, {2E-2, 2E2});
     p_low.set_labels( "#it{W_{#gammap}}  [GeV]", "#it{#sigma(#gamma p #rightarrow Z n)}  [nb]");
-    p_low.add_curve({4, 20}, [&](double W){ return Zc->integrated_xsection(W*W); },  "Z_{c}(3900)");
-    p_low.add_curve({4, 20}, [&](double W){ return Zb->integrated_xsection(W*W); },  "Z_{b}(10610)");
-    p_low.add_curve({4, 20}, [&](double W){ return Zbp->integrated_xsection(W*W); }, "Z_{b}(10650)");
+    p_low.add_curve({4, 20}, [&](double W){ return Zc->integrated_xsection(W*W); },  solid(jpacColor::Blue, "Z_{c}(3900)"));
+    p_low.add_curve({4, 20}, [&](double W){ return Zb->integrated_xsection(W*W); },  solid(jpacColor::Red, "Z_{b}(10610)"));
+    p_low.add_curve({4, 20}, [&](double W){ return Zbp->integrated_xsection(W*W); }, solid(jpacColor::Green, "Z_{b}(10650)"));
 
     // High-energy plot
     plot p_high = plotter.new_plot();
@@ -122,9 +123,9 @@ void Z_mesons()
     p_high.set_legend(0.3, 0.2);
     p_high.set_ranges({20, 70}, {1E-4, 2});
     p_high.set_labels( "#it{W_{#gammap}}  [GeV]", "#it{#sigma(#gamma p #rightarrow Z n)}  [nb]");
-    p_high.add_curve({20, 70}, [&](double W){ return ZcR->integrated_xsection(W*W); });
-    p_high.add_curve({20, 70}, [&](double W){ return ZbR->integrated_xsection(W*W); });
-    p_high.add_curve({20, 70}, [&](double W){ return ZbpR->integrated_xsection(W*W); });
+    p_high.add_curve({20, 70}, [&](double W){ return ZcR->integrated_xsection(W*W); },  solid(jpacColor::Blue));
+    p_high.add_curve({20, 70}, [&](double W){ return ZbR->integrated_xsection(W*W); },  solid(jpacColor::Red));
+    p_high.add_curve({20, 70}, [&](double W){ return ZbpR->integrated_xsection(W*W); }, solid(jpacColor::Green));
 
     // Combine these into a single plot 
     plotter.combine({2,1}, {p_low, p_high}, "Z_mesons.pdf");

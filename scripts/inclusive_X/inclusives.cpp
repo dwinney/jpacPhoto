@@ -23,6 +23,7 @@
 void inclusives()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using namespace jpacPhoto::inclusive;
     using covariant::photon_exchange;
 
@@ -137,13 +138,13 @@ void inclusives()
     p1.print_to_terminal(true);
     p1.shade_region({W_cm(22), 10}, {kBlack, 1001});
     print("chic1 (inclusive)"); divider(2);
-    p1.add_curve( C_NT, [&](double W){ return intC->integrated_xsection(W*W, 0.7); }, "#chi_{#it{c}1}");
+    p1.add_curve( C_NT, [&](double W){ return intC->integrated_xsection(W*W, 0.7); }, solid(jpacColor::Blue, "#chi_{#it{c}1}"));
     print("chic1 (exclusive)"); divider(2);
-    p1.add_dashed(C_NT, [&](double W){ return eC->integrated_xsection(W*W); });
+    p1.add_curve(C_NT, [&](double W){ return eC->integrated_xsection(W*W);}, dashed(jpacColor::Blue));
     print("X(3872) (inclusive)"); divider(2);
-    p1.add_curve( X_NT, [&](double W){ return intX->integrated_xsection(W*W, 0.7); }, "#it{X}(3872)");
+    p1.add_curve( X_NT, [&](double W){ return intX->integrated_xsection(W*W, 0.7); }, solid(jpacColor::Red, "#it{X}(3872)"));
     print("X(3872) (exclusive)"); divider(2);
-    p1.add_dashed(X_NT, [&](double W){ return eX->integrated_xsection(W*W); });
+    p1.add_curve(X_NT, [&](double W){ return eX->integrated_xsection(W*W); }, dashed(jpacColor::Red));
     p1.save("NT.pdf");
 
     // // Plot the breakdown of contributions for the chic1
@@ -156,13 +157,13 @@ void inclusives()
     p3.add_header("#chi_{c1}(1#it{P})");
     iC->set_option(vector_exchange::kReggeized); 
     p3.print_to_terminal(true);
-    p3.add_curve( HE, [&](double W){ return (irC->integrated_xsection(W*W)+eC_gam->integrated_xsection(W*W)) * 1E3; }, "Total");
+    p3.add_curve( HE, [&](double W){ return (irC->integrated_xsection(W*W)+eC_gam->integrated_xsection(W*W)) * 1E3; }, solid(jpacColor::Blue, "Total"));
     iC->set_parameters({0, gC_rho, gC_omega});
-    p3.add_curve(HE, [&](double W){  return iC->integrated_xsection(W*W)     * 1E3; }, "Inclusive #it{V} exchange");
-    p3.add_curve(HE, [&](double W){  return rC->integrated_xsection(W*W)     * 1E3; }, "Exclusive #it{V} exchange");
+    p3.add_curve(HE, [&](double W){  return iC->integrated_xsection(W*W)     * 1E3; }, solid(jpacColor::Red,   "Inclusive #it{V} exchange"));
+    p3.add_curve(HE, [&](double W){  return rC->integrated_xsection(W*W)     * 1E3; }, solid(jpacColor::Green, "Exclusive #it{V} exchange"));
     iC->set_parameters({gC_gamma, 0., 0.});
-    p3.add_curve(HE, [&](double W){  return iC->integrated_xsection(W*W)     * 1E3; }, "Inclusive #gamma exchange");
-    p3.add_curve(HE, [&](double W){  return eC_gam->integrated_xsection(W*W) * 1E3; }, "Exclusive #gamma exchange");
+    p3.add_curve(HE, [&](double W){  return iC->integrated_xsection(W*W)     * 1E3; }, solid(jpacColor::Orange, "Inclusive #gamma exchange"));
+    p3.add_curve(HE, [&](double W){  return eC_gam->integrated_xsection(W*W) * 1E3; }, solid(jpacColor::Purple, "Exclusive #gamma exchange"));
 
     // Plot the breakdown of contributions for the X(3872)
     plot p2 = plotter.new_plot();
@@ -174,13 +175,13 @@ void inclusives()
     p2.add_header("#it{X}(3872)");
     p2.print_to_terminal(true);
     iX->set_option(vector_exchange::kReggeized);
-    p2.add_curve( HE, [&](double W){ return (irX->integrated_xsection(W*W)+eX_gam->integrated_xsection(W*W)) * 1E3; });
+    p2.add_curve( HE, [&](double W){ return (irX->integrated_xsection(W*W)+eX_gam->integrated_xsection(W*W)) * 1E3; }, solid(jpacColor::Blue));
     iX->set_parameters({0, gX_rho, gX_omega});
-    p2.add_curve( HE, [&](double W){ return iX->integrated_xsection(W*W)     * 1E3; });
-    p2.add_curve( HE, [&](double W){ return rX->integrated_xsection(W*W)     * 1E3; });
+    p2.add_curve( HE, [&](double W){ return iX->integrated_xsection(W*W)     * 1E3; }, solid(jpacColor::Red));
+    p2.add_curve( HE, [&](double W){ return rX->integrated_xsection(W*W)     * 1E3; }, solid(jpacColor::Green));
     iX->set_parameters({gX_gamma, 0., 0.});
-    p2.add_curve( HE, [&](double W){ return iX->integrated_xsection(W*W)     * 1E3; });
-    p2.add_curve( HE, [&](double W){ return eX_gam->integrated_xsection(W*W) * 1E3; });
+    p2.add_curve( HE, [&](double W){ return iX->integrated_xsection(W*W)     * 1E3; }, solid(jpacColor::Orange));
+    p2.add_curve( HE, [&](double W){ return eX_gam->integrated_xsection(W*W) * 1E3; }, solid(jpacColor::Purple));
 
     plotter.combine({2,1}, {p3,p2}, "HE.pdf");
 };

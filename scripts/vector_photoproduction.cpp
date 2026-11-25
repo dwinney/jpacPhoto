@@ -20,9 +20,10 @@
 #include "regge/reggeon_exchange.hpp"
 #include "amplitude.hpp"
 
-void vector_sdmes()
+void vector_photoproduction()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using regge::reggeon_exchange;
     using complex = std::complex<double>;
 
@@ -178,11 +179,11 @@ void vector_sdmes()
     p.set_logscale(false, true);
     p.set_labels("#minus #it{t}  [GeV^{2}]", "d#sigma/d#it{t}  [#mub/GeV^{2}]");
     p.add_header("#it{E}_{#gamma} = 9.3 GeV");
-    p.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(  s, -mt) * 1E-3; }, "#rho");
-    p.add_curve( {-phi->t_min(s),   0.6}, [&](double mt){ return phi_total->differential_xsection(  s, -mt) * 1E-3; }, "#phi");
+    p.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(  s, -mt) * 1E-3; }, solid(jpacColor::Blue,"#rho"));
+    p.add_curve( {-phi->t_min(s),   0.6}, [&](double mt){ return phi_total->differential_xsection(  s, -mt) * 1E-3; }, solid(jpacColor::Red,"#phi"));
     phi_pomeron->set_parameters( phi_pars_reduced );   
-    p.add_dashed({-phi->t_min(s),   0.6}, [&](double mt){ return phi_total->differential_xsection(  s, -mt) * 1E-3; });
-    p.add_curve( {-omega->t_min(s), 0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, "#omega");
+    p.add_curve({-phi->t_min(s),   0.6}, [&](double mt){ return phi_total->differential_xsection(  s, -mt) * 1E-3; }, dashed(jpacColor::Red));
+    p.add_curve( {-omega->t_min(s), 0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green,"#omega"));
     p.set_legend(0.25,0.25, 1.);
     p.save("dsig.pdf");
 
@@ -194,13 +195,13 @@ void vector_sdmes()
     p1.set_legend(0.25,0.2, 1.);
     
     s = s_cm(4.7E3);
-    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, "4.7 TeV");
+    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Blue,"4.7 TeV"));
     s = s_cm(2.8E3);
-    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, "2.8 TeV");
+    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Red,"2.8 TeV"));
     s = s_cm(1.6E3);
-    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, "1.6 TeV");
+    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green,"1.6 TeV"));
     s = s_cm(111.5E3);
-    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, "111.5 TeV");
+    p1.add_curve( {-rho->t_min(s),   0.6}, [&](double mt){ return rho_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Orange,"111.5 TeV"));
 
     plot p2 = plotter.new_plot();
     p2.set_ranges(bounds, {0.01, 20});
@@ -210,11 +211,11 @@ void vector_sdmes()
     p2.set_legend(0.25,0.25, 1.8);
 
     s = s_cm((50 + 130)/2);
-    p2.add_curve( {-omega->t_min(s),   0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, "50 - 130 GeV");
+    p2.add_curve( {-omega->t_min(s),   0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Blue,"50 - 130 GeV"));
     s = s_cm((60 + 225)/2);
-    p2.add_curve( {-omega->t_min(s),   0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, "60 - 225 GeV");
+    p2.add_curve( {-omega->t_min(s),   0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Red,"60 - 225 GeV"));
     s = s_cm((2.6 + 4.3)/2 * 1E3);
-    p2.add_curve( {-omega->t_min(s),   0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, "2.6 - 4.3 TeV");
+    p2.add_curve( {-omega->t_min(s),   0.6}, [&](double mt){ return omega_total->differential_xsection(s, -mt) * 1E-3; }, solid(jpacColor::Green,"2.6 - 4.3 TeV"));
 
     plotter.stack({p1,p2}, "dsig2.pdf");
     
@@ -224,12 +225,12 @@ void vector_sdmes()
     p3.set_legend(0.65,0.75, 1.);
     p3.set_logscale(false, true);
     p3.set_labels("#it{W}  [GeV]", "#sigma  [#mub]");
-    p3.add_curve( {1.5, 6}, [&](double W){ return rho_total->integrated_xsection(W*W) * 1E-3; }, "#rho");
+    p3.add_curve( {1.5, 6}, [&](double W){ return rho_total->integrated_xsection(W*W) * 1E-3; }, solid(jpacColor::Blue, "#rho"));
     phi_pomeron->set_parameters(phi_pars_full);
-    p3.add_curve( {1.5, 6}, [&](double W){ return phi_total->integrated_xsection(W*W) * 1E-3; }, "#phi");
+    p3.add_curve( {1.5, 6}, [&](double W){ return phi_total->integrated_xsection(W*W) * 1E-3; }, solid(jpacColor::Red, "#phi"));
     phi_pomeron->set_parameters(phi_pars_reduced);   
-    p3.add_dashed({1.5, 6}, [&](double W){ return phi_total->integrated_xsection(W*W) * 1E-3; });
-    p3.add_curve( {1.5, 6}, [&](double W){ return omega_total->integrated_xsection(W*W) * 1E-3; }, "#omega");
+    p3.add_curve({1.5, 6}, [&](double W){ return phi_total->integrated_xsection(W*W) * 1E-3; }, dashed(jpacColor::Red));
+    p3.add_curve( {1.5, 6}, [&](double W){ return omega_total->integrated_xsection(W*W) * 1E-3; }, solid(jpacColor::Green,"#omega"));
     p3.save("integrated.pdf");
 
     // SDMEs
@@ -240,74 +241,74 @@ void vector_sdmes()
     p000.set_curve_points(50);
     p000.set_ranges(bounds, {-0.35, 0.35});
     p000.set_labels("#minus #it{t}  [GeV^{2}]", "#rho^{0}_{00}");
-    p000.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(  0, 0, 0, s, -mt) ); }, "#rho");
-    p000.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(  0, 0, 0, s, -mt) ); }, "#phi");
-    p000.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(0, 0, 0, s, -mt) ); }, "#omega");
+    p000.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(  0, 0, 0, s, -mt) ); }, solid(jpacColor::Blue,"#rho"));
+    p000.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(  0, 0, 0, s, -mt) ); }, solid(jpacColor::Red,"#phi"));
+    p000.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(0, 0, 0, s, -mt) ); }, solid(jpacColor::Green,"#omega"));
     p000.set_legend(0.7,0.3);
 
     plot p010 = plotter.new_plot();
     p010.set_curve_points(50);
     p010.set_ranges(bounds, {-0.35, 0.35});
     p010.set_labels("#minus #it{t}  [GeV^{2}]", "Re #rho^{0}_{10}");
-    p010.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(0, 1, 0, s, -mt) ); });
-    p010.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(0, 1, 0, s, -mt) ); });
-    p010.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(0, 1, 0, s, -mt) ); });
+    p010.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(0, 1, 0, s, -mt) ); }, solid(jpacColor::Blue));
+    p010.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(0, 1, 0, s, -mt) ); }, solid(jpacColor::Red));
+    p010.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(0, 1, 0, s, -mt) ); }, solid(jpacColor::Green));
 
     plot p01m1 = plotter.new_plot();
     p01m1.set_curve_points(50);
     p01m1.set_ranges(bounds, {-0.35, 0.35});
     p01m1.set_labels("#minus #it{t}  [GeV^{2}]", "#rho^{0}_{1-1}");
-    p01m1.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(0, 1, -1, s, -mt) ); });
-    p01m1.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(0, 1, -1, s, -mt) ); });
-    p01m1.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(0, 1, -1, s, -mt) ); });
+    p01m1.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(0, 1, -1, s, -mt) ); }, solid(jpacColor::Blue));
+    p01m1.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(0, 1, -1, s, -mt) ); }, solid(jpacColor::Red));
+    p01m1.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(0, 1, -1, s, -mt) ); }, solid(jpacColor::Green));
 
     plot p111 = plotter.new_plot();
     p111.set_ranges(bounds, {-0.35, 0.35});
     p111.set_curve_points(50);
     p111.set_labels("#minus #it{t}  [GeV^{2}]", "#rho^{1}_{11}");
-    p111.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 1, 1, s, -mt) ); });
-    p111.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 1, 1, s, -mt) ); });
-    p111.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 1, 1, s, -mt) ); });
+    p111.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 1, 1, s, -mt) ); }, solid(jpacColor::Blue));
+    p111.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 1, 1, s, -mt) ); }, solid(jpacColor::Red));
+    p111.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 1, 1, s, -mt) ); }, solid(jpacColor::Green));
 
     plot p100 = plotter.new_plot();
     p100.set_curve_points(50);
     p100.set_ranges(bounds, {-0.35, 0.35});
     p100.set_labels("#minus #it{t}  [GeV^{2}]", "#rho^{1}_{00}");
-    p100.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 0, 0, s, -mt) ); });
-    p100.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 0, 0, s, -mt) ); });
-    p100.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 0, 0, s, -mt) ); });
+    p100.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 0, 0, s, -mt) ); }, solid(jpacColor::Blue));
+    p100.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 0, 0, s, -mt) ); }, solid(jpacColor::Red));
+    p100.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 0, 0, s, -mt) ); }, solid(jpacColor::Green));
     
     plot p110 = plotter.new_plot();
     p110.set_curve_points(50);
     p110.set_ranges(bounds, {-0.35, 0.35});
     p110.set_labels("#minus #it{t}  [GeV^{2}]", "Re #rho^{1}_{10}");
-    p110.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 1, 0, s, -mt) ); });
-    p110.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 1, 0, s, -mt) ); });
-    p110.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 1, 0, s, -mt) ); });
+    p110.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 1, 0, s, -mt) ); }, solid(jpacColor::Blue));
+    p110.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 1, 0, s, -mt) ); }, solid(jpacColor::Red));
+    p110.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 1, 0, s, -mt) ); }, solid(jpacColor::Green));
 
     plot p11m1 = plotter.new_plot();
     p11m1.set_curve_points(50);
     p11m1.set_ranges(bounds, {-0.6, 0.6});
     p11m1.set_labels("#minus #it{t}  [GeV^{2}]", "#rho^{1}_{1-1}");
-    p11m1.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 1, -1, s, -mt) ); });
-    p11m1.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 1, -1, s, -mt) ); });
-    p11m1.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 1, -1, s, -mt) ); });
+    p11m1.add_curve( bounds, [&](double mt){ return  std::real( rho_total->mSDME_H(1, 1, -1, s, -mt) ); }, solid(jpacColor::Blue));
+    p11m1.add_curve( bounds, [&](double mt){ return  std::real( phi_total->mSDME_H(1, 1, -1, s, -mt) ); }, solid(jpacColor::Red));
+    p11m1.add_curve( bounds, [&](double mt){ return  std::real( omega_total->mSDME_H(1, 1, -1, s, -mt) ); }, solid(jpacColor::Green));
 
     plot p210 = plotter.new_plot();
     p210.set_curve_points(50);
     p210.set_ranges(bounds, {-0.6, 0.6});
     p210.set_labels("#minus #it{t}  [GeV^{2}]", "Im #rho^{2}_{10}");
-    p210.add_curve( bounds, [&](double mt){ return  std::imag( rho_total->mSDME_H(2, 1, 0, s, -mt) ); });
-    p210.add_curve( bounds, [&](double mt){ return  std::imag( phi_total->mSDME_H(2, 1, 0, s, -mt) ); });
-    p210.add_curve( bounds, [&](double mt){ return  std::imag( omega_total->mSDME_H(2, 1, 0, s, -mt) ); });
+    p210.add_curve( bounds, [&](double mt){ return  std::imag( rho_total->mSDME_H(2, 1, 0, s, -mt) ); }, solid(jpacColor::Blue));
+    p210.add_curve( bounds, [&](double mt){ return  std::imag( phi_total->mSDME_H(2, 1, 0, s, -mt) ); }, solid(jpacColor::Red));
+    p210.add_curve( bounds, [&](double mt){ return  std::imag( omega_total->mSDME_H(2, 1, 0, s, -mt) ); }, solid(jpacColor::Green));
 
     plot p21m1 = plotter.new_plot();
     p21m1.set_curve_points(50);
     p21m1.set_ranges(bounds, {-0.6, 0.6});
     p21m1.set_labels("#minus #it{t}  [GeV^{2}]", "Im #rho^{2}_{1-1}");
-    p21m1.add_curve( bounds, [&](double mt){ return  std::imag( rho_total->mSDME_H(2, 1, -1, s, -mt) ); });
-    p21m1.add_curve( bounds, [&](double mt){ return  std::imag( phi_total->mSDME_H(2, 1, -1, s, -mt) ); });
-    p21m1.add_curve( bounds, [&](double mt){ return  std::imag( omega_total->mSDME_H(2, 1, -1, s, -mt) ); });
+    p21m1.add_curve( bounds, [&](double mt){ return  std::imag( rho_total->mSDME_H(2, 1, -1, s, -mt) ); }, solid(jpacColor::Blue));
+    p21m1.add_curve( bounds, [&](double mt){ return  std::imag( phi_total->mSDME_H(2, 1, -1, s, -mt) ); }, solid(jpacColor::Red));
+    p21m1.add_curve( bounds, [&](double mt){ return  std::imag( omega_total->mSDME_H(2, 1, -1, s, -mt) ); }, solid(jpacColor::Green));
 
     plotter.combine({3,3}, {p000, p010, p01m1, p111, p100, p110, p11m1, p210, p21m1}, "sdmes.pdf");
 };

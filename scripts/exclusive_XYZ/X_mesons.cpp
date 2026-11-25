@@ -15,6 +15,7 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "plotter.hpp"
+#include "plot.hpp"
 
 #include "covariant/vector_exchange.hpp"
 #include "analytic/vector_exchange.hpp"
@@ -23,6 +24,7 @@
 void X_mesons()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
 
     // ---------------------------------------------------------------------------
     // Couplings and constants
@@ -132,8 +134,8 @@ void X_mesons()
     p_low.print_to_terminal(true);
     p_low.set_ranges({4, 7}, {2E-3, 800});
     p_low.set_labels( "#it{W_{#gammap}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{Xp})  [nb]");
-    p_low.add_curve({4, 7}, [&](double W){ return ChiC1_L->integrated_xsection(W*W); }, "#it{#chi}_{c1}");
-    p_low.add_curve({4, 7}, [&](double W){ return X_L->integrated_xsection(W*W); },     "#it{X}(3872)");
+    p_low.add_curve({4, 7}, [&](double W){ return ChiC1_L->integrated_xsection(W*W); }, solid(jpacColor::Blue, "#it{#chi}_{c1}"));
+    p_low.add_curve({4, 7}, [&](double W){ return X_L->integrated_xsection(W*W); },     solid(jpacColor::Red, "#it{X}(3872)"));
     p_low.save("X_mesons.pdf");
 
     // High-energy plot
@@ -143,8 +145,8 @@ void X_mesons()
     p_high.set_legend(0.3, 0.73);
     p_high.set_ranges({20, 60}, {1E-5, 1});
     p_high.set_labels( "#it{W_{#gammap}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{Xp})  [nb]");
-    p_high.add_curve({20, 60}, [&](double W){ return ChiC1_H->integrated_xsection(W*W); }, "#it{#chi}_{c1}");
-    p_high.add_curve({20, 60}, [&](double W){ return X_H->integrated_xsection(W*W); },     "#it{X}(3872)");
+    p_high.add_curve({20, 60}, [&](double W){ return ChiC1_H->integrated_xsection(W*W); }, solid(jpacColor::Blue, "#it{#chi}_{c1}"));
+    p_high.add_curve({20, 60}, [&](double W){ return X_H->integrated_xsection(W*W); },     solid(jpacColor::Red, "#it{X}(3872)"));
 
     // Combine these into a single plot 
     plotter.combine({2,1}, {p_low, p_high}, "X_mesons.pdf");

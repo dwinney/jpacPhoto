@@ -849,19 +849,4 @@ namespace jpacPhoto
         };
         return out;
     };
-
-    std::vector<double> real(std::vector<complex> vx)
-    {
-        std::vector<double> out;
-        for (auto x : vx) out.push_back(real(x));
-        return out;
-    };
-    
-    std::vector<double> imag(std::vector<complex> vx)
-    {
-        std::vector<double> out;
-        for (auto x : vx) out.push_back(imag(x));
-        return out;
-    };
-
 };

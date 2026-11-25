@@ -22,6 +22,7 @@
 void b1()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using namespace jpacPhoto::inclusive;
     
     plotter plotter;
@@ -131,13 +132,13 @@ void b1()
     p1.set_curve_points(50);
     p1.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
 
-    p1.add_curve( bounds, func_PiN, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW");
+    p1.add_curve( bounds, func_PiN, solid(jpacColor::Blue, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from BW"));
     kb1D->set_recoil_mass(M_DELTA);
-    p1.add_dashed( bounds, [&](double w){ return b1D->integrated_xsection(w*w) * 1E-3; });
+    p1.add_curve( bounds, [&](double w){ return b1D->integrated_xsection(w*w) * 1E-3; }, dashed(jpacColor::Blue));
     b1m->set_option(piN_xsection::kPwave);
-    p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from SAID");
+    p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, solid(jpacColor::Red, "b_{1}^{#minus} (#Delta^{#plus#plus}#rightarrow#pi^{#plus} #it{p}) from SAID"));
     b1m->set_option(piN_xsection::kJPAC);
-    p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, "Inclusive b_{1}^{#minus}");
+    p1.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, solid(jpacColor::Green, "Inclusive b_{1}^{#minus}"));
     
     // p2 = comparison of total inclusive b1+ and b1-
     plot p2 = plotter.new_plot();
@@ -145,13 +146,13 @@ void b1()
     p2.set_legend(0.7, 0.7);
     p2.set_ranges(bounds, {0, 8});
     p2.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [#mub]");
-    p2.add_curve( bounds, [&](double w){ return b1p->integrated_xsection(w*w) * 1E-3; }, b1p->id());
-    p2.add_dashed(bounds, [&](double w){ return b1N->integrated_xsection(w*w) * 1E-3; });
-    p2.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, b1m->id());
+    p2.add_curve( bounds, [&](double w){ return b1p->integrated_xsection(w*w) * 1E-3; }, solid(jpacColor::Blue, b1p->id()));
+    p2.add_curve( bounds, [&](double w){ return b1N->integrated_xsection(w*w) * 1E-3; }, dashed(jpacColor::Blue));
+    p2.add_curve( bounds, [&](double w){ return b1m->integrated_xsection(w*w) * 1E-3; }, solid(jpacColor::Red,b1m->id()));
 
     plotter.combine({2,1}, {p1, p2}, "b1.pdf");
 
-    // Differential plot compared to the omega photon data
+    Differential plot compared to the omega photon data
 
     s = 75.9421;
     bounds = {0.7, 1};
@@ -161,17 +162,15 @@ void b1()
     p3.set_legend(0.3, 0.3);
     p3.set_ranges({0.7,1}, {0, 2.5});
     p3.set_labels("#it{W}_{#gamma#it{p}}  [GeV]", "d#sigma / d#it{x} [#mub]");
-
     // Add data
-    p3.add_data({x, sig}, {dx, dsig}, "Omega Photon");
-
+    p3.add_data({x, dx}, {sig, dsig}, dot(jpacColor::DarkGrey, "Omega Photon"));
     // Plot both the cross section with resonances 
     b1_piN->set_option(pion_exchange::kReggeized);
     b1_piN->set_option(piN_xsection::kJPAC);
-    p3.add_curve( bounds, [&](double x){ return b1_piN->dsigma_dx(s, x) * 1E-3; }, "Inclusive #it{b}_{1}(1235)^{#plus}");
+    p3.add_curve( bounds, [&](double x){ return b1_piN->dsigma_dx(s, x) * 1E-3; }, solid(jpacColor::Blue,"Inclusive #it{b}_{1}(1235)^{#plus}"));
     // and without
     b1_piN->set_option(piN_xsection::kPDG);
-    p3.add_dashed(bounds, [&](double x){ return b1_piN->dsigma_dx(s, x) * 1E-3; });
+    p3.add_curve(bounds, [&](double x){ return b1_piN->dsigma_dx(s, x) * 1E-3; }, dashed(jpacColor::Blue));
 
     p3.save("b1_OmegaPhoton.pdf");
 };

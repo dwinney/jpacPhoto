@@ -22,6 +22,7 @@
 void Z_totals()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using namespace jpacPhoto::inclusive;
 
     plotter plotter;
@@ -135,15 +136,15 @@ void Z_totals()
     m.set_ranges({4.6,20}, {2E-1, 1E2});
     m.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [nb]");
 
-    m.add_curve( bounds, sig(Zcm),  "#it{Z}_{c}(3900)^{#minus}");
+    m.add_curve( bounds, sig(Zcm),  solid(jpacColor::Blue, "#it{Z}_{c}(3900)^{#minus}"));
     Zcm->set_option( piN_xsection::kPwave );
-    m.add_dashed(bounds, sig(Zcm));
-    m.add_curve( bounds, sig(Zbm),  "#it{Z}_{b}(10610)^{#minus}");
+    m.add_curve(bounds, sig(Zcm), dashed(jpacColor::Blue));
+    m.add_curve( bounds, sig(Zbm),  solid(jpacColor::Red,"#it{Z}_{b}(10610)^{#minus}"));
     Zbm->set_option( piN_xsection::kPwave );
-    m.add_dashed(bounds, sig(Zbm));
-    m.add_curve( bounds, sig(Zbpm), "#it{Z}_{b}(10650)^{#minus}");
+    m.add_curve(bounds, sig(Zbm), dashed(jpacColor::Red));
+    m.add_curve( bounds, sig(Zbpm), solid(jpacColor::Green, "#it{Z}_{b}(10650)^{#minus}"));
     Zbpm->set_option( piN_xsection::kPwave );
-    m.add_dashed(bounds, sig(Zbpm));
+    m.add_curve(bounds, sig(Zbpm), dashed(jpacColor::Green));
 
     plot p = plotter.new_plot();
     p.set_curve_points(N);
@@ -152,12 +153,12 @@ void Z_totals()
     p.set_ranges({4.6,20}, {2E-1, 1E2});
     p.set_labels("#it{W}_{#gammap}  [GeV]", "#sigma [nb]");
 
-    p.add_curve( bounds, sig(Zcp),  "#it{Z}_{c}(3900)^{#plus}");
-    p.add_dashed(bounds, sige(Zce));
-    p.add_curve( bounds, sig(Zbp),  "#it{Z}_{b}(10610)^{#plus}");
-    p.add_dashed(bounds, sige(Zbe));
-    p.add_curve( bounds, sig(Zbpp), "#it{Z}_{b}(10650)^{#plus}");
-    p.add_dashed(bounds, sige(Zbpe));
+    p.add_curve( bounds, sig(Zcp),  solid(jpacColor::Blue, "#it{Z}_{c}(3900)^{#plus}"));
+    p.add_curve(bounds, sige(Zce),  dashed(jpacColor::Blue));
+    p.add_curve( bounds, sig(Zbp),  solid(jpacColor::Red, "#it{Z}_{b}(10610)^{#plus}"));
+    p.add_curve(bounds, sige(Zbe),  dashed(jpacColor::Red));
+    p.add_curve( bounds, sig(Zbpp), solid(jpacColor::Green, "#it{Z}_{b}(10650)^{#plus}"));
+    p.add_curve(bounds, sige(Zbpe), dashed(jpacColor::Green));
 
     // Combine plots together
     plotter.combine({2,1}, {m, p}, "Z_totals.pdf");

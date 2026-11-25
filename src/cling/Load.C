@@ -24,11 +24,10 @@ void Load()
     // Supplementary header files 
     TString physics  = main_dir + "/physics";
     TString data     = main_dir + "/analysis";
-
     
     if (!gSystem->AccessPathName(main_lib.Data()))
     {
-        Int_t pholib = gSystem->Load(main_lib.Data());
+        gSystem->Load(main_lib.Data());
         gInterpreter->AddIncludePath(core.Data());
         gInterpreter->AddIncludePath(physics.Data());
         gInterpreter->AddIncludePath(data.Data());
@@ -36,6 +35,16 @@ void Load()
     else
     {
         Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
+    };
+
+    TString plot_dir = gSystem->Getenv("JPACPLOTTER");
+    TString plot_lib = plot_dir+"/lib/libJPACPLOTTER."+lib_ext;
+    TString plot_inc = plot_dir+"/src";
+
+    if (!gSystem->AccessPathName(plot_lib.Data()))
+    {
+        gSystem->Load(plot_lib.Data());
+        gInterpreter->AddIncludePath(plot_inc.Data());
     };
 
     //----------------------------------------------------------------------

@@ -22,6 +22,7 @@
 void exclusives()
 {
     using namespace jpacPhoto;
+    using namespace jpacPlotter;
     using covariant::photon_exchange;
     using analytic::vector_exchange;
 
@@ -106,11 +107,11 @@ void exclusives()
     p2.set_labels( "#it{W}_{#gamma#it{p}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #chi_{c1} #it{p})  [nb]");
     amplitude VMD = C_sum_VMD, EXP = C_sum;
     VMD->set_option(photon_exchange::kUseT);      EXP->set_option(vector_exchange::kUseT);   
-    p2.add_curve(  {kC->Wth() + EPS, 7}, [&](double W){ return VMD->integrated_xsection(W*W); }, "#beta(#it{t})");
-    p2.add_dashed( {kC->Wth() + EPS, 7}, [&](double W){ return EXP->integrated_xsection(W*W); });
+    p2.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return VMD->integrated_xsection(W*W); }, solid(jpacColor::Blue, "#beta(#it{t})"));
+    p2.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return EXP->integrated_xsection(W*W); }, dashed(jpacColor::Blue));
     VMD->set_option(photon_exchange::kUseTprime); EXP->set_option(vector_exchange::kUseTprime);   
-    p2.add_curve(  {kC->Wth() + EPS, 7}, [&](double W){ return VMD->integrated_xsection(W*W); }, "#beta(#it{t} - #it{t}_{min})");
-    p2.add_dashed( {kC->Wth() + EPS, 7}, [&](double W){ return EXP->integrated_xsection(W*W); });
+    p2.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return VMD->integrated_xsection(W*W); }, solid(jpacColor::Red, "#beta(#it{t} - #it{t}_{min})"));
+    p2.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return EXP->integrated_xsection(W*W); }, dashed(jpacColor::Red));
     p2.save("FF_compare.pdf");
 
     // Compare chic1 exchanges
@@ -124,11 +125,11 @@ void exclusives()
     std::vector<amplitude> hadron_exc    = extract_subamplitudes(C_sum);
     for (int i = 0; i < exc_exchanges.size(); i++)
     {
-        p1.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return exc_exchanges[i]->integrated_xsection(W*W); }, exc_exchanges[i]->id());
-        p1.add_dashed({kC->Wth() + EPS, 7}, [&](double W){ return hadron_exc[i]->integrated_xsection(W*W); });
+        p1.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return exc_exchanges[i]->integrated_xsection(W*W); }, solid(JPACCOLORS[i],exc_exchanges[i]->id()));
+        p1.add_curve({kC->Wth() + EPS, 7}, [&](double W){ return hadron_exc[i]->integrated_xsection(W*W); }, dashed(JPACCOLORS[i]));
     };
-    p1.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return C_sum_VMD->integrated_xsection(W*W); }, "Sum");
-    p1.add_dashed({kC->Wth() + EPS, 7}, [&](double W){ return C_sum->integrated_xsection(W*W); });
+    p1.add_curve( {kC->Wth() + EPS, 7}, [&](double W){ return C_sum_VMD->integrated_xsection(W*W); }, solid(JPACCOLORS[exc_exchanges.size()],"Sum"));
+    p1.add_curve({kC->Wth() + EPS, 7}, [&](double W){ return C_sum->integrated_xsection(W*W); }, dashed(JPACCOLORS[exc_exchanges.size()]));
     
     // X(3872) productions
     plot p3 = plotter.new_plot();
@@ -137,16 +138,16 @@ void exclusives()
     p3.set_ranges({4.35, 7}, {3E-1, 2E2});
     p3.set_legend(0.65, 0.22, 1.);
     p3.set_labels( "#it{W}_{#gamma#it{p}}  [GeV]", "#sigma(#gamma#it{p} #rightarrow #it{X}#it{p})  [nb]");
-    p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  "VMD 1");
-    p3.add_dashed({kX->Wth(), 7}, [&](double W){ return X_sum->integrated_xsection(W*W);     });
+    p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  solid(jpacColor::Blue, "VMD 1"));
+    p3.add_curve({kX->Wth(), 7}, [&](double W){ return X_sum->integrated_xsection(W*W);     }, dashed(jpacColor::Blue));
 
     X_rho_VMD->set_parameters(  {M_RHO, -0.199228*gamma_rho/gamma_omega, gamma_rho/2, 1.4});
     X_omega_VMD->set_parameters({M_OMEGA, 0.199228, gamma_omega/2, 1.2});
-    p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  "VMD 2");
+    p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  solid(jpacColor::Red, "VMD 2"));
 
     X_rho_VMD->set_parameters(  {M_RHO, 0.0879857, gamma_rho/2, 1.4});
     X_omega_VMD->set_parameters({M_OMEGA, -0.0879857*gamma_omega/gamma_rho, gamma_omega/2, 1.2});
-    p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  "VMD 3");
+    p3.add_curve( {kX->Wth(), 7}, [&](double W){ return X_sum_VMD->integrated_xsection(W*W); },  solid(jpacColor::Green,"VMD 3"));
 
     plotter.combine({2,1}, {p3,p1}, "NT_compare.pdf");
 };
