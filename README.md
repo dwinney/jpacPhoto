@@ -6,9 +6,15 @@ Framework for amplitude analysis involving single meson production via quasi-ela
 </p>
 
 
-Compilation of the base library requires only [ROOT](https://root.cern.ch/) (tested with versions 6.17 and 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library) and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68) libraries.
-
 ##  INSTALLATION
+
+Compilation of the base library requires:
+- [CMake](https://cmake.org/) ($\geq$ v3.30)
+- [ROOT](https://root.cern.ch/) ($\geq$ v6.40) with [*MathMore*](https://root.cern.ch/doc/master/group__MathMore.html)
+- [Boost](https://www.boost.org/) ($\geq$ v1.68)
+- [jpacUtils](https://github.com/dwinney/jpacUtils) with environment variable `JPACUTILS` set to installation directory
+
+
 To install, clone normally and use:
 ```bash
 cd jpacPhoto
@@ -16,13 +22,9 @@ mkdir build && cd build
 cmake ..
 cmake --build . --target install
 ```
-This will create the core library `/lib/libJPACPHOTO.so` with the linkable library as well as ROOT dictionary (.pcm) files. 
+This will create the core library as well as ROOT dictionary (.pcm) files. 
 
-Additionally a [scripting executable](./src/cling/jpacPhoto.cpp) will be installed into `/bin/jpacPhoto` which short-cuts loading the libraries into an interactive ROOT session and running a .cpp file as an interpreted script.   This executable requires the environment variable `JPACPHOTO` to be set to the top-level directory in order to find auxilary files. This can be done as such:
-```bash
-export JPACPHOTO=/path/to/jpacPhoto # for bash
-setenv JPACPHOTO /path/to/jpacPhoto # for csh
-```
+Additionally a [scripting executable](./src/cling/jpacPhoto.cpp) will be installed into `/bin/jpacPhoto` which short-cuts loading the libraries into an interactive ROOT session and running a .cpp file as an interpreted script.   This executable requires the environment variable `$JPACPHOTO` to be set to the top-level directory in order to find auxilary files.
 
 ##  USAGE
 
