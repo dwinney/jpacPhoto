@@ -87,10 +87,6 @@ namespace jpacPhoto
         : _entries(entries), _N(1)
         {};
 
-        dirac_matrix(complex const & c)
-        : _N(1), _entries(constant_matrix(c))
-        {};
-
         // These are the fundamental dirac_matrices
         friend dirac_matrix jpacPhoto::identity<dirac_matrix>();
         friend dirac_matrix jpacPhoto::zero<dirac_matrix>();
@@ -129,14 +125,14 @@ namespace jpacPhoto
     // "Constructor" functions
     
     template<>
-    inline dirac_matrix identity<dirac_matrix>() { return dirac_matrix(1.); };
+    inline dirac_matrix identity<dirac_matrix>() { return dirac_matrix(dirac_matrix::constant_matrix(1)); };
 
     template<>
-    inline dirac_matrix zero<dirac_matrix>(){ return dirac_matrix(0.); };
+    inline dirac_matrix zero<dirac_matrix>(){ return dirac_matrix(dirac_matrix::constant_matrix(0)); };
 
     // Dirac_matrix filled with NaN's for error throwing
     template<>
-    inline dirac_matrix NaN<dirac_matrix>(){ return dirac_matrix(NaN<complex>()); };
+    inline dirac_matrix NaN<dirac_matrix>(){ return dirac_matrix(dirac_matrix::constant_matrix(NaN<complex>())); };
 
     // Gamma matrices
     dirac_matrix gamma_0();
