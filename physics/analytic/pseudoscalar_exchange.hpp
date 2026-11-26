@@ -82,7 +82,7 @@ namespace jpacPhoto
                 {
                     case (kExpFF): 
                     {
-                        _FF = [this](double t){ return exp(XR* t / std::norm(_ffCutoff));  };
+                        _FF = [this](double t){ return exp(t / std::norm(_ffCutoff));  };
                         _option = opt;
                         break;
                     };

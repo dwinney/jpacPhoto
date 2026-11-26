@@ -22,6 +22,8 @@
 
 namespace jpacPhoto
 {   
+    using namespace jpacUtils;
+
     // Forward declare amplitude for the typedef below
     class raw_amplitude;
 

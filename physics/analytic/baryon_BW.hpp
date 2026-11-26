@@ -132,7 +132,7 @@ namespace jpacPhoto
             g  = 8. * PI * _xBR * _width;
             g *=  _mass*_mass *(_resJ + 1) / 6.;
             g /= pow(_pfbar, 2 * _lmin + 1);
-            g = csqrt(XR * g);
+            g = csqrt(g);
 
             complex gpsi;
             gpsi = g * pow(_kinematics->final_momentum(_s), _lmin);

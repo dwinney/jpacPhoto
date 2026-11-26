@@ -14,9 +14,8 @@
 
 #include "constants.hpp"
 #include "kinematics.hpp"
-#include "plotter.hpp"
-#include "plot.hpp"
 
+#include "jpacUtils/plotter.hpp"
 #include "covariant/vector_exchange.hpp"
 #include "analytic/vector_exchange.hpp"
 #include "regge/vector_exchange.hpp"
@@ -24,7 +23,7 @@
 void X_mesons()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
 
     // ---------------------------------------------------------------------------
     // Couplings and constants

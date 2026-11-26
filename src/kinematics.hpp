@@ -31,8 +31,11 @@
 #include <cmath>
 #include <memory>
 
+
 namespace jpacPhoto
 {
+    using namespace jpacUtils;
+    
     // ---------------------------------------------------------------------------
     // The reaction kinematics object is intended to have all relevant kinematic quantities
     // forthe reaction. Here you'll find the momenta and energies of all particles, angles,

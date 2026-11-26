@@ -18,9 +18,11 @@
 
 #include "utilities.hpp"
 #include "tensor_object.hpp"
+#include "jpacUtils/math.hpp"
 
 namespace jpacPhoto
 {
+    using namespace jpacUtils;
 
     template<class Type, int Rank>
     class lorentz_tensor : public tensor_object<Type>
@@ -111,7 +113,7 @@ namespace jpacPhoto
         };
         inline lorentz_tensor<Type,Rank> & operator/=(complex c)
         {
-            _rhsN *= (1/c)*identity<Type>();
+            _rhsN *= (1./c)*identity<Type>();
             return *this;
         };
 
@@ -119,7 +121,7 @@ namespace jpacPhoto
         inline lorentz_tensor<Type,Rank> operator-()
         {
             lorentz_tensor<Type,Rank> neg = *this;
-            neg._lhsN *= -1*identity<Type>();
+            neg._lhsN *= -1.*identity<Type>();
             return neg;
         };
 
@@ -420,7 +422,8 @@ namespace jpacPhoto
     template<>
     inline lorentz_tensor<complex,1> NaN()
     {
-        return lorentz_vector<complex>({NaN<complex>(),NaN<complex>(),NaN<complex>(),NaN<complex>()});
+        complex nan = NaN<complex>();
+        return lorentz_vector<complex>({nan, nan, nan, nan});
     };
 };
 

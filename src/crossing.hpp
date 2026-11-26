@@ -16,6 +16,8 @@
 
 namespace jpacPhoto 
 {
+    using namespace jpacUtils;
+
     // This is a templated class to allow crossing to any channel but right now
     // we only use the S_CHANNEL, more crossing in the future
     template<helicity_frame OUT_CHANNEL>

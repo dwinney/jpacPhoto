@@ -19,24 +19,23 @@ if (DYNAMIC_AMPTOOLS)
 endif()
 
 ROOT_GENERATE_DICTIONARY(G__JPACPHOTO
-    amplitude.hpp
-    partial_wave.hpp
+    # amplitude.hpp
+    # partial_wave.hpp
     kinematics.hpp
-    dirac_spinor.hpp
-    lorentz_tensor.hpp
-    fitter.hpp
-    semi_inclusive.hpp
+    # dirac_spinor.hpp
+    # lorentz_tensor.hpp
+    # fitter.hpp
+    # semi_inclusive.hpp
     LINKDEF JPACPHOTOLinkDef.h
 )
 add_library(JPACPHOTO SHARED ${SRC} G__JPACPHOTO.cxx )
-
+target_link_libraries( JPACPHOTO ${JPACUTILS} )
 target_link_libraries( JPACPHOTO ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint ROOT::Gpad ROOT::Hist)
-target_link_libraries( JPACPHOTO Boost::boost)
+target_link_libraries( JPACPHOTO ${Boost_LIBRARIES})
 
 install(TARGETS JPACPHOTO
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
-
 install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libJPACPHOTO_rdict.pcm    
          DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
@@ -44,3 +43,5 @@ install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libJPACPHOTO_rdict.pcm
 add_executable( jpacPhoto "cling/jpacPhoto.cpp" )
 target_link_libraries( jpacPhoto ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint ROOT::Gpad ROOT::Hist )
 target_link_libraries( jpacPhoto JPACPHOTO )
+target_link_libraries( jpacPhoto ${JPACUTILS} )
+target_link_libraries( jpacPhoto ${Boost_LIBRARIES} )

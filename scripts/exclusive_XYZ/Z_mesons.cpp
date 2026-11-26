@@ -14,8 +14,8 @@
 
 #include "constants.hpp"
 #include "kinematics.hpp"
-#include "plotter.hpp"
 
+#include "jpacUtils/plotter.hpp"
 #include "analytic/pseudoscalar_exchange.hpp"
 #include "covariant/pseudoscalar_exchange.hpp"
 #include "regge/pseudoscalar_exchange.hpp"
@@ -23,7 +23,7 @@
 void Z_mesons()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
 
     // ---------------------------------------------------------------------------
     // Couplings and constants

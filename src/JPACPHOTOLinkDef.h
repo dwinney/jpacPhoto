@@ -5,11 +5,11 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ defined_in "amplitude.hpp";
-#pragma link C++ defined_in "partial_wave.hpp";
+// #pragma link C++ defined_in "amplitude.hpp";
+// #pragma link C++ defined_in "partial_wave.hpp";
 #pragma link C++ defined_in "kinematics.hpp";
-#pragma link C++ defined_in "dirac_spinor.hpp";
-#pragma link C++ defined_in "fitter.hpp";
-#pragma link C++ defined_in "semi_inclusive.hpp";
+// #pragma link C++ defined_in "dirac_spinor.hpp";
+// #pragma link C++ defined_in "fitter.hpp";
+// #pragma link C++ defined_in "semi_inclusive.hpp";
 
 #endif

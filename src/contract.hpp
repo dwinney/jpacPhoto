@@ -16,6 +16,8 @@
 
 namespace jpacPhoto
 {
+    using namespace jpacUtils;
+
     // ---------------------------------------------------------------------------
     // Contraction of dirac_spinors is different because theyre dirac_indices
     
@@ -66,7 +68,7 @@ namespace jpacPhoto
     template<class Type>
     inline Type contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type,1> right)
     {
-        Type sum = zero<Type>();
+        Type sum = jpacPhoto::zero<Type>();
         for (auto mu : LORENTZ_INDICES)
         {
             sum += metric(mu) * left(mu) * right(mu);
@@ -78,7 +80,7 @@ namespace jpacPhoto
     template<class Type>
     inline Type contract(lorentz_tensor<Type,1> left, lorentz_tensor<Type, 2> P, lorentz_tensor<Type,1> right)
     {
-        Type sum = zero<Type>();
+        Type sum = jpacPhoto::zero<Type>();
         for (auto mu : LORENTZ_INDICES)
         {
             for (auto nu : LORENTZ_INDICES)
@@ -93,7 +95,7 @@ namespace jpacPhoto
     template<class Type>
     inline Type contract(lorentz_tensor<Type,2> left, lorentz_tensor<Type,2> right)
     {
-        Type sum = zero<Type>();
+        Type sum = jpacPhoto::zero<Type>();
         for (auto mu : LORENTZ_INDICES)
         {
             for (auto nu : LORENTZ_INDICES)
@@ -114,7 +116,7 @@ namespace jpacPhoto
     template<class T>
     inline T levi_civita(lorentz_tensor<T,1> q1, lorentz_tensor<T,1> q2, lorentz_tensor<T,1> q3, lorentz_tensor<T,1> q4)
     {
-        T sum = zero<T>();
+        T sum = jpacPhoto::zero<T>();
         for (auto mu : LORENTZ_INDICES)
         {
             for (auto alpha : LORENTZ_INDICES)
@@ -144,7 +146,7 @@ namespace jpacPhoto
         std::array<T,4> q;
         for (auto mu : LORENTZ_INDICES)
         {
-            T sum = zero<T>();
+            T sum = jpacPhoto::zero<T>();
             for (auto alpha : LORENTZ_INDICES)
             {
                 if (+mu - +alpha == 0) continue;

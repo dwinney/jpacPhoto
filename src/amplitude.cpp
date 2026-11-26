@@ -276,13 +276,13 @@ namespace jpacPhoto
     {
         if (s < _kinematics->sth()) return 0.;
         if (t > _kinematics->t_min(s) || t < _kinematics->t_max(s)) return 0.;
-        if (std::abs(perp_or_para) != 1) return std::nan("");
+        if (std::abs(perp_or_para) != 1) return jpacPhoto::NaN<double>();
         
         // Sum first half of amplitudes which are lam_gamma = +1
-        auto cache = get_cache(s, t); int n = cache.size()/2;
+        std::vector<complex> cache = get_cache(s, t); int n = cache.size()/2;
 
         double sum = 0.;
-        for (int i = 0; i < n; i++) sum += std::norm(cache[i] + perp_or_para * cache[n + i]);
+        for (int i = 0; i < n; i++) sum += std::norm(cache[i] + double(perp_or_para) * cache[n + i]);
         double norm = 64. * PI * s * pow(_kinematics->initial_momentum(s), 2.) * (2.56819E-6); // Convert from GeV^-2 -> nb
 
         // Average over initial helicities
@@ -386,14 +386,14 @@ namespace jpacPhoto
                 bool gam_fails = (alpha == 0) ? hi[0] != hj[0] : hi[0] == hj[0];
                 if (gam_fails) continue;
 
-                auto x = (alpha == 2) ? hj[0]*cache[j]*conj(cache[i]) : cache[j]*conj(cache[i]);
+                auto x = (alpha == 2) ? double(hj[0])*cache[j]*conj(cache[i]) : cache[j]*conj(cache[i]);
                 sum += x;
             };
         };
         
         if (alpha == 2) sum *= I;
         if (CONJ) sum = std::conj(sum);
-        return phase * sum / probability_distribution(s, t);        
+        return double(phase) * sum / probability_distribution(s, t);        
     };  
 
     complex raw_amplitude::rotated_bSDME(unsigned int alpha, int lam, int lamp, double s, double t, double theta)
@@ -485,14 +485,14 @@ namespace jpacPhoto
                 if (gam_fails) continue;
                 if (hi[1] != hj[1] || hj[2] != lamp || hi[3] != hj[3]) continue;
                 
-                auto x = (alpha == 2) ? hj[0]*cache[j]*conj(cache[i]) : cache[j]*conj(cache[i]);
+                auto x = (alpha == 2) ? double(hj[0])*cache[j]*conj(cache[i]) : cache[j]*conj(cache[i]);
                 sum += x;
             };
         };
         
         if (alpha == 2) sum *= I;
         if (CONJ) sum = std::conj(sum);
-        return phase * sum / probability_distribution(s, t);        
+        return double(phase) * sum / probability_distribution(s, t);        
     };  
 
     complex raw_amplitude::rotated_mSDME(unsigned int alpha, int lam, int lamp, double s, double t, double theta)

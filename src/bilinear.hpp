@@ -21,6 +21,8 @@
 
 namespace jpacPhoto
 {
+    using namespace jpacUtils;
+
     // ---------------------------------------------------------------------------
     // Covariant gamma matrix structures
 

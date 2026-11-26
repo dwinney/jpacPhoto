@@ -17,6 +17,7 @@
 #include "constants.hpp"
 #include "utilities.hpp"
 #include <Math/Interpolator.h>
+#include "jpacUtils/data.hpp"
 
 namespace jpacPhoto
 {
@@ -197,16 +198,16 @@ namespace jpacPhoto
                     auto pw_1p = import_data<9>(filepath + std::to_string(_L) + std::to_string(1) + std::to_string(2*_L+1) + ".txt");
                     auto pw_3p = import_data<9>(filepath + std::to_string(_L) + std::to_string(3) + std::to_string(2*_L+1) + ".txt");
                     
-                    _imag_1p.SetData( pw_1p[0]*1E-3, pw_1p[6]);
-                    _imag_3p.SetData( pw_3p[0]*1E-3, pw_3p[6]);
+                    _imag_1p.SetData( pw_1p[0]*1.E-3, pw_1p[6]);
+                    _imag_3p.SetData( pw_3p[0]*1.E-3, pw_3p[6]);
 
                     if (_L != 0)
                     {
                         auto pw_1m = import_data<9>(filepath + std::to_string(_L) + std::to_string(1) + std::to_string(2*_L-1) + ".txt");
                         auto pw_3m = import_data<9>(filepath + std::to_string(_L) + std::to_string(3) + std::to_string(2*_L-1) + ".txt");
 
-                        _imag_1m.SetData( pw_1m[0]*1E-3, pw_1m[6]);
-                        _imag_3m.SetData( pw_3m[0]*1E-3, pw_3m[6]);
+                        _imag_1m.SetData( pw_1m[0]*1.E-3, pw_1m[6]);
+                        _imag_3m.SetData( pw_3m[0]*1.E-3, pw_3m[6]);
                     }
                 };
 

@@ -10,35 +10,36 @@
 #ifndef CONSTANT_HPP
 #define CONSTANT_HPP
 
-#include <cmath>
-#include <complex>
-#include <limits>
+#include "jpacUtils/math.hpp"
 
 namespace jpacPhoto
 {
-    // ---------------------------------------------------------------------------
-    // We use complex numbers everywhere throughout so I'll define this shortened data type
-    using complex = std::complex<double>;
-
-    // Unit complex numbers
-    const complex XR  (1., 0.);
-    const complex I   (0., 1.);
+    using jpacUtils::complex;
 
     // ---------------------------------------------------------------------------
-    // Mathematical constants 
+    // Define 1, 0, and NaN for jpacPhoto custom data types
+    
+    template<typename T>
+    inline T NaN(){ return std::numeric_limits<T>::quiet_NaN(); };
 
-    #ifndef PI
-        const double PI   = M_PI;
-    #endif
-    const double DEG2RAD  = (M_PI / 180.);
-    const double EPS      = 1.e-7;
-    const double ALPHA    = 1. / 137.;
-    const double E        = sqrt(4. * PI * ALPHA);
-    const double HBARC    = 389379; // nb/GeV^2
+    template<>
+    inline complex NaN(){ return complex(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()); };
 
-    const complex IEPS(0., EPS);
+    template<typename T>
+    T zero();
 
+    template<>
+    inline complex zero() { return 0; };
+
+    template<typename T> 
+    T identity();
+
+    template<>
+    inline complex identity() { return 1; };
+
+    // ---------------------------------------------------------------------------
     // PDG Meson masses in GeV
+
     const double M_PION      = 0.13957000;
     const double M_KAON      = 0.49367700;
     const double M_ETA       = 0.54753;
@@ -88,45 +89,77 @@ namespace jpacPhoto
     const double F_UPSILON2S = 0.16563;
     const double F_UPSILON3S = 0.1431;
 
-    // ------------------------------------------------------------------------------
-    // Constants related to operating options
+    // ---------------------------------------------------------------------------
+    // Out of the box std::complex<double> doesnt play well with ints. Here we explicitly
+    // give it the functionality we want
 
-    // Default values for printing things
-    const int TEXT_WIDTH       = 62;
-    const int PRINT_SPACING    = 18;
-    const int PRINT_PRECISION  = 9;    
-    const int STRING_PRECISION = 3;
-    const int PRINT_POINTS     = 100;
-
-    const std::string UNIT_DIV = std::string(PRINT_SPACING, '-');
-
-    // ------------------------------------------------------------------------------
-    // // NaN's, 0, and 1 for throwing errors with custom data types
-
-    template<typename T>
-    inline T NaN()
+    // Additionally the complex type is a liitle dim in c++ so we need to define int & bool multiplication
+    inline complex operator*(const int& c, const complex& rhs)
     {
-        return std::numeric_limits<T>::quiet_NaN();
-    }
+        return complex(c*rhs.real(), c*rhs.imag());
+    };
 
-    template<>
-    inline complex NaN()
+    inline complex operator*(const complex& lhs, const int& c)
     {
-        return complex(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+        return complex(c*lhs.real(), c*lhs.imag());
+    };
+
+    inline complex operator*(const bool& c, const complex& rhs)
+    {
+        return (c) ? rhs : 0.;
+    };
+
+    inline complex operator*(const complex& lhs, const bool& c)
+    {
+        return (c) ? lhs : 0.;
+    };
+
+    inline complex operator/(const complex&c, const int& i)
+    {
+        return (1./i)*c;
+    };
+
+    inline complex operator/(const int& i, const complex&c)
+    {
+        return (1./c)*i;
+    };
+
+    inline complex operator+(const complex&c, const int& i)
+    {
+        return c + complex(1,0)*i;
+    };
+
+    inline complex operator+(const int& i, const complex & c)
+    {
+        return complex(1,0)*i + c;
+    };
+
+    inline complex operator-(const complex&c, const int& i)
+    {
+        return c - complex(1,0)*i;
+    };
+
+    inline complex operator-(const int& i, const complex & c)
+    {
+        return complex(1,0)*i - c;
+    };
+
+    inline bool operator == (const complex &z,const int n)
+    {
+        return (z == static_cast<double> (n));
     }
-
-    template<typename T>
-    T zero();
-
-    template<>
-    inline complex zero() { return 0; };
-
-    template<typename T> 
-    T identity();
-
-    template<>
-    inline complex identity() { return 1; };
-
+    inline bool operator == (const int n, const complex &z)
+    {
+        return (z == static_cast<double> (n));
+    }
+    inline bool operator != (const complex &z,const int n)
+    {
+        return (z != static_cast<double> (n));
+    }
+    inline bool operator != (const int n, const complex &z)
+    {
+        return (z != static_cast<double> (n));
+    }
 };
 // ---------------------------------------------------------------------------
 

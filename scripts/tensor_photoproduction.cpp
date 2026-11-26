@@ -13,14 +13,14 @@
 // ------------------------------------------------------------------------------
 
 
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "constants.hpp"
 #include "regge/reggeon_exchange.hpp"
 
 void tensor_photoproduction()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using namespace regge;
     using jpacPhoto::complex;
 
@@ -320,7 +320,7 @@ void tensor_photoproduction()
             complex rho11m1 = amp->mSDME_H(1, 1, -1, s, -mt);
             complex rho12m2 = amp->mSDME_H(1, 2, -2, s, -mt);
             complex rho100  = amp->mSDME_H(1, 0, -0, s, -mt);
-            return std::real(2*rho11m1 - 2*rho12m2 - rho100);
+            return std::real(2.*rho11m1 - 2.*rho12m2 - rho100);
         };
         if (!legend) p.add_curve({-amp->get_kinematics()->t_min(s), 2}, Psig, solid(JPACCOLORS[i]));
         else         p.add_curve({-amp->get_kinematics()->t_min(s), 2}, Psig, solid(JPACCOLORS[i], "#it{E}_{#gamma} " + jpacPhoto::to_string(Egam)+" GeV"));

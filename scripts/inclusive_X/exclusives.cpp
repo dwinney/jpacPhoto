@@ -15,14 +15,14 @@
 // [1] - https://arxiv.org/abs/2404.05326
 // ------------------------------------------------------------------------------
 
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "covariant/photon_exchange.hpp"
 #include "analytic/vector_exchange.hpp"
 
 void exclusives()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using covariant::photon_exchange;
     using analytic::vector_exchange;
 

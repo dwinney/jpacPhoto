@@ -14,14 +14,14 @@
 
 #include "constants.hpp"
 #include "kinematics.hpp"
-#include "plotter.hpp"
 
+#include "jpacUtils/plotter.hpp"
 #include "regge/pomeron_exchange.hpp"
 
 void Y_mesons()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
 
     // ---------------------------------------------------------------------------
     // Couplings and constants

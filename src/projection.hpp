@@ -17,6 +17,8 @@
 
 namespace jpacPhoto
 {
+    using namespace jpacUtils;
+
     class projected_amplitude; 
 
     partial_wave project(unsigned int J, amplitude to_project)

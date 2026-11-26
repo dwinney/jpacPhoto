@@ -18,12 +18,12 @@
 // ------------------------------------------------------------------------------
 
 #include "inclusive/structure_functions.hpp"
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 
 void structure_Fs()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using complex = std::complex<double>;
 
     auto structure = structure_functions(); 

@@ -37,9 +37,10 @@ void Load()
         Warning("jpacPhoto::Load", "jpacPhoto library not found! Path given: %s", main_lib.Data());
     };
 
-    TString plot_dir = gSystem->Getenv("JPACPLOTTER");
-    TString plot_lib = plot_dir+"/lib/libJPACPLOTTER."+lib_ext;
-    TString plot_inc = plot_dir+"/src";
+    // Plotting library
+    TString plot_dir = gSystem->Getenv("JPACUTILS");
+    TString plot_lib = plot_dir+"/lib/libJPACUTILS."+lib_ext;
+    TString plot_inc = plot_dir;
 
     if (!gSystem->AccessPathName(plot_lib.Data()))
     {

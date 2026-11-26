@@ -3,7 +3,7 @@ cmake_policy(VERSION 3.30)
 
 project (jpacPhoto)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -46,6 +46,19 @@ if (DEFINED ENV{JPACPHOTO})
 else()
     message(WARNING "-- JPACPHOTO environment variable not set!")
 endif()
+
+##-----------------------------------------------------------------------
+# We need explicit link to jpacUtils
+
+if (NOT DEFINED ENV{JPACUTILS})
+    message(WARNING "-- JPACUTILS environment variable not set!")
+endif()
+
+message("-- Environment variable JPACPUTILS found! ($ENV{JPACUTILS})")
+find_library(JPACUTILS REQUIRED
+                NAMES libJPACUTILS JPACUTILS jpacUtils
+                HINTS "$ENV{JPACUTILS}/lib")
+include_directories($ENV{JPACUTILS})
 
 ##-----------------------------------------------------------------------
 ## Look for BOOST

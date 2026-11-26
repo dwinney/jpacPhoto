@@ -15,9 +15,13 @@
 #define DIRAC_SPINOR_HPP
 
 #include "utilities.hpp"
+#include "constants.hpp"
+#include "jpacUtils/math.hpp"
 
 namespace jpacPhoto
 {
+    using namespace jpacUtils;
+
     // ---------------------------------------------------------------------------
     // Dirac index handling
 
@@ -61,7 +65,6 @@ namespace jpacPhoto
             return _N*_entries[+i][+j];
         };
 
-
         // Assignement operations
         dirac_matrix & operator=(dirac_matrix const & G);
         dirac_matrix & operator*=(complex c);
@@ -89,9 +92,9 @@ namespace jpacPhoto
         {};
 
         // These are the fundamental dirac_matrices
-        friend dirac_matrix identity<dirac_matrix>();
-        friend dirac_matrix zero<dirac_matrix>();
-        friend dirac_matrix NaN<dirac_matrix>();
+        friend dirac_matrix jpacPhoto::identity<dirac_matrix>();
+        friend dirac_matrix jpacPhoto::zero<dirac_matrix>();
+        friend dirac_matrix jpacPhoto::NaN<dirac_matrix>();
 
         friend dirac_matrix gamma_0();
         friend dirac_matrix gamma_1();
@@ -126,17 +129,14 @@ namespace jpacPhoto
     // "Constructor" functions
     
     template<>
-    inline dirac_matrix identity() { return dirac_matrix(1); };
+    inline dirac_matrix identity<dirac_matrix>() { return dirac_matrix(1.); };
 
     template<>
-    inline dirac_matrix zero() { return dirac_matrix(0); };
+    inline dirac_matrix zero<dirac_matrix>(){ return dirac_matrix(0.); };
 
     // Dirac_matrix filled with NaN's for error throwing
     template<>
-    inline dirac_matrix NaN<dirac_matrix>()
-    {
-        return dirac_matrix(NaN<complex>());
-    };
+    inline dirac_matrix NaN<dirac_matrix>(){ return dirac_matrix(NaN<complex>()); };
 
     // Gamma matrices
     dirac_matrix gamma_0();
@@ -232,10 +232,10 @@ namespace jpacPhoto
     { return NaN<complex>() * dirac_spinor({1, 1, 1, 1}); }
 
     template<>
-    inline dirac_spinor identity() { return dirac_spinor({1, 1, 1, 1}); };
+    inline dirac_spinor identity<dirac_spinor>() { return dirac_spinor({1, 1, 1, 1}); };
 
     template<>
-    inline dirac_spinor zero() { return dirac_spinor({0, 0, 0, 0}); };
+    inline dirac_spinor zero<dirac_spinor>() { return dirac_spinor({0, 0, 0, 0}); };
 
     // Multiplication of spinor objects element-wise
     // This is kind of weird, but required to make lorentz_tensors<dirac_spinors> work 

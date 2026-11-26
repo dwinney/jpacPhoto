@@ -16,14 +16,14 @@
 // ------------------------------------------------------------------------------
 
 
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "regge/reggeon_exchange.hpp"
 #include "amplitude.hpp"
 
 void vector_photoproduction()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using regge::reggeon_exchange;
     using complex = std::complex<double>;
 

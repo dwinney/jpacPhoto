@@ -13,12 +13,12 @@
 // ------------------------------------------------------------------------------
 
 #include "inclusive/piN_xsection.hpp"
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 
 void sigmatot_piN()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using namespace jpacPhoto::inclusive;
 
     piN_xsection sigma;

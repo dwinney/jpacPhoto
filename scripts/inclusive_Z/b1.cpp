@@ -17,12 +17,12 @@
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 
 void b1()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using namespace jpacPhoto::inclusive;
     
     plotter plotter;
@@ -152,7 +152,7 @@ void b1()
 
     plotter.combine({2,1}, {p1, p2}, "b1.pdf");
 
-    Differential plot compared to the omega photon data
+    //Differential plot compared to the omega photon data
 
     s = 75.9421;
     bounds = {0.7, 1};

@@ -15,7 +15,7 @@
 // [1] - https://arxiv.org/abs/2404.05326
 // ------------------------------------------------------------------------------
 
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "inclusive/vector_exchange.hpp"
 #include "regge/vector_exchange.hpp"
 #include "covariant/photon_exchange.hpp"
@@ -23,7 +23,7 @@
 void inclusives()
 {
     using namespace jpacPhoto;
-    using namespace jpacPlotter;
+    using namespace jpacUtils;
     using namespace jpacPhoto::inclusive;
     using covariant::photon_exchange;
 
