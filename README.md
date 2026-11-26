@@ -37,8 +37,6 @@ jpacPhoto my_script.cpp
 ```
 or add the bin directory to $PATH to call `jpacPhoto` from any directory. 
 
-Note many scripts require the [jpacPlotter](https://github.com/dwinney/jpacPlotter) library to be compiled and searchable in order to produce plots in the JPAC style.
-
 The linkable library can be added to an existing CMake project using `find_library()` and linked as normal:
 ```cmake
 find_library(JPACPHOTO NAMES JPACPHOTO libJPACPHOTO
